@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3006B02F8652D957CA7F0742 /* Pods_Planus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E5BFF2B1F73A7F82D6704DC /* Pods_Planus.framework */; };
 		6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08AD5029C87C61005947D2 /* AppDelegate.swift */; };
 		6A08AD5329C87C61005947D2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08AD5229C87C61005947D2 /* SceneDelegate.swift */; };
 		6A08AD5529C87C61005947D2 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08AD5429C87C61005947D2 /* ViewController.swift */; };
@@ -31,6 +32,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3E5BFF2B1F73A7F82D6704DC /* Pods_Planus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Planus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6A08AD4D29C87C61005947D2 /* Planus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Planus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6A08AD5029C87C61005947D2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6A08AD5229C87C61005947D2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -54,6 +56,8 @@
 		6A08AD8029C892E0005947D2 /* search-sm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "search-sm.png"; sourceTree = "<group>"; };
 		6A08AD8129C892E0005947D2 /* users-02@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "users-02@2x.png"; sourceTree = "<group>"; };
 		6A08AD8F29C89761005947D2 /* UIColor+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Ext.swift"; sourceTree = "<group>"; };
+		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
+		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,17 +65,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3006B02F8652D957CA7F0742 /* Pods_Planus.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		302030BC8E4D1FE29BBC2FC8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3E5BFF2B1F73A7F82D6704DC /* Pods_Planus.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		6A08AD4429C87C61005947D2 = {
 			isa = PBXGroup;
 			children = (
 				6A08AD4F29C87C61005947D2 /* Planus */,
 				6A08AD4E29C87C61005947D2 /* Products */,
+				974AE7300BB25B96DF1DF093 /* Pods */,
+				302030BC8E4D1FE29BBC2FC8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -104,6 +119,8 @@
 		6A08AD6629C884B2005947D2 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				6A08AD9629C89971005947D2 /* SignInScene */,
+				6A08AD9129C898A1005947D2 /* HomeCalendarScene */,
 				6A08AD6C29C88939005947D2 /* CommonCoordinator */,
 			);
 			path = Presentation;
@@ -192,6 +209,94 @@
 			path = Util;
 			sourceTree = "<group>";
 		};
+		6A08AD9129C898A1005947D2 /* HomeCalendarScene */ = {
+			isa = PBXGroup;
+			children = (
+				6A08AD9529C898C9005947D2 /* Coordinator */,
+				6A08AD9429C898C3005947D2 /* ViewController */,
+				6A08AD9329C898BC005947D2 /* ViewModel */,
+				6A08AD9229C898B6005947D2 /* View */,
+			);
+			path = HomeCalendarScene;
+			sourceTree = "<group>";
+		};
+		6A08AD9229C898B6005947D2 /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		6A08AD9329C898BC005947D2 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		6A08AD9429C898C3005947D2 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		6A08AD9529C898C9005947D2 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		6A08AD9629C89971005947D2 /* SignInScene */ = {
+			isa = PBXGroup;
+			children = (
+				6A08AD9A29C89992005947D2 /* Coordinator */,
+				6A08AD9929C8998B005947D2 /* ViewController */,
+				6A08AD9829C89986005947D2 /* ViewModel */,
+				6A08AD9729C89980005947D2 /* View */,
+			);
+			path = SignInScene;
+			sourceTree = "<group>";
+		};
+		6A08AD9729C89980005947D2 /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		6A08AD9829C89986005947D2 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		6A08AD9929C8998B005947D2 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		6A08AD9A29C89992005947D2 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		974AE7300BB25B96DF1DF093 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */,
+				B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -199,9 +304,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6A08AD6129C87C64005947D2 /* Build configuration list for PBXNativeTarget "Planus" */;
 			buildPhases = (
+				489120B1ABF1689CB399D45D /* [CP] Check Pods Manifest.lock */,
 				6A08AD4929C87C61005947D2 /* Sources */,
 				6A08AD4A29C87C61005947D2 /* Frameworks */,
 				6A08AD4B29C87C61005947D2 /* Resources */,
+				9B492F437B6626796E601360 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -268,6 +375,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		489120B1ABF1689CB399D45D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Planus-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9B492F437B6626796E601360 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Planus/Pods-Planus-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Planus/Pods-Planus-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Planus/Pods-Planus-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		6A08AD4929C87C61005947D2 /* Sources */ = {
@@ -414,6 +563,7 @@
 		};
 		6A08AD6229C87C64005947D2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -440,6 +590,7 @@
 		};
 		6A08AD6329C87C64005947D2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
