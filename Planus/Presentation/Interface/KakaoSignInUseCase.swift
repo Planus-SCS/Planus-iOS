@@ -6,7 +6,8 @@
 //
 
 import Foundation
+import RxSwift
 
 protocol KakaoSignInUseCase {
-    func execute()
+    func execute() -> Observable<String>?
 }

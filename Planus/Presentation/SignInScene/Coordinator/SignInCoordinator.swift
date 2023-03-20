@@ -26,7 +26,9 @@ class SignInCoordinator: Coordinator {
     }
     
     lazy var showLoginPage: () -> Void = { [weak self] in
-        let vm = SignInViewModel()
+        let repo = DefaultSocialAuthRepository()
+        let useCase = DefaultKakaoSignInUseCase(socialAuthRepository: repo)
+        let vm = SignInViewModel(kakaoSignInUseCase: useCase)
         let vc = SignInViewController(viewModel: vm)
         
         self?.navigationController.pushViewController(vc, animated: true)

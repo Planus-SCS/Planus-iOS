@@ -11,6 +11,8 @@ import RxSwift
 class SignInViewModel {
     var bag = DisposeBag()
     
+    let kakaoSignInUseCase: KakaoSignInUseCase
+    
     struct Input {
         var kakaoSignInTapped: Observable<Void>
         var googleSignInTapped: Observable<Void>
@@ -23,6 +25,10 @@ class SignInViewModel {
         var showAppleSignInPage: Observable<Void>
     }
     
+    init(kakaoSignInUseCase: KakaoSignInUseCase) {
+        self.kakaoSignInUseCase = kakaoSignInUseCase
+    }
+    
     func transform(input: Input) -> Output {
         let showKakaoSignInPage = PublishSubject<Void>()
         let showGoogleSignInPage = PublishSubject<Void>()
@@ -30,8 +36,9 @@ class SignInViewModel {
         
         input
             .kakaoSignInTapped
-            .subscribe(onNext: {
-                showKakaoSignInPage.onNext(())
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.signInKakao()
             })
             .disposed(by: bag)
         
@@ -57,6 +64,10 @@ class SignInViewModel {
     }
     
     func signInKakao() {
-
+        kakaoSignInUseCase.execute()?
+            .subscribe(onNext: { token in
+                print(token)
+            })
+            .disposed(by: bag)
     }
 }

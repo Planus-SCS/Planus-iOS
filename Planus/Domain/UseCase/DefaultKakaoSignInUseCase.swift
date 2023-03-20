@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultKakaoSignInUseCase {
+class DefaultKakaoSignInUseCase: KakaoSignInUseCase {
     
     let socialAuthRepository: SocialAuthRepository
     
