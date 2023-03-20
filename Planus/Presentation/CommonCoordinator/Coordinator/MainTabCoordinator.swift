@@ -79,10 +79,10 @@ final class MainTabCoordinator: NSObject, Coordinator {
         tabBarController.tabBar.barTintColor = .white
         tabBarController.tabBar.isTranslucent = false
         
-//        self.tabBarController.tabBar.backgroundColor = UIColor(hex: 0xF5F5FB)
-//
-//        self.tabBarController.tabBar.tintColor = UIColor(hex: 0x000000)
-//        self.tabBarController.tabBar.unselectedItemTintColor = UIColor(hex: 0xBFC7D7)
+        self.tabBarController.tabBar.backgroundColor = UIColor(hex: 0xF5F5FB)
+
+        self.tabBarController.tabBar.tintColor = UIColor(hex: 0x000000)
+        self.tabBarController.tabBar.unselectedItemTintColor = UIColor(hex: 0xBFC7D7)
         
         navigationController.viewControllers = [tabBarController]
     }
