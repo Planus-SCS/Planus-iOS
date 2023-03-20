@@ -54,14 +54,54 @@
 		6A08AD4F29C87C61005947D2 /* Planus */ = {
 			isa = PBXGroup;
 			children = (
-				6A08AD5029C87C61005947D2 /* AppDelegate.swift */,
-				6A08AD5229C87C61005947D2 /* SceneDelegate.swift */,
+				6A08AD6B29C8864C005947D2 /* Application */,
+				6A08AD6A29C88545005947D2 /* Infrastructure */,
+				6A08AD6929C88508005947D2 /* Data */,
+				6A08AD6729C884B9005947D2 /* Domain */,
+				6A08AD6629C884B2005947D2 /* Presentation */,
 				6A08AD5429C87C61005947D2 /* ViewController.swift */,
 				6A08AD5929C87C63005947D2 /* Assets.xcassets */,
 				6A08AD5B29C87C63005947D2 /* LaunchScreen.storyboard */,
 				6A08AD5E29C87C63005947D2 /* Info.plist */,
 			);
 			path = Planus;
+			sourceTree = "<group>";
+		};
+		6A08AD6629C884B2005947D2 /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		6A08AD6729C884B9005947D2 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		6A08AD6929C88508005947D2 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		6A08AD6A29C88545005947D2 /* Infrastructure */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Infrastructure;
+			sourceTree = "<group>";
+		};
+		6A08AD6B29C8864C005947D2 /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				6A08AD5029C87C61005947D2 /* AppDelegate.swift */,
+				6A08AD5229C87C61005947D2 /* SceneDelegate.swift */,
+			);
+			path = Application;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
