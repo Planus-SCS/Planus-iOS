@@ -55,4 +55,8 @@ class SignInViewModel {
             showAppleSignInPage: showAppleSignInPage.asObservable()
         )
     }
+    
+    func signInKakao() {
+
+    }
 }
