@@ -25,7 +25,7 @@ final class AppCoordinator: Coordinator {
         /*
          자동 로그인 여부에 따라 로그인 로직 or 메인화면 로직 실행
          */
-        showMainTabFlow()
+        showSignInFlow()
     }
     
     private func checkAutoSignIn() -> Bool {
@@ -33,9 +33,15 @@ final class AppCoordinator: Coordinator {
     }
     
     func showSignInFlow() {
-        /*
-         로그인 화면을 표시
-         */
+        let navigation = UINavigationController()
+        window.rootViewController = navigation
+
+        let signInCoordinator = SignInCoordinator(navigationController: navigation)
+        signInCoordinator.finishDelegate = self
+        signInCoordinator.start()
+        childCoordinators.append(signInCoordinator)
+        
+        window.makeKeyAndVisible()
     }
     
     func showMainTabFlow() {

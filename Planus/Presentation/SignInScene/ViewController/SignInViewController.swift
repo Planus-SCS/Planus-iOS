@@ -7,9 +7,14 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class SignInViewController: UIViewController {
-        
+    var bag = DisposeBag()
+    
+    var viewModel: SignInViewModel?
+    
     var logoImageView: UIImageView = {
         let image = UIImage(named: "logo")
         let imageView = UIImageView(frame: CGRect(
@@ -72,8 +77,9 @@ class SignInViewController: UIViewController {
         return button
     }()
     
-    convenience init() {
+    convenience init(viewModel: SignInViewModel) {
         self.init(nibName: nil, bundle: nil)
+        self.viewModel = viewModel
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -90,6 +96,44 @@ class SignInViewController: UIViewController {
         configureView()
         configureLayout()
         
+        bind()
+    }
+    
+    func bind() {
+        guard let viewModel else { return }
+        
+        let input = SignInViewModel.Input(
+            kakaoSignInTapped: kakaoSignButton.rx.tap.asObservable(),
+            googleSignInTapped: googleSigninButton.rx.tap.asObservable(),
+            appleSignInTapped: appleSigninButton.rx.tap.asObservable()
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        output
+            .showKakaoSignInPage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+
+            })
+            .disposed(by: bag)
+        
+        output
+            .showGoogleSignInPage
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: {
+                
+            })
+            .disposed(by: bag)
+        
+        output
+            .showAppleSignInPage
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: {
+                
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {
