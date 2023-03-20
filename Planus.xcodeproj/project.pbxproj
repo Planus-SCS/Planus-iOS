@@ -293,7 +293,6 @@
 				C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */,
 				B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};

@@ -9,5 +9,6 @@ target 'Planus' do
 
     pod 'RxSwift', '6.5.0'
     pod 'RxCocoa', '6.5.0'
+    pod 'SnapKit', '~> 5.6.0'
 
 end
