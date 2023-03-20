@@ -29,6 +29,16 @@
 		6A08AD8C29C892E0005947D2 /* search-sm.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08AD8029C892E0005947D2 /* search-sm.png */; };
 		6A08AD8D29C892E0005947D2 /* users-02@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08AD8129C892E0005947D2 /* users-02@2x.png */; };
 		6A08AD9029C89761005947D2 /* UIColor+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08AD8F29C89761005947D2 /* UIColor+Ext.swift */; };
+		6A08AD9E29C89D93005947D2 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08AD9D29C89D93005947D2 /* SignInViewController.swift */; };
+		6A08ADA829C89DEE005947D2 /* appleBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08AD9F29C89DED005947D2 /* appleBtn.png */; };
+		6A08ADA929C89DEE005947D2 /* googleBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08ADA029C89DED005947D2 /* googleBtn@3x.png */; };
+		6A08ADAA29C89DEE005947D2 /* kakaoBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08ADA129C89DEE005947D2 /* kakaoBtn@3x.png */; };
+		6A08ADAB29C89DEE005947D2 /* kakaoBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08ADA229C89DEE005947D2 /* kakaoBtn@2x.png */; };
+		6A08ADAC29C89DEE005947D2 /* kakaoBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08ADA329C89DEE005947D2 /* kakaoBtn.png */; };
+		6A08ADAD29C89DEE005947D2 /* appleBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08ADA429C89DEE005947D2 /* appleBtn@3x.png */; };
+		6A08ADAE29C89DEE005947D2 /* googleBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08ADA529C89DEE005947D2 /* googleBtn.png */; };
+		6A08ADAF29C89DEE005947D2 /* appleBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08ADA629C89DEE005947D2 /* appleBtn@2x.png */; };
+		6A08ADB029C89DEE005947D2 /* googleBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A08ADA729C89DEE005947D2 /* googleBtn@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +66,16 @@
 		6A08AD8029C892E0005947D2 /* search-sm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "search-sm.png"; sourceTree = "<group>"; };
 		6A08AD8129C892E0005947D2 /* users-02@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "users-02@2x.png"; sourceTree = "<group>"; };
 		6A08AD8F29C89761005947D2 /* UIColor+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Ext.swift"; sourceTree = "<group>"; };
+		6A08AD9D29C89D93005947D2 /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
+		6A08AD9F29C89DED005947D2 /* appleBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appleBtn.png; sourceTree = "<group>"; };
+		6A08ADA029C89DED005947D2 /* googleBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "googleBtn@3x.png"; sourceTree = "<group>"; };
+		6A08ADA129C89DEE005947D2 /* kakaoBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kakaoBtn@3x.png"; sourceTree = "<group>"; };
+		6A08ADA229C89DEE005947D2 /* kakaoBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kakaoBtn@2x.png"; sourceTree = "<group>"; };
+		6A08ADA329C89DEE005947D2 /* kakaoBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kakaoBtn.png; sourceTree = "<group>"; };
+		6A08ADA429C89DEE005947D2 /* appleBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "appleBtn@3x.png"; sourceTree = "<group>"; };
+		6A08ADA529C89DEE005947D2 /* googleBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = googleBtn.png; sourceTree = "<group>"; };
+		6A08ADA629C89DEE005947D2 /* appleBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "appleBtn@2x.png"; sourceTree = "<group>"; };
+		6A08ADA729C89DEE005947D2 /* googleBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "googleBtn@2x.png"; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -185,6 +205,15 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A08AD9F29C89DED005947D2 /* appleBtn.png */,
+				6A08ADA629C89DEE005947D2 /* appleBtn@2x.png */,
+				6A08ADA429C89DEE005947D2 /* appleBtn@3x.png */,
+				6A08ADA529C89DEE005947D2 /* googleBtn.png */,
+				6A08ADA729C89DEE005947D2 /* googleBtn@2x.png */,
+				6A08ADA029C89DED005947D2 /* googleBtn@3x.png */,
+				6A08ADA329C89DEE005947D2 /* kakaoBtn.png */,
+				6A08ADA229C89DEE005947D2 /* kakaoBtn@2x.png */,
+				6A08ADA129C89DEE005947D2 /* kakaoBtn@3x.png */,
 				6A08AD7B29C892E0005947D2 /* calendar-date.png */,
 				6A08AD7D29C892E0005947D2 /* calendar-date@2x.png */,
 				6A08AD7829C892DF005947D2 /* calendar-date@3x.png */,
@@ -276,6 +305,7 @@
 		6A08AD9929C8998B005947D2 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				6A08AD9D29C89D93005947D2 /* SignInViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -361,15 +391,24 @@
 				6A08AD8829C892E0005947D2 /* search-sm@3x.png in Resources */,
 				6A08AD8D29C892E0005947D2 /* users-02@2x.png in Resources */,
 				6A08AD8629C892E0005947D2 /* check-done-01@3x.png in Resources */,
+				6A08ADAB29C89DEE005947D2 /* kakaoBtn@2x.png in Resources */,
+				6A08ADAF29C89DEE005947D2 /* appleBtn@2x.png in Resources */,
 				6A08AD8929C892E0005947D2 /* calendar-date@2x.png in Resources */,
+				6A08ADA829C89DEE005947D2 /* appleBtn.png in Resources */,
 				6A08AD8729C892E0005947D2 /* calendar-date.png in Resources */,
 				6A08AD8529C892E0005947D2 /* search-sm@2x.png in Resources */,
 				6A08AD8229C892E0005947D2 /* users-02@3x.png in Resources */,
+				6A08ADAD29C89DEE005947D2 /* appleBtn@3x.png in Resources */,
 				6A08AD5D29C87C63005947D2 /* LaunchScreen.storyboard in Resources */,
 				6A08AD8A29C892E0005947D2 /* users-02.png in Resources */,
 				6A08AD8429C892E0005947D2 /* calendar-date@3x.png in Resources */,
+				6A08ADAA29C89DEE005947D2 /* kakaoBtn@3x.png in Resources */,
+				6A08ADB029C89DEE005947D2 /* googleBtn@2x.png in Resources */,
+				6A08ADAE29C89DEE005947D2 /* googleBtn.png in Resources */,
 				6A08AD5A29C87C63005947D2 /* Assets.xcassets in Resources */,
 				6A08AD8329C892E0005947D2 /* check-done-01.png in Resources */,
+				6A08ADAC29C89DEE005947D2 /* kakaoBtn.png in Resources */,
+				6A08ADA929C89DEE005947D2 /* googleBtn@3x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -426,6 +465,7 @@
 				6A08AD7429C89143005947D2 /* MainTabCoordinator.swift in Sources */,
 				6A08AD5529C87C61005947D2 /* ViewController.swift in Sources */,
 				6A08AD7029C889D6005947D2 /* AppCoordinator.swift in Sources */,
+				6A08AD9E29C89D93005947D2 /* SignInViewController.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
 				6A08AD9029C89761005947D2 /* UIColor+Ext.swift in Sources */,
 				6A08AD5329C87C61005947D2 /* SceneDelegate.swift in Sources */,
