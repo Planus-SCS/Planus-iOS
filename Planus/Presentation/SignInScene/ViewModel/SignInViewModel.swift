@@ -8,9 +8,16 @@
 import Foundation
 import RxSwift
 
+struct SignInViewModelActions {
+    var showWebViewSignInPage: ((_ type: SocialRedirectionType, _ completion: @escaping (String) -> Void) -> Void)?
+    var showMainTabFlow: (() -> Void)?
+}
+
 class SignInViewModel {
     var bag = DisposeBag()
     
+    var actions: SignInViewModelActions?
+
     let kakaoSignInUseCase: KakaoSignInUseCase
     
     struct Input {
@@ -27,6 +34,10 @@ class SignInViewModel {
     
     init(kakaoSignInUseCase: KakaoSignInUseCase) {
         self.kakaoSignInUseCase = kakaoSignInUseCase
+    }
+    
+    func setActions(actions: SignInViewModelActions) {
+        self.actions = actions
     }
     
     func transform(input: Input) -> Output {
@@ -63,11 +74,19 @@ class SignInViewModel {
         )
     }
     
+    
     func signInKakao() {
-        kakaoSignInUseCase.execute()?
-            .subscribe(onNext: { token in
-                print(token)
-            })
-            .disposed(by: bag)
+        actions?.showWebViewSignInPage?(.kakao) { [weak self] code in
+            guard let self else { return }
+            self.kakaoSignInUseCase.execute(code: code)
+                .subscribe(onSuccess: { data in
+                    // api 확정 되면 여기서 이제 다음 action으로 나아가면 된다!
+                    
+                    self.actions?.showMainTabFlow?()
+                }, onFailure: { error in
+
+                })
+                .disposed(by: self.bag)
+        }
     }
 }

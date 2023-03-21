@@ -7,20 +7,25 @@
 
 import Foundation
 import RxSwift
-import KakaoSDKUser
-import RxKakaoSDKUser
 
 class DefaultSocialAuthRepository: SocialAuthRepository {
-    func kakaoSignIn() -> Observable<String>? {
-        if UserApi.isKakaoTalkLoginAvailable() {
-            return UserApi.shared
-                .rx
-                .loginWithKakaoTalk()
-                .map {
-                    return $0.accessToken
-                }
-        }
-        return nil
+    
+    let apiProvider: APIProvider
+    
+    init(apiProvider: APIProvider) {
+        self.apiProvider = apiProvider
+    }
+    
+    func kakaoSignIn(code: String) -> Single<Data> {
+        let endPoint = APIEndPoint(
+            url: KakaoAuthURL.kakaoSignInURL,
+            requestType: .get,
+            body: nil,
+            query: ["code": code],
+            header: nil
+        )
+        
+        return apiProvider.requestData(endPoint: endPoint)
     }
     
     func googleSignIn() {

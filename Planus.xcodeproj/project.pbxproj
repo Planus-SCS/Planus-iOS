@@ -53,6 +53,9 @@
 		6A08ADD929C8D096005947D2 /* DefaultSocialAuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08ADD829C8D096005947D2 /* DefaultSocialAuthRepository.swift */; };
 		6A08ADDD29C8D5C0005947D2 /* SocialAuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08ADDC29C8D5C0005947D2 /* SocialAuthRepository.swift */; };
 		6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */; };
+		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
+		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
+		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -104,6 +107,9 @@
 		6A08ADD829C8D096005947D2 /* DefaultSocialAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSocialAuthRepository.swift; sourceTree = "<group>"; };
 		6A08ADDC29C8D5C0005947D2 /* SocialAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialAuthRepository.swift; sourceTree = "<group>"; };
 		6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KakaoSignInUseCase.swift; sourceTree = "<group>"; };
+		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
+		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
+		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -178,6 +184,7 @@
 		6A08AD6729C884B9005947D2 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				6A483DA829CA22D4003375BF /* Entity */,
 				6A08ADDB29C8D5B1005947D2 /* Interface */,
 				6A08ADDA29C8D5A9005947D2 /* UseCase */,
 			);
@@ -271,6 +278,7 @@
 			isa = PBXGroup;
 			children = (
 				6A08AD8F29C89761005947D2 /* UIColor+Ext.swift */,
+				6A483DAD29CA42F5003375BF /* AuthURL.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -336,6 +344,7 @@
 			isa = PBXGroup;
 			children = (
 				6A08ADB129C89E77005947D2 /* SignInViewModel.swift */,
+				6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -344,6 +353,7 @@
 			isa = PBXGroup;
 			children = (
 				6A08AD9D29C89D93005947D2 /* SignInViewController.swift */,
+				6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -405,6 +415,13 @@
 				6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */,
 			);
 			path = Interface;
+			sourceTree = "<group>";
+		};
+		6A483DA829CA22D4003375BF /* Entity */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Entity;
 			sourceTree = "<group>";
 		};
 		974AE7300BB25B96DF1DF093 /* Pods */ = {
@@ -562,13 +579,16 @@
 				6A08AD5529C87C61005947D2 /* ViewController.swift in Sources */,
 				6A08ADD929C8D096005947D2 /* DefaultSocialAuthRepository.swift in Sources */,
 				6A08ADD129C8C256005947D2 /* NetworkManager.swift in Sources */,
+				6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */,
 				6A08ADD629C8D048005947D2 /* DefaultKakaoSignInUseCase.swift in Sources */,
 				6A08AD7029C889D6005947D2 /* AppCoordinator.swift in Sources */,
 				6A08ADB429C8A064005947D2 /* SignInCoordinator.swift in Sources */,
 				6A08ADD329C8C26F005947D2 /* NetworkError.swift in Sources */,
 				6A08AD9E29C89D93005947D2 /* SignInViewController.swift in Sources */,
+				6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */,
 				6A08ADB229C89E77005947D2 /* SignInViewModel.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
+				6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */,
 				6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */,
 				6A08AD9029C89761005947D2 /* UIColor+Ext.swift in Sources */,
 				6A08ADDD29C8D5C0005947D2 /* SocialAuthRepository.swift in Sources */,

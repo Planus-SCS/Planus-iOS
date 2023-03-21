@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 protocol SocialAuthRepository {
-    func kakaoSignIn() -> Observable<String>?
+    func kakaoSignIn(code: String) -> Single<Data>
     func googleSignIn()
     func appleSignIn()
 }

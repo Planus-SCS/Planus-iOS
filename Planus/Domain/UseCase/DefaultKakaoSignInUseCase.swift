@@ -16,7 +16,7 @@ class DefaultKakaoSignInUseCase: KakaoSignInUseCase {
         self.socialAuthRepository = socialAuthRepository
     }
     
-    func execute() -> Observable<String>? {
-        return socialAuthRepository.kakaoSignIn()
+    func execute(code: String) -> Single<Data> {
+        return socialAuthRepository.kakaoSignIn(code: code)
     }
 }

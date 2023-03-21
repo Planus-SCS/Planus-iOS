@@ -26,12 +26,26 @@ class SignInCoordinator: Coordinator {
     }
     
     lazy var showLoginPage: () -> Void = { [weak self] in
-        let repo = DefaultSocialAuthRepository()
+        let api = NetworkManager()
+        let repo = DefaultSocialAuthRepository(apiProvider: api)
         let useCase = DefaultKakaoSignInUseCase(socialAuthRepository: repo)
         let vm = SignInViewModel(kakaoSignInUseCase: useCase)
+        
+        vm.setActions(actions:SignInViewModelActions(
+            showWebViewSignInPage: self?.showWebViewSignInPage,
+            showMainTabFlow: self?.showMainTabFlow
+        ))
+        
         let vc = SignInViewController(viewModel: vm)
         
         self?.navigationController.pushViewController(vc, animated: true)
+    }
+    
+    lazy var showWebViewSignInPage: (SocialRedirectionType, @escaping (String) -> Void) -> Void = { [weak self] type, completion in
+        let vm = RedirectionalWebViewModel(type: type, completion: completion)
+        let vc = RedirectionalWebViewController(viewModel: vm)
+        
+        self?.navigationController.present(vc, animated: true)
     }
     
     lazy var showMainTabFlow: () -> Void = { [weak self] in
