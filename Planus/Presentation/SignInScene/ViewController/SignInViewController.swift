@@ -115,7 +115,7 @@ class SignInViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-
+                vc.showSFView()
             })
             .disposed(by: bag)
         
@@ -170,6 +170,11 @@ class SignInViewController: UIViewController {
             $0.centerX.equalToSuperview()
             $0.top.equalTo(googleSigninButton.snp.bottom).offset(16)
         }
+    }
+
+    func showSFView() {
+        let vc = RedirectionalWebViewController(nibName: nil, bundle: nil)
+        
     }
 
 }
