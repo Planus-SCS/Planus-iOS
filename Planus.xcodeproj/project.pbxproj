@@ -110,6 +110,7 @@
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
+		6A483DB129CA804C003375BF /* PlanusRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PlanusRelease.entitlements; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -155,6 +156,7 @@
 		6A08AD4F29C87C61005947D2 /* Planus */ = {
 			isa = PBXGroup;
 			children = (
+				6A483DB129CA804C003375BF /* PlanusRelease.entitlements */,
 				6A08AD8E29C89753005947D2 /* Util */,
 				6A08AD7529C8927A005947D2 /* icons */,
 				6A08AD6B29C8864C005947D2 /* Application */,
@@ -744,7 +746,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = SCSY.Planus;
+				PRODUCT_BUNDLE_IDENTIFIER = com.SCSY.Planus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -758,6 +760,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Planus/PlanusRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QDZ5VUDS9T;
@@ -772,7 +775,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = SCSY.Planus;
+				PRODUCT_BUNDLE_IDENTIFIER = com.SCSY.Planus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

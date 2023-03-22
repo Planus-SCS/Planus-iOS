@@ -6,8 +6,6 @@
 //
 
 import UIKit
-import KakaoSDKCommon
-import RxKakaoSDKCommon
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,7 +14,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        KakaoSDK.initSDK(appKey: "eba20abb6f1549358dde2117fd89e9af")
+        /*
+         애플 id가 증명된지, 증명이 취소된지, 
+         */
         return true
     }
 
