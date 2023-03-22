@@ -31,8 +31,8 @@ class HomeCalendarViewModel {
         return calendar.date(from: components)!
     }()
 
-    var days = [[DayViewModel]]()
-    var cachedDays = [[DayViewModel]]()
+    var days = [[Day]]()
+    var cachedDays = [[Day]]()
     
     var initDaysLoaded = BehaviorSubject<Int?>(value: nil) //뷰컨과 바인딩 전에 init될 수 있으므로
     var followingDaysLoaded = PublishSubject<Int>()
@@ -44,13 +44,11 @@ class HomeCalendarViewModel {
     lazy var currentIndex: Int = {
         return self.halfOfInitAmount
     }()
-    
-    var isLoading = PublishSubject<Void>()
-    
+        
     var todo = [Date: Todo]()
     
-    var prevCache = [[DayViewModel]]()
-    var followingCache = [[DayViewModel]]()
+    var prevCache = [[Day]]()
+    var followingCache = [[Day]]()
     
     struct Input {
         var scrollDidDeceleratedWithDoubleIndex: Observable<Double>
@@ -62,10 +60,12 @@ class HomeCalendarViewModel {
         var initDaysLoaded: Observable<Int?> //아에 월별로 이동할땐 이걸 사용(전체 데이터소스를 초기화)
         var prevDaysLoaded: Observable<Int> //스크롤로 이동할 땐 이걸 사용하자, 일정 인덱스에 도달하면 앞에 추가
         var followingDaysLoaded: Observable<Int> //스크롤로 이동할 땐 이걸 사용하자, 일정 인덱스에 도달하면 뒤에 추가
-        var nowLoading: Observable<Void>
     }
     
-    init() {
+    let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
+    
+    init(createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase) {
+        self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         bind()
     }
     
@@ -118,63 +118,21 @@ class HomeCalendarViewModel {
             didLoadYearMonth: currentYearMonth.asObservable(),
             initDaysLoaded: initDaysLoaded.asObservable(),
             prevDaysLoaded: prevDaysLoaded.asObservable(),
-            followingDaysLoaded: followingDaysLoaded.asObservable(),
-            nowLoading: isLoading.asObservable()
+            followingDaysLoaded: followingDaysLoaded.asObservable()
         )
-    }
-    
-    public func maxTodoInWeek(section: Int, item: Int) -> Int {
-        return days[section][(item - item%7)..<(item + 7 - item%7)].map { $0.todo.count }.max() ?? Int()
     }
     
     func updateTitle(date: Date) {
         currentYearMonth.onNext(self.dateFormatter.string(from: date))
     }
 
-    func monthlyCalendar(date: Date, diff: Int) -> [DayViewModel] {
-        let calendarDate = self.calendar.date(byAdding: DateComponents(month: diff), to: date) ?? Date()
-        
-        let currentMonthStartIndex = (calendar.startDayOfTheWeek(from: calendarDate) + 7 - 1)%7
-        let followingMonthStartIndex = currentMonthStartIndex + calendar.endDateOfMonth(for: calendarDate)
-        let totalDaysCount = followingMonthStartIndex + ((followingMonthStartIndex % 7 == 0) ? 0 : (7 - followingMonthStartIndex % 7))
-        var currentMonthStartDate = calendar.startDayOfMonth(date: calendarDate)
-        
-        var dayList = [DayViewModel]()
-        
-        for day in Int()..<totalDaysCount {
-            var date: Date
-            var state: MonthStateOfDay
-            switch day {
-            case (0..<currentMonthStartIndex):
-                date = calendar.date(byAdding: DateComponents(day: -currentMonthStartIndex + day), to: currentMonthStartDate) ?? Date()
-                state = .prev
-            case (currentMonthStartIndex..<followingMonthStartIndex):
-                date = calendar.date(byAdding: DateComponents(day: day - currentMonthStartIndex), to: currentMonthStartDate) ?? Date()
-                state = .current
-            case (followingMonthStartIndex..<totalDaysCount):
-                date = calendar.date(byAdding: DateComponents(day: day - currentMonthStartIndex), to: currentMonthStartDate) ?? Date()
-                state = .following
-            default:
-                fatalError()
-            }
-            
-            dayList.append(DayViewModel(
-                date: date,
-                dayString: "\(calendar.component(.day, from: date))",
-                weekDay: WeekDay(rawValue: day%7)!,
-                state: .following,
-                todo: []) //유즈케이스에서 투두를 뽑아와야한다..!
-            )
-        }
-        
-        return dayList
-    }
-
     func initCalendar(date: Date){
-        var fullCalendar = [[DayViewModel]]()
+        var fullCalendar = [[Day]]()
         
         (-halfOfInitAmount...halfOfInitAmount).forEach { i in
-            fullCalendar.append(monthlyCalendar(date: date, diff: i))
+            let calendarDate = self.calendar.date(byAdding: DateComponents(month: i), to: date) ?? Date()
+            let dayList = createMonthlyCalendarUseCase.execute(date: calendarDate)
+            // dayList의 투두를 각각 가져와야한다만,,,,,,,,,,, 가져와서 따로 담아둬? 아님 다시 하나의 뷰모델로 감싸?????
         }
         
         days = fullCalendar
@@ -217,21 +175,26 @@ class HomeCalendarViewModel {
             followingDaysLoaded.onNext(followingCache.count)
             
             prevCache.removeAll()
-            followingCache.removeAll()        }
+            followingCache.removeAll()
+        }
         
     }
     
-    func additionalMonthlyCalendars(date: Date, index: Int, endIndex: Int, amount: Int) -> [[DayViewModel]] {
-        var additionalCalendar = [[DayViewModel]]()
+    func additionalMonthlyCalendars(date: Date, index: Int, endIndex: Int, amount: Int) -> [[Day]] {
+        var additionalCalendar = [[Day]]()
         if (index < endIndex) {
             let diff = endIndex - index
             (1...amount).forEach {
-                additionalCalendar.append(monthlyCalendar(date: date, diff: $0+diff))
+                let calendarDate = self.calendar.date(byAdding: DateComponents(month: $0+diff), to: date) ?? Date()
+                let dayList = createMonthlyCalendarUseCase.execute(date: calendarDate)
+                additionalCalendar.append(dayList)
             }
         } else {
             let diff = index - endIndex
             (-amount..<0).forEach {
-                additionalCalendar.append(monthlyCalendar(date: date, diff: $0-diff))
+                let calendarDate = self.calendar.date(byAdding: DateComponents(month: $0-diff), to: date) ?? Date()
+                let dayList = createMonthlyCalendarUseCase.execute(date: calendarDate)
+                additionalCalendar.append(dayList)
             }
         }
         return additionalCalendar
