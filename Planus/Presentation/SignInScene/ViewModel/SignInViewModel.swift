@@ -24,11 +24,10 @@ class SignInViewModel {
         var kakaoSignInTapped: Observable<Void>
         var googleSignInTapped: Observable<Void>
         var appleSignInTapped: Observable<Void>
+        var didReceiveAppleIdentityToken: Observable<String>
     }
     
     struct Output {
-        var showKakaoSignInPage: Observable<Void>
-        var showGoogleSignInPage: Observable<Void>
         var showAppleSignInPage: Observable<Void>
     }
     
@@ -41,8 +40,6 @@ class SignInViewModel {
     }
     
     func transform(input: Input) -> Output {
-        let showKakaoSignInPage = PublishSubject<Void>()
-        let showGoogleSignInPage = PublishSubject<Void>()
         let showAppleSignInPage = PublishSubject<Void>()
         
         input
@@ -56,7 +53,7 @@ class SignInViewModel {
         input
             .googleSignInTapped
             .subscribe(onNext: {
-                showGoogleSignInPage.onNext(())
+                
             })
             .disposed(by: bag)
         
@@ -67,9 +64,15 @@ class SignInViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .didReceiveAppleIdentityToken
+            .withUnretained(self)
+            .subscribe(onNext: { vm, token in
+                vm.signInApple(token: token)
+            })
+            .disposed(by: bag)
+        
         return Output(
-            showKakaoSignInPage: showKakaoSignInPage.asObservable(),
-            showGoogleSignInPage: showGoogleSignInPage.asObservable(),
             showAppleSignInPage: showAppleSignInPage.asObservable()
         )
     }
@@ -88,5 +91,9 @@ class SignInViewModel {
                 })
                 .disposed(by: self.bag)
         }
+    }
+    
+    func signInApple(token: String) {
+        
     }
 }

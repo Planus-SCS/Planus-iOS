@@ -9,9 +9,12 @@ import UIKit
 import SnapKit
 import RxSwift
 import RxCocoa
+import AuthenticationServices
 
 class SignInViewController: UIViewController {
     var bag = DisposeBag()
+    
+    var didReceiveAppleIdentityToken = PublishSubject<String>()
     
     var viewModel: SignInViewModel?
     
@@ -95,7 +98,7 @@ class SignInViewController: UIViewController {
         
         configureView()
         configureLayout()
-        
+
         bind()
     }
     
@@ -105,33 +108,18 @@ class SignInViewController: UIViewController {
         let input = SignInViewModel.Input(
             kakaoSignInTapped: kakaoSignButton.rx.tap.asObservable(),
             googleSignInTapped: googleSigninButton.rx.tap.asObservable(),
-            appleSignInTapped: appleSigninButton.rx.tap.asObservable()
+            appleSignInTapped: appleSigninButton.rx.tap.asObservable(),
+            didReceiveAppleIdentityToken: didReceiveAppleIdentityToken.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
         output
-            .showKakaoSignInPage
+            .showAppleSignInPage
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.showSFView()
-            })
-            .disposed(by: bag)
-        
-        output
-            .showGoogleSignInPage
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: {
-                
-            })
-            .disposed(by: bag)
-        
-        output
-            .showAppleSignInPage
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: {
-                
+                vc.appleSignInBtnTapped()
             })
             .disposed(by: bag)
     }
@@ -172,9 +160,39 @@ class SignInViewController: UIViewController {
         }
     }
 
-    func showSFView() {
-        let vc = RedirectionalWebViewController(nibName: nil, bundle: nil)
+    func appleSignInBtnTapped() {
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        request.requestedScopes = [.fullName, .email]
         
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        
+        controller.delegate = self
+        controller.presentationContextProvider = self
+        controller.performRequests()
     }
 
+}
+
+extension SignInViewController: ASAuthorizationControllerDelegate {
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            let userIdentifier = appleIDCredential.user //이걸 키체인 같은데에 저장해서 앱 다시켤때마다 증명된지 확인
+            appleIDCredential.identityToken //애를 백엔드로 보내서 jwt를 발급받는다고함
+        }
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        print(error)
+    }
+}
+
+
+extension SignInViewController: ASAuthorizationControllerPresentationContextProviding {
+
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        return view.window!
+    }
 }
