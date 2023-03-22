@@ -22,18 +22,9 @@ class HomeCalendarViewModel {
     
     lazy var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYearMonth = BehaviorSubject<String?>(value: nil)
-    
-    lazy var today: Date = {
-        let components = self.calendar.dateComponents(
-            [.year, .month, .day],
-            from: Date()
-        ) ?? DateComponents()
-        return calendar.date(from: components)!
-    }()
 
-    var days = [[Day]]()
-    var cachedDays = [[Day]]()
-    
+    var days = [[DayViewModel]]()
+
     var initDaysLoaded = BehaviorSubject<Int?>(value: nil) //뷰컨과 바인딩 전에 init될 수 있으므로
     var followingDaysLoaded = PublishSubject<Int>()
     var prevDaysLoaded = PublishSubject<Int>()
@@ -47,8 +38,8 @@ class HomeCalendarViewModel {
         
     var todo = [Date: Todo]()
     
-    var prevCache = [[Day]]()
-    var followingCache = [[Day]]()
+    var prevCache = [[DayViewModel]]()
+    var followingCache = [[DayViewModel]]()
     
     struct Input {
         var scrollDidDeceleratedWithDoubleIndex: Observable<Double>
@@ -63,9 +54,14 @@ class HomeCalendarViewModel {
     }
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
+    let fetchTodoListUseCase: FetchTodoListUseCase
     
-    init(createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase) {
+    init(
+        createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
+        fetchTodoListUseCase: FetchTodoListUseCase
+    ) {
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
+        self.fetchTodoListUseCase = fetchTodoListUseCase
         bind()
     }
     
@@ -127,12 +123,15 @@ class HomeCalendarViewModel {
     }
 
     func initCalendar(date: Date){
-        var fullCalendar = [[Day]]()
+        var fullCalendar = [[DayViewModel]]()
         
         (-halfOfInitAmount...halfOfInitAmount).forEach { i in
             let calendarDate = self.calendar.date(byAdding: DateComponents(month: i), to: date) ?? Date()
-            let dayList = createMonthlyCalendarUseCase.execute(date: calendarDate)
-            // dayList의 투두를 각각 가져와야한다만,,,,,,,,,,, 가져와서 따로 담아둬? 아님 다시 하나의 뷰모델로 감싸?????
+            fullCalendar.append(createMonthlyCalendarUseCase.execute(date: calendarDate).map {
+                var dayViewModel = $0
+                dayViewModel.todoList = fetchTodoListUseCase.execute(date: $0.date)
+                return dayViewModel
+            })
         }
         
         days = fullCalendar
@@ -180,24 +179,36 @@ class HomeCalendarViewModel {
         
     }
     
-    func additionalMonthlyCalendars(date: Date, index: Int, endIndex: Int, amount: Int) -> [[Day]] {
-        var additionalCalendar = [[Day]]()
+    func additionalMonthlyCalendars(date: Date, index: Int, endIndex: Int, amount: Int) -> [[DayViewModel]] {
+        var additionalCalendar = [[DayViewModel]]()
         if (index < endIndex) {
             let diff = endIndex - index
             (1...amount).forEach {
                 let calendarDate = self.calendar.date(byAdding: DateComponents(month: $0+diff), to: date) ?? Date()
-                let dayList = createMonthlyCalendarUseCase.execute(date: calendarDate)
+                let dayList = createMonthlyCalendarUseCase.execute(date: calendarDate).map {
+                    var dayViewModel = $0
+                    dayViewModel.todoList = fetchTodoListUseCase.execute(date: $0.date)
+                    return dayViewModel
+                }
                 additionalCalendar.append(dayList)
             }
         } else {
             let diff = index - endIndex
             (-amount..<0).forEach {
                 let calendarDate = self.calendar.date(byAdding: DateComponents(month: $0-diff), to: date) ?? Date()
-                let dayList = createMonthlyCalendarUseCase.execute(date: calendarDate)
+                let dayList = createMonthlyCalendarUseCase.execute(date: calendarDate).map {
+                    var dayViewModel = $0
+                    dayViewModel.todoList = fetchTodoListUseCase.execute(date: $0.date)
+                    return dayViewModel
+                }
                 additionalCalendar.append(dayList)
             }
         }
         return additionalCalendar
     }
+    
+//    func test() -> [[DayViewModel]] {
+//
+//    }
 }
 
