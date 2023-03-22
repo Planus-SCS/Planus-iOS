@@ -25,7 +25,7 @@ final class AppCoordinator: Coordinator {
         /*
          자동 로그인 여부에 따라 로그인 로직 or 메인화면 로직 실행
          */
-        showSignInFlow()
+        showMainTabFlow()
     }
     
     private func checkAutoSignIn() -> Bool {
