@@ -52,8 +52,9 @@ class SignInViewModel {
         
         input
             .googleSignInTapped
-            .subscribe(onNext: {
-                
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+//                vm.signInGoogle()
             })
             .disposed(by: bag)
         

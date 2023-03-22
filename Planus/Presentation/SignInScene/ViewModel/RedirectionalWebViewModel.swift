@@ -68,7 +68,7 @@ enum SocialRedirectionType {
         case .kakao:
             return KakaoAuthURL.kakaoAuthCodeURL
         case .google:
-            return ""
+            return GoogleAuthURL.googleAuthCodeURL
         }
     }
     
@@ -77,7 +77,7 @@ enum SocialRedirectionType {
         case .kakao:
             return KakaoAuthURL.kakaoAuthCodeRedirectURI
         case .google:
-            return ""
+            return GoogleAuthURL.googleAuthCodeRedirectURI
         }
     }
 }
