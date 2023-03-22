@@ -1,5 +1,5 @@
 //
-//  HomeCalendarCoordinator.swift
+//  TodoCoordinator.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/22.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HomeCalendarCoordinator: Coordinator {
+class TodoCoordinator: Coordinator {
     
     weak var finishDelegate: CoordinatorFinishDelegate?
     
@@ -15,29 +15,26 @@ class HomeCalendarCoordinator: Coordinator {
         
     var childCoordinators: [Coordinator] = []
     
-    var type: CoordinatorType = .homeCalendar
+    var type: CoordinatorType = .todo
     
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
     }
     
     func start() {
-        showHomeCalendarPage()
+        showTodoPage()
     }
     
-    lazy var showHomeCalendarPage: () -> Void = { [weak self] in
+    lazy var showTodoPage: () -> Void = { [weak self] in
 
     }
-    
-    lazy var showTodoModal: () -> Void = { [weak self] in
-    }
-    
-    lazy var showMyPage: () -> Void = {
+
+    lazy var showDetailedTodoModal: () -> Void = { [weak self] in
         
     }
 }
 
-extension HomeCalendarCoordinator: CoordinatorFinishDelegate {
+extension TodoCoordinator: CoordinatorFinishDelegate {
     func coordinatorDidFinish(childCoordinator: Coordinator) {
         childCoordinators = childCoordinators.filter {
             $0.type != childCoordinator.type
