@@ -55,6 +55,7 @@
 		6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */; };
 		6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */; };
 		6A24F83129CB45170000FD64 /* TodoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83029CB45170000FD64 /* TodoCoordinator.swift */; };
+		6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */; };
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
@@ -111,6 +112,7 @@
 		6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KakaoSignInUseCase.swift; sourceTree = "<group>"; };
 		6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCalendarCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83029CB45170000FD64 /* TodoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCoordinator.swift; sourceTree = "<group>"; };
+		6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoordinator.swift; sourceTree = "<group>"; };
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
@@ -481,6 +483,7 @@
 		6A24F82A29CB44BD0000FD64 /* Coordinator */ = {
 			isa = PBXGroup;
 			children = (
+				6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -696,6 +699,7 @@
 				6A24F83129CB45170000FD64 /* TodoCoordinator.swift in Sources */,
 				6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */,
 				6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */,
+				6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */,
 				6A08AD9029C89761005947D2 /* UIColor+Ext.swift in Sources */,
 				6A08ADDD29C8D5C0005947D2 /* SocialAuthRepository.swift in Sources */,
 				6A08AD5329C87C61005947D2 /* SceneDelegate.swift in Sources */,
