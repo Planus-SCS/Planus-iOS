@@ -8,6 +8,12 @@
 import Foundation
 import RxSwift
 
+enum ScrollDirection {
+    case left
+    case none
+    case right
+}
+
 class HomeCalendarViewModel {
     
     var bag = DisposeBag()
@@ -42,7 +48,7 @@ class HomeCalendarViewModel {
     var followingCache = [[DayViewModel]]()
     
     struct Input {
-        var scrollDidDeceleratedWithDoubleIndex: Observable<Double>
+        var didScrollTo: Observable<ScrollDirection>
         var viewDidLoaded: Observable<Void>
     }
         
@@ -90,22 +96,9 @@ class HomeCalendarViewModel {
             .disposed(by: bag)
         
         input
-            .scrollDidDeceleratedWithDoubleIndex
-            .subscribe { [weak self] offset in
-                var newIndex: Int
+            .didScrollTo
+            .subscribe { [weak self] direction in
 
-                if Double(self!.currentIndex) < offset {
-                    // 우슬라이드 시, 다음페이지를 찍자마자 갱신해야함(만약 정확한 정수만큼의 offset을 지나쳐도 해당 정수만큼 내림됨
-                    newIndex = Int(floor(offset))
-                } else if Double(self!.currentIndex) > offset {
-                    // 좌 슬라이드 시, 이전 페이지를 찍자마자 갱신(정확한 정수를 지나쳐도 해당 정수로 올림됨
-                    newIndex = Int(ceil(offset))
-                } else {
-                    return
-                }
-                if newIndex != self?.currentIndex {
-                    self?.scrolledTo(index: newIndex)
-                }
             }
             .disposed(by: bag)
         
@@ -122,53 +115,65 @@ class HomeCalendarViewModel {
         currentYearMonth.onNext(self.dateFormatter.string(from: date))
     }
 
-    func initCalendar(date: Date){
-        var fullCalendar = [[DayViewModel]]()
-        
-        (-halfOfInitAmount...halfOfInitAmount).forEach { i in
+    func initCalendar(date: Date) {
+        days = (-halfOfInitAmount...halfOfInitAmount).map { i -> [DayViewModel] in
             let calendarDate = self.calendar.date(byAdding: DateComponents(month: i), to: date) ?? Date()
-            fullCalendar.append(createMonthlyCalendarUseCase.execute(date: calendarDate).map {
+            return createMonthlyCalendarUseCase.execute(date: calendarDate).map {
                 var dayViewModel = $0
                 dayViewModel.todoList = fetchTodoListUseCase.execute(date: $0.date)
                 return dayViewModel
-            })
+            }
         }
-        
-        days = fullCalendar
-        initDaysLoaded.onNext(fullCalendar.count)
+        initDaysLoaded.onNext(days.count)
     }
     
-    func scrolledTo(index: Int) { // 일정 부분까지 오면 받아서 캐싱해뒀다가 마지막 인덱스를 탁 쳤을때 더하고 보여주기?
-        let diff = index - currentIndex
-
-        guard let previousDate = try? self.currentDate.value(),
-              let currentDate = self.calendar.date(
-                byAdding: DateComponents(month: diff),
-                to: previousDate
-        ) else { return }
-        
-        self.currentIndex = index
-        self.currentDate.onNext(currentDate)
-        
-        
-        if index <= cachingIndexDiff && prevCache.isEmpty {
-            let amountToMake = halfOfInitAmount + index - cachingIndexDiff
-            self.prevCache = additionalMonthlyCalendars(date: currentDate, index: index, endIndex: 0, amount: amountToMake)
-            
-        } else if index >= days.count-1 - cachingIndexDiff && followingCache.isEmpty {
-            let amountToMake = halfOfInitAmount - (days.count - 1 - index) + cachingIndexDiff
-            self.followingCache = additionalMonthlyCalendars(date: currentDate, index: index, endIndex: days.count - 1, amount: amountToMake)
-            
+    func updateCurrentDate(direction: ScrollDirection) {
+        guard let previousDate = try? self.currentDate.value() else { return }
+        // 우선 인덱스가 바뀜, 그다음에 인덱스에 대해 계산해야함
+        switch direction {
+        case .left:
+            currentDate.onNext(self.calendar.date(
+                                byAdding: DateComponents(month: -1),
+                                to: previousDate
+                        ))
+            currentIndex-=1
+        case .right:
+            currentDate.onNext(self.calendar.date(
+                                byAdding: DateComponents(month: 1),
+                                to: previousDate
+                        ))
+            currentIndex+=1
+        case .none:
+            return
         }
-        
-        if index == 0 {
+    }
+
+    func scrolledTo(direction: ScrollDirection) { // 일정 부분까지 오면 받아서 캐싱해뒀다가 마지막 인덱스를 탁 쳤을때 더하고 보여주기?
+        updateCurrentDate(direction: direction)
+        checkCacheLoadNeed()
+        checkCacheFetchNeed() // 여기 이후는 캐시가 있을때만 진행되야함. 그전까진 페치해주면 안됨! 캐시없으면 스크롤 못하는거임!
+    }
+    
+    func checkCacheLoadNeed() {
+        guard let currentDate = try? self.currentDate.value() else { return }
+        if currentIndex <= cachingIndexDiff && prevCache.isEmpty {
+            let amountToMake = halfOfInitAmount + currentIndex - cachingIndexDiff
+            self.prevCache = additionalMonthlyCalendars(date: currentDate, difference: 0 - currentIndex, amount: amountToMake)
+        } else if currentIndex >= days.count-1 - cachingIndexDiff && followingCache.isEmpty {
+            let amountToMake = halfOfInitAmount - (days.count - 1 - currentIndex) + cachingIndexDiff
+            self.followingCache = additionalMonthlyCalendars(date: currentDate, difference: days.count - 1 - currentIndex, amount: amountToMake)
+        }
+    }
+    
+    func checkCacheFetchNeed() {
+        if currentIndex == 0 {
             days = prevCache + days[0..<days.count - prevCache.count]
             currentIndex = currentIndex + prevCache.count
             prevDaysLoaded.onNext(prevCache.count)
             
             prevCache.removeAll()
             followingCache.removeAll()
-        } else if index == days.count - 1 {
+        } else if currentIndex == days.count - 1 {
             days = days[followingCache.count..<days.count] + followingCache
             currentIndex = currentIndex - followingCache.count
             followingDaysLoaded.onNext(followingCache.count)
@@ -176,39 +181,23 @@ class HomeCalendarViewModel {
             prevCache.removeAll()
             followingCache.removeAll()
         }
-        
     }
     
-    func additionalMonthlyCalendars(date: Date, index: Int, endIndex: Int, amount: Int) -> [[DayViewModel]] {
-        var additionalCalendar = [[DayViewModel]]()
-        if (index < endIndex) {
-            let diff = endIndex - index
-            (1...amount).forEach {
-                let calendarDate = self.calendar.date(byAdding: DateComponents(month: $0+diff), to: date) ?? Date()
-                let dayList = createMonthlyCalendarUseCase.execute(date: calendarDate).map {
-                    var dayViewModel = $0
-                    dayViewModel.todoList = fetchTodoListUseCase.execute(date: $0.date)
-                    return dayViewModel
-                }
-                additionalCalendar.append(dayList)
-            }
-        } else {
-            let diff = index - endIndex
-            (-amount..<0).forEach {
-                let calendarDate = self.calendar.date(byAdding: DateComponents(month: $0-diff), to: date) ?? Date()
-                let dayList = createMonthlyCalendarUseCase.execute(date: calendarDate).map {
-                    var dayViewModel = $0
-                    dayViewModel.todoList = fetchTodoListUseCase.execute(date: $0.date)
-                    return dayViewModel
-                }
-                additionalCalendar.append(dayList)
+    func additionalMonthlyCalendars(date: Date, difference diff: Int, amount: Int) -> [[DayViewModel]] {
+
+        var range = Array(1...amount)
+        if diff < 0 {
+            range = range.reversed().map { -$0 }
+        }
+        
+        return range.map { $0 + diff }.map { i in
+            let calendarDate = self.calendar.date(byAdding: DateComponents(month: i), to: date) ?? Date()
+            return createMonthlyCalendarUseCase.execute(date: calendarDate).map {
+                var dayViewModel = $0
+                dayViewModel.todoList = fetchTodoListUseCase.execute(date: $0.date)
+                return dayViewModel
             }
         }
-        return additionalCalendar
     }
-    
-//    func test() -> [[DayViewModel]] {
-//
-//    }
 }
 
