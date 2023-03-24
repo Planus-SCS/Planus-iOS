@@ -14,7 +14,9 @@ class HomeCalendarViewController: UIViewController {
     
     var viewModel: HomeCalendarViewModel?
     
-    var isSelecting = PublishSubject<Bool>()
+    var isMultipleSelecting = PublishSubject<Bool>()
+    var isMultipleSelected = PublishSubject<(Int, (Int, Int))>()
+    var isSingleSelected = PublishSubject<(Int, Int)>()
     
     let scrolledTo = PublishSubject<ScrollDirection>()
     
@@ -99,7 +101,9 @@ class HomeCalendarViewController: UIViewController {
         
         let input = HomeCalendarViewModel.Input(
             didScrollTo: self.scrolledTo.asObservable(),
-            viewDidLoaded: Observable.just(())
+            viewDidLoaded: Observable.just(()),
+            didSelectItem: isSingleSelected.asObservable(),
+            didMultipleSelectItemsInRange: isMultipleSelected.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -127,6 +131,14 @@ class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, rangeSet in
                 vc.collectionView.reloadSections(IndexSet(rangeSet.0..<rangeSet.1))
+            })
+            .disposed(by: bag)
+        
+        isMultipleSelecting
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { bool in
+                self.collectionView.isScrollEnabled = !bool
+                self.collectionView.isUserInteractionEnabled = !bool
             })
             .disposed(by: bag)
 
@@ -172,19 +184,16 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MonthlyCalendarCell.reuseIdentifier, for: indexPath) as? MonthlyCalendarCell,
             let viewModel else { return UICollectionViewCell() }
         
-        cell.fill(dayViewModelList: viewModel.mainDayList[indexPath.section])
-        cell.fill(isMultipleSelecting: self.isSelecting) // 이거랑 어디부터 어디까지 드래그하고있는지도 보내야함!
-        let bag = DisposeBag()
-        
-        isSelecting
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { bool in
-                self.collectionView.isScrollEnabled = !bool
-                self.collectionView.isUserInteractionEnabled = !bool
-            })
-            .disposed(by: bag)
-        
-        cell.bag = bag
+        cell.fill(
+            section: indexPath.section,
+            delegate: self
+        )
+
+        cell.fill(
+            isMultipleSelecting: isMultipleSelecting,
+            isMultipleSelected: isMultipleSelected,
+            isSingleSelected: isSingleSelected
+        )
         
         return cell
     }
@@ -271,5 +280,41 @@ extension HomeCalendarViewController {
         
         return layout
     }
+    
+}
+
+extension HomeCalendarViewController: MonthlyCalendarCellDelegate {
+
+    func monthlyCalendarCell(_ monthlyCalendarCell: MonthlyCalendarCell, at indexPath: IndexPath) -> DayViewModel? {
+        guard let viewModel else { return nil }
+        return viewModel.mainDayList[indexPath.section][indexPath.item]
+    }
+    
+    func monthlyCalendarCell(_ monthlyCalendarCell: MonthlyCalendarCell, maxCountOfTodoInWeek indexPath: IndexPath) -> DayViewModel? {
+        guard let viewModel else { return nil }
+        let item = indexPath.item
+        let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
+            viewModel.mainDayList[indexPath.section][a].todoList?.count ?? 0 < viewModel.mainDayList[indexPath.section][b].todoList?.count ?? 0
+        }) ?? Int()
+            
+        return viewModel.mainDayList[indexPath.section][maxItem]
+    }
+    
+    func numberOfItems(_ monthlyCalendarCell: MonthlyCalendarCell, in section: Int) -> Int? {
+        return viewModel?.mainDayList[section].count
+    }
+    
+    func findCachedHeight(_ monthlyCalendarCell: MonthlyCalendarCell, todoCount: Int) -> Double? {
+        return viewModel?.cachedCellHeightForTodoCount[todoCount]
+    }
+    
+    func cacheHeight(_ monthlyCalendarCell: MonthlyCalendarCell, count: Int, height: Double) {
+        viewModel?.cachedCellHeightForTodoCount[count] = height
+    }
+    
+    func frameWidth(_ monthlyCalendarCell: MonthlyCalendarCell) -> CGSize {
+        return self.view.frame.size
+    }
+    
     
 }

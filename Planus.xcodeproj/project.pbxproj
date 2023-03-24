@@ -78,7 +78,6 @@
 		6A24F86629CC84150000FD64 /* DateFormatYYYYMMUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F86529CC84150000FD64 /* DateFormatYYYYMMUseCase.swift */; };
 		6A24F88C29CE26540000FD64 /* HomeCalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F88B29CE26540000FD64 /* HomeCalendarViewController.swift */; };
 		6A24F89529CE285F0000FD64 /* MonthlyCalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F89429CE285F0000FD64 /* MonthlyCalendarCell.swift */; };
-		6A24F89729CE28D40000FD64 /* MonthlyCollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F89629CE28D40000FD64 /* MonthlyCollectionViewDataSource.swift */; };
 		6A24F89929CE29330000FD64 /* DailyCalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F89829CE29330000FD64 /* DailyCalendarCell.swift */; };
 		6A24F89B29CE299A0000FD64 /* SmallTodoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F89A29CE299A0000FD64 /* SmallTodoView.swift */; };
 		6A24F89E29CE29F50000FD64 /* TodoCategory+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F89D29CE29F50000FD64 /* TodoCategory+Ext.swift */; };
@@ -92,6 +91,7 @@
 		6A24F8B929CE3F800000FD64 /* Pretendard-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8B029CE3F7F0000FD64 /* Pretendard-ExtraBold.otf */; };
 		6A24F8BA29CE3F800000FD64 /* Pretendard-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8B129CE3F7F0000FD64 /* Pretendard-Thin.otf */; };
 		6A24F8BC29CE50DC0000FD64 /* ScrollDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F8BB29CE50DC0000FD64 /* ScrollDirection.swift */; };
+		6A24F8BE29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F8BD29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift */; };
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
@@ -171,7 +171,6 @@
 		6A24F86529CC84150000FD64 /* DateFormatYYYYMMUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatYYYYMMUseCase.swift; sourceTree = "<group>"; };
 		6A24F88B29CE26540000FD64 /* HomeCalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCalendarViewController.swift; sourceTree = "<group>"; };
 		6A24F89429CE285F0000FD64 /* MonthlyCalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyCalendarCell.swift; sourceTree = "<group>"; };
-		6A24F89629CE28D40000FD64 /* MonthlyCollectionViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyCollectionViewDataSource.swift; sourceTree = "<group>"; };
 		6A24F89829CE29330000FD64 /* DailyCalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyCalendarCell.swift; sourceTree = "<group>"; };
 		6A24F89A29CE299A0000FD64 /* SmallTodoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallTodoView.swift; sourceTree = "<group>"; };
 		6A24F89D29CE29F50000FD64 /* TodoCategory+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoCategory+Ext.swift"; sourceTree = "<group>"; };
@@ -185,6 +184,7 @@
 		6A24F8B029CE3F7F0000FD64 /* Pretendard-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-ExtraBold.otf"; sourceTree = "<group>"; };
 		6A24F8B129CE3F7F0000FD64 /* Pretendard-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Thin.otf"; sourceTree = "<group>"; };
 		6A24F8BB29CE50DC0000FD64 /* ScrollDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollDirection.swift; sourceTree = "<group>"; };
+		6A24F8BD29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyCalendarCellDelegate.swift; sourceTree = "<group>"; };
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
@@ -388,6 +388,7 @@
 				6A24F89429CE285F0000FD64 /* MonthlyCalendarCell.swift */,
 				6A24F89829CE29330000FD64 /* DailyCalendarCell.swift */,
 				6A24F89A29CE299A0000FD64 /* SmallTodoView.swift */,
+				6A24F8BD29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -620,7 +621,6 @@
 		6A24F88F29CE27260000FD64 /* DataSource */ = {
 			isa = PBXGroup;
 			children = (
-				6A24F89629CE28D40000FD64 /* MonthlyCollectionViewDataSource.swift */,
 			);
 			path = DataSource;
 			sourceTree = "<group>";
@@ -844,9 +844,9 @@
 				6A08ADD329C8C26F005947D2 /* NetworkError.swift in Sources */,
 				6A08AD9E29C89D93005947D2 /* SignInViewController.swift in Sources */,
 				6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */,
-				6A24F89729CE28D40000FD64 /* MonthlyCollectionViewDataSource.swift in Sources */,
 				6A24F85429CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift in Sources */,
 				6A24F83E29CB4A440000FD64 /* Todo.swift in Sources */,
+				6A24F8BE29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift in Sources */,
 				6A08ADB229C89E77005947D2 /* SignInViewModel.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
 				6A24F83129CB45170000FD64 /* TodoCoordinator.swift in Sources */,

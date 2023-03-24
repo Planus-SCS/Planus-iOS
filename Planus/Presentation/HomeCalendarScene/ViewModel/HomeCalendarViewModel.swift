@@ -33,6 +33,8 @@ class HomeCalendarViewModel {
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
     
     var currentIndex = Int()
+    var cachedCellHeightForTodoCount = [Int: Double]()
+    
     
     struct Input {
         var didScrollTo: Observable<ScrollDirection>
