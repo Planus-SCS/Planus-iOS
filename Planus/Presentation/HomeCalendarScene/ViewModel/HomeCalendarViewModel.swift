@@ -33,8 +33,7 @@ class HomeCalendarViewModel {
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
-    var mainDayList = [[DayViewModel]]() //init 시 전부다 로드
-    var mainTodoList = [[[Todo]]]() // 계속 로드는 하되 아에 스크롤이 멈추면 그때 리로드를 실행하기
+    var mainDayList = [[DayViewModel]]()
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
