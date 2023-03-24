@@ -100,12 +100,12 @@ class TodoContainer {
         
         calendarDate = Calendar.current.date(byAdding: DateComponents(year: -1), to: calendarDate) ?? Date()
         
-        for i in 0..<1000 {
+        for i in 0..<5000 {
 
             let tmpCalendarDate = Calendar.current.date(byAdding: DateComponents(day: i), to: calendarDate) ?? Date()
 
             todoDict[tmpCalendarDate] = []
-            for j in 0..<3 {
+            for j in 0..<2 {
                 todoDict[tmpCalendarDate]?.append(Todo(title: "\(dateFormatter.string(from: tmpCalendarDate))", date: tmpCalendarDate, category: .init(rawValue: j)!, type: .normal))
             }
         }

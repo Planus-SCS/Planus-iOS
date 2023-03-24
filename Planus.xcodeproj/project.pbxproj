@@ -82,6 +82,15 @@
 		6A24F89929CE29330000FD64 /* DailyCalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F89829CE29330000FD64 /* DailyCalendarCell.swift */; };
 		6A24F89B29CE299A0000FD64 /* SmallTodoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F89A29CE299A0000FD64 /* SmallTodoView.swift */; };
 		6A24F89E29CE29F50000FD64 /* TodoCategory+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F89D29CE29F50000FD64 /* TodoCategory+Ext.swift */; };
+		6A24F8B229CE3F800000FD64 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8A929CE3F7E0000FD64 /* Pretendard-Regular.otf */; };
+		6A24F8B329CE3F800000FD64 /* Pretendard-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8AA29CE3F7F0000FD64 /* Pretendard-Medium.otf */; };
+		6A24F8B429CE3F800000FD64 /* Pretendard-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8AB29CE3F7F0000FD64 /* Pretendard-Black.otf */; };
+		6A24F8B529CE3F800000FD64 /* Pretendard-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8AC29CE3F7F0000FD64 /* Pretendard-SemiBold.otf */; };
+		6A24F8B629CE3F800000FD64 /* Pretendard-ExtraLight.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8AD29CE3F7F0000FD64 /* Pretendard-ExtraLight.otf */; };
+		6A24F8B729CE3F800000FD64 /* Pretendard-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8AE29CE3F7F0000FD64 /* Pretendard-Bold.otf */; };
+		6A24F8B829CE3F800000FD64 /* Pretendard-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8AF29CE3F7F0000FD64 /* Pretendard-Light.otf */; };
+		6A24F8B929CE3F800000FD64 /* Pretendard-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8B029CE3F7F0000FD64 /* Pretendard-ExtraBold.otf */; };
+		6A24F8BA29CE3F800000FD64 /* Pretendard-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8B129CE3F7F0000FD64 /* Pretendard-Thin.otf */; };
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
@@ -165,6 +174,15 @@
 		6A24F89829CE29330000FD64 /* DailyCalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyCalendarCell.swift; sourceTree = "<group>"; };
 		6A24F89A29CE299A0000FD64 /* SmallTodoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallTodoView.swift; sourceTree = "<group>"; };
 		6A24F89D29CE29F50000FD64 /* TodoCategory+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoCategory+Ext.swift"; sourceTree = "<group>"; };
+		6A24F8A929CE3F7E0000FD64 /* Pretendard-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Regular.otf"; sourceTree = "<group>"; };
+		6A24F8AA29CE3F7F0000FD64 /* Pretendard-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Medium.otf"; sourceTree = "<group>"; };
+		6A24F8AB29CE3F7F0000FD64 /* Pretendard-Black.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Black.otf"; sourceTree = "<group>"; };
+		6A24F8AC29CE3F7F0000FD64 /* Pretendard-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-SemiBold.otf"; sourceTree = "<group>"; };
+		6A24F8AD29CE3F7F0000FD64 /* Pretendard-ExtraLight.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-ExtraLight.otf"; sourceTree = "<group>"; };
+		6A24F8AE29CE3F7F0000FD64 /* Pretendard-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Bold.otf"; sourceTree = "<group>"; };
+		6A24F8AF29CE3F7F0000FD64 /* Pretendard-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Light.otf"; sourceTree = "<group>"; };
+		6A24F8B029CE3F7F0000FD64 /* Pretendard-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-ExtraBold.otf"; sourceTree = "<group>"; };
+		6A24F8B129CE3F7F0000FD64 /* Pretendard-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Thin.otf"; sourceTree = "<group>"; };
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
@@ -607,6 +625,15 @@
 		6A24F89F29CE3C6F0000FD64 /* Font */ = {
 			isa = PBXGroup;
 			children = (
+				6A24F8AB29CE3F7F0000FD64 /* Pretendard-Black.otf */,
+				6A24F8AE29CE3F7F0000FD64 /* Pretendard-Bold.otf */,
+				6A24F8B029CE3F7F0000FD64 /* Pretendard-ExtraBold.otf */,
+				6A24F8AD29CE3F7F0000FD64 /* Pretendard-ExtraLight.otf */,
+				6A24F8AF29CE3F7F0000FD64 /* Pretendard-Light.otf */,
+				6A24F8AA29CE3F7F0000FD64 /* Pretendard-Medium.otf */,
+				6A24F8A929CE3F7E0000FD64 /* Pretendard-Regular.otf */,
+				6A24F8AC29CE3F7F0000FD64 /* Pretendard-SemiBold.otf */,
+				6A24F8B129CE3F7F0000FD64 /* Pretendard-Thin.otf */,
 			);
 			path = Font;
 			sourceTree = "<group>";
@@ -695,18 +722,26 @@
 			buildActionMask = 2147483647;
 			files = (
 				6A08AD8C29C892E0005947D2 /* search-sm.png in Resources */,
+				6A24F8B729CE3F800000FD64 /* Pretendard-Bold.otf in Resources */,
 				6A08ADB829C8A2B0005947D2 /* logo@2x.png in Resources */,
+				6A24F8B429CE3F800000FD64 /* Pretendard-Black.otf in Resources */,
 				6A08AD8B29C892E0005947D2 /* check-done-01@2x.png in Resources */,
+				6A24F8B829CE3F800000FD64 /* Pretendard-Light.otf in Resources */,
+				6A24F8B629CE3F800000FD64 /* Pretendard-ExtraLight.otf in Resources */,
 				6A08AD8829C892E0005947D2 /* search-sm@3x.png in Resources */,
 				6A08AD8D29C892E0005947D2 /* users-02@2x.png in Resources */,
 				6A08AD8629C892E0005947D2 /* check-done-01@3x.png in Resources */,
 				6A08ADAB29C89DEE005947D2 /* kakaoBtn@2x.png in Resources */,
+				6A24F8B329CE3F800000FD64 /* Pretendard-Medium.otf in Resources */,
+				6A24F8B929CE3F800000FD64 /* Pretendard-ExtraBold.otf in Resources */,
 				6A08ADAF29C89DEE005947D2 /* appleBtn@2x.png in Resources */,
 				6A08AD8929C892E0005947D2 /* calendar-date@2x.png in Resources */,
 				6A08ADA829C89DEE005947D2 /* appleBtn.png in Resources */,
+				6A24F8BA29CE3F800000FD64 /* Pretendard-Thin.otf in Resources */,
 				6A08AD8729C892E0005947D2 /* calendar-date.png in Resources */,
 				6A08AD8529C892E0005947D2 /* search-sm@2x.png in Resources */,
 				6A08AD8229C892E0005947D2 /* users-02@3x.png in Resources */,
+				6A24F8B229CE3F800000FD64 /* Pretendard-Regular.otf in Resources */,
 				6A08ADAD29C89DEE005947D2 /* appleBtn@3x.png in Resources */,
 				6A08AD5D29C87C63005947D2 /* LaunchScreen.storyboard in Resources */,
 				6A08AD8A29C892E0005947D2 /* users-02.png in Resources */,
@@ -718,6 +753,7 @@
 				6A08ADAE29C89DEE005947D2 /* googleBtn.png in Resources */,
 				6A08AD5A29C87C63005947D2 /* Assets.xcassets in Resources */,
 				6A08AD8329C892E0005947D2 /* check-done-01.png in Resources */,
+				6A24F8B529CE3F800000FD64 /* Pretendard-SemiBold.otf in Resources */,
 				6A08ADAC29C89DEE005947D2 /* kakaoBtn.png in Resources */,
 				6A08ADA929C89DEE005947D2 /* googleBtn@3x.png in Resources */,
 			);

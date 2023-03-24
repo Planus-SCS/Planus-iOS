@@ -15,7 +15,7 @@ class SmallTodoView: UIView {
     
     var toDoLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont(name: "Pretendard-Regular", size: 8)
+        label.font = UIFont(name: "Pretendard-Regular", size: 10)
         return label
     }()
     

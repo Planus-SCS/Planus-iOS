@@ -45,7 +45,7 @@ class DailyCalendarCell: UICollectionViewCell {
     
     lazy var numberLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "Pretendard-Regular", size: 8)
+        label.font = UIFont(name: "Pretendard-Regular", size: 10)
         return label
     }()
 
