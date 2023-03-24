@@ -46,6 +46,7 @@ class DailyCalendarCell: UICollectionViewCell {
     lazy var numberLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "Pretendard-Regular", size: 10)
+        label.text = "0"
         return label
     }()
 
@@ -57,6 +58,16 @@ class DailyCalendarCell: UICollectionViewCell {
         super.init(frame: frame)
         
         configureView()
+    }
+    
+    convenience init(mockFrame frame: CGRect) {
+        self.init(frame: frame)
+        
+        stackView.snp.remakeConstraints {
+            $0.top.equalTo(numberLabel.snp.bottom).offset(5)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(3)
+        }
     }
     
     override func prepareForReuse() {
@@ -82,7 +93,7 @@ class DailyCalendarCell: UICollectionViewCell {
         stackView.snp.makeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.lessThanOrEqualToSuperview()
+            $0.bottom.lessThanOrEqualToSuperview().inset(3)
         }
     }
     
@@ -108,6 +119,10 @@ class DailyCalendarCell: UICollectionViewCell {
             numberLabel.textColor = UIColor(hex: 0x000000, a: alpha)
         }
         
+        fill(todoList: todoList)
+    }
+    
+    func fill(todoList: [Todo]?) {
         todoList?.forEach {
             let todoView = SmallTodoView(text: $0.title, category: $0.category)
             todoView.snp.makeConstraints {
@@ -116,7 +131,6 @@ class DailyCalendarCell: UICollectionViewCell {
             stackView.addArrangedSubview(todoView)
             views.append(todoView)
         }
-
     }
 
 }

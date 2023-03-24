@@ -53,7 +53,6 @@ class HomeCalendarViewController: UIViewController {
         return item
     }()
     
-    var todayButton = UIButton()
     var weekStackView = UIStackView()
     
     lazy var collectionView: UICollectionView = {
@@ -92,7 +91,6 @@ class HomeCalendarViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
         self.navigationItem.titleView = yearMonthButton
     }
     
@@ -146,13 +144,21 @@ class HomeCalendarViewController: UIViewController {
 //
 //        present(vc, animated: true, completion:nil)
     }
+    
+    @objc func profileButtonTapped() {
+        print("to profile")
+    }
 }
+
+// MARK: PopoverPresentationDelegate
 
 extension HomeCalendarViewController: UIPopoverPresentationControllerDelegate {
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
     }
 }
+
+// MARK: CollectionView DataSource, Delegate
 
 extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -216,10 +222,6 @@ extension HomeCalendarViewController {
             $0.height.equalTo(50)
         }
     }
-    
-    @objc func profileButtonTapped() {
-        print("to profile")
-    }
 
     func configureView() {
         self.navigationItem.setLeftBarButton(groupListButton, animated: false)
@@ -239,151 +241,6 @@ extension HomeCalendarViewController {
         self.view.addSubview(collectionView)
     }
 }
-
-
-//// MARK: gesture actions
-//
-//extension HomeCalendarViewController {
-//    @objc func longTap(_ gestureRecognizer: UILongPressGestureRecognizer){
-//        if gestureRecognizer.state == .began {
-//            let location = gestureRecognizer.location(in: collectionView)
-//            guard let nowIndexPath = collectionView.indexPathForItem(at: location) else { return }
-//
-//            selectionState = true
-//
-//            self.firstPressedIndexPath = nowIndexPath
-//            self.lastPressedIndexPath = nowIndexPath
-//
-//            collectionView.selectItem(at: nowIndexPath, animated: true, scrollPosition: [])
-//        }
-//    }
-//
-//    @objc func drag(_ gestureRecognizer: UIPanGestureRecognizer) {
-//        guard self.selectionState else {
-//            collectionView.isScrollEnabled = true
-//            collectionView.isUserInteractionEnabled = true
-//            return
-//        }
-//        let location = gestureRecognizer.location(in: collectionView)
-//
-//        guard let nowIndexPath = collectionView.indexPathForItem(at: location) else { return }
-//        switch gestureRecognizer.state {
-//        case .began:
-//            collectionView.isScrollEnabled = false
-//            collectionView.isUserInteractionEnabled = false
-//            collectionView.allowsMultipleSelection = true
-//        case .changed:
-//            guard let firstPressedIndexPath = firstPressedIndexPath,
-//                  let lastPressedIndexPath = lastPressedIndexPath,
-//                  nowIndexPath != lastPressedIndexPath else { return }
-//            print(firstPressedIndexPath.item, lastPressedIndexPath.item, nowIndexPath.item)
-//
-//            if firstPressedIndexPath.item < lastPressedIndexPath.item {
-//                if firstPressedIndexPath.item > nowIndexPath.item {
-//                    (firstPressedIndexPath.item+1...lastPressedIndexPath.item).forEach {
-//                        self.collectionView.deselectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true)
-//                    }
-//                    (nowIndexPath.item..<firstPressedIndexPath.item).forEach {
-//                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-//                    }
-//                } else if nowIndexPath.item < lastPressedIndexPath.item {
-//                    (nowIndexPath.item+1...lastPressedIndexPath.item).forEach {
-//                        self.collectionView.deselectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true)
-//                    }
-//                } else if nowIndexPath.item > lastPressedIndexPath.item {
-//                    (lastPressedIndexPath.item+1...nowIndexPath.item).forEach {
-//                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-//                    }
-//                }
-//            } else if (firstPressedIndexPath.item > lastPressedIndexPath.item) {
-//                if (firstPressedIndexPath.item < nowIndexPath.item) {
-//
-//                    (lastPressedIndexPath.item..<firstPressedIndexPath.item).forEach {
-//                        self.collectionView.deselectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true)
-//                    }
-//                    (firstPressedIndexPath.item+1...nowIndexPath.item).forEach {
-//                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-//                    }
-//                } else if lastPressedIndexPath.item < nowIndexPath.item {
-//
-//                    (lastPressedIndexPath.item..<nowIndexPath.item).forEach {
-//                        self.collectionView.deselectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true)
-//                    }
-//                } else if nowIndexPath.item < lastPressedIndexPath.item {
-//
-//                    (nowIndexPath.item..<lastPressedIndexPath.item).forEach {
-//                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-//                    }
-//                }
-//            } else {
-//                if nowIndexPath.item > lastPressedIndexPath.item {
-//
-//                    (lastPressedIndexPath.item+1...nowIndexPath.item).forEach {
-//                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-//                    }
-//                } else {
-//
-//                    (nowIndexPath.item..<lastPressedIndexPath.item).forEach {
-//                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-//                    }
-//                }
-//            }
-//
-//            self.lastPressedIndexPath = nowIndexPath
-//        case .ended:
-//            selectionState = false
-//
-//            firstPressedIndexPath = nil
-//            lastPressedIndexPath = nil
-//
-//            collectionView.isScrollEnabled = true
-//            collectionView.isUserInteractionEnabled = true
-//            collectionView.allowsMultipleSelection = false
-//
-//            let vc = ViewController2(nibName: nil, bundle: nil)
-//            vc.closure1 = { (category: TodoCategory) in
-//                guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
-//
-//                paths.forEach { indexPath in
-//                    let viewModel = self.viewModel!.days[indexPath.section][indexPath.item]
-//                    let todo = Todo(title: "test", date: viewModel.date, category: category, type: .normal)
-//                    self.viewModel?.todoContainer.append(item: todo, date: viewModel.date)
-////                    self.viewModel?.days[indexPath.section][indexPath.item].todo.append(todo)
-//                }
-//
-//                DispatchQueue.main.async {
-//                    self.collectionView.reloadData()
-//                }
-//            }
-//
-//            vc.closure2 = { () in
-//                guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
-//                paths.forEach { indexPath in
-//                    self.collectionView.deselectItem(at: indexPath, animated: true)
-//                }
-//            }
-//
-//            let nav = UINavigationController(rootViewController: vc)
-//            nav.modalPresentationStyle = .pageSheet
-//            if let sheet = nav.sheetPresentationController {
-//                sheet.detents = [.medium()]
-//            }
-//            self.navigationController?.topViewController?.present(nav, animated: true)
-//        default:
-//            print(gestureRecognizer.state)
-//        }
-//
-//
-//    }
-//}
-
-// MARK: GestureRecognizerDelegate
-
-//extension HomeCalendarViewController: UIGestureRecognizerDelegate {
-//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-//        return true
-//    }
-//}
 
 // MARK: Compositional layout
 

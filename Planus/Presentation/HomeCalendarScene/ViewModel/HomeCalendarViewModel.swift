@@ -8,12 +8,6 @@
 import Foundation
 import RxSwift
 
-enum ScrollDirection {
-    case left
-    case none
-    case right
-}
-
 class HomeCalendarViewModel {
     
     var bag = DisposeBag()
@@ -43,6 +37,8 @@ class HomeCalendarViewModel {
     struct Input {
         var didScrollTo: Observable<ScrollDirection>
         var viewDidLoaded: Observable<Void>
+        var didSelectItem: Observable<(Int, Int)>
+        var didMultipleSelectItemsInRange: Observable<(Int, (Int, Int))>
     }
     
     struct Output {
