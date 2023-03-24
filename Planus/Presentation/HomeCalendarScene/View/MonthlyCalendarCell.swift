@@ -69,7 +69,7 @@ class MonthlyCalendarCell: UICollectionViewCell {
         collectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        collectionView.register(CustomCell.self, forCellWithReuseIdentifier: CustomCell.identifier)
+        collectionView.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
     }
     
     func fill(dayViewModelList: [DayViewModel]) {
