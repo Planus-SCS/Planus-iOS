@@ -10,7 +10,6 @@ import UIKit
 class DailyCalendarCell: UICollectionViewCell {
     
     static let identifier = "daily-calendar-cell"
-    static var idx: Int = 0
     
     override var isSelected: Bool {
       didSet {
@@ -46,7 +45,7 @@ class DailyCalendarCell: UICollectionViewCell {
     
     lazy var numberLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "Pretendard-Regular", size: 10)
+        label.font = UIFont(name: "Pretendard-Regular", size: 8)
         return label
     }()
 
@@ -110,7 +109,7 @@ class DailyCalendarCell: UICollectionViewCell {
         }
         
         todoList?.forEach {
-            let todoView = CalendarSmallTodoView(text: $0.title, category: $0.category)
+            let todoView = SmallTodoView(text: $0.title, category: $0.category)
             todoView.snp.makeConstraints {
                 $0.height.equalTo(16)
             }

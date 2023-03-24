@@ -16,6 +16,9 @@ class MonthlyCalendarCell: UICollectionViewCell {
     var firstPressedIndexPath: IndexPath? //드래그한놈들을 전부 유지하고 다시그리게 해야하나?
     var lastPressedIndexPath: IndexPath?
     
+    var isMultipleSelecting: PublishSubject<Bool>?
+    var bag: DisposeBag?
+    
     lazy var lpgr : UILongPressGestureRecognizer = {
         let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(self.longTap(_:)))
         lpgr.minimumPressDuration = 0.5
@@ -35,7 +38,8 @@ class MonthlyCalendarCell: UICollectionViewCell {
         self.collectionView.addGestureRecognizer(pgr)
     }
 
-    var dataSource: MonthlyCalendarViewDataSource = MonthlyCalendarViewDataSource()
+    var dataSource: MonthlyCollectionViewDataSource = MonthlyCollectionViewDataSource()
+    
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 0
@@ -57,7 +61,7 @@ class MonthlyCalendarCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        // 데이터소스 비우기 정도?
+        self.dataSource.dayViewModelList.removeAll()
     }
     
     func configureView() {
@@ -75,11 +79,8 @@ class MonthlyCalendarCell: UICollectionViewCell {
     func fill(dayViewModelList: [DayViewModel]) {
         self.dataSource.dayViewModelList = dayViewModelList
         collectionView.reloadData()
-        
     }
     
-    var isMultipleSelecting: PublishSubject<Bool>?
-    var bag: DisposeBag?
     func fill(isMultipleSelecting: PublishSubject<Bool>) {
         self.isMultipleSelecting = isMultipleSelecting
     }
@@ -100,6 +101,7 @@ extension MonthlyCalendarCell {
         }
     }
     
+    // 이부분을 간소화 해야함
     @objc func drag(_ gestureRecognizer: UIPanGestureRecognizer) {
         guard self.selectionState else {
             self.isMultipleSelecting?.onNext(false)

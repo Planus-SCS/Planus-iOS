@@ -14,12 +14,9 @@ class HomeCalendarViewController: UIViewController {
     
     var viewModel: HomeCalendarViewModel?
     
-    var selectionState: Bool = false
+    var isSelecting = PublishSubject<Bool>()
     
-    var firstPressedIndexPath: IndexPath? //드래그한놈들을 전부 유지하고 다시그리게 해야하나?
-    var lastPressedIndexPath: IndexPath?
-    
-    let scrollDidDeceleratedWithDoubleIndex = PublishSubject<Double>()
+    let scrolledTo = PublishSubject<ScrollDirection>()
     
     lazy var yearMonthButton: UIButton = {
         let button = UIButton(frame: .zero)
@@ -34,19 +31,6 @@ class HomeCalendarViewController: UIViewController {
 
         return button
     }()
-    
-    @objc func yearMonthButtonTapped(_ sender: UIButton) {
-//        let vc = MonthPickerController(year: 2023, month: 3)
-//        // Preferred Size
-//        vc.preferredContentSize = CGSize(width: 320, height: 290)
-//        vc.modalPresentationStyle = .popover
-//        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
-//        popover.delegate = self
-//        popover.sourceView = self.view
-//        popover.sourceItem = yearMonthButton
-//
-//        present(vc, animated: true, completion:nil)
-    }
     
     var groupListButton: UIBarButtonItem = {
         let image = UIImage(named: "groupCalendarList")
@@ -84,20 +68,6 @@ class HomeCalendarViewController: UIViewController {
         
         return collectionView
     }()
-        
-//    lazy var lpgr : UILongPressGestureRecognizer = {
-//        let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(self.longTap(_:)))
-//        lpgr.minimumPressDuration = 0.5
-//        lpgr.delegate = self
-//        lpgr.delaysTouchesBegan = true
-//        return lpgr
-//    }()
-//
-//    lazy var pgr: UIPanGestureRecognizer = {
-//        let pgr = UIPanGestureRecognizer(target: self, action: #selector(self.drag(_:)))
-//        pgr.delegate = self
-//        return pgr
-//    }()
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -130,104 +100,52 @@ class HomeCalendarViewController: UIViewController {
         guard let viewModel else { return }
         
         let input = HomeCalendarViewModel.Input(
-            scrollDidDeceleratedWithDoubleIndex: self.scrollDidDeceleratedWithDoubleIndex.asObservable(),
+            didScrollTo: self.scrolledTo.asObservable(),
             viewDidLoaded: Observable.just(())
         )
         
         let output = viewModel.transform(input: input)
         
-        output.didLoadYearMonth
+        output.didLoadYYYYMM
             .observe(on: MainScheduler.asyncInstance)
             .subscribe { [weak self] text in
                 self?.yearMonthButton.setTitle(text, for: .normal)
             }
             .disposed(by: bag)
         
-        output.initDaysLoaded
-            .observe(on: MainScheduler.asyncInstance)
+        output.initialDayListFetchedInCenterIndex
             .compactMap { $0 }
-            .subscribe { [weak self] count in
-                guard let self,
-                      let viewModel = self.viewModel else { return }
-                self.collectionView.reloadData()
-                self.collectionView.contentOffset = CGPoint(x: CGFloat(count/2)*self.view.frame.width, y: 0)
-//                var snapshot = NSDiffableDataSourceSnapshot<Int, DayViewModel>()
-//                snapshot.appendSections(Array(0..<viewModel.days.count))
-//                viewModel.days.enumerated().forEach { index, item in
-//                    snapshot.appendItems(item, toSection: index)
-//                }
-//                self.dataSource.apply(snapshot, completion: {
-//                    self.collectionView.contentOffset = CGPoint(x: CGFloat(count/2)*self.view.frame.width, y: 0)
-//                })
-            }
-            .disposed(by: bag)
-        
-        output.nowLoading
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe { [weak self] in
-            }
+            .withUnretained(self)
+            .subscribe(onNext: { vc, center in
+                vc.collectionView.reloadData()
+                vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
+            })
             .disposed(by: bag)
-//
-        output.prevDaysLoaded
+            
+        output.todoListFetchedInIndexRange
+            .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe { [weak self] count in
-                let exOffset = self!.collectionView.contentOffset
-                self?.collectionView.reloadData()
-                self?.collectionView.contentOffset = CGPoint(x: exOffset.x + CGFloat(count)*self!.view.frame.width, y: 0)
-
-            }
+            .withUnretained(self)
+            .subscribe(onNext: { vc, rangeSet in
+                vc.collectionView.reloadSections(IndexSet(rangeSet.0..<rangeSet.1))
+            })
             .disposed(by: bag)
-        
-        output.followingDaysLoaded
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe { [weak self] count in
-                guard let exCount = self?.viewModel?.days.count else { return }
 
-                let exOffset = self!.collectionView.contentOffset
-
-                self?.collectionView.reloadData()
-                self?.collectionView.contentOffset = CGPoint(x: exOffset.x - CGFloat(count)*self!.view.frame.width, y: 0)
-            }
-            .disposed(by: bag)
     }
     
-//    func configureGestureRecognizer() {
-//        self.collectionView.addGestureRecognizer(lpgr)
-//        self.collectionView.addGestureRecognizer(pgr)
-//    }
-    
-    var dataSource: UICollectionViewDiffableDataSource<Int, DayViewModel>!
-    
-//    func configureSource() {
-//        let imageCellRegistration = UICollectionView.CellRegistration<CustomCell, DayViewModel> { (cell, indexPath, dayViewModel) in
-//            cell.fill(day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: Calendar.current.component(.weekday, from: dayViewModel.date) - 1)!, todoList: self.viewModel!.todoContainer.todoList(of: dayViewModel.date))
-//            cell.fill(dummy: (self.viewModel!.maxTodoInWeek(section: indexPath.section, item: indexPath.row) ?? Int()) - (self.viewModel!.todoContainer.todoList(of: dayViewModel.date).count))
-//            if dayViewModel.date == self.viewModel?.today {
-//                cell.backgroundColor = .white
-//                cell.layer.cornerRadius = 3
-//                cell.layer.cornerCurve = .continuous
-//            } else {
-//                cell.backgroundColor = nil
-//                cell.layer.cornerRadius = 3
-//                cell.layer.cornerCurve = .continuous
-//            }
-//        }
+    @objc func yearMonthButtonTapped(_ sender: UIButton) {
+//        let vc = MonthPickerController(year: 2023, month: 3)
+//        // Preferred Size
+//        vc.preferredContentSize = CGSize(width: 320, height: 290)
+//        vc.modalPresentationStyle = .popover
+//        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
+//        popover.delegate = self
+//        popover.sourceView = self.view
+//        popover.sourceItem = yearMonthButton
 //
-//        // MARK: DataSoucre Cell Provider
-//        dataSource = UICollectionViewDiffableDataSource<Int, DayViewModel>(collectionView: collectionView) { collectionView, indexPath, item in
-//            return collectionView.dequeueConfiguredReusableCell(using: imageCellRegistration, for: indexPath, item: item)
-//        }
-//
-//                // 초기 데이터 셋팅(섹션 셋팅)
-//        var snapshot = NSDiffableDataSourceSnapshot<Int, DayViewModel>()
-//        snapshot.appendSections([])
-//        self.dataSource.apply(snapshot, animatingDifferences: false)
-//
-//    }
-//
-//    var a = ["월","화", "수", "목", "금", "토", "일"]
-    
-    var isSelecting = PublishSubject<Bool>()
+//        present(vc, animated: true, completion:nil)
+    }
 }
 
 extension HomeCalendarViewController: UIPopoverPresentationControllerDelegate {
@@ -238,33 +156,18 @@ extension HomeCalendarViewController: UIPopoverPresentationControllerDelegate {
 
 extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        viewModel?.days.count ?? Int()
+        viewModel?.mainDayList.count ?? Int()
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-//        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomCell.identifier, for: indexPath) as? CustomCell,
-//              let dayViewModel = viewModel?.days[indexPath.section][indexPath.item] else {
-//            return UICollectionViewCell()
-//        }
-//        // 안쪽의 데이터소스한테 그대~로 전달해야함!
-//        cell.fill(day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: Calendar.current.component(.weekday, from: dayViewModel.date) - 1)!, todoList: viewModel!.todoContainer.todoList(of: dayViewModel.date))
-//        if dayViewModel.date == viewModel?.today {
-//            cell.backgroundColor = .white
-//            cell.layer.cornerRadius = 3
-//            cell.layer.cornerCurve = .continuous
-//        } else {
-//            cell.backgroundColor = nil
-//            cell.layer.cornerRadius = 3
-//            cell.layer.cornerCurve = .continuous
-//        }
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MonthlyCalendarCell.reuseIdentifier, for: indexPath) as? MonthlyCalendarCell,
             let viewModel else { return UICollectionViewCell() }
         
-        cell.fill(dayViewModelList: viewModel.days[indexPath.section])
-        cell.fill(isMultipleSelecting: self.isSelecting)
+        cell.fill(dayViewModelList: viewModel.mainDayList[indexPath.section])
+        cell.fill(isMultipleSelecting: self.isSelecting) // 이거랑 어디부터 어디까지 드래그하고있는지도 보내야함!
         let bag = DisposeBag()
         
         isSelecting
@@ -280,63 +183,13 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
         return cell
     }
     
-//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        let vc = ViewController2(nibName: nil, bundle: nil)
-//        vc.closure1 = { (category: TodoCategory) in
-//            guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
-//            paths.forEach { indexPath in
-//                let viewModel = self.viewModel!.days[indexPath.section][indexPath.item]
-//                let todo = Todo(title: "test", date: viewModel.date, category: category, type: .normal)
-//                self.viewModel?.todoContainer.append(item: todo, date: viewModel.date)
-////                self.viewModel?.days[indexPath.section][indexPath.item].todo.append(todo)
-//            }
-//
-//            DispatchQueue.main.async {
-//                self.collectionView.reloadData()
-//            }
-//        }
-//
-//        vc.closure2 = { () in
-//            guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
-//            paths.forEach { indexPath in
-//                self.collectionView.deselectItem(at: indexPath, animated: true)
-//            }
-//        }
-//
-//        let nav = UINavigationController(rootViewController: vc)
-//        nav.modalPresentationStyle = .pageSheet
-//        if let sheet = nav.sheetPresentationController {
-//            sheet.detents = [.large()]
-//        }
-//        self.navigationController?.topViewController?.present(nav, animated: true)
-//    }
-    
-//    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-//        if decelerate {
-//            DispatchQueue.main.async {
-////                scrollView.isUserInteractionEnabled = false
-//            }
-//        }
-//    }
-//
-//    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-//        self.scrollDidDeceleratedWithDoubleIndex.onNext(scrollView.contentOffset.x/self.view.frame.width)
-//        DispatchQueue.main.async {
-////            scrollView.isUserInteractionEnabled = true
-//        }
-//    }
-//
-    
-//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//        self.scrollDidDeceleratedWithDoubleIndex.onNext(scrollView.contentOffset.x/self.view.frame.width)
-//    }
-//    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-//        if velocity.x > 0 {
-//            scrollDidDeceleratedWithDoubleIndex.onNext(.next)
-//        } else if velocity.x < 0 {
-//            scrollDidDeceleratedWithDoubleIndex.onNext(.prev)
-//        }
-//    }
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        if velocity.x > 0 {
+            scrolledTo.onNext(.right)
+        } else if velocity.x < 0 {
+            scrolledTo.onNext(.left)
+        }
+    }
     
 }
 

@@ -51,6 +51,7 @@ class TodoContainer {
         
         var dict = [Date: [Todo]]()
         var calendarDate = Calendar.current.date(byAdding: DateComponents(day: 0), to: Calendar.current.date(byAdding: DateComponents(month: 0), to: standardDate) ?? Date()) ?? Date()
+        print(calendarDate)
         todoDict[calendarDate] = []
         todoDict[calendarDate]?.append(Todo(title: "창재형이랑 롤하기", date: calendarDate, category: .green, type: .normal)) //일상
         todoDict[calendarDate]?.append(Todo(title: "SCSY 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
@@ -97,7 +98,7 @@ class TodoContainer {
         todoDict[date6]?.append(Todo(title: "SCSY 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
         todoDict[date6]?.append(Todo(title: "백준 12746 풀기", date: calendarDate, category: .purple, type: .normal)) //개인 공부
         
-        
+        calendarDate = Calendar.current.date(byAdding: DateComponents(year: -1), to: calendarDate) ?? Date()
         
         for i in 0..<1000 {
 
@@ -105,7 +106,7 @@ class TodoContainer {
 
             todoDict[tmpCalendarDate] = []
             for j in 0..<3 {
-                todoDict[tmpCalendarDate]?.append(Todo(title: "\(dateFormatter.string(from: tmpCalendarDate))", date: Date(), category: .init(rawValue: j)!, type: .normal))
+                todoDict[tmpCalendarDate]?.append(Todo(title: "\(dateFormatter.string(from: tmpCalendarDate))", date: tmpCalendarDate, category: .init(rawValue: j)!, type: .normal))
             }
         }
         
@@ -115,11 +116,13 @@ class TodoContainer {
     func getTodo(from: Date, to: Date) -> [Todo] {
         
         var todoList = [Todo]()
-        
         var date = from
         let components = DateComponents(day: 1)
         while date != to {
-            date = calendar.date(byAdding: components, to: date) ?? Date()
+            guard let newDate = calendar.date(byAdding: components, to: date) else {
+                return []
+            }
+            date = newDate
             if let list = todoDict[date] {
                 todoList += list
             }

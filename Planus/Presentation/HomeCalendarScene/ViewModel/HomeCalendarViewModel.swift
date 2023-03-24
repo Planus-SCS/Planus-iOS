@@ -185,12 +185,15 @@ class HomeCalendarViewModel {
         fetchTodoListUseCase.execute(from: fromMonthStart, to: toMonthStart)
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
+//                print(todoDict.keys)
+//                print("--------------------------------")
                 (fromIndex..<toIndex).forEach { index in
                     self.mainDayList[index] = self.mainDayList[index].map {
                         var dayViewModel = $0
                         dayViewModel.todoList = todoDict[$0.date]
                         return dayViewModel
                     }
+                    
                 }
                 self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
             })

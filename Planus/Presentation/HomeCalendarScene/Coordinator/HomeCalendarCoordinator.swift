@@ -26,7 +26,21 @@ class HomeCalendarCoordinator: Coordinator {
     }
     
     lazy var showHomeCalendarPage: () -> Void = { [weak self] in
-
+        
+        let todoRepository = TestTodoRepository()
+        
+        let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
+        let fetchTodoListUseCase = DefaultFetchTodoListUseCase(todoRepository: todoRepository)
+        let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
+         
+        let vm = HomeCalendarViewModel(
+            createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
+            fetchTodoListUseCase: fetchTodoListUseCase,
+            dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase
+        )
+        
+        let vc = HomeCalendarViewController(viewModel: vm)
+        self?.navigationController.pushViewController(vc, animated: true)
     }
     
     lazy var showTodoModal: () -> Void = { [weak self] in
