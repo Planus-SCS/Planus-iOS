@@ -7,8 +7,8 @@
 
 import Foundation
 
-enum TodoCategory: String {
-    case blue
+enum TodoCategory: Int {
+    case blue = 0
     case gold
     case pink
     case purple

@@ -6,7 +6,8 @@
 //
 
 import Foundation
+import RxSwift
 
 protocol FetchTodoListUseCase {
-    func execute(date: Date) -> [Todo]
+    func execute(from: Date, to: Date) -> Single<[Date: [Todo]]>
 }
