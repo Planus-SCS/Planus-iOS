@@ -18,8 +18,8 @@ class TodoMainViewModel {
     let cachingIndexDiff = 8
     let cachingAmount = 10
     
-    let endOfFirstIndex = -100
-    let endOfLastIndex = 500
+    let diffWithFirstMonth = -100
+    let diffWithLastMonth = 500
     
     var latestPrevCacheRequestedIndex = 0
     var latestFollowingCacheRequestedIndex = 0
@@ -29,7 +29,7 @@ class TodoMainViewModel {
     
     var currentIndex = 0
 
-    var mainDayList = [DayViewModel]() //이건 살짝 다르게 가져가도 됨. 아니
+    var mainDayList = [DetailDayViewModel]() //이건 살짝 다르게 가져가도 됨. 아니
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
@@ -56,13 +56,16 @@ class TodoMainViewModel {
     
     let fetchTodoListUseCase: FetchTodoListUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
+    let createDailyCalendarUseCase: CreateDailyCalendarUseCase
     
     init(
         fetchTodoListUseCase: FetchTodoListUseCase,
-        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
+        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
+        createDailyCalendarUseCase: CreateDailyCalendarUseCase
     ) {
         self.fetchTodoListUseCase = fetchTodoListUseCase
         self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
+        self.createDailyCalendarUseCase = createDailyCalendarUseCase
         bind()
     }
     
@@ -151,14 +154,13 @@ class TodoMainViewModel {
     // 여기서 일단 싸악 다 만들어두자
     func initCalendar(date: Date) {
         
-        let firstDate = calendar.date(byAdding: DateComponents(month: endOfFirstIndex), to: date) ?? Date()
-        let lastDate = calendar.date(byAdding: DateComponents(month: endOfLastIndex+1), to: date) ?? Date()
+        let firstDate = calendar.date(byAdding: DateComponents(month: diffWithFirstMonth), to: date) ?? Date()
+        let lastDate = calendar.date(byAdding: DateComponents(month: diffWithLastMonth+1), to: date) ?? Date()
         
-        mainDayList = (endOfFirstIndex...endOfLastIndex).map { difference -> [DayViewModel] in
-            let calendarDate = self.calendar.date(byAdding: DateComponents(month: difference), to: date) ?? Date()
-            return createMonthlyCalendarUseCase.execute(date: calendarDate)
-        }
-        currentIndex = -endOfFirstIndex
+        self.mainDayList = createDailyCalendarUseCase.execute(from: firstDate, to: lastDate)
+        
+        currentIndex = calendar.dateComponents([.day], from: firstDate, to: date).day ?? Int()
+        
         latestPrevCacheRequestedIndex = currentIndex
         latestFollowingCacheRequestedIndex = currentIndex
         
@@ -182,13 +184,13 @@ class TodoMainViewModel {
         switch direction {
         case .left:
             currentDate.onNext(self.calendar.date(
-                                byAdding: DateComponents(month: -1),
+                                byAdding: DateComponents(day: -1),
                                 to: previousDate
                         ))
             currentIndex-=1
         case .right:
             currentDate.onNext(self.calendar.date(
-                                byAdding: DateComponents(month: 1),
+                                byAdding: DateComponents(day: 1),
                                 to: previousDate
                         ))
             currentIndex+=1
@@ -222,22 +224,19 @@ class TodoMainViewModel {
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
         
         guard let currentDate = try? self.currentDate.value() else { return }
-        let fromMonth = calendar.date(byAdding: DateComponents(month: fromIndex - currentIndex), to: currentDate) ?? Date()
-        let toMonth = calendar.date(byAdding: DateComponents(month: toIndex - currentIndex), to: currentDate) ?? Date()
+        let fromDay = calendar.date(byAdding: DateComponents(day: fromIndex - currentIndex), to: currentDate) ?? Date()
+        let toDay = calendar.date(byAdding: DateComponents(day: toIndex - currentIndex), to: currentDate) ?? Date()
         
-        let fromMonthStart = calendar.date(byAdding: DateComponents(day: -7), to: calendar.startOfDay(for: fromMonth)) ?? Date()
-        let toMonthStart = calendar.date(byAdding: DateComponents(day: 7), to: calendar.startOfDay(for: toMonth)) ?? Date()
-
-        fetchTodoListUseCase.execute(from: fromMonthStart, to: toMonthStart)
+        fetchTodoListUseCase.execute(from: fromDay, to: toDay)
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 (fromIndex..<toIndex).forEach { index in
-                    self.mainDayList[index] = self.mainDayList[index].map {
-                        var dayViewModel = $0
-                        dayViewModel.todoList = todoDict[$0.date]
-                        return dayViewModel
+                    var detailDayViewModel = self.mainDayList[index]
+                    if let list = todoDict[detailDayViewModel.date] {
+                        detailDayViewModel.scheduledTodoList = list.filter { $0.time != nil }
+                        detailDayViewModel.unSchedultedTodoList = list.filter { $0.time == nil }
                     }
-                    
+                    self.mainDayList[index] = detailDayViewModel
                 }
                 self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
             })
