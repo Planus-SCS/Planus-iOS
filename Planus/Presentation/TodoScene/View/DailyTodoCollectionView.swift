@@ -10,7 +10,8 @@ import UIKit
 class DailyTodoCollectionView: UICollectionView {
     
     static let backgroundKind = "todo-background-element-kind"
-    
+    static let headerKind = "todo-header-element-kind"
+
     convenience init(frame: CGRect) {
         self.init(frame: frame, collectionViewLayout: UICollectionViewLayout())
         self.setCollectionViewLayout(self.createLayout(), animated: false)
@@ -30,7 +31,7 @@ class DailyTodoCollectionView: UICollectionView {
         self.backgroundColor = UIColor(hex: 0xF5F5FB)
         
         self.register(BigTodoCell.self, forCellWithReuseIdentifier: BigTodoCell.reuseIdentifier)
-        self.register(TodoSectionHeaderSupplementaryView.self, forSupplementaryViewOfKind: TodoCollectionViewDataSource.headerKind, withReuseIdentifier: TodoSectionHeaderSupplementaryView.reuseIdentifier)
+        self.register(TodoSectionHeaderSupplementaryView.self, forSupplementaryViewOfKind: Self.headerKind, withReuseIdentifier: TodoSectionHeaderSupplementaryView.reuseIdentifier)
     }
     
     private func createLayout() -> UICollectionViewLayout {
@@ -62,7 +63,7 @@ class DailyTodoCollectionView: UICollectionView {
         
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
-            elementKind: TodoCollectionViewDataSource.headerKind,
+            elementKind: Self.headerKind,
             alignment: .top
         )
         
