@@ -1,5 +1,5 @@
 //
-//  DailyTodoCollectionView.swift
+//  TodoDailyCollectionView.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/28.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class DailyTodoCollectionView: UICollectionView {
+class TodoDailyCollectionView: UICollectionView {
     
     static let backgroundKind = "todo-background-element-kind"
     static let headerKind = "todo-header-element-kind"
