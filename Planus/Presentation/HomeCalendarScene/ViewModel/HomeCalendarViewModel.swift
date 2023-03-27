@@ -33,6 +33,8 @@ class HomeCalendarViewModel {
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
     var showCreateMultipleTodo = PublishSubject<(Date, Date)>()
     var showDailyTodoPage = PublishSubject<Date>()
+    var showMonthPicker = PublishSubject<(Date, Date, Date)>()
+    var didSelectMonth = PublishSubject<Int>()
     
     var currentIndex = Int()
     var cachedCellHeightForTodoCount = [Int: Double]()
@@ -43,6 +45,8 @@ class HomeCalendarViewModel {
         var viewDidLoaded: Observable<Void>
         var didSelectItem: Observable<(Int, Int)>
         var didMultipleSelectItemsInRange: Observable<(Int, (Int, Int))>
+        var didTappedTitleButton: Observable<Void>
+        var didSelectMonth: Observable<Date>
     }
     
     struct Output {
@@ -51,6 +55,8 @@ class HomeCalendarViewModel {
         var todoListFetchedInIndexRange: Observable<(Int, Int)?> // a부터 b까지 리로드 해라!
         var showCreateMultipleTodo: Observable<(Date, Date)>
         var showDailyTodoPage: Observable<Date>
+        var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
+        var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
     }
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
@@ -121,12 +127,40 @@ class HomeCalendarViewModel {
             }
             .disposed(by: bag)
         
+        input
+            .didTappedTitleButton
+            .withUnretained(self)
+            .subscribe { vm, _ in
+                guard let currentDate = try? vm.currentDate.value() else { return }
+                let first = vm.mainDayList[0][7].date
+                let last = vm.mainDayList[vm.mainDayList.count-1][7].date
+                vm.showMonthPicker.onNext((first, currentDate, last))
+            }
+            .disposed(by: bag)
+        
+        input.didSelectMonth
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vm, date in
+                let start = vm.mainDayList[0][7].date
+                let index = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
+                print(index)
+                vm.currentIndex = index
+                vm.currentDate.onNext(date)
+                vm.didSelectMonth.onNext(index)
+                vm.initTodoList(date: date)
+                print(date)
+            })
+            .disposed(by: bag)
+        
         return Output(
             didLoadYYYYMM: currentYYYYMM.asObservable(),
             initialDayListFetchedInCenterIndex: initialDayListFetchedInCenterIndex.asObservable(),
             todoListFetchedInIndexRange: todoListFetchedInIndexRange.asObservable(),
             showCreateMultipleTodo: showCreateMultipleTodo.asObservable(),
-            showDailyTodoPage: showDailyTodoPage.asObservable()
+            showDailyTodoPage: showDailyTodoPage.asObservable(),
+            showMonthPicker: showMonthPicker.asObservable(),
+            monthChangedByPicker: didSelectMonth.asObservable()
         )
     }
     
@@ -147,8 +181,8 @@ class HomeCalendarViewModel {
     }
     
     func initTodoList(date: Date) {
-        let fromIndex = currentIndex - cachingAmount
-        let toIndex = currentIndex + cachingAmount + 1
+        let fromIndex = (currentIndex - cachingAmount >= 0) ? currentIndex - cachingAmount : 0
+        let toIndex = currentIndex + cachingAmount + 1 < mainDayList.count ? currentIndex + cachingAmount + 1 : mainDayList.count-1
         
         fetchTodoList(from: fromIndex, to: toIndex)
     }

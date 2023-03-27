@@ -8,13 +8,20 @@
 import UIKit
 import RxSwift
 
-class MonthPickerController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
+class MonthPickerViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
     
-    var year: Int?
-    var month: Int?
+    var firstYear: Int?
+    var firstMonth: Int?
+    
+    var centeredYear: Int?
     
     var currentYear: Int?
     var currentMonth: Int?
+    
+    var lastYear: Int?
+    var lastMonth: Int?
+    
+    var completion: ((Date) -> Void)?
     
     var monthData: [String] = {
         (1...12).map { "\($0)월" }
@@ -28,7 +35,7 @@ class MonthPickerController: UIViewController, UICollectionViewDataSource, UICol
         collectionView.dataSource = self
         collectionView.isPagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
-//        collectionView.register(MonthPickerCell.self, forCellWithReuseIdentifier: MonthPickerCell.reuseIdentifier)
+        collectionView.register(MonthPickerCell.self, forCellWithReuseIdentifier: MonthPickerCell.reuseIdentifier)
         
         collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
         return collectionView
@@ -42,7 +49,7 @@ class MonthPickerController: UIViewController, UICollectionViewDataSource, UICol
     }()
     
     lazy var prevButton: UIButton = {
-        let image = UIImage(named: "monthPickerLeft")
+        let image = UIImage(named: "pickerLeft")
         let button = UIButton(frame: CGRect(
             x: 0,
             y: 0,
@@ -55,7 +62,7 @@ class MonthPickerController: UIViewController, UICollectionViewDataSource, UICol
     }()
     
     lazy var nextButton: UIButton = {
-        let image = UIImage(named: "monthPickerRight")
+        let image = UIImage(named: "pickerRight")
         let button = UIButton(frame: CGRect(
             x: 0,
             y: 0,
@@ -68,16 +75,25 @@ class MonthPickerController: UIViewController, UICollectionViewDataSource, UICol
         return button
     }()
     
-    convenience init(year: Int, month: Int) {
+    convenience init(firstYear: Date, lastYear: Date, currentDate: Date, completion: @escaping (Date) -> Void) {
         self.init(nibName: nil, bundle: nil)
-        self.year = year
-        self.month = month
+        let currentComponents = Calendar.current.dateComponents([.year, .month], from: currentDate)
+        self.currentYear = currentComponents.year
+        self.currentMonth = currentComponents.month
+
+        self.centeredYear = currentComponents.year
         
-        self.currentYear = year
-        self.currentMonth = month
+        let firstComponents = Calendar.current.dateComponents([.year, .month], from: firstYear)
+        self.firstYear = firstComponents.year
+        self.firstMonth = firstComponents.month
+        
+        let lastComponents = Calendar.current.dateComponents([.year, .month], from: lastYear)
+        self.lastYear = lastComponents.year
+        self.lastMonth = lastComponents.month
+        self.completion = completion
     }
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+    private override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
     
@@ -99,7 +115,7 @@ class MonthPickerController: UIViewController, UICollectionViewDataSource, UICol
         self.view.addSubview(prevButton)
         self.view.addSubview(nextButton)
         self.view.addSubview(collectionView)
-        yearLabel.text = "\(year ?? 0)년"
+        yearLabel.text = "\(centeredYear ?? 0)년"
     }
     
     func configureLayout() {
@@ -141,14 +157,53 @@ class MonthPickerController: UIViewController, UICollectionViewDataSource, UICol
         3
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print("hi")
+        guard let centeredYear,
+              let completion else { return }
+        
+        let component = DateComponents(year: centeredYear, month: indexPath.item + 1)
+        let date = Calendar.current.date(from: component) ?? Date()
+        completion(date)
+        self.dismiss(animated: true)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MonthPickerCell.reuseIdentifier, for: indexPath) as? MonthPickerCell else {
             return UICollectionViewCell()
         }
-
+        
+        var isValid: Bool
+        
+        guard let firstYear = firstYear,
+              let firstMonth = firstMonth,
+              let lastYear = lastYear,
+              let lastMonth = lastMonth,
+              let centeredYear = centeredYear,
+              let currentYear = currentYear,
+              let currentMonth = currentMonth else { return UICollectionViewCell() }
+        var sectionYear = centeredYear + indexPath.section - 1
+        
+        if firstYear < sectionYear,
+           sectionYear < lastYear {
+            isValid = true
+        } else if firstYear == sectionYear,
+                  firstMonth > indexPath.item + 1 {
+            isValid = false
+        } else if lastYear == sectionYear,
+                  lastMonth < indexPath.item + 1 {
+            isValid = false
+        } else if firstYear > sectionYear {
+            isValid = false
+        } else if lastYear < sectionYear {
+            isValid = false
+        } else {
+            isValid = true
+        }
         cell.fill(
             month: monthData[indexPath.item],
-            isCurrent: (year! + indexPath.section - 1 == currentYear) && (indexPath.item+1 == currentMonth)
+            isCurrent: (sectionYear == currentYear) && (indexPath.item+1 == currentMonth),
+            isValid: isValid
         )
         return cell
     }
@@ -162,13 +217,13 @@ class MonthPickerController: UIViewController, UICollectionViewDataSource, UICol
         
         if doubleOffset < 1 && ceil(doubleOffset) == 0 {
             scrollView.setContentOffset(CGPoint(x: 290, y: 0), animated: false) //이때 앞으로 전진한거임. year를 하나 앞으로 바꾸고 리로드해야함
-            year?-=1
-            yearLabel.text = "\(year ?? 0)년"
+            centeredYear?-=1
+            yearLabel.text = "\(centeredYear ?? 0)년"
             collectionView.reloadData()
         } else if doubleOffset > 1 && floor(doubleOffset) == 2 {
             scrollView.setContentOffset(CGPoint(x: 290, y: 0), animated: false)
-            year?+=1
-            yearLabel.text = "\(year ?? 0)년"
+            centeredYear?+=1
+            yearLabel.text = "\(centeredYear ?? 0)년"
             collectionView.reloadData()
         }
     }

@@ -14,6 +14,7 @@ class HomeCalendarViewController: UIViewController {
     
     var viewModel: HomeCalendarViewModel?
     
+    var isMonthChanged = PublishSubject<Date>()
     var isMultipleSelecting = PublishSubject<Bool>()
     var isMultipleSelected = PublishSubject<(Int, (Int, Int))>()
     var isSingleSelected = PublishSubject<(Int, Int)>()
@@ -29,7 +30,6 @@ class HomeCalendarViewController: UIViewController {
         button.imageEdgeInsets = .init(top: 0, left: 5, bottom: 0, right: -5)
         button.tintColor = .black
         button.setTitleColor(.black, for: .normal)
-        button.addTarget(self, action: #selector(yearMonthButtonTapped), for: .touchUpInside)
 
         return button
     }()
@@ -103,7 +103,9 @@ class HomeCalendarViewController: UIViewController {
             didScrollTo: self.scrolledTo.asObservable(),
             viewDidLoaded: Observable.just(()),
             didSelectItem: isSingleSelected.asObservable(),
-            didMultipleSelectItemsInRange: isMultipleSelected.asObservable()
+            didMultipleSelectItemsInRange: isMultipleSelected.asObservable(),
+            didTappedTitleButton: yearMonthButton.rx.tap.asObservable(),
+            didSelectMonth: isMonthChanged.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -146,6 +148,32 @@ class HomeCalendarViewController: UIViewController {
             })
             .disposed(by: bag)
         
+        output.showMonthPicker
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { first, current, last in
+                let vc = MonthPickerViewController(firstYear: first, lastYear: last, currentDate: current) { [weak self] date in
+                    self?.isMonthChanged.onNext(date)
+                }
+                // 여기서 앞뒤로 범위까지 전달할 수 있어야함. 즉, 저걸 열면 현재날짜에서 월별로 앞뒤로를 만들어서 한번에 데이터소스에 집어넣는게 맞을듯하다..!아이구야,,,
+                vc.preferredContentSize = CGSize(width: 320, height: 290)
+                vc.modalPresentationStyle = .popover
+                let popover: UIPopoverPresentationController = vc.popoverPresentationController!
+                popover.delegate = self
+                popover.sourceView = self.view
+                popover.sourceItem = self.yearMonthButton
+                
+                self.present(vc, animated: true, completion:nil)
+            })
+            .disposed(by: bag)
+        
+        output.monthChangedByPicker
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                vc.collectionView.setContentOffset(CGPoint(x: Double(index)*vc.view.frame.width, y: 0), animated: false)
+            })
+            .disposed(by: bag)
+        
         isMultipleSelecting
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { bool in
@@ -153,24 +181,9 @@ class HomeCalendarViewController: UIViewController {
                 self.collectionView.isUserInteractionEnabled = !bool
             })
             .disposed(by: bag)
-        
-        
+    }
+    
 
-    }
-    
-    @objc func yearMonthButtonTapped(_ sender: UIButton) {
-//        let vc = MonthPickerController(year: 2023, month: 3)
-//        // Preferred Size
-//        vc.preferredContentSize = CGSize(width: 320, height: 290)
-//        vc.modalPresentationStyle = .popover
-//        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
-//        popover.delegate = self
-//        popover.sourceView = self.view
-//        popover.sourceItem = yearMonthButton
-//
-//        present(vc, animated: true, completion:nil)
-    }
-    
     @objc func profileButtonTapped() {
         print("to profile")
     }
