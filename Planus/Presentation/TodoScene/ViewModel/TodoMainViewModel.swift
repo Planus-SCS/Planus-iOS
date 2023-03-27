@@ -40,7 +40,7 @@ class TodoMainViewModel {
     struct Input {
         var didScrollTo: Observable<ScrollDirection>
         var viewDidLoaded: Observable<Void>
-        var didSelectItem: Observable<(Int, Int)>
+        var didSelectItem: Observable<IndexPath>
         var didTappedTitleButton: Observable<Void>
         var didSelectDay: Observable<Date>
     }
