@@ -9,6 +9,8 @@ import UIKit
 
 class TodoDailyCalendarCell: UICollectionViewCell {
     
+    static let reuseIdentifier = "todo-daily-calendar-cell"
+    
     weak var delegate: TodoDailyCalendarCellDelegate?
     
     var index: Int?
@@ -16,6 +18,7 @@ class TodoDailyCalendarCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        configureView()
     }
     
     required init?(coder: NSCoder) {
@@ -26,14 +29,24 @@ class TodoDailyCalendarCell: UICollectionViewCell {
         self.addSubview(collectionView)
         collectionView.dataSource = self
         collectionView.delegate = self
+
         collectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        self.index = nil
+        self.delegate = nil
+    }
+    
     func fill(index: Int, delegate: TodoDailyCalendarCellDelegate) {
         self.index = index
         self.delegate = delegate
+        
+        collectionView.reloadData()
     }
     
 }
@@ -66,13 +79,32 @@ extension TodoDailyCalendarCell: UICollectionViewDataSource, UICollectionViewDel
             return UICollectionViewCell()
         }
         cell.fill(title: todoItem.title, time: nil, category: todoItem.category)
+        return cell
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         2
     }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+
+        guard let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: TodoDailyCollectionView.headerKind, withReuseIdentifier: TodoSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? TodoSectionHeaderSupplementaryView else { return UICollectionReusableView() }
+        
+        var title: String
+        switch indexPath.section {
+        case 0:
+            title = "일정"
+        case 1:
+            title = "투두"
+        default:
+            fatalError()
+        }
+        headerview.fill(title: title)
+     
+        return headerview
+    }
 }
 
 protocol TodoDailyCalendarCellDelegate: NSObject {
-    func todoDailyCalendarCell(_ todoDailyCalendarCell: TodoDailyCalendarCell, itemAt: Int) -> DetailDayViewModel
+    func todoDailyCalendarCell(_ todoDailyCalendarCell: TodoDailyCalendarCell, itemAt: Int) -> DetailDayViewModel?
 }

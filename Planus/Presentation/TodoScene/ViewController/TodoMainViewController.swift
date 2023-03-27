@@ -40,8 +40,9 @@ class TodoMainViewController: UIViewController {
     
     lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
+        collectionView.isPagingEnabled = true
         collectionView.dataSource = self
-        collectionView.register(<#T##cellClass: AnyClass?##AnyClass?#>, forCellWithReuseIdentifier: <#T##String#>)
+        collectionView.register(TodoDailyCalendarCell.self, forCellWithReuseIdentifier: TodoDailyCalendarCell.reuseIdentifier)
         return collectionView
     }()
     
@@ -126,6 +127,7 @@ class TodoMainViewController: UIViewController {
     
     func configureView() {
         self.view.addSubview(collectionView)
+        collectionView.dataSource = self
     }
     
     func configureLayout() {
@@ -170,7 +172,16 @@ extension TodoMainViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        <#code#>
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TodoDailyCalendarCell.reuseIdentifier, for: indexPath) as? TodoDailyCalendarCell else { return UICollectionViewCell() }
+        
+        cell.fill(index: indexPath.section, delegate: self)
+        return cell
+    }
+}
+
+extension TodoMainViewController: TodoDailyCalendarCellDelegate {
+    func todoDailyCalendarCell(_ todoDailyCalendarCell: TodoDailyCalendarCell, itemAt: Int) -> DetailDayViewModel? {
+        return viewModel?.mainDayList[itemAt]
     }
 }
 

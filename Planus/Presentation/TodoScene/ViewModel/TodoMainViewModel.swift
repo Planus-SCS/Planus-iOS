@@ -37,6 +37,13 @@ class TodoMainViewModel {
     var showDayPicker = PublishSubject<Void>()
     var dayChangedByPicker = PublishSubject<Date>()
     
+    lazy var dateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy년 MM월 dd일"
+        return dateFormatter
+    }()
+    
+    
     struct Input {
         var didScrollTo: Observable<ScrollDirection>
         var viewDidLoaded: Observable<Void>
@@ -55,16 +62,13 @@ class TodoMainViewModel {
     }
     
     let fetchTodoListUseCase: FetchTodoListUseCase
-    let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     let createDailyCalendarUseCase: CreateDailyCalendarUseCase
     
     init(
         fetchTodoListUseCase: FetchTodoListUseCase,
-        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
         createDailyCalendarUseCase: CreateDailyCalendarUseCase
     ) {
         self.fetchTodoListUseCase = fetchTodoListUseCase
-        self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
         self.createDailyCalendarUseCase = createDailyCalendarUseCase
         bind()
     }
@@ -148,7 +152,7 @@ class TodoMainViewModel {
     }
     
     func updateTitle(date: Date) {
-        currentYYYYMMDD.onNext(dateFormatYYYYMMUseCase.execute(date: date))
+        currentYYYYMMDD.onNext(dateFormatter.string(from: date))
     }
     
     // 여기서 일단 싸악 다 만들어두자
@@ -156,9 +160,10 @@ class TodoMainViewModel {
         
         let firstDate = calendar.date(byAdding: DateComponents(month: diffWithFirstMonth), to: date) ?? Date()
         let lastDate = calendar.date(byAdding: DateComponents(month: diffWithLastMonth+1), to: date) ?? Date()
-        
+        print(firstDate, lastDate)
         self.mainDayList = createDailyCalendarUseCase.execute(from: firstDate, to: lastDate)
-        
+
+        print(self.mainDayList[0..<100])
         currentIndex = calendar.dateComponents([.day], from: firstDate, to: date).day ?? Int()
         
         latestPrevCacheRequestedIndex = currentIndex
