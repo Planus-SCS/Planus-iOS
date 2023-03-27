@@ -134,6 +134,18 @@ class HomeCalendarViewController: UIViewController {
             })
             .disposed(by: bag)
         
+        output.showDailyTodoPage
+            .subscribe(onNext: { date in
+                print(date)
+            })
+            .disposed(by: bag)
+        
+        output.showCreateMultipleTodo
+            .subscribe(onNext: { dateRange in
+                print(dateRange)
+            })
+            .disposed(by: bag)
+        
         isMultipleSelecting
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { bool in
@@ -141,6 +153,8 @@ class HomeCalendarViewController: UIViewController {
                 self.collectionView.isUserInteractionEnabled = !bool
             })
             .disposed(by: bag)
+        
+        
 
     }
     

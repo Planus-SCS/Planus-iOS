@@ -31,6 +31,8 @@ class HomeCalendarViewModel {
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
+    var showCreateMultipleTodo = PublishSubject<(Date, Date)>()
+    var showDailyTodoPage = PublishSubject<Date>()
     
     var currentIndex = Int()
     var cachedCellHeightForTodoCount = [Int: Double]()
@@ -47,6 +49,8 @@ class HomeCalendarViewModel {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var todoListFetchedInIndexRange: Observable<(Int, Int)?> // a부터 b까지 리로드 해라!
+        var showCreateMultipleTodo: Observable<(Date, Date)>
+        var showDailyTodoPage: Observable<Date>
     }
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
@@ -98,10 +102,31 @@ class HomeCalendarViewModel {
             }
             .disposed(by: bag)
         
+        input
+            .didSelectItem
+            .withUnretained(self)
+            .subscribe { vm, index in
+                vm.showDailyTodoPage.onNext(vm.mainDayList[index.0][index.1].date)
+            }
+            .disposed(by: bag)
+        
+        input
+            .didMultipleSelectItemsInRange
+            .withUnretained(self)
+            .subscribe { vm, indexRange in
+                vm.showCreateMultipleTodo.onNext((
+                    vm.mainDayList[indexRange.0][indexRange.1.0].date,
+                    vm.mainDayList[indexRange.0][indexRange.1.1].date
+                ))
+            }
+            .disposed(by: bag)
+        
         return Output(
             didLoadYYYYMM: currentYYYYMM.asObservable(),
             initialDayListFetchedInCenterIndex: initialDayListFetchedInCenterIndex.asObservable(),
-            todoListFetchedInIndexRange: todoListFetchedInIndexRange.asObservable()
+            todoListFetchedInIndexRange: todoListFetchedInIndexRange.asObservable(),
+            showCreateMultipleTodo: showCreateMultipleTodo.asObservable(),
+            showDailyTodoPage: showDailyTodoPage.asObservable()
         )
     }
     

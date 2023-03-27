@@ -142,9 +142,28 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        if let section {
+            isSingleSelected?.onNext((section, indexPath.item))
+        }
+        return false
     }
     
+//    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
+//        if let cell = collectionView.cellForItem(at: indexPath) as? DailyCalendarCell {
+//            print("hilight!")
+//            let pressedDownTransform = CGAffineTransform(scaleX: 0.98, y: 0.98)
+//            UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 3, options: [.curveEaseInOut], animations: { cell.transform = pressedDownTransform })
+//        }
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
+//        if let cell = collectionView.cellForItem(at: indexPath) as? DailyCalendarCell {
+//            print("unhilight")
+//            let originalTransform = CGAffineTransform(scaleX: 1, y: 1)
+//            UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 3, options: [.curveEaseInOut], animations: { cell.transform = originalTransform })
+//        }
+//    }
     
 }
 
@@ -158,7 +177,6 @@ extension MonthlyCalendarCell {
 
             self.firstPressedIndexPath = nowIndexPath
             self.lastPressedIndexPath = nowIndexPath
-            
             collectionView.selectItem(at: nowIndexPath, animated: true, scrollPosition: [])
         }
     }
@@ -240,49 +258,28 @@ extension MonthlyCalendarCell {
         case .ended:
             selectionState = false
             
+            guard let section,
+                  let firstPressedItem = self.firstPressedIndexPath?.item,
+                  let lastPressedItem = self.lastPressedIndexPath?.item else { return }
+            self.isMultipleSelected?.onNext((section, (firstPressedItem, lastPressedItem)))
+
             firstPressedIndexPath = nil
             lastPressedIndexPath = nil
             
             self.isMultipleSelecting?.onNext(false)
+            
 
             collectionView.isScrollEnabled = true
             collectionView.isUserInteractionEnabled = true
             collectionView.allowsMultipleSelection = false
             
-//            let vc = ViewController2(nibName: nil, bundle: nil)
-//            vc.closure1 = { (category: TodoCategory) in
-//                guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
-//
-//                paths.forEach { indexPath in
-//                    let viewModel = self.dataSource.dayViewModelList[indexPath.item]
-//                    let todo = Todo(title: "test", date: viewModel.date, category: category, type: .normal)
-////                    self.viewModel?.todoContainer.append(item: todo, date: viewModel.date)
-////                    self.viewModel?.days[indexPath.section][indexPath.item].todo.append(todo)
-//                }
-//
-//                DispatchQueue.main.async {
-//                    self.collectionView.reloadData()
-//                }
-//            }
-//
-//            vc.closure2 = { () in
-//                guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
-//                paths.forEach { indexPath in
-//                    self.collectionView.deselectItem(at: indexPath, animated: true)
-//                }
-//            }
-//
-//            let nav = UINavigationController(rootViewController: vc)
-//            nav.modalPresentationStyle = .pageSheet
-//            if let sheet = nav.sheetPresentationController {
-//                sheet.detents = [.medium()]
-//            }
-////            self.navigationController?.topViewController?.present(nav, animated: true)
+            guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
+            paths.forEach { indexPath in
+                self.collectionView.deselectItem(at: indexPath, animated: true)
+            }
         default:
             print(gestureRecognizer.state)
         }
-        
-
     }
 }
 
