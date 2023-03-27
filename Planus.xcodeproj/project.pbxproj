@@ -98,6 +98,7 @@
 		6A24F8EA29D1D4A40000FD64 /* user-circle@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8E429D1D4A30000FD64 /* user-circle@2x.png */; };
 		6A24F8EB29D1D4A40000FD64 /* list.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8E529D1D4A30000FD64 /* list.png */; };
 		6A24F8EC29D1D4A40000FD64 /* user-circle@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8E629D1D4A40000FD64 /* user-circle@3x.png */; };
+		6A24F8EE29D1D5510000FD64 /* MonthPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F8ED29D1D5510000FD64 /* MonthPickerViewController.swift */; };
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
@@ -197,6 +198,7 @@
 		6A24F8E429D1D4A30000FD64 /* user-circle@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "user-circle@2x.png"; sourceTree = "<group>"; };
 		6A24F8E529D1D4A30000FD64 /* list.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = list.png; sourceTree = "<group>"; };
 		6A24F8E629D1D4A40000FD64 /* user-circle@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "user-circle@3x.png"; sourceTree = "<group>"; };
+		6A24F8ED29D1D5510000FD64 /* MonthPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthPickerViewController.swift; sourceTree = "<group>"; };
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
@@ -423,6 +425,7 @@
 			isa = PBXGroup;
 			children = (
 				6A24F88B29CE26540000FD64 /* HomeCalendarViewController.swift */,
+				6A24F8ED29D1D5510000FD64 /* MonthPickerViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -878,6 +881,7 @@
 				6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */,
 				6A24F86429CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift in Sources */,
 				6A24F83C29CB49F10000FD64 /* WeekDay.swift in Sources */,
+				6A24F8EE29D1D5510000FD64 /* MonthPickerViewController.swift in Sources */,
 				6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */,
 				6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */,
 				6A24F85E29CB87D70000FD64 /* FetchTodoListUseCase.swift in Sources */,
