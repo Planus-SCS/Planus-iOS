@@ -19,7 +19,7 @@ class SmallTodoView: UIView {
         return label
     }()
     
-    convenience init(text: String, category: TodoCategory) {
+    convenience init(text: String, category: TodoCategoryColor) {
         self.init(frame: CGRect(x: 0, y: 0, width: 0, height: 16))
         
         fill(text: text, category: category)
@@ -53,7 +53,7 @@ class SmallTodoView: UIView {
         }
     }
     
-    func fill(text: String, category: TodoCategory) {
+    func fill(text: String, category: TodoCategoryColor) {
         self.toDoLabel.text = text
         self.backgroundColor = category.todoForCalendarColor
         self.leadingView.backgroundColor = category.todoLeadingColor

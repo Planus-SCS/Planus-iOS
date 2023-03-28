@@ -45,8 +45,6 @@ class TodoMainViewModel {
     
     
     struct Input {
-        var didScrollTo: Observable<ScrollDirection>
-        var viewDidLoaded: Observable<Void>
         var didSelectItem: Observable<IndexPath>
         var didTappedTitleButton: Observable<Void>
         var didSelectDay: Observable<Date>
@@ -71,6 +69,19 @@ class TodoMainViewModel {
         self.fetchTodoListUseCase = fetchTodoListUseCase
         self.createDailyCalendarUseCase = createDailyCalendarUseCase
         bind()
+        
+        let components = calendar.dateComponents(
+            [.year, .month, .day],
+            from: Date()
+        )
+        
+        let currentDate = calendar.date(from: components) ?? Date()
+        DispatchQueue.global().async {
+            self.currentDate.onNext(currentDate)
+            self.initCalendar(date: currentDate)
+            self.initTodoList(date: currentDate)
+        }
+
     }
     
     func bind() {
@@ -80,32 +91,34 @@ class TodoMainViewModel {
                 self?.updateTitle(date: date)
             }
             .disposed(by: bag)
+        
+        
     }
     
     func transform(input: Input) -> Output {
+//
+//        input.viewDidLoaded
+//            .withUnretained(self)
+//            .subscribe { vm, _ in
+//                let components = vm.calendar.dateComponents(
+//                    [.year, .month, .day],
+//                    from: Date()
+//                )
+//
+//                let currentDate = vm.calendar.date(from: components) ?? Date()
+//                vm.currentDate.onNext(currentDate)
+//                vm.initCalendar(date: currentDate)
+//                vm.initTodoList(date: currentDate)
+//            }
+//            .disposed(by: bag)
         
-        input.viewDidLoaded
-            .withUnretained(self)
-            .subscribe { vm, _ in
-                let components = vm.calendar.dateComponents(
-                    [.year, .month, .day],
-                    from: Date()
-                )
-                
-                let currentDate = vm.calendar.date(from: components) ?? Date()
-                vm.currentDate.onNext(currentDate)
-                vm.initCalendar(date: currentDate)
-                vm.initTodoList(date: currentDate)
-            }
-            .disposed(by: bag)
-        
-        input
-            .didScrollTo
-            .withUnretained(self)
-            .subscribe { vm, direction in
-                vm.scrolledTo(direction: direction)
-            }
-            .disposed(by: bag)
+//        input
+//            .didScrollTo
+//            .withUnretained(self)
+//            .subscribe { vm, direction in
+//                vm.scrolledTo(direction: direction)
+//            }
+//            .disposed(by: bag)
         
         input
             .didSelectItem
@@ -160,10 +173,8 @@ class TodoMainViewModel {
         
         let firstDate = calendar.date(byAdding: DateComponents(month: diffWithFirstMonth), to: date) ?? Date()
         let lastDate = calendar.date(byAdding: DateComponents(month: diffWithLastMonth+1), to: date) ?? Date()
-        print(firstDate, lastDate)
         self.mainDayList = createDailyCalendarUseCase.execute(from: firstDate, to: lastDate)
 
-        print(self.mainDayList[0..<100])
         currentIndex = calendar.dateComponents([.day], from: firstDate, to: date).day ?? Int()
         
         latestPrevCacheRequestedIndex = currentIndex

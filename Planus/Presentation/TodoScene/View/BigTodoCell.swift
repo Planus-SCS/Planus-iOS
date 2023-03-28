@@ -116,7 +116,7 @@ class BigTodoCell: UICollectionViewCell {
         self.buttonClosure = closure
     }
 
-    func fill(title: String, time: String?, category: TodoCategory) {
+    func fill(title: String, time: String?, category: TodoCategoryColor) {
         self.checkImageView.isHidden = true
         self.uncheckImageView.isHidden = false
         if let time = time {

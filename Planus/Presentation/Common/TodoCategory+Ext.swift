@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension TodoCategory {
+extension TodoCategoryColor {
     var todoForCalendarColor: UIColor {
         switch self {
         case .blue:

@@ -53,7 +53,8 @@ class TodoDailyCalendarCell: UICollectionViewCell {
 
 extension TodoDailyCalendarCell: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let item = delegate?.todoDailyCalendarCell(self, itemAt: section) else { return 0 }
+        guard let index,
+              let item = delegate?.todoDailyCalendarCell(self, itemAt: index) else { return 0 }
         switch section {
         case 0:
             return item.scheduledTodoList.count

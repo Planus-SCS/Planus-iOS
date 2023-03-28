@@ -13,9 +13,10 @@ class TodoMainViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: TodoMainViewModel?
     
-    var didScrolledTo = PublishSubject<ScrollDirection>()
     var didSelectItem = PublishSubject<IndexPath>()
     var didSelectDay = PublishSubject<Date>()
+    
+    var collectionView = TodoDailyCollectionView(frame: .zero)
     
     lazy var dateTitleButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
@@ -38,14 +39,6 @@ class TodoMainViewController: UIViewController {
         return item
     }()
     
-    lazy var collectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
-        collectionView.isPagingEnabled = true
-        collectionView.dataSource = self
-        collectionView.register(TodoDailyCalendarCell.self, forCellWithReuseIdentifier: TodoDailyCalendarCell.reuseIdentifier)
-        return collectionView
-    }()
-    
     @objc func addTodoTapped(_ sender: UIButton) {
         print("tap!")
     }
@@ -53,6 +46,7 @@ class TodoMainViewController: UIViewController {
     convenience init(viewModel: TodoMainViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
+
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -70,7 +64,7 @@ class TodoMainViewController: UIViewController {
         
         configureView()
         configureLayout()
-        
+
         bind()
     }
     
@@ -85,8 +79,6 @@ class TodoMainViewController: UIViewController {
         guard let viewModel else { return }
         
         let input = TodoMainViewModel.Input(
-            didScrollTo: didScrolledTo.asObservable(),
-            viewDidLoaded: Observable.just(()),
             didSelectItem: didSelectItem.asObservable(),
             didTappedTitleButton: dateTitleButton.rx.tap.asObservable(),
             didSelectDay: didSelectDay.asObservable()
@@ -103,36 +95,17 @@ class TodoMainViewController: UIViewController {
             })
             .disposed(by: bag)
         
-        output.initialDayListFetchedInCenterIndex
-            .compactMap { $0 }
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, centerIndex in
-                vc.collectionView.reloadData()
-                vc.collectionView.contentOffset = CGPoint(x: CGFloat(centerIndex) * vc.view.frame.width, y: 0)
-            })
-            .disposed(by: bag)
-        
-        output.todoListFetchedInIndexRange
-            .compactMap { $0 }
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, rangeSet in
-                vc.collectionView.reloadSections(IndexSet(rangeSet.0..<rangeSet.1))
-            })
-            .disposed(by: bag)
-        
         
     }
     
     func configureView() {
+        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(collectionView)
-        collectionView.dataSource = self
     }
     
     func configureLayout() {
         collectionView.snp.makeConstraints {
-            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
+            $0.edges.equalToSuperview()
         }
     }
     
@@ -162,42 +135,34 @@ class TodoMainViewController: UIViewController {
 //    }
 }
 
-extension TodoMainViewController: UICollectionViewDataSource {
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        viewModel?.mainDayList.count ?? Int()
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TodoDailyCalendarCell.reuseIdentifier, for: indexPath) as? TodoDailyCalendarCell else { return UICollectionViewCell() }
-        
-        cell.fill(index: indexPath.section, delegate: self)
-        return cell
-    }
-}
-
-extension TodoMainViewController: TodoDailyCalendarCellDelegate {
-    func todoDailyCalendarCell(_ todoDailyCalendarCell: TodoDailyCalendarCell, itemAt: Int) -> DetailDayViewModel? {
-        return viewModel?.mainDayList[itemAt]
-    }
-}
+//extension TodoMainViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+//    func numberOfSections(in collectionView: UICollectionView) -> Int {
+//        viewModel?.mainDayList.count ?? Int()
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+//        1
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+//        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TodoDailyCalendarCell.reuseIdentifier, for: indexPath) as? TodoDailyCalendarCell else { return UICollectionViewCell() }
+//
+//        cell.fill(index: indexPath.section, delegate: self)
+//        return cell
+//    }
+//
+//    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//        if velocity.x > 0 {
+//            didScrolledTo.onNext(.right)
+//        } else if velocity.x < 0 {
+//            didScrolledTo.onNext(.left)
+//        }
+//    }
+//}
 
 extension TodoMainViewController: UIPopoverPresentationControllerDelegate {
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
-    }
-}
-
-extension TodoMainViewController: UIScrollViewDelegate {
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        if velocity.x > 0 {
-            didScrolledTo.onNext(.right)
-        } else if velocity.x < 0 {
-            didScrolledTo.onNext(.left)
-        }
     }
 }
 

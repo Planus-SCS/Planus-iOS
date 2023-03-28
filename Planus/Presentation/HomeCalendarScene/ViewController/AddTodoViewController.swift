@@ -1,0 +1,1178 @@
+//
+//  AddTodoViewController.swift
+//  Planus
+//
+//  Created by Sangmin Lee on 2023/03/28.
+//
+
+import UIKit
+import RxSwift
+
+class VC: UIViewController {
+    lazy var button: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setTitle("이걸 눌러", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.addTarget(self, action: #selector(action), for: .touchUpInside)
+
+        return button
+    }()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view.addSubview(button)
+        button.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(100)
+        }
+        self.view.backgroundColor = .white
+
+    }
+    
+    @objc func action(_ sender: UIButton) {
+        let bottomSheetVC = AddTodoViewController()
+        // 1
+        bottomSheetVC.modalPresentationStyle = .overFullScreen
+        // 2
+        self.present(bottomSheetVC, animated: false, completion: nil)
+        
+    }
+}
+
+class CategoryCell: UITableViewCell {
+    static let reuseIdentifier = "category-cell"
+    
+    lazy var nameLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.sizeToFit()
+        label.font = UIFont(name: "Pretendard-Medium", size: 16)
+        label.textColor = .black
+        return label
+    }()
+    
+    lazy var colorView: UIView = {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 12))
+        view.layer.cornerRadius = 6
+        view.layer.cornerCurve = .continuous
+        return view
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        configureView()
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configureView() {
+        self.contentView.addSubview(nameLabel)
+        self.contentView.addSubview(colorView)
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+    }
+    
+    func configureLayout() {
+        nameLabel.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.leading.equalToSuperview().inset(16)
+        }
+        
+        colorView.snp.makeConstraints {
+            $0.centerY.equalTo(nameLabel)
+            $0.leading.equalTo(nameLabel.snp.trailing).offset(6)
+            $0.width.height.equalTo(12)
+        }
+    }
+    
+    func fill(name: String, color: UIColor) {
+        nameLabel.text = name
+        colorView.backgroundColor = color
+    }
+}
+
+class CategorySelectView: UIView {
+    
+    var addNewItemButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setImage(UIImage(named: "addBtn"), for: .normal)
+        button.setTitle("새 카테고리 추가", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
+        button.imageEdgeInsets = .init(top: 0, left: -10, bottom: 0, right: 10)
+        button.tintColor = .black
+        button.setTitleColor(.black, for: .normal)
+        return button
+    }()
+    
+    var headerBarView: UIView = {
+        let view = UIView(frame: .zero)
+        return view
+    }()
+    
+    var backButton: UIButton = {
+        let image = UIImage(named: "pickerLeft") ?? UIImage()
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
+        button.setImage(UIImage(named: "pickerLeft"), for: .normal)
+        return button
+    }()
+    
+    var editButton: UIButton = {
+        let image = UIImage(named: "edit") ?? UIImage()
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
+        button.setImage(UIImage(named: "edit"), for: .normal)
+        return button
+    }()
+    
+    var titleLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.text = "카테고리 선택"
+        label.font = UIFont(name: "Pretendard-Light", size: 16)
+        label.sizeToFit()
+        return label
+    }()
+    
+    var tableView: UITableView = {
+        let tableView = UITableView(frame: .zero)
+        tableView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        tableView.register(CategoryCell.self, forCellReuseIdentifier: CategoryCell.reuseIdentifier)
+        return tableView
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        configureView()
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configureView() {
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+
+        self.layer.cornerRadius = 10
+        self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        self.clipsToBounds = true
+        
+        self.addSubview(headerBarView)
+        headerBarView.addSubview(backButton)
+        headerBarView.addSubview(titleLabel)
+        headerBarView.addSubview(editButton)
+        self.addSubview(addNewItemButton)
+        self.addSubview(tableView)
+    }
+    
+    func configureLayout() {
+        headerBarView.snp.makeConstraints {
+            $0.top.leading.trailing.equalToSuperview()
+            $0.height.equalTo(60)
+        }
+        backButton.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(20)
+            $0.centerY.equalToSuperview()
+        }
+        titleLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        editButton.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.trailing.equalToSuperview().inset(20)
+        }
+        editButton.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
+        
+        addNewItemButton.snp.makeConstraints {
+            $0.top.equalTo(headerBarView.snp.bottom)
+            $0.leading.equalToSuperview().inset(20)
+            $0.width.equalTo(150)
+            $0.height.equalTo(0)
+        }
+        tableView.snp.makeConstraints {
+            $0.top.equalTo(addNewItemButton.snp.bottom)
+            $0.leading.trailing.bottom.equalToSuperview()
+        }
+    }
+    
+    var selectMode = false
+    
+    @objc func editTapped(_ sender: UIButton) {
+        if !selectMode {
+            selectMode = true
+            tableView.setEditing(true, animated: true)
+
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
+                self.addNewItemButton.snp.remakeConstraints {
+                    $0.top.equalTo(self.headerBarView.snp.bottom)
+                    $0.leading.equalToSuperview().inset(20)
+                    $0.width.equalTo(150)
+                    $0.height.equalTo(40)
+                }
+                self.layoutIfNeeded()
+            })
+        } else {
+            selectMode = false
+            tableView.setEditing(false, animated: true)
+
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+                self.addNewItemButton.snp.remakeConstraints {
+                    $0.top.equalTo(self.headerBarView.snp.bottom)
+                    $0.leading.equalToSuperview().inset(20)
+                    $0.width.equalTo(150)
+                    $0.height.equalTo(0)
+                }
+                self.layoutIfNeeded()
+            })
+        }
+        
+    }
+}
+
+class CategoryCreateViewCell: UICollectionViewCell {
+    static let reuseIdentifier = "category-create-view-cell"
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configureView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configureView() {
+        self.layer.cornerRadius = 5
+        self.layer.cornerCurve = .continuous
+    }
+    
+    func fill(color: UIColor) {
+        self.backgroundColor = color
+    }
+}
+
+class CategoryCreateView: UIView, UICollectionViewDataSource {
+    
+    var headerBarView: UIView = {
+        let view = UIView(frame: .zero)
+        return view
+    }()
+    
+    var backButton: UIButton = {
+        let image = UIImage(named: "pickerLeft") ?? UIImage()
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
+        button.setImage(UIImage(named: "pickerLeft"), for: .normal)
+        return button
+    }()
+    
+    var saveButton: UIButton = {
+        let image = UIImage(named: "edit") ?? UIImage()
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
+        button.setTitle("저장", for: .normal)
+        return button
+    }()
+    
+    var titleLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.text = "카테고리 선택"
+        label.font = UIFont(name: "Pretendard-Light", size: 16)
+        label.sizeToFit()
+        return label
+    }()
+    
+    var nameField: UITextField = {
+        let field = UITextField(frame: .zero)
+        field.textAlignment = .center
+        field.placeholder = "카테고리를 입력하세요"
+        field.font = UIFont(name: "Pretendard-Medium", size: 18)
+        return field
+    }()
+    
+    var descLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.text = "카테고리 색상을 선택택하세요"
+        label.textAlignment = .center
+        label.font = UIFont(name: "Pretendard-Medium", size: 14)
+        label.textColor = UIColor(red: 0.749, green: 0.78, blue: 0.843, alpha: 1)
+        return label
+    }()
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        1
+    }
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        source.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCreateViewCell.reuseIdentifier, for: indexPath) as? CategoryCreateViewCell else { return UICollectionViewCell() }
+        cell.fill(color: source[indexPath.item].todoLeadingColor)
+        return cell
+    }
+    
+    lazy var collectionView: UICollectionView = {
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
+        cv.register(CategoryCreateViewCell.self, forCellWithReuseIdentifier: CategoryCreateViewCell.reuseIdentifier)
+        cv.dataSource = self
+        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+
+        return cv
+    }()
+    
+    var source: [TodoCategoryColor] = Array(TodoCategoryColor.allCases[0..<TodoCategoryColor.allCases.count-1])
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configureView()
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configureView() {
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.layer.cornerRadius = 10
+        self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        self.clipsToBounds = true
+        
+        self.addSubview(headerBarView)
+        headerBarView.addSubview(backButton)
+        headerBarView.addSubview(titleLabel)
+        headerBarView.addSubview(saveButton)
+        self.addSubview(nameField)
+        self.addSubview(collectionView)
+        self.addSubview(descLabel)
+    }
+    
+    func configureLayout() {
+        headerBarView.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview()
+            $0.top.equalToSuperview().inset(20)
+            $0.height.equalTo(40)
+        }
+        backButton.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(20)
+            $0.centerY.equalToSuperview()
+        }
+        
+        titleLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        
+        saveButton.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(20)
+            $0.centerY.equalToSuperview()
+        }
+        
+        nameField.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(264)
+            $0.top.equalTo(headerBarView.snp.bottom).offset(30)
+        }
+        
+        let view = UIView(frame: .zero)
+        view.backgroundColor = .gray
+        self.addSubview(view)
+        view.snp.makeConstraints {
+            $0.height.equalTo(0.5)
+            $0.leading.trailing.equalTo(nameField)
+            $0.top.equalTo(nameField.snp.bottom).offset(10)
+        }
+        
+        collectionView.snp.makeConstraints {
+            $0.top.equalTo(view).offset(20)
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(304)
+            $0.height.equalTo(150)
+        }
+        
+        descLabel.snp.makeConstraints {
+            $0.top.equalTo(collectionView.snp.bottom).offset(40)
+            $0.centerX.equalToSuperview()
+        }
+    }
+    
+    
+    private func createLayout() -> UICollectionViewLayout {
+        
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .absolute(76),
+            heightDimension: .absolute(36)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        item.contentInsets = .init(top: 0, leading: 20, bottom: 0, trailing: 20)
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .absolute(66)
+        )
+        
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 4)
+        group.contentInsets = .init(top: 15, leading: 0, bottom: 15, trailing: 0)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        
+        let layout = UICollectionViewCompositionalLayout(section: section, configuration: configuration)
+        
+        return layout
+    }
+}
+
+class AddTodoView: UIView {
+    
+    var smallCalendarView = SmallCalendarView(frame: .zero)
+
+    lazy var titleField: UITextField = {
+        let titleField = UITextField(frame: .zero)
+        titleField.placeholder = "일정을 입력하세요"
+        titleField.font = UIFont(name: "Pretendard-Medium", size: 20)
+        return titleField
+    }()
+    
+    lazy var memoTextView: UITextView = {
+        let textView = UITextView(frame: .zero)
+        textView.isScrollEnabled = false
+        textView.text = "메모를 입력하세요"
+        textView.textColor = .lightGray
+        textView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        textView.font = UIFont(name: "Pretendard-Light", size: 16)
+        return textView
+    }()
+        
+    lazy var categoryButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setTitle("카테고리", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Light", size: 16)
+        button.setTitleColor(.black, for: .normal)
+        button.sizeToFit()
+        return button
+    }()
+    
+    
+    lazy var startDateButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setTitle("2000.00.00", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Light", size: 16)
+        button.setTitleColor(.black, for: .normal)
+        button.sizeToFit()
+        return button
+    }()
+    
+    lazy var endDateButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setTitle("2000.00.00", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Light", size: 16)
+        button.setTitleColor(.black, for: .normal)
+        button.sizeToFit()
+
+        return button
+    }()
+    
+    lazy var groupSelectionButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setTitle("그룹 선택", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Light", size: 16)
+        button.setTitleColor(.black, for: .normal)
+        button.sizeToFit()
+
+        return button
+    }()
+    
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        configureView()
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configureView() {
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+
+        self.layer.cornerRadius = 10
+        self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        self.clipsToBounds = true
+        
+        self.addSubview(titleField)
+        self.addSubview(memoTextView)
+        self.addSubview(categoryButton)
+        self.addSubview(startDateButton)
+        self.addSubview(endDateButton)
+        self.addSubview(groupSelectionButton)
+        self.addSubview(smallCalendarView)
+
+        smallCalendarView.smallCalendarCollectionView.showsHorizontalScrollIndicator = true
+    }
+    
+    let view4 = UIView(frame: .zero)
+    let view5 = UIView(frame: .zero)
+
+    func configureLayout() {
+        
+        titleField.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(30)
+            $0.leading.trailing.equalToSuperview().inset(25)
+            $0.height.equalTo(20)
+        }
+        let view1 = UIView(frame: .zero)
+        view1.backgroundColor = .gray
+        self.addSubview(view1)
+        view1.snp.makeConstraints {
+            $0.height.equalTo(0.5)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(titleField.snp.bottom).offset(15)
+        }
+        
+        memoTextView.snp.makeConstraints {
+            $0.top.equalTo(view1.snp.bottom).offset(15)
+            $0.leading.trailing.equalToSuperview().inset(20)
+        }
+        let view2 = UIView(frame: .zero)
+        view2.backgroundColor = .gray
+        self.addSubview(view2)
+        view2.snp.makeConstraints {
+            $0.height.equalTo(0.3)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(memoTextView.snp.bottom).offset(15)
+        }
+        
+        categoryButton.snp.makeConstraints {
+            $0.top.equalTo(view2.snp.bottom).offset(15)
+            $0.leading.equalToSuperview().inset(25)
+            $0.height.equalTo(20)
+        }
+        let view3 = UIView(frame: .zero)
+        view3.backgroundColor = .gray
+        self.addSubview(view3)
+        view3.snp.makeConstraints {
+            $0.height.equalTo(0.3)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(categoryButton.snp.bottom).offset(15)
+        }
+        startDateButton.snp.makeConstraints {
+            $0.top.equalTo(view3.snp.bottom).offset(15)
+            $0.leading.equalToSuperview().inset(25)
+            $0.height.equalTo(25)
+        }
+        
+        endDateButton.snp.makeConstraints {
+            $0.top.equalTo(view3.snp.bottom).offset(15)
+            $0.leading.equalTo(startDateButton.snp.trailing).offset(20)
+            $0.height.equalTo(25)
+        }
+        
+        view4.backgroundColor = .gray
+        self.addSubview(view4)
+        view4.snp.makeConstraints {
+            $0.height.equalTo(0.3)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(endDateButton.snp.bottom).offset(15)
+        }
+        groupSelectionButton.snp.makeConstraints {
+            $0.top.equalTo(view4.snp.bottom).offset(15)
+            $0.leading.equalToSuperview().inset(25)
+            $0.height.equalTo(20)
+        }
+        
+        view5.backgroundColor = .gray
+        self.addSubview(view5)
+        view5.snp.makeConstraints {
+            $0.height.equalTo(0.3)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(groupSelectionButton.snp.bottom).offset(15)
+        }
+        
+        smallCalendarView.snp.makeConstraints {
+            $0.top.equalTo(groupSelectionButton.snp.bottom).offset(16)
+            $0.leading.trailing.equalToSuperview().inset(10)
+            $0.height.equalTo(300)
+            $0.bottom.equalToSuperview().inset(10)
+        }
+    }
+}
+
+class AddTodoViewController: UIViewController {
+    var didScrolledToIndex = PublishSubject<Double>()
+
+    var viewModel: AddTodoViewModel?
+    var addTodoView = AddTodoView(frame: .zero)
+    var categoryView = CategorySelectView(frame: .zero)
+    var categoryCreateView = CategoryCreateView(frame: .zero)
+    
+    private let dimmedView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.darkGray.withAlphaComponent(0)
+        return view
+    }()
+    
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view.backgroundColor = .white
+        addTodoView.smallCalendarView.smallCalendarCollectionView.dataSource = self
+        addTodoView.smallCalendarView.smallCalendarCollectionView.delegate = self
+        addTodoView.smallCalendarView.prevButton.addTarget(self, action: #selector(prevBtnTapped), for: .touchUpInside)
+        addTodoView.smallCalendarView.nextButton.addTarget(self, action: #selector(nextBtnTapped), for: .touchUpInside)
+        addTodoView.titleField.delegate = self
+        addTodoView.memoTextView.delegate = self
+        self.viewModel = AddTodoViewModel()
+        self.viewModel?.configureDate(date: Date())
+        addTodoView.categoryButton.addTarget(self, action: #selector(categoryBtnTapped), for: .touchUpInside)
+        categoryView.tableView.dataSource = self
+        categoryView.addNewItemButton.addTarget(self, action: #selector(categoryCreateBtnTapped), for: .touchUpInside)
+        configureView()
+        configureLayout()
+        bind()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        addTodoView.titleField.becomeFirstResponder()
+        
+         UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn, animations: {
+                     // 4 - 1
+             self.addTodoView.snp.remakeConstraints {
+                 $0.bottom.leading.trailing.equalToSuperview()
+                 $0.height.lessThanOrEqualTo(700)
+             }
+             self.dimmedView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
+                     // 4 - 2
+             self.view.layoutIfNeeded()
+         }, completion: nil)
+    }
+    
+    @objc func categoryBtnTapped(_ sender: UIButton) {
+        
+        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn, animations: {
+            self.addTodoView.snp.remakeConstraints {
+                $0.width.equalToSuperview()
+                $0.trailing.equalTo(self.dimmedView.snp.leading)
+                $0.bottom.equalToSuperview()
+                $0.height.lessThanOrEqualTo(700)
+            }
+            
+            self.categoryView.snp.remakeConstraints {
+                $0.width.equalToSuperview()
+                $0.leading.equalTo(self.dimmedView)
+                $0.height.equalTo(400)
+                $0.bottom.equalToSuperview()
+            }
+            self.view.layoutIfNeeded()
+        }, completion: nil)
+    }
+    
+    @objc func categoryCreateBtnTapped(_ sender: UIButton) {
+        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn, animations: {
+            self.categoryView.snp.remakeConstraints {
+                $0.width.equalToSuperview()
+                $0.trailing.equalTo(self.dimmedView.snp.leading)
+                $0.height.equalTo(400)
+                $0.bottom.equalToSuperview()
+            }
+            self.categoryCreateView.snp.remakeConstraints {
+                $0.width.equalToSuperview()
+                $0.leading.equalTo(self.dimmedView)
+                $0.height.equalTo(500)
+                $0.bottom.equalToSuperview()
+            }
+            self.view.layoutIfNeeded()
+        }, completion: nil)
+    }
+    
+    func configureView() {
+        self.view.addSubview(dimmedView)
+        dimmedView.addSubview(addTodoView)
+        dimmedView.addSubview(categoryView)
+        dimmedView.addSubview(categoryCreateView)
+    }
+    
+    func configureLayout() {
+        dimmedView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        addTodoView.snp.makeConstraints {
+            $0.leading.width.equalToSuperview()
+            $0.top.equalTo(dimmedView.snp.bottom)
+            $0.height.lessThanOrEqualTo(700)
+        }
+        categoryView.snp.makeConstraints {
+            $0.width.equalToSuperview()
+            $0.leading.equalTo(dimmedView.snp.trailing)
+            $0.height.equalTo(400)
+            $0.bottom.equalToSuperview()
+        }
+        categoryCreateView.snp.makeConstraints {
+            $0.width.equalToSuperview()
+            $0.leading.equalTo(dimmedView.snp.trailing)
+            $0.height.equalTo(500)
+            $0.bottom.equalToSuperview()
+        }
+    }
+
+    var bag = DisposeBag()
+    
+    func bind() {
+        guard let viewModel else { return }
+        print("keep binding")
+        let input = AddTodoViewModel.Input(
+            didLoadView: Observable.just(()),
+            didChangedIndex: didScrolledToIndex.asObservable()
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        output
+            .didChangedTitleLabel
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, title in
+                vc.addTodoView.smallCalendarView.dateLabel.text = title
+            })
+            .disposed(by: bag)
+        
+        output
+            .didLoadInitDays
+            .compactMap { $0 }
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, count in
+                let frameWidth = vc.view.frame.width - 20
+                vc.reloadAndMove(to: CGPoint(x: frameWidth * CGFloat(count/2), y: 0))
+            })
+            .disposed(by: bag)
+        
+        output
+            .didLoadPrevDays
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, count in
+                let exPointX = vc.addTodoView.smallCalendarView.smallCalendarCollectionView.contentOffset.x ?? CGFloat()
+                let frameWidth = vc.view.frame.width
+                vc.reloadAndMove(to: CGPoint(x: exPointX + CGFloat(count)*frameWidth, y: 0))
+            })
+            .disposed(by: bag)
+        
+        output
+            .didLoadFollowingDays
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, count in
+                let exPointX = vc.addTodoView.smallCalendarView.smallCalendarCollectionView.contentOffset.x ?? CGFloat()
+                let frameWidth = vc.view.frame.width
+                vc.reloadAndMove(to: CGPoint(x: exPointX - CGFloat(count)*frameWidth, y: 0))
+            })
+            .disposed(by: bag)
+    }
+    
+    func reloadAndMove(to point: CGPoint) {
+        addTodoView.smallCalendarView.smallCalendarCollectionView.reloadData()
+        addTodoView.smallCalendarView.smallCalendarCollectionView.performBatchUpdates {
+            addTodoView.smallCalendarView.smallCalendarCollectionView.setContentOffset(
+                point,
+                animated: false
+            )
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // keyboardWillShow, keyboardWillHide observer 등록
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    //
+    @objc func keyboardWillShow(_ notification:NSNotification) {
+        if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keyboardRectangle.height
+            print("keyboardHeight = \(keyboardHeight)")
+
+            addTodoView.view5.snp.remakeConstraints {
+                $0.height.equalTo(0.3)
+                $0.leading.trailing.equalToSuperview().inset(20)
+                $0.top.equalTo(addTodoView.groupSelectionButton.snp.bottom).offset(15)
+                $0.bottom.equalToSuperview().inset(keyboardHeight)
+            }
+            self.view.layoutIfNeeded()
+
+        }
+    }
+
+
+    @objc func keyboardWillHide(_ notification:NSNotification) {
+        addTodoView.view5.snp.remakeConstraints {
+            $0.height.equalTo(0.3)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(addTodoView.groupSelectionButton.snp.bottom).offset(15)
+        }
+        self.view.layoutIfNeeded()
+    }
+}
+
+extension AddTodoViewController: UITableViewDataSource, UITableViewDelegate {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        1
+    }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        viewModel?.categorys.count ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CategoryCell.reuseIdentifier, for: indexPath) as? CategoryCell,
+              let viewModel else { return UITableViewCell() }
+        
+        cell.nameLabel.text = viewModel.categorys[indexPath.row].title
+        cell.colorView.backgroundColor = viewModel.categorys[indexPath.row].color.todoForCalendarColor
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 50
+    }
+    
+}
+
+extension AddTodoViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+
+        if textField == self.addTodoView.titleField {
+
+            // 원하는 액션 지정하기
+            // 엔터 누르기
+
+        }
+
+        return true
+
+    }
+}
+
+extension AddTodoViewController: UITextViewDelegate {
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "메모를 입력하세요"
+            textView.textColor = .lightGray
+        }
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == .lightGray {
+            textView.text = nil
+            textView.textColor = .black
+        }
+    }
+}
+
+extension AddTodoViewController {
+    @objc func prevBtnTapped(_ sender: UIButton) {
+        let exPointX = addTodoView.smallCalendarView.smallCalendarCollectionView.contentOffset.x ?? CGFloat()
+        let frameWidth = self.view.frame.width
+        addTodoView.smallCalendarView.smallCalendarCollectionView.setContentOffset(CGPoint(x: exPointX - frameWidth, y: 0), animated: true)
+    }
+    
+    @objc func nextBtnTapped(_ sender: UIButton) {
+        let exPointX = addTodoView.smallCalendarView.smallCalendarCollectionView.contentOffset.x ?? CGFloat()
+        let frameWidth = self.view.frame.width
+        addTodoView.smallCalendarView.smallCalendarCollectionView.setContentOffset(CGPoint(x: exPointX + frameWidth, y: 0), animated: true)
+    }
+}
+
+extension AddTodoViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        self.viewModel?.days.count ?? Int()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        self.viewModel?.days[section].count ?? Int()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: SmallCalendarDayCell.reuseIdentifier,
+            for: indexPath
+        ) as? SmallCalendarDayCell,
+              let viewModel = self.viewModel,
+              let currentDate = viewModel.currentDate else {
+            return UICollectionViewCell()
+        }
+        
+        let item = viewModel.days[indexPath.section][indexPath.row]
+        cell.fill(day: item.dayLabel, state: item.state, isSelectedDay: item.date == currentDate)
+        return cell
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let pointX = scrollView.contentOffset.x
+        let frameWidth = addTodoView.smallCalendarView.smallCalendarCollectionView.frame.width
+        guard frameWidth != 0 else { return }
+        
+        let index = pointX/frameWidth
+        
+        print(index)
+        self.didScrolledToIndex.onNext(index)
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if decelerate {
+            DispatchQueue.main.async { [weak self] in
+                scrollView.isUserInteractionEnabled = false
+                self?.addTodoView.smallCalendarView.prevButton.isUserInteractionEnabled = false
+                self?.addTodoView.smallCalendarView.nextButton.isUserInteractionEnabled = false
+            }
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        DispatchQueue.main.async { [weak self] in
+            scrollView.isUserInteractionEnabled = true
+            self?.addTodoView.smallCalendarView.prevButton.isUserInteractionEnabled = true
+            self?.addTodoView.smallCalendarView.nextButton.isUserInteractionEnabled = true
+        }
+    }
+}
+
+final class SmallCalendarView: UIView {
+    lazy var prevButton: UIButton = {
+        let image = UIImage(named: "monthPickerLeft")
+        let button = UIButton(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: image?.size.width ?? 0,
+            height: image?.size.height ?? 0
+        ))
+        button.setImage(image, for: .normal)
+        return button
+    }()
+    
+    lazy var nextButton: UIButton = {
+        let image = UIImage(named: "monthPickerRight")
+        let button = UIButton(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: image?.size.width ?? 0,
+            height: image?.size.height ?? 0
+        ))
+        button.setImage(image, for: .normal)
+        return button
+    }()
+    
+    lazy var dateLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.textColor = UIColor(hex: 0x000000)
+        label.font = UIFont(name: "Pretendard-SemiBold", size: 18)
+        label.textAlignment = .center
+        return label
+    }()
+    
+    lazy var weekDaysStackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .fillEqually
+        ["월", "화", "수", "목", "금", "토", "일"].forEach {
+            let label = self.weekDayLabel(weekDay: $0)
+            stackView.addArrangedSubview(label)
+        }
+        return stackView
+    }()
+    
+    var smallCalendarCollectionView: SmallCalendarCollectionView = {
+        return SmallCalendarCollectionView(frame: .zero)
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        configureView()
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func weekDayLabel(weekDay: String) -> UILabel {
+        let label = UILabel(frame: .zero)
+        switch weekDay {
+        case "일":
+            label.textColor = UIColor(hex: 0xEA4335)
+        case "토":
+            label.textColor = UIColor(hex: 0x6495F4)
+        default:
+            label.textColor = .black
+        }
+        label.font = UIFont(name: "Pretendard-Regular", size: 14)
+        label.text = weekDay
+        label.sizeToFit()
+        label.textAlignment = .center
+        return label
+    }
+    
+    func configureView() {
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        
+        self.addSubview(dateLabel)
+        self.addSubview(prevButton)
+        self.addSubview(nextButton)
+        self.addSubview(weekDaysStackView)
+        self.addSubview(smallCalendarCollectionView)
+    }
+    
+    func configureLayout() {
+        dateLabel.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(200)
+            $0.height.equalTo(60)
+        }
+        
+        prevButton.snp.makeConstraints {
+            $0.centerY.equalTo(dateLabel)
+            $0.leading.equalTo(self.safeAreaLayoutGuide.snp.leading).offset(10)
+        }
+        
+        nextButton.snp.makeConstraints {
+            $0.centerY.equalTo(dateLabel)
+            $0.trailing.equalTo(self.safeAreaLayoutGuide.snp.trailing).offset(-10)
+        }
+        
+        weekDaysStackView.snp.makeConstraints {
+            $0.top.equalTo(dateLabel.snp.bottom)
+            $0.leading.equalTo(self.safeAreaLayoutGuide.snp.leading)
+            $0.trailing.equalTo(self.safeAreaLayoutGuide.snp.trailing)
+            $0.height.equalTo(20)
+        }
+        smallCalendarCollectionView.snp.makeConstraints {
+            $0.top.equalTo(weekDaysStackView.snp.bottom)
+            $0.leading.equalTo(self.snp.leading)
+            $0.trailing.equalTo(self.snp.trailing)
+            $0.bottom.equalToSuperview().offset(-15)
+        }
+    }
+}
+
+final class SmallCalendarCollectionView: UICollectionView {
+    
+    convenience init(frame: CGRect) {
+        self.init(frame: frame, collectionViewLayout: UICollectionViewLayout())
+        self.setCollectionViewLayout(self.createLayout(), animated: false)
+        
+        configureView()
+    }
+    
+    private override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
+        super.init(frame: frame, collectionViewLayout: layout)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func configureView() {
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.isPagingEnabled = true
+        self.showsHorizontalScrollIndicator = false
+        self.register(SmallCalendarDayCell.self, forCellWithReuseIdentifier: SmallCalendarDayCell.reuseIdentifier)
+    }
+    
+    private func createLayout() -> UICollectionViewLayout {
+        
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1/7),
+            heightDimension: .fractionalHeight(1)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        item.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .fractionalHeight(1/6)
+        )
+        
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 7)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = .groupPaging
+        
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        configuration.scrollDirection = .horizontal
+        
+        let layout = UICollectionViewCompositionalLayout(section: section, configuration: configuration)
+        
+        return layout
+    }
+}
+
+
+
+
+class SmallCalendarDayCell: UICollectionViewCell {
+    
+    static let reuseIdentifier = "small-calendar-day-cell"
+    
+    lazy var dayLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont(name: "Pretendard-Bold", size: 12)
+        label.textColor = .black
+        label.textAlignment = .center
+        return label
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        configureView()
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        self.layer.cornerRadius = self.frame.height/2
+    }
+    
+    func configureView() {
+        self.addSubview(dayLabel)
+    }
+    
+    func configureLayout() {
+        dayLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+    }
+    
+    func fill(day: String, state: MonthStateOfDay, isSelectedDay: Bool) {
+        dayLabel.text = day
+        switch state {
+        case .prev:
+            dayLabel.textColor = UIColor(hex: 0x000000, a: 0.4)
+        case .current:
+            print("selected? \(isSelectedDay)")
+            dayLabel.textColor = isSelectedDay ? .white : .black
+        case .following:
+            dayLabel.textColor = UIColor(hex: 0xBFC7D7, a: 0.4)
+        }
+        self.backgroundColor = isSelectedDay ? UIColor(hex: 0x6495F4) : nil
+    }
+}
