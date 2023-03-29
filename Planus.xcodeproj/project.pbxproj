@@ -146,6 +146,7 @@
 		6A9A07C029D3D52B0051AD43 /* categoryCheck@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07BD29D3D52B0051AD43 /* categoryCheck@2x.png */; };
 		6A9A07C829D3D83B0051AD43 /* AddTodoControllerPageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07C729D3D83B0051AD43 /* AddTodoControllerPageType.swift */; };
 		6A9A07CA29D3D87A0051AD43 /* AddTodoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07C929D3D87A0051AD43 /* AddTodoView.swift */; };
+		6A9A07CC29D3D8B60051AD43 /* CategorySelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07CB29D3D8B60051AD43 /* CategorySelectView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -291,6 +292,7 @@
 		6A9A07BD29D3D52B0051AD43 /* categoryCheck@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "categoryCheck@2x.png"; sourceTree = "<group>"; };
 		6A9A07C729D3D83B0051AD43 /* AddTodoControllerPageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTodoControllerPageType.swift; sourceTree = "<group>"; };
 		6A9A07C929D3D87A0051AD43 /* AddTodoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTodoView.swift; sourceTree = "<group>"; };
+		6A9A07CB29D3D8B60051AD43 /* CategorySelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorySelectView.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -844,6 +846,7 @@
 			isa = PBXGroup;
 			children = (
 				6A9A07C929D3D87A0051AD43 /* AddTodoView.swift */,
+				6A9A07CB29D3D8B60051AD43 /* CategorySelectView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1069,6 +1072,7 @@
 				6A08ADCF29C8C231005947D2 /* APIProvider.swift in Sources */,
 				6A08AD7429C89143005947D2 /* MainTabCoordinator.swift in Sources */,
 				6A24F88C29CE26540000FD64 /* HomeCalendarViewController.swift in Sources */,
+				6A9A07CC29D3D8B60051AD43 /* CategorySelectView.swift in Sources */,
 				6A24F92329D254630000FD64 /* AddTodoViewController.swift in Sources */,
 				6A24F85229CB7C400000FD64 /* HomeCalendarViewModel.swift in Sources */,
 				6A24F89E29CE29F50000FD64 /* TodoCategory+Ext.swift in Sources */,
