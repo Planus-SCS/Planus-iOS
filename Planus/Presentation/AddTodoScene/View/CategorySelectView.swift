@@ -11,7 +11,7 @@ class CategorySelectView: UIView {
     
     var addNewItemButton: UIButton = {
         let button = UIButton(frame: .zero)
-        button.setImage(UIImage(named: "addBtn"), for: .normal)
+        button.setImage(UIImage(named: "plusBtn"), for: .normal)
         button.setTitle("새 카테고리 추가", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 16)
         button.imageEdgeInsets = .init(top: 0, left: -5, bottom: 0, right: 5)
