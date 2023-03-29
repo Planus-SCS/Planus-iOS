@@ -19,6 +19,15 @@ class DayPickerViewController: UIViewController {
         return dateFormatter
     }()
     
+    lazy var dateFormatter2: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy.MM.dd"
+        return dateFormatter
+    }()
+    
+    var firstSelectedIndexPath: IndexPath?
+    var secondSelectedIndexPath: IndexPath?
+    
     var currentMonth: Date?
     var currentDateLabel: String?
 
@@ -207,7 +216,8 @@ class DayPickerViewController: UIViewController {
                 DayPickerModel(
                     dayLabel: "\(calendar.component(.day, from: date))",
                     date: date,
-                    state: state
+                    monthState: state,
+                    rangeState: .none
                 )
             )
         }

@@ -8,8 +8,16 @@
 import Foundation
 import RxSwift
 
+enum CategoryCreateState {
+    case new
+    case edit(Int)
+}
+
 final class AddTodoViewModel {
     var bag = DisposeBag()
+    
+    var categoryColorList: [TodoCategoryColor] = Array(TodoCategoryColor.allCases[0..<TodoCategoryColor.allCases.count-1])
+    
     
     var categorys: [TodoCategory] = [
         TodoCategory(title: "카테고리1", color: .blue),
@@ -19,6 +27,8 @@ final class AddTodoViewModel {
         TodoCategory(title: "카테고리5", color: .pink),
         TodoCategory(title: "카테고리6", color: .yello)
     ]
+    
+    var categoryCreatingState: CategoryCreateState = .new
     
     var groups: [String] = [
         "group1", "group2"
@@ -38,7 +48,7 @@ final class AddTodoViewModel {
     struct Input {
         // MARK: Control Value
         var todoTitleChanged: Observable<String?>
-        var categoryChanged: Observable<Int?>
+        var categorySelected: Observable<Int?>
         var startDayChanged: Observable<Date?>
         var endDayChanged: Observable<Date?>
         var groupSelected: Observable<Int?>
@@ -47,6 +57,9 @@ final class AddTodoViewModel {
         var newCategoryColorChanged: Observable<TodoCategoryColor?>
         
         // MARK: Control Event
+        var categoryEditRequested: Observable<Int>
+        var startDayButtonTapped: Observable<Void>
+        var endDayButtonTapped: Observable<Void>
         var categorySelectBtnTapped: Observable<Void>
         var todoSaveBtnTapped: Observable<Void>
         var newCategoryAddBtnTapped: Observable<Void>
@@ -56,12 +69,15 @@ final class AddTodoViewModel {
     }
     
     struct Output {
+        var categoryChanged: Observable<TodoCategory?>
         var todoSaveBtnEnabled: Observable<Bool>
         var newCategorySaveBtnEnabled: Observable<Bool>
+        var newCategorySaved: Observable<Void>
         var moveFromAddToSelect: Observable<Void>
         var moveFromSelectToCreate: Observable<Void>
         var moveFromCreateToSelect: Observable<Void>
         var moveFromSelectToAdd: Observable<Void>
+        var removeKeyboard: Observable<Void>
     }
     
     init() {}
@@ -72,6 +88,8 @@ final class AddTodoViewModel {
         let moveFromSelectToCreate = PublishSubject<Void>()
         let moveFromCreateToSelect = PublishSubject<Void>()
         let moveFromSelectToAdd = PublishSubject<Void>()
+        let newCategorySaved = PublishSubject<Void>()
+        let removeKeyboard = PublishSubject<Void>()
         
         input
             .todoTitleChanged
@@ -79,7 +97,7 @@ final class AddTodoViewModel {
             .disposed(by: bag)
         
         input
-            .categoryChanged
+            .categorySelected
             .compactMap { $0 }
             .withUnretained(self)
             .map { vm, index in
@@ -129,6 +147,17 @@ final class AddTodoViewModel {
             .disposed(by: bag)
         
         input
+            .categoryEditRequested
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                vm.categoryCreatingState = .edit(index)
+                vm.newCategoryName.onNext(vm.categorys[index].title)
+                vm.newCategoryColor.onNext(vm.categorys[index].color)
+                moveFromSelectToCreate.onNext(())
+            })
+            .disposed(by: bag)
+        
+        input
             .categorySelectBtnTapped
             .subscribe(onNext: {
                 moveFromAddToSelect.onNext(())
@@ -137,23 +166,36 @@ final class AddTodoViewModel {
         
         input
             .todoSaveBtnTapped
-            .subscribe(onNext: {
-                
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
             })
             .disposed(by: bag)
         
         input
             .newCategoryAddBtnTapped
-            .subscribe(onNext: {
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.categoryCreatingState = .new
                 moveFromSelectToCreate.onNext(())
             })
             .disposed(by: bag)
         
         input
             .newCategorySaveBtnTapped
-            .subscribe(onNext: {
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                // 1. save current edit or creating
+                guard let title = try? vm.newCategoryName.value(),
+                      let color = try? vm.newCategoryColor.value() else { return }
+                switch vm.categoryCreatingState {
+                case .new:
+                    vm.categorys.append(TodoCategory(title: title, color: color))
+                case .edit(let index):
+                    vm.categorys[index] = TodoCategory(title: title, color: color)
+                }
+                // 이제 뒤로 가게해야함. 근데 리로드를 곁들인
+                newCategorySaved.onNext(())
                 moveFromCreateToSelect.onNext(())
-                // 리로드 하라고 전달해야함!!!!! 아님 insert나 reloadItem
             })
             .disposed(by: bag)
         
@@ -171,33 +213,55 @@ final class AddTodoViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .startDayButtonTapped
+            .subscribe(onNext: {
+                removeKeyboard.onNext(())
+            })
+            .disposed(by: bag)
+        
+        input
+            .endDayButtonTapped
+            .subscribe(onNext: {
+                removeKeyboard.onNext(())
+            })
+            .disposed(by: bag)
+        
         let todoSaveBtnEnabled = Observable
             .combineLatest(
-                todoTitle.compactMap { $0 },
-                todoCategory.compactMap { $0 },
-                todoStartDay.compactMap { $0 }
+                todoTitle,
+                todoCategory,
+                todoStartDay
             )
             .map { (title, category, startDay) in
-                print("hihi")
-                return title.isEmpty
+                guard let title,
+                      let category,
+                      let startDay else { return false }
+                
+                return !title.isEmpty
             }
         
         let newCategorySaveBtnEnabled = Observable
             .combineLatest(
-                newCategoryName.compactMap { $0 },
-                newCategoryColor.compactMap { $0 }
+                newCategoryName,
+                newCategoryColor
             )
             .map { (name, color) in
-                print("fuck")
-                return name.isEmpty
+                guard let name,
+                      let color else { return false }
+                return !name.isEmpty
             }
+        
         return Output(
-            todoSaveBtnEnabled: todoSaveBtnEnabled,
-            newCategorySaveBtnEnabled: newCategorySaveBtnEnabled,
-            moveFromAddToSelect: moveFromAddToSelect,
-            moveFromSelectToCreate: moveFromSelectToCreate,
-            moveFromCreateToSelect: moveFromCreateToSelect,
-            moveFromSelectToAdd: moveFromSelectToAdd
+            categoryChanged: todoCategory.asObservable(),
+            todoSaveBtnEnabled: todoSaveBtnEnabled.asObservable(),
+            newCategorySaveBtnEnabled: newCategorySaveBtnEnabled.asObservable(),
+            newCategorySaved: newCategorySaved.asObservable(),
+            moveFromAddToSelect: moveFromAddToSelect.asObservable(),
+            moveFromSelectToCreate: moveFromSelectToCreate.asObservable(),
+            moveFromCreateToSelect: moveFromCreateToSelect.asObservable(),
+            moveFromSelectToAdd: moveFromSelectToAdd.asObservable(),
+            removeKeyboard: removeKeyboard.asObservable()
         )
     }
 

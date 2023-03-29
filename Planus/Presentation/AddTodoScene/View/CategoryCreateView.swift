@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CategoryCreateView: UIView, UICollectionViewDataSource {
+class CategoryCreateView: UIView {
     
     var headerBarView: UIView = {
         let view = UIView(frame: .zero)
@@ -61,29 +61,12 @@ class CategoryCreateView: UIView, UICollectionViewDataSource {
         return label
     }()
     
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        1
-    }
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        source.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCreateCell.reuseIdentifier, for: indexPath) as? CategoryCreateCell else { return UICollectionViewCell() }
-        cell.fill(color: source[indexPath.item].todoLeadingColor)
-        return cell
-    }
-    
     lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
         cv.register(CategoryCreateCell.self, forCellWithReuseIdentifier: CategoryCreateCell.reuseIdentifier)
-        cv.dataSource = self
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
-
         return cv
     }()
-    
-    var source: [TodoCategoryColor] = Array(TodoCategoryColor.allCases[0..<TodoCategoryColor.allCases.count-1])
     
     override init(frame: CGRect) {
         super.init(frame: frame)

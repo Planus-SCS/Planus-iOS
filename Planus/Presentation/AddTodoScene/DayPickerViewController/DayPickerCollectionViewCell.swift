@@ -19,6 +19,10 @@ class DayPickerCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
+    var leftHalfView: UIView = UIView(frame: .zero)
+    var rightHalfView: UIView = UIView(frame: .zero)
+    var highlightView: UIView = UIView(frame: .zero)
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -32,29 +36,68 @@ class DayPickerCollectionViewCell: UICollectionViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.layer.cornerRadius = self.frame.height/2
+        self.highlightView.layer.cornerRadius = self.frame.height/2
     }
     
     func configureView() {
-        self.addSubview(dayLabel)
+        self.addSubview(leftHalfView)
+        self.addSubview(rightHalfView)
+        self.addSubview(highlightView)
+        highlightView.addSubview(dayLabel)
     }
     
     func configureLayout() {
+        leftHalfView.snp.makeConstraints {
+            $0.leading.top.bottom.equalToSuperview()
+            $0.width.equalToSuperview().dividedBy(2)
+        }
+        
+        rightHalfView.snp.makeConstraints {
+            $0.trailing.top.bottom.equalToSuperview()
+            $0.width.equalToSuperview().dividedBy(2)
+        }
+        
+        highlightView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
         dayLabel.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
     }
     
-    func fill(day: String, state: MonthStateOfDay, isSelectedDay: Bool) {
+    func fill(day: String, state: MonthStateOfDay, rangeState: DayPickerModelRangeState) {
         dayLabel.text = day
         switch state {
         case .prev:
             dayLabel.textColor = UIColor(hex: 0x000000, a: 0.4)
         case .current:
-            dayLabel.textColor = isSelectedDay ? .white : .black
+            dayLabel.textColor = .black
         case .following:
             dayLabel.textColor = UIColor(hex: 0xBFC7D7, a: 0.4)
         }
-        self.backgroundColor = isSelectedDay ? UIColor(hex: 0x6495F4) : nil
+        
+        switch rangeState {
+        case .only:
+            self.highlightView.backgroundColor = UIColor(hex: 0x6495F4)
+            self.leftHalfView.backgroundColor = nil
+            self.rightHalfView.backgroundColor = nil
+        case .start:
+            self.highlightView.backgroundColor = UIColor(hex: 0x6495F4)
+            self.leftHalfView.backgroundColor = nil
+            self.rightHalfView.backgroundColor = .gray
+        case .end:
+            self.highlightView.backgroundColor = UIColor(hex: 0x6495F4)
+            self.leftHalfView.backgroundColor = .gray
+            self.rightHalfView.backgroundColor = nil
+        case .inRange:
+            self.leftHalfView.backgroundColor = .gray
+            self.rightHalfView.backgroundColor = .gray
+            self.highlightView.backgroundColor = nil
+        case .none:
+            self.highlightView.backgroundColor = nil
+            self.leftHalfView.backgroundColor = nil
+            self.rightHalfView.backgroundColor = nil
+        }
     }
 }

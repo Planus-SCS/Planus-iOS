@@ -39,7 +39,7 @@ class TodoDetailViewController: UIViewController {
     var bag = DisposeBag()
 
     var didSelectCategoryAt = PublishSubject<Int?>()
-    var didEditCategoryAt = PublishSubject<Int?>() // 생성도 이걸로하자!
+    var didRequestEditCategoryAt = PublishSubject<Int>() // 생성도 이걸로하자!
     var didSelectedStartDate = PublishSubject<Date?>()
     var didSelectedEndDate = PublishSubject<Date?>()
     var didSelectedGroupAt = PublishSubject<Int?>()
@@ -51,6 +51,7 @@ class TodoDetailViewController: UIViewController {
     
     // MARK: Child ViewController
     var dayPickerViewController = DayPickerViewController(nibName: nil, bundle: nil)
+    var pickerView = UIPickerView()
     
     // MARK: Child View
     var addTodoView = AddTodoView(frame: .zero)
@@ -94,6 +95,10 @@ class TodoDetailViewController: UIViewController {
         addTodoView.titleField.delegate = self
         addTodoView.memoTextView.delegate = self
         
+        pickerView.dataSource = self
+        pickerView.delegate = self
+        addTodoView.groupSelectionField.inputView = pickerView
+        
         addTodoView.addSubview(dayPickerViewController.view)
         dayPickerViewController.configureDate(date: Date())
     }
@@ -103,12 +108,15 @@ class TodoDetailViewController: UIViewController {
         categoryView.tableView.delegate = self
     }
     
-    func configureCreateCategoryView() {}
+    func configureCreateCategoryView() {
+        categoryCreateView.collectionView.dataSource = self
+        categoryCreateView.collectionView.delegate = self
+    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         addTodoView.titleField.becomeFirstResponder()
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseInOut, animations: {
              self.addTodoView.snp.remakeConstraints {
                  $0.bottom.leading.trailing.equalToSuperview()
                  $0.height.lessThanOrEqualTo(700)
@@ -135,7 +143,7 @@ class TodoDetailViewController: UIViewController {
         }
         
         addTodoView.snp.makeConstraints {
-            $0.leading.width.equalToSuperview()
+            $0.leading.trailing.equalToSuperview()
             $0.top.equalTo(dimmedView.snp.bottom)
             $0.height.lessThanOrEqualTo(700)
         }
@@ -155,11 +163,13 @@ class TodoDetailViewController: UIViewController {
         }
         
         dayPickerViewController.view.snp.makeConstraints {
-            $0.top.equalTo(addTodoView.contentStackView.snp.bottom).offset(12)
+            $0.top.equalTo(addTodoView.contentStackView.snp.bottom)
             $0.leading.trailing.equalToSuperview().inset(10)
             $0.height.equalTo(300)
             $0.bottom.equalToSuperview()
         }
+        
+        self.view.layoutIfNeeded()
     }
     
     func bind() {
@@ -167,13 +177,16 @@ class TodoDetailViewController: UIViewController {
 
         let input = AddTodoViewModel.Input(
             todoTitleChanged: addTodoView.titleField.rx.text.asObservable(),
-            categoryChanged: didSelectCategoryAt.asObservable(),
+            categorySelected: didSelectCategoryAt.asObservable(),
             startDayChanged: didSelectedStartDate.asObservable(),
             endDayChanged: didSelectedEndDate.asObservable(),
             groupSelected: didSelectedGroupAt.asObservable(),
             memoChanged: addTodoView.memoTextView.rx.text.asObservable(),
             newCategoryNameChanged: categoryCreateView.nameField.rx.text.asObservable(),
             newCategoryColorChanged: didChangednewCategoryColor.asObservable(),
+            categoryEditRequested: didRequestEditCategoryAt.asObservable(),
+            startDayButtonTapped: addTodoView.startDateButton.rx.tap.asObservable(),
+            endDayButtonTapped: addTodoView.endDateButton.rx.tap.asObservable(),
             categorySelectBtnTapped: addTodoView.categoryButton.rx.tap.asObservable(),
             todoSaveBtnTapped: addTodoView.saveButton.rx.tap.asObservable(),
             newCategoryAddBtnTapped: categoryView.addNewItemButton.rx.tap.asObservable(),
@@ -185,6 +198,24 @@ class TodoDetailViewController: UIViewController {
         let output = viewModel.transform(input: input)
         
         output
+            .categoryChanged
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, category in
+                if let category {
+                    vc.addTodoView.categoryButton.setTitle(category.title, for: .normal)
+                    vc.addTodoView.categoryButton.setTitleColor(UIColor(hex: 0x000000), for: .normal)
+                    vc.addTodoView.categoryColorView.backgroundColor = category.color.todoLeadingColor
+                } else {
+                    vc.addTodoView.categoryButton.setTitle("카테고리", for: .normal)
+                    vc.addTodoView.categoryButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
+                    vc.addTodoView.categoryColorView.backgroundColor = .gray
+                }
+                vc.moveFromSelectToAdd()
+            })
+            .disposed(by: bag)
+        
+        output
             .todoSaveBtnEnabled
             .bind(to: addTodoView.saveButton.rx.isEnabled)
             .disposed(by: bag)
@@ -192,6 +223,15 @@ class TodoDetailViewController: UIViewController {
         output
             .newCategorySaveBtnEnabled
             .bind(to: categoryCreateView.saveButton.rx.isEnabled)
+            .disposed(by: bag)
+        
+        output
+            .newCategorySaved
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe { vc, _ in
+                vc.categoryView.tableView.reloadData()
+            }
             .disposed(by: bag)
         
         output
@@ -215,6 +255,9 @@ class TodoDetailViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.moveFromCreateToSelect()
+                vc.categoryCreateView.nameField.text = nil
+                guard let index = vc.categoryCreateView.collectionView.indexPathsForSelectedItems?.first else { return }
+                vc.categoryCreateView.collectionView.deselectItem(at: index, animated: false)
             })
             .disposed(by: bag)
         
@@ -223,6 +266,14 @@ class TodoDetailViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.moveFromSelectToAdd()
+            })
+            .disposed(by: bag)
+        
+        output
+            .removeKeyboard
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.view.endEditing(true)
             })
             .disposed(by: bag)
     }
@@ -241,7 +292,7 @@ class TodoDetailViewController: UIViewController {
             
             switch pageType {
             case .addTodo:
-                dayPickerViewController.view.snp.makeConstraints {
+                dayPickerViewController.view.snp.remakeConstraints {
                     $0.top.equalTo(addTodoView.contentStackView.snp.bottom)
                     $0.leading.trailing.equalToSuperview().inset(10)
                     $0.height.equalTo(keyboardHeight)
@@ -256,17 +307,17 @@ class TodoDetailViewController: UIViewController {
                     $0.bottom.equalToSuperview().inset(keyboardHeight+20)
                 }
             }
-
-            self.view.layoutIfNeeded()
-
+            UIView.animate(withDuration: 0.2, delay: 0, animations: {
+                self.view.layoutIfNeeded()
+            })
         }
     }
 
     @objc func keyboardWillHide(_ notification:NSNotification) {
         switch pageType {
         case .addTodo:
-            dayPickerViewController.view.snp.makeConstraints {
-                $0.top.equalTo(addTodoView.contentStackView.snp.bottom).offset(12)
+            dayPickerViewController.view.snp.remakeConstraints {
+                $0.top.equalTo(addTodoView.contentStackView.snp.bottom)
                 $0.leading.trailing.equalToSuperview().inset(10)
                 $0.height.equalTo(300)
                 $0.bottom.equalToSuperview()
@@ -280,20 +331,58 @@ class TodoDetailViewController: UIViewController {
                 $0.bottom.equalToSuperview().inset(40)
             }
         }
-        self.view.layoutIfNeeded()
-    }
+        UIView.animate(withDuration: 0.2, delay: 0, animations: {
+            self.view.layoutIfNeeded()
+        })    }
 }
 
 extension TodoDetailViewController: DayPickerViewControllerDelegate {
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDate: Date) {
+        addTodoView.startDateButton.setTitle("\(dayPickerViewController.dateFormatter2.string(from: didSelectDate))", for: .normal)
+        addTodoView.startDateButton.setTitleColor(.black, for: .normal)
+        addTodoView.dateArrowView.image = UIImage(named: "arrow_white")
+        addTodoView.endDateButton.setTitle("2000.00.00", for: .normal)
+        addTodoView.endDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
         print(didSelectDate)
     }
     
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDateInRange: (Date, Date)) {
-        print(didSelectDateInRange)
+        let a = didSelectDateInRange.0
+        let b = didSelectDateInRange.1
+        
+        let min = min(a, b)
+        let max = max(a, b)
+        
+        addTodoView.startDateButton.setTitle("\(dayPickerViewController.dateFormatter2.string(from: min))", for: .normal)
+        addTodoView.startDateButton.setTitleColor(.black, for: .normal)
+        addTodoView.dateArrowView.image = UIImage(named: "arrow_dark")
+        addTodoView.endDateButton.setTitle("\(dayPickerViewController.dateFormatter2.string(from: max))", for: .normal)
+        addTodoView.endDateButton.setTitleColor(.black, for: .normal)
+    }
+}
+
+extension TodoDetailViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        1
+    }
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        viewModel?.categoryColorList.count ?? Int()
     }
     
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCreateCell.reuseIdentifier, for: indexPath) as? CategoryCreateCell,
+              let item = viewModel?.categoryColorList[indexPath.item] else { return UICollectionViewCell() }
+        cell.fill(color: item.todoLeadingColor)
+        return cell
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let item = viewModel?.categoryColorList[indexPath.item] else { return }
+        didChangednewCategoryColor.onNext(item)
+    }
     
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        didChangednewCategoryColor.onNext(nil)
+    }
 }
 
 extension TodoDetailViewController {
@@ -380,6 +469,26 @@ extension TodoDetailViewController {
     }
 }
 
+extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        viewModel?.groups.count ?? Int()
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        viewModel?.groups[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        addTodoView.groupSelectionField.text = viewModel?.groups[row]
+        addTodoView.groupSelectionField.textColor = .black
+        didSelectedGroupAt.onNext(row)
+    }
+}
+
 extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
     func numberOfSections(in tableView: UITableView) -> Int {
         1
@@ -401,13 +510,14 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let edit = UIContextualAction(style: .normal, title: "Edit") { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
-            print("edit 클릭 됨")
+            self.categoryCreateView.nameField.text = self.viewModel?.categorys[indexPath.row].title
+            self.categoryCreateView.collectionView.selectItem(at: IndexPath(item: self.viewModel!.categorys[indexPath.row].color.rawValue, section: 0), animated: false, scrollPosition: .top)
+            self.didRequestEditCategoryAt.onNext(indexPath.row)
             success(true)
         }
         edit.backgroundColor = .systemTeal
         edit.image = UIImage(named: "edit_swipe")
         return UISwipeActionsConfiguration(actions:[edit])
-        
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -424,6 +534,10 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 48
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        didSelectCategoryAt.onNext(indexPath.row)
     }
 }
 
@@ -444,7 +558,9 @@ extension TodoDetailViewController: UITextViewDelegate {
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == .lightGray {
+        print("here1")
+        if textView.textColor == UIColor(hex: 0xBFC7D7) {
+            print("here2")
             textView.text = nil
             textView.textColor = .black
         }

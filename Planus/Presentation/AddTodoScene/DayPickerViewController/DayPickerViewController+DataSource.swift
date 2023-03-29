@@ -25,7 +25,7 @@ extension DayPickerViewController: UICollectionViewDataSource {
         }
         
         let item = days[indexPath.section][indexPath.row]
-        cell.fill(day: item.dayLabel, state: item.state, isSelectedDay: false)
+        cell.fill(day: item.dayLabel, state: item.monthState, rangeState: item.rangeState)
         return cell
     }
 

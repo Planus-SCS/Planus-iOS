@@ -9,7 +9,7 @@ import UIKit
 
 final class DayPickerView: UIView {
     lazy var prevButton: UIButton = {
-        let image = UIImage(named: "monthPickerLeft")
+        let image = UIImage(named: "pickerLeft")
         let button = UIButton(frame: CGRect(
             x: 0,
             y: 0,
@@ -21,7 +21,7 @@ final class DayPickerView: UIView {
     }()
     
     lazy var nextButton: UIButton = {
-        let image = UIImage(named: "monthPickerRight")
+        let image = UIImage(named: "pickerRight")
         let button = UIButton(frame: CGRect(
             x: 0,
             y: 0,
@@ -119,10 +119,10 @@ final class DayPickerView: UIView {
             $0.height.equalTo(20)
         }
         dayPickerCollectionView.snp.makeConstraints {
-            $0.top.equalTo(weekDaysStackView.snp.bottom)
+            $0.top.equalTo(weekDaysStackView.snp.bottom).offset(10)
             $0.leading.equalTo(self.snp.leading)
             $0.trailing.equalTo(self.snp.trailing)
-            $0.bottom.equalToSuperview().offset(-15)
+            $0.bottom.equalToSuperview()
         }
     }
 }

@@ -20,7 +20,7 @@ class AddTodoView: UIView {
         let textView = UITextView(frame: .zero)
         textView.isScrollEnabled = false
         textView.text = "메모를 입력하세요"
-        textView.textColor = .lightGray
+        textView.textColor = UIColor(hex: 0xBFC7D7)
         textView.backgroundColor = UIColor(hex: 0xF5F5FB)
         textView.font = UIFont(name: "Pretendard-Light", size: 16)
         textView.textContainer.lineFragmentPadding = 0
@@ -119,14 +119,13 @@ class AddTodoView: UIView {
         return stackView
     }()
     
-    lazy var groupSelectionButton: UIButton = {
-        let button = UIButton(frame: .zero)
-        button.setTitle("그룹 선택", for: .normal)
-        button.titleLabel?.font = UIFont(name: "Pretendard-Light", size: 16)
-        button.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
-        button.sizeToFit()
-
-        return button
+    lazy var groupSelectionField: UITextField = {
+        let field = UITextField(frame: .zero)
+        field.text = "그룹 선택"
+        field.font = UIFont(name: "Pretendard-Light", size: 16)
+        field.textColor = UIColor(hex: 0xBFC7D7)
+        field.sizeToFit()
+        return field
     }()
     
     var contentStackView: UIStackView = {
@@ -173,7 +172,7 @@ class AddTodoView: UIView {
          separatorView[1],
          dateStackView,
          separatorView[2],
-         groupSelectionButton,
+         groupSelectionField,
          separatorView[3],
          memoTextView,
          separatorView[4]
@@ -199,7 +198,7 @@ class AddTodoView: UIView {
         }
 
         
-        groupSelectionButton.snp.makeConstraints {
+        groupSelectionField.snp.makeConstraints {
             $0.height.equalTo(30)
         }
         

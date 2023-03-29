@@ -7,8 +7,17 @@
 
 import Foundation
 
+enum DayPickerModelRangeState {
+    case only
+    case start
+    case end
+    case inRange
+    case none
+}
+
 struct DayPickerModel {
     var dayLabel: String
     var date: Date
-    var state: MonthStateOfDay
+    var monthState: MonthStateOfDay
+    var rangeState: DayPickerModelRangeState
 }
