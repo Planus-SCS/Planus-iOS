@@ -8,6 +8,7 @@
 import Foundation
 
 protocol DayPickerViewControllerDelegate {
+    func unHighlightAllItem(_ dayPickerViewController: DayPickerViewController)
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDate: Date)
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDateInRange: (Date, Date))
 }

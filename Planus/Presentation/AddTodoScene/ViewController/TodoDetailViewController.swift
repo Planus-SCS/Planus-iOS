@@ -14,7 +14,7 @@ class VC: UIViewController {
         button.setTitle("이걸 눌러", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.addTarget(self, action: #selector(action), for: .touchUpInside)
-
+        
         return button
     }()
     
@@ -80,7 +80,6 @@ class TodoDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .white
 
         self.viewModel = AddTodoViewModel()
 
@@ -100,7 +99,6 @@ class TodoDetailViewController: UIViewController {
         addTodoView.groupSelectionField.inputView = pickerView
         
         addTodoView.addSubview(dayPickerViewController.view)
-        dayPickerViewController.configureDate(date: Date())
     }
     
     func configureSelectCategoryView() {
@@ -116,7 +114,7 @@ class TodoDetailViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         addTodoView.titleField.becomeFirstResponder()
-        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseInOut, animations: {
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
              self.addTodoView.snp.remakeConstraints {
                  $0.bottom.leading.trailing.equalToSuperview()
                  $0.height.lessThanOrEqualTo(700)
@@ -125,16 +123,59 @@ class TodoDetailViewController: UIViewController {
              self.view.layoutIfNeeded()
          }, completion: nil)
     }
-    
+    private func hideBottomSheetAndGoBack() {
+
+        self.view.endEditing(true)
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+            self.dimmedView.alpha = 0.0
+            switch self.pageType {
+            case .addTodo:
+                self.addTodoView.snp.remakeConstraints {
+                    $0.leading.trailing.equalToSuperview()
+                    $0.top.equalTo(self.dimmedView.snp.bottom)
+                    $0.height.lessThanOrEqualTo(700)
+                }
+            case .selectCategory:
+                self.categoryView.snp.remakeConstraints {
+                    $0.width.equalToSuperview()
+                    $0.leading.equalToSuperview()
+                    $0.height.equalTo(400)
+                    $0.top.equalTo(self.dimmedView.snp.bottom)
+                }
+            case .createCategory:
+                self.categoryCreateView.snp.remakeConstraints {
+                    $0.width.equalToSuperview()
+                    $0.leading.equalToSuperview()
+                    $0.height.lessThanOrEqualTo(800)
+                    $0.top.equalTo(self.dimmedView.snp.bottom)
+                }
+            }
+
+            self.view.layoutIfNeeded()
+        }) { _ in
+            if self.presentingViewController != nil {
+                self.dismiss(animated: false, completion: nil)
+            }
+        }
+    }
+
+    // 3
+    @objc private func dimmedViewTapped(_ tapRecognizer: UITapGestureRecognizer) {
+        hideBottomSheetAndGoBack()
+    }
     func configureView() {
         self.view.addSubview(dimmedView)
-        dimmedView.addSubview(addTodoView)
-        dimmedView.addSubview(categoryView)
-        dimmedView.addSubview(categoryCreateView)
+        self.view.addSubview(addTodoView)
+        self.view.addSubview(categoryView)
+        self.view.addSubview(categoryCreateView)
         
         configureAddTodoView()
         configureSelectCategoryView()
         configureCreateCategoryView()
+        
+        let dimmedTap = UITapGestureRecognizer(target: self, action: #selector(dimmedViewTapped(_:)))
+        dimmedView.addGestureRecognizer(dimmedTap)
+        dimmedView.isUserInteractionEnabled = true
     }
     
     func configureLayout() {
@@ -144,20 +185,20 @@ class TodoDetailViewController: UIViewController {
         
         addTodoView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
-            $0.top.equalTo(dimmedView.snp.bottom)
+            $0.top.equalTo(self.view.snp.bottom)
             $0.height.lessThanOrEqualTo(700)
         }
         
         categoryView.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.leading.equalTo(dimmedView.snp.trailing)
+            $0.leading.equalTo(self.view.snp.trailing)
             $0.height.equalTo(400)
             $0.bottom.equalToSuperview()
         }
         
         categoryCreateView.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.leading.equalTo(dimmedView.snp.trailing)
+            $0.leading.equalTo(self.view.snp.trailing)
             $0.height.lessThanOrEqualTo(800)
             $0.bottom.equalToSuperview()
         }
@@ -205,11 +246,11 @@ class TodoDetailViewController: UIViewController {
                 if let category {
                     vc.addTodoView.categoryButton.setTitle(category.title, for: .normal)
                     vc.addTodoView.categoryButton.setTitleColor(UIColor(hex: 0x000000), for: .normal)
-                    vc.addTodoView.categoryColorView.backgroundColor = category.color.todoLeadingColor
+                    vc.addTodoView.categoryColorView.backgroundColor = category.color.todoForCalendarColor
                 } else {
                     vc.addTodoView.categoryButton.setTitle("카테고리", for: .normal)
                     vc.addTodoView.categoryButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
-                    vc.addTodoView.categoryColorView.backgroundColor = .gray
+                    vc.addTodoView.categoryColorView.backgroundColor = .systemGray2
                 }
                 vc.moveFromSelectToAdd()
             })
@@ -346,6 +387,14 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         print(didSelectDate)
     }
     
+    func unHighlightAllItem(_ dayPickerViewController: DayPickerViewController) {
+        addTodoView.startDateButton.setTitle("2000.00.00", for: .normal)
+        addTodoView.startDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
+        addTodoView.dateArrowView.image = UIImage(named: "arrow_white")
+        addTodoView.endDateButton.setTitle("2000.00.00", for: .normal)
+        addTodoView.endDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
+    }
+    
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDateInRange: (Date, Date)) {
         let a = didSelectDateInRange.0
         let b = didSelectDateInRange.1
@@ -389,17 +438,17 @@ extension TodoDetailViewController {
     func moveFromAddToSelect() {
         self.pageType = .selectCategory
         view.endEditing(true)
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
             self.addTodoView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
-                $0.trailing.equalTo(self.dimmedView.snp.leading)
+                $0.trailing.equalTo(self.view.snp.leading)
                 $0.bottom.equalToSuperview()
                 $0.height.lessThanOrEqualTo(700)
             }
             
             self.categoryView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
-                $0.leading.equalTo(self.dimmedView)
+                $0.leading.equalTo(self.view)
                 $0.height.equalTo(400)
                 $0.bottom.equalToSuperview()
             }
@@ -410,16 +459,16 @@ extension TodoDetailViewController {
     func moveFromSelectToCreate() {
         self.pageType = .createCategory
         categoryCreateView.nameField.becomeFirstResponder()
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
             self.categoryCreateView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
-                $0.leading.equalTo(self.dimmedView)
+                $0.leading.equalTo(self.view)
                 $0.height.lessThanOrEqualTo(800)
                 $0.bottom.equalToSuperview()
             }
             self.categoryView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
-                $0.trailing.equalTo(self.dimmedView.snp.leading)
+                $0.trailing.equalTo(self.view.snp.leading)
                 $0.height.equalTo(400)
                 $0.bottom.equalToSuperview()
             }
@@ -430,16 +479,16 @@ extension TodoDetailViewController {
     func moveFromCreateToSelect() {
         self.pageType = .selectCategory
         view.endEditing(true)
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
             self.categoryView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
-                $0.leading.equalTo(self.dimmedView.snp.leading)
+                $0.leading.equalTo(self.view.snp.leading)
                 $0.height.equalTo(400)
                 $0.bottom.equalToSuperview()
             }
             self.categoryCreateView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
-                $0.leading.equalTo(self.dimmedView.snp.trailing)
+                $0.leading.equalTo(self.view.snp.trailing)
                 $0.height.equalTo(500)
                 $0.bottom.equalToSuperview()
             }
@@ -450,17 +499,17 @@ extension TodoDetailViewController {
     func moveFromSelectToAdd() {
         self.pageType = .addTodo
         addTodoView.titleField.becomeFirstResponder()
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
             self.addTodoView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
-                $0.leading.equalTo(self.dimmedView.snp.leading)
+                $0.leading.equalTo(self.view.snp.leading)
                 $0.bottom.equalToSuperview()
                 $0.height.lessThanOrEqualTo(700)
             }
             
             self.categoryView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
-                $0.leading.equalTo(self.dimmedView.snp.trailing)
+                $0.leading.equalTo(self.view.snp.trailing)
                 $0.height.equalTo(400)
                 $0.bottom.equalToSuperview()
             }
@@ -544,6 +593,7 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
 extension TodoDetailViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == self.addTodoView.titleField {
+            self.addTodoView.memoTextView.becomeFirstResponder()
         }
         return true
     }

@@ -42,6 +42,12 @@ extension DayPickerViewController: UICollectionViewDelegate {
                 }
                 delegate?.dayPickerViewController(self, didSelectDate: days[indexPath.section][indexPath.item].date)
             }
+            else if first.item == indexPath.item {
+                days[indexPath.section][indexPath.item].rangeState = .none
+                collectionView.reloadItems(at: [indexPath])
+                delegate?.unHighlightAllItem(self)
+                // 그다음할거는????? none으로 바꿨으니까,,,
+            }
             else {
                 if (first.item < indexPath.item) {
                     for i in (first.item+1..<indexPath.item) {

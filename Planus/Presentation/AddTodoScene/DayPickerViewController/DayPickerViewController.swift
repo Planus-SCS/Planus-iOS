@@ -74,6 +74,8 @@ class DayPickerViewController: UIViewController {
         dayPickerView?.dayPickerCollectionView.dataSource = self
         dayPickerView?.dayPickerCollectionView.delegate = self
         
+        configureDate(date: Date())
+        
         dayPickerView?.prevButton.addTarget(self, action: #selector(prevBtnTapped), for: .touchUpInside)
         dayPickerView?.nextButton.addTarget(self, action: #selector(nextBtnTapped), for: .touchUpInside)
     }
@@ -89,6 +91,9 @@ class DayPickerViewController: UIViewController {
         
         initCalendar(date: currentMonth)
         updateTitle(date: currentMonth)
+        
+        let frameWidth = self.view.frame.width - 20
+        self.reloadAndMove(to: CGPoint(x: frameWidth * CGFloat(self.days.count/2), y: 0))
     }
     
     private func updateTitle(date: Date) {
@@ -104,9 +109,7 @@ class DayPickerViewController: UIViewController {
         }
         
         days = fullCalendar
-        
-        let frameWidth = self.view.frame.width
-        reloadAndMove(to: CGPoint(x: frameWidth * CGFloat(days.count/2), y: 0))
+
     }
     
     private func reloadAndMove(to point: CGPoint) {
