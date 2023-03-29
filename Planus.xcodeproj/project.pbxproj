@@ -59,6 +59,12 @@
 		6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75B29D2C25B006F2604 /* edit@2x.png */; };
 		6A0BF75F29D2C25B006F2604 /* edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75C29D2C25B006F2604 /* edit.png */; };
 		6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75D29D2C25B006F2604 /* edit@3x.png */; };
+		6A0BF76429D35D2C006F2604 /* edit_swipe.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76129D35D2C006F2604 /* edit_swipe.png */; };
+		6A0BF76529D35D2C006F2604 /* edit_swipe@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76229D35D2C006F2604 /* edit_swipe@2x.png */; };
+		6A0BF76629D35D2C006F2604 /* edit_swipe@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76329D35D2C006F2604 /* edit_swipe@3x.png */; };
+		6A0BF76A29D35D47006F2604 /* remove_swipe@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76729D35D47006F2604 /* remove_swipe@3x.png */; };
+		6A0BF76B29D35D47006F2604 /* remove_swipe.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76829D35D47006F2604 /* remove_swipe.png */; };
+		6A0BF76C29D35D47006F2604 /* remove_swipe@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76929D35D47006F2604 /* remove_swipe@2x.png */; };
 		6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */; };
 		6A24F83129CB45170000FD64 /* TodoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83029CB45170000FD64 /* TodoCoordinator.swift */; };
 		6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */; };
@@ -186,6 +192,12 @@
 		6A0BF75B29D2C25B006F2604 /* edit@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@2x.png"; sourceTree = "<group>"; };
 		6A0BF75C29D2C25B006F2604 /* edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit.png; sourceTree = "<group>"; };
 		6A0BF75D29D2C25B006F2604 /* edit@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@3x.png"; sourceTree = "<group>"; };
+		6A0BF76129D35D2C006F2604 /* edit_swipe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit_swipe.png; sourceTree = "<group>"; };
+		6A0BF76229D35D2C006F2604 /* edit_swipe@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit_swipe@2x.png"; sourceTree = "<group>"; };
+		6A0BF76329D35D2C006F2604 /* edit_swipe@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit_swipe@3x.png"; sourceTree = "<group>"; };
+		6A0BF76729D35D47006F2604 /* remove_swipe@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "remove_swipe@3x.png"; sourceTree = "<group>"; };
+		6A0BF76829D35D47006F2604 /* remove_swipe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = remove_swipe.png; sourceTree = "<group>"; };
+		6A0BF76929D35D47006F2604 /* remove_swipe@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "remove_swipe@2x.png"; sourceTree = "<group>"; };
 		6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCalendarCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83029CB45170000FD64 /* TodoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoordinator.swift; sourceTree = "<group>"; };
@@ -400,6 +412,12 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A0BF76829D35D47006F2604 /* remove_swipe.png */,
+				6A0BF76929D35D47006F2604 /* remove_swipe@2x.png */,
+				6A0BF76729D35D47006F2604 /* remove_swipe@3x.png */,
+				6A0BF76129D35D2C006F2604 /* edit_swipe.png */,
+				6A0BF76229D35D2C006F2604 /* edit_swipe@2x.png */,
+				6A0BF76329D35D2C006F2604 /* edit_swipe@3x.png */,
 				6A0BF75C29D2C25B006F2604 /* edit.png */,
 				6A0BF75B29D2C25B006F2604 /* edit@2x.png */,
 				6A0BF75D29D2C25B006F2604 /* edit@3x.png */,
@@ -853,6 +871,7 @@
 				6A08AD8C29C892E0005947D2 /* search-sm.png in Resources */,
 				6A24F8B729CE3F800000FD64 /* Pretendard-Bold.otf in Resources */,
 				6A08ADB829C8A2B0005947D2 /* logo@2x.png in Resources */,
+				6A0BF76A29D35D47006F2604 /* remove_swipe@3x.png in Resources */,
 				6A24F8B429CE3F800000FD64 /* Pretendard-Black.otf in Resources */,
 				6A24F8E729D1D4A40000FD64 /* list@2x.png in Resources */,
 				6A08AD8B29C892E0005947D2 /* check-done-01@2x.png in Resources */,
@@ -860,6 +879,7 @@
 				6A24F8B829CE3F800000FD64 /* Pretendard-Light.otf in Resources */,
 				6A24F8B629CE3F800000FD64 /* Pretendard-ExtraLight.otf in Resources */,
 				6A24F8F929D1D6470000FD64 /* chevron-left.png in Resources */,
+				6A0BF76429D35D2C006F2604 /* edit_swipe.png in Resources */,
 				6A24F8EC29D1D4A40000FD64 /* user-circle@3x.png in Resources */,
 				6A08AD8829C892E0005947D2 /* search-sm@3x.png in Resources */,
 				6A08AD8D29C892E0005947D2 /* users-02@2x.png in Resources */,
@@ -873,6 +893,7 @@
 				6A0BF75A29D2BE0C006F2604 /* Icon@2x.png in Resources */,
 				6A08AD8929C892E0005947D2 /* calendar-date@2x.png in Resources */,
 				6A24F8E929D1D4A40000FD64 /* user-circle.png in Resources */,
+				6A0BF76529D35D2C006F2604 /* edit_swipe@2x.png in Resources */,
 				6A08ADA829C89DEE005947D2 /* appleBtn.png in Resources */,
 				6A24F8EA29D1D4A40000FD64 /* user-circle@2x.png in Resources */,
 				6A24F8BA29CE3F800000FD64 /* Pretendard-Thin.otf in Resources */,
@@ -884,12 +905,15 @@
 				6A08ADAD29C89DEE005947D2 /* appleBtn@3x.png in Resources */,
 				6A08AD5D29C87C63005947D2 /* LaunchScreen.storyboard in Resources */,
 				6A24F8F829D1D6470000FD64 /* chevron-right@3x.png in Resources */,
+				6A0BF76629D35D2C006F2604 /* edit_swipe@3x.png in Resources */,
 				6A08AD8A29C892E0005947D2 /* users-02.png in Resources */,
 				6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */,
+				6A0BF76C29D35D47006F2604 /* remove_swipe@2x.png in Resources */,
 				6A08ADB929C8A2B0005947D2 /* logo.png in Resources */,
 				6A08AD8429C892E0005947D2 /* calendar-date@3x.png in Resources */,
 				6A08ADAA29C89DEE005947D2 /* kakaoBtn@3x.png in Resources */,
 				6A08ADB029C89DEE005947D2 /* googleBtn@2x.png in Resources */,
+				6A0BF76B29D35D47006F2604 /* remove_swipe.png in Resources */,
 				6A24F8EB29D1D4A40000FD64 /* list.png in Resources */,
 				6A0BF75829D2BE0C006F2604 /* Icon.png in Resources */,
 				6A08ADBA29C8A2B0005947D2 /* logo@3x.png in Resources */,

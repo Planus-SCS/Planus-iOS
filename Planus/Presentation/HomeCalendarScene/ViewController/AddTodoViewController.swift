@@ -98,10 +98,11 @@ class CategorySelectView: UIView {
         let button = UIButton(frame: .zero)
         button.setImage(UIImage(named: "addBtn"), for: .normal)
         button.setTitle("새 카테고리 추가", for: .normal)
-        button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
-        button.imageEdgeInsets = .init(top: 0, left: -10, bottom: 0, right: 10)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 16)
+        button.imageEdgeInsets = .init(top: 0, left: -5, bottom: 0, right: 5)
         button.tintColor = .black
         button.setTitleColor(.black, for: .normal)
+        button.contentHorizontalAlignment = .leading
         return button
     }()
     
@@ -117,13 +118,6 @@ class CategorySelectView: UIView {
         return button
     }()
     
-    var editButton: UIButton = {
-        let image = UIImage(named: "edit") ?? UIImage()
-        let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
-        button.setImage(UIImage(named: "edit"), for: .normal)
-        return button
-    }()
-    
     var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "카테고리 선택"
@@ -136,6 +130,8 @@ class CategorySelectView: UIView {
         let tableView = UITableView(frame: .zero)
         tableView.backgroundColor = UIColor(hex: 0xF5F5FB)
         tableView.register(CategoryCell.self, forCellReuseIdentifier: CategoryCell.reuseIdentifier)
+        tableView.separatorInset.left = 16
+        tableView.separatorInset.right = 16
         return tableView
     }()
     
@@ -160,7 +156,6 @@ class CategorySelectView: UIView {
         self.addSubview(headerBarView)
         headerBarView.addSubview(backButton)
         headerBarView.addSubview(titleLabel)
-        headerBarView.addSubview(editButton)
         self.addSubview(addNewItemButton)
         self.addSubview(tableView)
     }
@@ -168,27 +163,24 @@ class CategorySelectView: UIView {
     func configureLayout() {
         headerBarView.snp.makeConstraints {
             $0.top.leading.trailing.equalToSuperview()
-            $0.height.equalTo(60)
+            $0.height.equalTo(84)
         }
         backButton.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(20)
             $0.centerY.equalToSuperview()
         }
+        
         titleLabel.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
-        editButton.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.trailing.equalToSuperview().inset(20)
-        }
-        editButton.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
         
-        addNewItemButton.snp.makeConstraints {
-            $0.top.equalTo(headerBarView.snp.bottom)
+        addNewItemButton.snp.remakeConstraints {
+            $0.top.equalTo(self.headerBarView.snp.bottom)
             $0.leading.equalToSuperview().inset(20)
-            $0.width.equalTo(150)
-            $0.height.equalTo(0)
+            $0.width.equalTo(140)
+            $0.height.equalTo(40)
         }
+        
         tableView.snp.makeConstraints {
             $0.top.equalTo(addNewItemButton.snp.bottom)
             $0.leading.trailing.bottom.equalToSuperview()
@@ -197,36 +189,6 @@ class CategorySelectView: UIView {
     
     var selectMode = false
     
-    @objc func editTapped(_ sender: UIButton) {
-        if !selectMode {
-            selectMode = true
-            tableView.setEditing(true, animated: true)
-
-            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
-                self.addNewItemButton.snp.remakeConstraints {
-                    $0.top.equalTo(self.headerBarView.snp.bottom)
-                    $0.leading.equalToSuperview().inset(20)
-                    $0.width.equalTo(150)
-                    $0.height.equalTo(40)
-                }
-                self.layoutIfNeeded()
-            })
-        } else {
-            selectMode = false
-            tableView.setEditing(false, animated: true)
-
-            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-                self.addNewItemButton.snp.remakeConstraints {
-                    $0.top.equalTo(self.headerBarView.snp.bottom)
-                    $0.leading.equalToSuperview().inset(20)
-                    $0.width.equalTo(150)
-                    $0.height.equalTo(0)
-                }
-                self.layoutIfNeeded()
-            })
-        }
-        
-    }
 }
 
 class CategoryCreateViewCell: UICollectionViewCell {
@@ -347,9 +309,8 @@ class CategoryCreateView: UIView, UICollectionViewDataSource {
     
     func configureLayout() {
         headerBarView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview()
-            $0.top.equalToSuperview().inset(20)
-            $0.height.equalTo(40)
+            $0.top.leading.trailing.equalToSuperview()
+            $0.height.equalTo(84)
         }
         backButton.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(20)
@@ -421,6 +382,8 @@ class CategoryCreateView: UIView, UICollectionViewDataSource {
     }
 }
 
+
+
 class AddTodoView: UIView {
     
     var smallCalendarView = SmallCalendarView(frame: .zero)
@@ -451,6 +414,27 @@ class AddTodoView: UIView {
         return button
     }()
     
+    var headerBarView: UIView = {
+        let view = UIView(frame: .zero)
+        return view
+    }()
+    
+    var saveButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setTitle("저장", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 16)
+        button.setTitleColor(UIColor(hex: 0x6495F4), for: .normal)
+        button.sizeToFit()
+        return button
+    }()
+    
+    var titleLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.text = "일정/투두 관리"
+        label.font = UIFont(name: "Pretendard-Light", size: 16)
+        label.sizeToFit()
+        return label
+    }()
     
     lazy var startDateButton: UIButton = {
         let button = UIButton(frame: .zero)
@@ -481,6 +465,14 @@ class AddTodoView: UIView {
         return button
     }()
     
+    var separatorView: [UIView] = {
+        return (0..<5).map { _ in
+            let view = UIView(frame: .zero)
+            view.backgroundColor = .gray
+            return view
+        }
+    }()
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -500,112 +492,226 @@ class AddTodoView: UIView {
         self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         self.clipsToBounds = true
         
-        self.addSubview(titleField)
-        self.addSubview(memoTextView)
-        self.addSubview(categoryButton)
-        self.addSubview(startDateButton)
-        self.addSubview(endDateButton)
-        self.addSubview(groupSelectionButton)
+//        self.addSubview(headerBarView)
+        headerBarView.addSubview(titleLabel)
+        headerBarView.addSubview(saveButton)
+        
+//        self.addSubview(titleField)
+//        self.addSubview(memoTextView)
+//        self.addSubview(categoryButton)
+//        self.addSubview(startDateButton)
+//        self.addSubview(endDateButton)
+//        self.addSubview(groupSelectionButton)
         self.addSubview(smallCalendarView)
 
-        smallCalendarView.smallCalendarCollectionView.showsHorizontalScrollIndicator = true
+//        separatorView.forEach { view in
+//            self.addSubview(view)
+//        }
     }
-    
-    let view4 = UIView(frame: .zero)
-    let view5 = UIView(frame: .zero)
 
     func configureLayout() {
         
+        
+        
+        let stack = UIStackView(frame: .zero)
+        stack.axis = .vertical
+        stack.alignment = .leading
+        stack.spacing = 10
+        stack.addArrangedSubview(headerBarView)
+        stack.addArrangedSubview(titleField)
+        stack.addArrangedSubview(separatorView[0])
+        stack.addArrangedSubview(categoryButton)
+        stack.addArrangedSubview(separatorView[1])
+
+        stack.addArrangedSubview(startDateButton)
+        stack.addArrangedSubview(separatorView[2])
+
+        stack.addArrangedSubview(groupSelectionButton)
+        stack.addArrangedSubview(separatorView[3])
+
+        stack.addArrangedSubview(memoTextView)
+        stack.addArrangedSubview(separatorView[4])
+
+        self.addSubview(stack)
+
+        headerBarView.snp.makeConstraints {
+//            $0.top.leading.trailing.equalToSuperview()
+            $0.height.equalTo(84)
+            $0.width.equalToSuperview()
+        }
+        
+        titleLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        
+        saveButton.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(20)
+            $0.centerY.equalToSuperview()
+        }
+        
         titleField.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(30)
-            $0.leading.trailing.equalToSuperview().inset(25)
-            $0.height.equalTo(20)
+            $0.width.equalToSuperview()
         }
-        let view1 = UIView(frame: .zero)
-        view1.backgroundColor = .gray
-        self.addSubview(view1)
-        view1.snp.makeConstraints {
+
+        separatorView[0].snp.makeConstraints {
             $0.height.equalTo(0.5)
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.top.equalTo(titleField.snp.bottom).offset(15)
+//            $0.leading.trailing.equalToSuperview().inset(20)
+//            $0.top.equalTo(titleField.snp.bottom).offset(12)
         }
         
-        memoTextView.snp.makeConstraints {
-            $0.top.equalTo(view1.snp.bottom).offset(15)
-            $0.leading.trailing.equalToSuperview().inset(20)
-        }
-        let view2 = UIView(frame: .zero)
-        view2.backgroundColor = .gray
-        self.addSubview(view2)
-        view2.snp.makeConstraints {
-            $0.height.equalTo(0.3)
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.top.equalTo(memoTextView.snp.bottom).offset(15)
-        }
+//        categoryButton.snp.makeConstraints {
+////            $0.top.equalTo(separatorView[0].snp.bottom).offset(12)
+////            $0.leading.equalToSuperview().inset(25)
+//            $0.height.equalTo(30)
+//        }
         
-        categoryButton.snp.makeConstraints {
-            $0.top.equalTo(view2.snp.bottom).offset(15)
-            $0.leading.equalToSuperview().inset(25)
-            $0.height.equalTo(20)
-        }
-        let view3 = UIView(frame: .zero)
-        view3.backgroundColor = .gray
-        self.addSubview(view3)
-        view3.snp.makeConstraints {
-            $0.height.equalTo(0.3)
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.top.equalTo(categoryButton.snp.bottom).offset(15)
-        }
-        startDateButton.snp.makeConstraints {
-            $0.top.equalTo(view3.snp.bottom).offset(15)
-            $0.leading.equalToSuperview().inset(25)
-            $0.height.equalTo(25)
-        }
+//        separatorView[1].snp.makeConstraints {
+//            $0.height.equalTo(0.5)
+////            $0.leading.trailing.equalToSuperview().inset(20)
+////            $0.top.equalTo(categoryButton.snp.bottom).offset(12)
+//        }
         
-        endDateButton.snp.makeConstraints {
-            $0.top.equalTo(view3.snp.bottom).offset(15)
-            $0.leading.equalTo(startDateButton.snp.trailing).offset(20)
-            $0.height.equalTo(25)
-        }
+//        startDateButton.snp.makeConstraints {
+////            $0.top.equalTo(separatorView[1].snp.bottom).offset(12)
+////            $0.leading.equalToSuperview().inset(25)
+//            $0.height.equalTo(30)
+//        }
         
-        view4.backgroundColor = .gray
-        self.addSubview(view4)
-        view4.snp.makeConstraints {
-            $0.height.equalTo(0.3)
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.top.equalTo(endDateButton.snp.bottom).offset(15)
-        }
-        groupSelectionButton.snp.makeConstraints {
-            $0.top.equalTo(view4.snp.bottom).offset(15)
-            $0.leading.equalToSuperview().inset(25)
-            $0.height.equalTo(20)
-        }
+//        endDateButton.snp.makeConstraints {
+////            $0.top.equalTo(separatorView[1].snp.bottom).offset(12)
+////            $0.leading.equalTo(startDateButton.snp.trailing).offset(20)
+//            $0.height.equalTo(30)
+//        }
         
-        view5.backgroundColor = .gray
-        self.addSubview(view5)
-        view5.snp.makeConstraints {
-            $0.height.equalTo(0.3)
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.top.equalTo(groupSelectionButton.snp.bottom).offset(15)
-        }
+//        separatorView[2].snp.makeConstraints {
+//            $0.height.equalTo(0.5)
+////            $0.leading.trailing.equalToSuperview().inset(20)
+////            $0.top.equalTo(startDateButton.snp.bottom).offset(12)
+//        }
         
+//        groupSelectionButton.snp.makeConstraints {
+////            $0.top.equalTo(separatorView[2].snp.bottom).offset(12)
+////            $0.leading.equalToSuperview().inset(25)
+//            $0.height.equalTo(30)
+//        }
+        
+//        separatorView[3].snp.makeConstraints {
+//            $0.height.equalTo(0.5)
+////            $0.leading.trailing.equalToSuperview().inset(20)
+////            $0.top.equalTo(groupSelectionButton.snp.bottom).offset(12)
+//        }
+//
+////        memoTextView.snp.makeConstraints {
+//////            $0.top.equalTo(separatorView[3].snp.bottom).offset(12)
+//////            $0.leading.trailing.equalToSuperview().inset(20)
+////        }
+//
+//        separatorView[4].snp.makeConstraints {
+//            $0.height.equalTo(0.5)
+////            $0.leading.trailing.equalToSuperview().inset(20)
+////            $0.top.equalTo(memoTextView.snp.bottom).offset(12)
+//        }
+        
+//        smallCalendarView.snp.makeConstraints {
+//            $0.top.equalTo(separatorView[4].snp.bottom).offset(12)
+//            $0.leading.trailing.equalToSuperview().inset(10)
+//            $0.height.equalTo(300)
+//            $0.bottom.equalToSuperview().inset(10)
+//        }
+        stack.snp.makeConstraints {
+//            $0.bottom.equalTo(smallCalendarView.snp.top)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.top.equalToSuperview()
+        }
         smallCalendarView.snp.makeConstraints {
-            $0.top.equalTo(groupSelectionButton.snp.bottom).offset(16)
+            $0.top.equalTo(stack.snp.bottom).offset(12)
             $0.leading.trailing.equalToSuperview().inset(10)
             $0.height.equalTo(300)
             $0.bottom.equalToSuperview().inset(10)
         }
+        
+//        stack.snp.makeConstraints {
+//            $0.bottom.equalTo(smallCalendarView.snp.top)
+//            $0.leading.trailing.equalToSuperview().inset(16)
+//            $0.top.equalToSuperview()
+//        }
+        
+        
+        
+        
+        //////////////
+        
+//        memoTextView.snp.makeConstraints {
+//            $0.top.equalTo(separatorView[0].snp.bottom).offset(12)
+//            $0.leading.trailing.equalToSuperview().inset(20)
+//            $0.height.greaterThanOrEqualTo(30)
+//        }
+//
+//        separatorView[1].snp.makeConstraints {
+//            $0.height.equalTo(0.5)
+//            $0.leading.trailing.equalToSuperview().inset(20)
+//            $0.top.equalTo(memoTextView.snp.bottom).offset(12)
+//        }
+//
+//        categoryButton.snp.makeConstraints {
+//            $0.top.equalTo(separatorView[1].snp.bottom).offset(12)
+//            $0.leading.equalToSuperview().inset(25)
+//            $0.height.equalTo(30)
+//        }
+//
+//        separatorView[2].snp.makeConstraints {
+//            $0.height.equalTo(0.5)
+//            $0.leading.trailing.equalToSuperview().inset(20)
+//            $0.top.equalTo(categoryButton.snp.bottom).offset(12)
+//        }
+//
+//        separatorView[3].snp.makeConstraints {
+//            $0.height.equalTo(0.5)
+//            $0.leading.trailing.equalToSuperview().inset(20)
+//            $0.top.equalTo(endDateButton.snp.bottom).offset(12)
+//        }
+//
+//        groupSelectionButton.snp.makeConstraints {
+//            $0.top.equalTo(separatorView[3].snp.bottom).offset(12)
+//            $0.leading.equalToSuperview().inset(25)
+//            $0.height.equalTo(30)
+//        }
+//
+//        separatorView[4].snp.makeConstraints {
+//            $0.height.equalTo(0.5)
+//            $0.leading.trailing.equalToSuperview().inset(20)
+//            $0.top.equalTo(groupSelectionButton.snp.bottom).offset(12)
+//        }
+        
+//        smallCalendarView.snp.makeConstraints {
+//            $0.top.equalTo(groupSelectionButton.snp.bottom).offset(12)
+//            $0.leading.trailing.equalToSuperview().inset(10)
+//            $0.height.equalTo(300)
+//            $0.bottom.equalToSuperview().inset(10)
+//        }
     }
 }
 
+enum AddTodoViewControllerPageType {
+    case addTodo
+    case selectCategory
+    case createCategory
+}
+
 class AddTodoViewController: UIViewController {
+    var pageType: AddTodoViewControllerPageType = .addTodo
+    
+    
     var didScrolledToIndex = PublishSubject<Double>()
 
     var viewModel: AddTodoViewModel?
+    
+    // MARK: Child View
     var addTodoView = AddTodoView(frame: .zero)
     var categoryView = CategorySelectView(frame: .zero)
     var categoryCreateView = CategoryCreateView(frame: .zero)
     
+    // MARK: Background
     private let dimmedView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.darkGray.withAlphaComponent(0)
@@ -623,41 +729,57 @@ class AddTodoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
-        addTodoView.smallCalendarView.smallCalendarCollectionView.dataSource = self
-        addTodoView.smallCalendarView.smallCalendarCollectionView.delegate = self
-        addTodoView.smallCalendarView.prevButton.addTarget(self, action: #selector(prevBtnTapped), for: .touchUpInside)
-        addTodoView.smallCalendarView.nextButton.addTarget(self, action: #selector(nextBtnTapped), for: .touchUpInside)
-        addTodoView.titleField.delegate = self
-        addTodoView.memoTextView.delegate = self
+
         self.viewModel = AddTodoViewModel()
         self.viewModel?.configureDate(date: Date())
-        addTodoView.categoryButton.addTarget(self, action: #selector(categoryBtnTapped), for: .touchUpInside)
-        categoryView.tableView.dataSource = self
-        categoryView.addNewItemButton.addTarget(self, action: #selector(categoryCreateBtnTapped), for: .touchUpInside)
+
         configureView()
         configureLayout()
+        configureAddTodoView()
+        configureSelectCategoryView()
+        configureCreateCategoryView()
         bind()
+    }
+    
+    func configureAddTodoView() {
+        addTodoView.smallCalendarView.smallCalendarCollectionView.dataSource = self
+        addTodoView.smallCalendarView.smallCalendarCollectionView.delegate = self
+        addTodoView.titleField.delegate = self
+        addTodoView.memoTextView.delegate = self
+        
+        addTodoView.smallCalendarView.prevButton.addTarget(self, action: #selector(prevBtnTapped), for: .touchUpInside)
+        addTodoView.smallCalendarView.nextButton.addTarget(self, action: #selector(nextBtnTapped), for: .touchUpInside)
+        addTodoView.categoryButton.addTarget(self, action: #selector(categoryBtnTapped), for: .touchUpInside)
+    }
+    
+    func configureSelectCategoryView() {
+        categoryView.tableView.dataSource = self
+        categoryView.tableView.delegate = self
+        categoryView.addNewItemButton.addTarget(self, action: #selector(categoryCreateBtnTapped), for: .touchUpInside)
+        categoryView.backButton.addTarget(self, action: #selector(backBtnOnSelectCategoryTapped), for: .touchUpInside)
+    }
+    
+    func configureCreateCategoryView() {
+        categoryCreateView.backButton.addTarget(self, action: #selector(backBtnOnCreateCategoryTapped), for: .touchUpInside)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         addTodoView.titleField.becomeFirstResponder()
         
-         UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn, animations: {
-                     // 4 - 1
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
              self.addTodoView.snp.remakeConstraints {
                  $0.bottom.leading.trailing.equalToSuperview()
                  $0.height.lessThanOrEqualTo(700)
              }
              self.dimmedView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
-                     // 4 - 2
              self.view.layoutIfNeeded()
          }, completion: nil)
     }
     
     @objc func categoryBtnTapped(_ sender: UIButton) {
-        
-        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn, animations: {
+        self.pageType = .selectCategory
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
             self.addTodoView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
                 $0.trailing.equalTo(self.dimmedView.snp.leading)
@@ -676,17 +798,57 @@ class AddTodoViewController: UIViewController {
     }
     
     @objc func categoryCreateBtnTapped(_ sender: UIButton) {
-        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn, animations: {
+        self.pageType = .createCategory
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+            self.categoryCreateView.snp.remakeConstraints {
+                $0.width.equalToSuperview()
+                $0.leading.equalTo(self.dimmedView)
+                $0.height.equalTo(500)
+                $0.bottom.equalToSuperview()
+            }
             self.categoryView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
                 $0.trailing.equalTo(self.dimmedView.snp.leading)
                 $0.height.equalTo(400)
                 $0.bottom.equalToSuperview()
             }
+            self.view.layoutIfNeeded()
+        }, completion: nil)
+    }
+    
+    @objc func backBtnOnCreateCategoryTapped(_ sender: UIButton) {
+        self.pageType = .selectCategory
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+            self.categoryView.snp.remakeConstraints {
+                $0.width.equalToSuperview()
+                $0.leading.equalTo(self.dimmedView.snp.leading)
+                $0.height.equalTo(400)
+                $0.bottom.equalToSuperview()
+            }
             self.categoryCreateView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
-                $0.leading.equalTo(self.dimmedView)
+                $0.leading.equalTo(self.dimmedView.snp.trailing)
                 $0.height.equalTo(500)
+                $0.bottom.equalToSuperview()
+            }
+            self.view.layoutIfNeeded()
+        }, completion: nil)
+    }
+    
+    @objc func backBtnOnSelectCategoryTapped(_ sender: UIButton) {
+        self.pageType = .addTodo
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+            self.addTodoView.snp.remakeConstraints {
+                $0.width.equalToSuperview()
+                $0.leading.equalTo(self.dimmedView.snp.leading)
+                $0.bottom.equalToSuperview()
+                $0.height.lessThanOrEqualTo(700)
+            }
+            
+            self.categoryView.snp.remakeConstraints {
+                $0.width.equalToSuperview()
+                $0.leading.equalTo(self.dimmedView.snp.trailing)
+                $0.height.equalTo(400)
                 $0.bottom.equalToSuperview()
             }
             self.view.layoutIfNeeded()
@@ -728,7 +890,7 @@ class AddTodoViewController: UIViewController {
     
     func bind() {
         guard let viewModel else { return }
-        print("keep binding")
+
         let input = AddTodoViewModel.Input(
             didLoadView: Observable.just(()),
             didChangedIndex: didScrolledToIndex.asObservable()
@@ -802,14 +964,27 @@ class AddTodoViewController: UIViewController {
         if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardRectangle = keyboardFrame.cgRectValue
             let keyboardHeight = keyboardRectangle.height
-            print("keyboardHeight = \(keyboardHeight)")
-
-            addTodoView.view5.snp.remakeConstraints {
-                $0.height.equalTo(0.3)
-                $0.leading.trailing.equalToSuperview().inset(20)
-                $0.top.equalTo(addTodoView.groupSelectionButton.snp.bottom).offset(15)
-                $0.bottom.equalToSuperview().inset(keyboardHeight)
+            
+            switch pageType {
+            case .addTodo:
+                return
+//                addTodoView.separatorView[4].snp.remakeConstraints {
+//                    $0.height.equalTo(0.3)
+//                    $0.leading.trailing.equalToSuperview().inset(20)
+//                    $0.top.equalTo(addTodoView.groupSelectionButton.snp.bottom).offset(15)
+//                    $0.bottom.equalToSuperview().inset(keyboardHeight)
+//                }
+//                addTodoView.memoTextView.snp.remakeConstraints {
+//                    $0.top.equalTo(addTodoView.separatorView[0].snp.bottom).offset(12)
+//                    $0.leading.trailing.equalToSuperview().inset(20)
+//                    $0.bottom.equalToSuperview().inset(keyboardHeight)
+//                }
+            case .selectCategory:
+                return
+            case .createCategory:
+                return
             }
+
             self.view.layoutIfNeeded()
 
         }
@@ -817,10 +992,22 @@ class AddTodoViewController: UIViewController {
 
 
     @objc func keyboardWillHide(_ notification:NSNotification) {
-        addTodoView.view5.snp.remakeConstraints {
-            $0.height.equalTo(0.3)
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.top.equalTo(addTodoView.groupSelectionButton.snp.bottom).offset(15)
+        switch pageType {
+        case .addTodo:
+            return
+//            addTodoView.memoTextView.snp.remakeConstraints {
+//                $0.height.equalTo(0.3)
+//                $0.leading.trailing.equalToSuperview().inset(20)
+//                $0.top.equalTo(addTodoView.groupSelectionButton.snp.bottom).offset(15)
+//            }
+//            addTodoView.memoTextView.snp.remakeConstraints {
+//                $0.top.equalTo(addTodoView.separatorView[0].snp.bottom).offset(12)
+//                $0.leading.trailing.equalToSuperview().inset(20)
+//            }
+        case .selectCategory:
+            return
+        case .createCategory:
+            return
         }
         self.view.layoutIfNeeded()
     }
@@ -844,10 +1031,45 @@ extension AddTodoViewController: UITableViewDataSource, UITableViewDelegate {
         return cell
     }
     
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 50
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let edit = UIContextualAction(style: .normal, title: "Edit") { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
+            print("edit 클릭 됨")
+            success(true)
+        }
+        edit.backgroundColor = .systemTeal
+        edit.image = UIImage(named: "edit_swipe")
+        return UISwipeActionsConfiguration(actions:[edit])
+        
     }
     
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let remove = UIContextualAction(style: .normal, title: "Remove") { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
+            print("remove 클릭 됨")
+            self.viewModel?.categorys.remove(at: indexPath.row)
+            self.categoryView.tableView.deleteRows(at: [indexPath], with: .fade)
+            success(true)
+        }
+        remove.backgroundColor = .systemPink
+        remove.image = UIImage(named: "remove_swipe")
+        return UISwipeActionsConfiguration(actions:[remove])
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 48
+    }
+
+//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+//
+//        if editingStyle == .delete {
+//
+//            dataArray.remove(at: indexPath.row)
+//            tableView.deleteRows(at: [indexPath], with: .fade)
+//
+//        } else if editingStyle == .insert {
+//
+//        }
+//    }
 }
 
 extension AddTodoViewController: UITextFieldDelegate {
@@ -920,18 +1142,18 @@ extension AddTodoViewController: UICollectionViewDataSource, UICollectionViewDel
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let pointX = scrollView.contentOffset.x
-        let frameWidth = addTodoView.smallCalendarView.smallCalendarCollectionView.frame.width
-        guard frameWidth != 0 else { return }
-        
-        let index = pointX/frameWidth
-        
-        print(index)
-        self.didScrolledToIndex.onNext(index)
+        if pageType == .addTodo {
+            let pointX = scrollView.contentOffset.x
+            let frameWidth = addTodoView.smallCalendarView.smallCalendarCollectionView.frame.width
+            guard frameWidth != 0 else { return }
+            
+            let index = pointX/frameWidth
+            self.didScrolledToIndex.onNext(index)
+        }
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if decelerate {
+        if pageType == .addTodo && decelerate {
             DispatchQueue.main.async { [weak self] in
                 scrollView.isUserInteractionEnabled = false
                 self?.addTodoView.smallCalendarView.prevButton.isUserInteractionEnabled = false
@@ -941,10 +1163,12 @@ extension AddTodoViewController: UICollectionViewDataSource, UICollectionViewDel
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        DispatchQueue.main.async { [weak self] in
-            scrollView.isUserInteractionEnabled = true
-            self?.addTodoView.smallCalendarView.prevButton.isUserInteractionEnabled = true
-            self?.addTodoView.smallCalendarView.nextButton.isUserInteractionEnabled = true
+        if pageType == .addTodo {
+            DispatchQueue.main.async { [weak self] in
+                scrollView.isUserInteractionEnabled = true
+                self?.addTodoView.smallCalendarView.prevButton.isUserInteractionEnabled = true
+                self?.addTodoView.smallCalendarView.nextButton.isUserInteractionEnabled = true
+            }
         }
     }
 }
@@ -1168,7 +1392,6 @@ class SmallCalendarDayCell: UICollectionViewCell {
         case .prev:
             dayLabel.textColor = UIColor(hex: 0x000000, a: 0.4)
         case .current:
-            print("selected? \(isSelectedDay)")
             dayLabel.textColor = isSelectedDay ? .white : .black
         case .following:
             dayLabel.textColor = UIColor(hex: 0xBFC7D7, a: 0.4)
