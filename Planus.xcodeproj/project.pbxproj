@@ -135,6 +135,10 @@
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
 		6A95DFB529D4DD33009017D8 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB429D4DD33009017D8 /* SearchViewController.swift */; };
 		6A95DFB729D4DD40009017D8 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */; };
+		6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */; };
+		6A95DFBD29D4E2E6009017D8 /* searchBarIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A95DFBA29D4E2E6009017D8 /* searchBarIcon.png */; };
+		6A95DFBE29D4E2E6009017D8 /* searchBarIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A95DFBB29D4E2E6009017D8 /* searchBarIcon@2x.png */; };
+		6A95DFBF29D4E2E6009017D8 /* searchBarIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A95DFBC29D4E2E6009017D8 /* searchBarIcon@3x.png */; };
 		6A9A07B229D3C7E70051AD43 /* arrow_white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */; };
 		6A9A07B329D3C7E70051AD43 /* arrow_white@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */; };
 		6A9A07B429D3C7E70051AD43 /* arrow_white.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B129D3C7E70051AD43 /* arrow_white.png */; };
@@ -294,6 +298,10 @@
 		6A483DB129CA804C003375BF /* PlanusRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PlanusRelease.entitlements; sourceTree = "<group>"; };
 		6A95DFB429D4DD33009017D8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Ext.swift"; sourceTree = "<group>"; };
+		6A95DFBA29D4E2E6009017D8 /* searchBarIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = searchBarIcon.png; sourceTree = "<group>"; };
+		6A95DFBB29D4E2E6009017D8 /* searchBarIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "searchBarIcon@2x.png"; sourceTree = "<group>"; };
+		6A95DFBC29D4E2E6009017D8 /* searchBarIcon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "searchBarIcon@3x.png"; sourceTree = "<group>"; };
 		6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@2x.png"; sourceTree = "<group>"; };
 		6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@3x.png"; sourceTree = "<group>"; };
 		6A9A07B129D3C7E70051AD43 /* arrow_white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_white.png; sourceTree = "<group>"; };
@@ -463,6 +471,9 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A95DFBA29D4E2E6009017D8 /* searchBarIcon.png */,
+				6A95DFBB29D4E2E6009017D8 /* searchBarIcon@2x.png */,
+				6A95DFBC29D4E2E6009017D8 /* searchBarIcon@3x.png */,
 				6A9A07BB29D3D52B0051AD43 /* categoryCheck.png */,
 				6A9A07BD29D3D52B0051AD43 /* categoryCheck@2x.png */,
 				6A9A07BC29D3D52B0051AD43 /* categoryCheck@3x.png */,
@@ -530,6 +541,7 @@
 				6A08AD8F29C89761005947D2 /* UIColor+Ext.swift */,
 				6A483DAD29CA42F5003375BF /* AuthURL.swift */,
 				6A24F84F29CB77830000FD64 /* Calendar+Ext.swift */,
+				6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -992,6 +1004,7 @@
 				6A9A07B229D3C7E70051AD43 /* arrow_white@2x.png in Resources */,
 				6A9A07B429D3C7E70051AD43 /* arrow_white.png in Resources */,
 				6A9A07BA29D3C7F10051AD43 /* arrow_dark@2x.png in Resources */,
+				6A95DFBF29D4E2E6009017D8 /* searchBarIcon@3x.png in Resources */,
 				6A08AD8B29C892E0005947D2 /* check-done-01@2x.png in Resources */,
 				6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */,
 				6A24F8B829CE3F800000FD64 /* Pretendard-Light.otf in Resources */,
@@ -1012,6 +1025,7 @@
 				6A0BF75A29D2BE0C006F2604 /* Icon@2x.png in Resources */,
 				6A08AD8929C892E0005947D2 /* calendar-date@2x.png in Resources */,
 				6A24F8E929D1D4A40000FD64 /* user-circle.png in Resources */,
+				6A95DFBD29D4E2E6009017D8 /* searchBarIcon.png in Resources */,
 				6A0BF76529D35D2C006F2604 /* edit_swipe@2x.png in Resources */,
 				6A9A07BF29D3D52B0051AD43 /* categoryCheck@3x.png in Resources */,
 				6A08ADA829C89DEE005947D2 /* appleBtn.png in Resources */,
@@ -1033,6 +1047,7 @@
 				6A9A07B929D3C7F10051AD43 /* arrow_dark.png in Resources */,
 				6A08ADB929C8A2B0005947D2 /* logo.png in Resources */,
 				6A08AD8429C892E0005947D2 /* calendar-date@3x.png in Resources */,
+				6A95DFBE29D4E2E6009017D8 /* searchBarIcon@2x.png in Resources */,
 				6A08ADAA29C89DEE005947D2 /* kakaoBtn@3x.png in Resources */,
 				6A08ADB029C89DEE005947D2 /* googleBtn@2x.png in Resources */,
 				6A0BF76B29D35D47006F2604 /* remove_swipe.png in Resources */,
@@ -1184,6 +1199,7 @@
 				6A95DFB729D4DD40009017D8 /* SearchViewModel.swift in Sources */,
 				6A24F90A29D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift in Sources */,
 				6A9A07F329D40B5D0051AD43 /* DayPickerView.swift in Sources */,
+				6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */,
 				6A08ADDD29C8D5C0005947D2 /* SocialAuthRepository.swift in Sources */,
 				6A08AD5329C87C61005947D2 /* SceneDelegate.swift in Sources */,
 				6A24F89929CE29330000FD64 /* DailyCalendarCell.swift in Sources */,
