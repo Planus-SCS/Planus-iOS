@@ -7,9 +7,30 @@
 
 import UIKit
 
+struct GroupSearchResult {
+    var title: String
+    var imageName: String
+    var tag: String?
+    var memCount: String
+    var captin: String
+}
+
 class SearchViewController: UIViewController {
     
     // 필요한거 화면에 뿌려줄 컬렉션 뷰, 근데 검색 결과를 보여줄 땐 한 뎁스를 타고 들어가야 한다!
+    
+    var testSource: [GroupSearchResult] = [
+        GroupSearchResult(title: "네카라쿠베가보자",imageName: "groupTest1", tag: "#취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발", memCount: "1/2121212121212", captin: "이상민1ddfdfdfdfdfdfdf"),
+        GroupSearchResult(title: "당토직야도가야지",imageName: "groupTest2", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민2"),
+        GroupSearchResult(title: "안갈거야??",imageName: "groupTest3", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "1/2", captin: "이상민3"),
+        GroupSearchResult(title: "취업해야지?",imageName: "groupTest4", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민4")
+    ]
+    
+    lazy var refreshControl: UIRefreshControl = {
+        let rc = UIRefreshControl(frame: .zero)
+        rc.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        return rc
+    }()
     
     lazy var resultCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createSection())
@@ -17,6 +38,7 @@ class SearchViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        collectionView.refreshControl = refreshControl
         return collectionView
     }()
     
@@ -93,6 +115,10 @@ class SearchViewController: UIViewController {
             $0.height.equalTo(40)
         }
     }
+    
+    @objc func refresh(_ sender: UIRefreshControl) {
+        self.resultCollectionView.reloadData()
+    }
 }
 
 extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -101,16 +127,29 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        0
+        testSource.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell else { return UICollectionViewCell() }
         
+        let item = testSource[indexPath.item]
+        cell.fill(title: item.title, tag: item.tag, memCount: item.memCount, captin: item.captin)
+        let image = UIImage(named: item.imageName) ?? UIImage()
+        
+        let width = (self.view.frame.width - 22)/2
+        let height = width*1.3
+        let resizedImage = UIImage.resizeImage(image: image, targetSize: CGSize(width: width, height: height))
+        cell.fill(image: resizedImage)
+        
         return cell
     }
     
-    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+            if (refreshControl.isRefreshing) {
+                self.refreshControl.endRefreshing()
+            }
+    }
 }
 
 extension SearchViewController {
