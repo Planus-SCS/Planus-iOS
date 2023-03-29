@@ -193,6 +193,26 @@ class CategorySelectView: UIView {
 
 class CategoryCreateViewCell: UICollectionViewCell {
     static let reuseIdentifier = "category-create-view-cell"
+    
+    let checkImageView: UIImageView = {
+        let image = UIImage(named: "categoryCheck")
+        let view = UIImageView(image: image)
+        view.contentMode = .scaleAspectFit
+        view.clipsToBounds = true
+        return view
+    }()
+    
+    override var isSelected: Bool {
+        didSet {
+            if isSelected {
+                self.checkImageView.isHidden = false
+            } else {
+                self.checkImageView.isHidden = true
+            }
+            
+        }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureView()
@@ -202,9 +222,20 @@ class CategoryCreateViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        self.checkImageView.isHidden = true
+    }
+    
     func configureView() {
         self.layer.cornerRadius = 5
         self.layer.cornerCurve = .continuous
+        
+        self.addSubview(checkImageView)
+        
+        checkImageView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        self.checkImageView.isHidden = true
     }
     
     func fill(color: UIColor) {
@@ -227,9 +258,11 @@ class CategoryCreateView: UIView, UICollectionViewDataSource {
     }()
     
     var saveButton: UIButton = {
-        let image = UIImage(named: "edit") ?? UIImage()
-        let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
+        let button = UIButton(frame: .zero)
         button.setTitle("저장", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 16)
+        button.setTitleColor(UIColor(hex: 0x6495F4), for: .normal)
+        button.sizeToFit()
         return button
     }()
     
@@ -349,8 +382,9 @@ class CategoryCreateView: UIView, UICollectionViewDataSource {
         }
         
         descLabel.snp.makeConstraints {
-            $0.top.equalTo(collectionView.snp.bottom).offset(40)
+            $0.top.equalTo(collectionView.snp.bottom)
             $0.centerX.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(40)
         }
     }
     
@@ -402,6 +436,7 @@ class AddTodoView: UIView {
         textView.textColor = .lightGray
         textView.backgroundColor = UIColor(hex: 0xF5F5FB)
         textView.font = UIFont(name: "Pretendard-Light", size: 16)
+        textView.textContainer.lineFragmentPadding = 0
         return textView
     }()
         
@@ -409,10 +444,33 @@ class AddTodoView: UIView {
         let button = UIButton(frame: .zero)
         button.setTitle("카테고리", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Light", size: 16)
-        button.setTitleColor(.black, for: .normal)
+        button.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
         button.sizeToFit()
         return button
     }()
+    
+    lazy var categoryColorView: UIView = {
+        let view = UIView(frame: .zero)
+        view.snp.makeConstraints {
+            $0.height.width.equalTo(12)
+        }
+        view.layer.cornerRadius = 6
+        view.layer.cornerCurve = .continuous
+        view.backgroundColor = .gray
+        return view
+    }()
+    
+    lazy var categoryStackView: UIStackView = {
+        let stack = UIStackView(frame: .zero)
+        stack.axis = .horizontal
+        stack.spacing = 6
+        stack.alignment = .center
+        stack.addArrangedSubview(categoryButton)
+        stack.addArrangedSubview(categoryColorView)
+        return stack
+    }()
+    
+    
     
     var headerBarView: UIView = {
         let view = UIView(frame: .zero)
@@ -440,7 +498,7 @@ class AddTodoView: UIView {
         let button = UIButton(frame: .zero)
         button.setTitle("2000.00.00", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Light", size: 16)
-        button.setTitleColor(.black, for: .normal)
+        button.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
         button.sizeToFit()
         return button
     }()
@@ -449,26 +507,53 @@ class AddTodoView: UIView {
         let button = UIButton(frame: .zero)
         button.setTitle("2000.00.00", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Light", size: 16)
-        button.setTitleColor(.black, for: .normal)
+        button.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
         button.sizeToFit()
 
         return button
+    }()
+    
+    lazy var dateArrowView: UIImageView = {
+        let image = UIImage(named: "arrow_white") ?? UIImage()
+        let view = UIImageView(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
+        view.image = image
+        view.contentMode = .scaleAspectFit
+        return view
+    }()
+    
+    lazy var dateStackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.spacing = 5
+        stackView.alignment = .center
+        stackView.addArrangedSubview(startDateButton)
+        stackView.addArrangedSubview(dateArrowView)
+        stackView.addArrangedSubview(endDateButton)
+        return stackView
     }()
     
     lazy var groupSelectionButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setTitle("그룹 선택", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Light", size: 16)
-        button.setTitleColor(.black, for: .normal)
+        button.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
         button.sizeToFit()
 
         return button
     }()
     
+    var contentStackView: UIStackView = {
+        let stack = UIStackView(frame: .zero)
+        stack.axis = .vertical
+        stack.alignment = .leading
+        stack.spacing = 10
+        return stack
+    }()
+    
     var separatorView: [UIView] = {
         return (0..<5).map { _ in
             let view = UIView(frame: .zero)
-            view.backgroundColor = .gray
+            view.backgroundColor = UIColor(hex: 0xBFC7D7)
             return view
         }
     }()
@@ -487,55 +572,60 @@ class AddTodoView: UIView {
     
     func configureView() {
         self.backgroundColor = UIColor(hex: 0xF5F5FB)
-
         self.layer.cornerRadius = 10
         self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         self.clipsToBounds = true
         
-//        self.addSubview(headerBarView)
+        self.addSubview(headerBarView)
         headerBarView.addSubview(titleLabel)
         headerBarView.addSubview(saveButton)
-        
-//        self.addSubview(titleField)
-//        self.addSubview(memoTextView)
-//        self.addSubview(categoryButton)
-//        self.addSubview(startDateButton)
-//        self.addSubview(endDateButton)
-//        self.addSubview(groupSelectionButton)
-        self.addSubview(smallCalendarView)
 
-//        separatorView.forEach { view in
-//            self.addSubview(view)
-//        }
+        [titleField,
+         separatorView[0],
+         categoryStackView,
+         separatorView[1],
+         dateStackView,
+         separatorView[2],
+         groupSelectionButton,
+         separatorView[3],
+         memoTextView,
+         separatorView[4]
+        ].forEach {
+            contentStackView.addArrangedSubview($0)
+        }
+        
+        self.addSubview(contentStackView)
+        self.addSubview(smallCalendarView)
     }
 
     func configureLayout() {
         
+        titleField.snp.makeConstraints {
+            $0.width.equalToSuperview()
+        }
+ 
+        categoryStackView.snp.makeConstraints {
+            $0.height.equalTo(30)
+        }
+
+        dateStackView.snp.makeConstraints {
+            $0.height.equalTo(30)
+        }
+
         
+        groupSelectionButton.snp.makeConstraints {
+            $0.height.equalTo(30)
+        }
         
-        let stack = UIStackView(frame: .zero)
-        stack.axis = .vertical
-        stack.alignment = .leading
-        stack.spacing = 10
-        stack.addArrangedSubview(headerBarView)
-        stack.addArrangedSubview(titleField)
-        stack.addArrangedSubview(separatorView[0])
-        stack.addArrangedSubview(categoryButton)
-        stack.addArrangedSubview(separatorView[1])
-
-        stack.addArrangedSubview(startDateButton)
-        stack.addArrangedSubview(separatorView[2])
-
-        stack.addArrangedSubview(groupSelectionButton)
-        stack.addArrangedSubview(separatorView[3])
-
-        stack.addArrangedSubview(memoTextView)
-        stack.addArrangedSubview(separatorView[4])
-
-        self.addSubview(stack)
+        separatorView.forEach { view in
+            view.snp.makeConstraints {
+                $0.height.equalTo(0.5)
+                $0.width.equalToSuperview()
+            }
+        }
 
         headerBarView.snp.makeConstraints {
-//            $0.top.leading.trailing.equalToSuperview()
+            $0.top.leading.trailing.equalToSuperview()
             $0.height.equalTo(84)
             $0.width.equalToSuperview()
         }
@@ -549,153 +639,18 @@ class AddTodoView: UIView {
             $0.centerY.equalToSuperview()
         }
         
-        titleField.snp.makeConstraints {
-            $0.width.equalToSuperview()
-        }
-
-        separatorView[0].snp.makeConstraints {
-            $0.height.equalTo(0.5)
-//            $0.leading.trailing.equalToSuperview().inset(20)
-//            $0.top.equalTo(titleField.snp.bottom).offset(12)
-        }
-        
-//        categoryButton.snp.makeConstraints {
-////            $0.top.equalTo(separatorView[0].snp.bottom).offset(12)
-////            $0.leading.equalToSuperview().inset(25)
-//            $0.height.equalTo(30)
-//        }
-        
-//        separatorView[1].snp.makeConstraints {
-//            $0.height.equalTo(0.5)
-////            $0.leading.trailing.equalToSuperview().inset(20)
-////            $0.top.equalTo(categoryButton.snp.bottom).offset(12)
-//        }
-        
-//        startDateButton.snp.makeConstraints {
-////            $0.top.equalTo(separatorView[1].snp.bottom).offset(12)
-////            $0.leading.equalToSuperview().inset(25)
-//            $0.height.equalTo(30)
-//        }
-        
-//        endDateButton.snp.makeConstraints {
-////            $0.top.equalTo(separatorView[1].snp.bottom).offset(12)
-////            $0.leading.equalTo(startDateButton.snp.trailing).offset(20)
-//            $0.height.equalTo(30)
-//        }
-        
-//        separatorView[2].snp.makeConstraints {
-//            $0.height.equalTo(0.5)
-////            $0.leading.trailing.equalToSuperview().inset(20)
-////            $0.top.equalTo(startDateButton.snp.bottom).offset(12)
-//        }
-        
-//        groupSelectionButton.snp.makeConstraints {
-////            $0.top.equalTo(separatorView[2].snp.bottom).offset(12)
-////            $0.leading.equalToSuperview().inset(25)
-//            $0.height.equalTo(30)
-//        }
-        
-//        separatorView[3].snp.makeConstraints {
-//            $0.height.equalTo(0.5)
-////            $0.leading.trailing.equalToSuperview().inset(20)
-////            $0.top.equalTo(groupSelectionButton.snp.bottom).offset(12)
-//        }
-//
-////        memoTextView.snp.makeConstraints {
-//////            $0.top.equalTo(separatorView[3].snp.bottom).offset(12)
-//////            $0.leading.trailing.equalToSuperview().inset(20)
-////        }
-//
-//        separatorView[4].snp.makeConstraints {
-//            $0.height.equalTo(0.5)
-////            $0.leading.trailing.equalToSuperview().inset(20)
-////            $0.top.equalTo(memoTextView.snp.bottom).offset(12)
-//        }
-        
-//        smallCalendarView.snp.makeConstraints {
-//            $0.top.equalTo(separatorView[4].snp.bottom).offset(12)
-//            $0.leading.trailing.equalToSuperview().inset(10)
-//            $0.height.equalTo(300)
-//            $0.bottom.equalToSuperview().inset(10)
-//        }
-        stack.snp.makeConstraints {
-//            $0.bottom.equalTo(smallCalendarView.snp.top)
+        contentStackView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.top.equalToSuperview()
+            $0.top.equalTo(headerBarView.snp.bottom)
         }
+        
         smallCalendarView.snp.makeConstraints {
-            $0.top.equalTo(stack.snp.bottom).offset(12)
+            $0.top.equalTo(contentStackView.snp.bottom).offset(12)
             $0.leading.trailing.equalToSuperview().inset(10)
             $0.height.equalTo(300)
-            $0.bottom.equalToSuperview().inset(10)
+            $0.bottom.equalToSuperview()
         }
-        
-//        stack.snp.makeConstraints {
-//            $0.bottom.equalTo(smallCalendarView.snp.top)
-//            $0.leading.trailing.equalToSuperview().inset(16)
-//            $0.top.equalToSuperview()
-//        }
-        
-        
-        
-        
-        //////////////
-        
-//        memoTextView.snp.makeConstraints {
-//            $0.top.equalTo(separatorView[0].snp.bottom).offset(12)
-//            $0.leading.trailing.equalToSuperview().inset(20)
-//            $0.height.greaterThanOrEqualTo(30)
-//        }
-//
-//        separatorView[1].snp.makeConstraints {
-//            $0.height.equalTo(0.5)
-//            $0.leading.trailing.equalToSuperview().inset(20)
-//            $0.top.equalTo(memoTextView.snp.bottom).offset(12)
-//        }
-//
-//        categoryButton.snp.makeConstraints {
-//            $0.top.equalTo(separatorView[1].snp.bottom).offset(12)
-//            $0.leading.equalToSuperview().inset(25)
-//            $0.height.equalTo(30)
-//        }
-//
-//        separatorView[2].snp.makeConstraints {
-//            $0.height.equalTo(0.5)
-//            $0.leading.trailing.equalToSuperview().inset(20)
-//            $0.top.equalTo(categoryButton.snp.bottom).offset(12)
-//        }
-//
-//        separatorView[3].snp.makeConstraints {
-//            $0.height.equalTo(0.5)
-//            $0.leading.trailing.equalToSuperview().inset(20)
-//            $0.top.equalTo(endDateButton.snp.bottom).offset(12)
-//        }
-//
-//        groupSelectionButton.snp.makeConstraints {
-//            $0.top.equalTo(separatorView[3].snp.bottom).offset(12)
-//            $0.leading.equalToSuperview().inset(25)
-//            $0.height.equalTo(30)
-//        }
-//
-//        separatorView[4].snp.makeConstraints {
-//            $0.height.equalTo(0.5)
-//            $0.leading.trailing.equalToSuperview().inset(20)
-//            $0.top.equalTo(groupSelectionButton.snp.bottom).offset(12)
-//        }
-        
-//        smallCalendarView.snp.makeConstraints {
-//            $0.top.equalTo(groupSelectionButton.snp.bottom).offset(12)
-//            $0.leading.trailing.equalToSuperview().inset(10)
-//            $0.height.equalTo(300)
-//            $0.bottom.equalToSuperview().inset(10)
-//        }
     }
-}
-
-enum AddTodoViewControllerPageType {
-    case addTodo
-    case selectCategory
-    case createCategory
 }
 
 class AddTodoViewController: UIViewController {
@@ -779,6 +734,7 @@ class AddTodoViewController: UIViewController {
     
     @objc func categoryBtnTapped(_ sender: UIButton) {
         self.pageType = .selectCategory
+        view.endEditing(true)
         UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
             self.addTodoView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
@@ -799,11 +755,12 @@ class AddTodoViewController: UIViewController {
     
     @objc func categoryCreateBtnTapped(_ sender: UIButton) {
         self.pageType = .createCategory
+        categoryCreateView.nameField.becomeFirstResponder()
         UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
             self.categoryCreateView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
                 $0.leading.equalTo(self.dimmedView)
-                $0.height.equalTo(500)
+                $0.height.lessThanOrEqualTo(800)
                 $0.bottom.equalToSuperview()
             }
             self.categoryView.snp.remakeConstraints {
@@ -818,6 +775,7 @@ class AddTodoViewController: UIViewController {
     
     @objc func backBtnOnCreateCategoryTapped(_ sender: UIButton) {
         self.pageType = .selectCategory
+        view.endEditing(true)
         UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
             self.categoryView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
@@ -837,6 +795,7 @@ class AddTodoViewController: UIViewController {
     
     @objc func backBtnOnSelectCategoryTapped(_ sender: UIButton) {
         self.pageType = .addTodo
+        addTodoView.titleField.becomeFirstResponder()
         UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
             self.addTodoView.snp.remakeConstraints {
                 $0.width.equalToSuperview()
@@ -881,7 +840,7 @@ class AddTodoViewController: UIViewController {
         categoryCreateView.snp.makeConstraints {
             $0.width.equalToSuperview()
             $0.leading.equalTo(dimmedView.snp.trailing)
-            $0.height.equalTo(500)
+            $0.height.lessThanOrEqualTo(800)
             $0.bottom.equalToSuperview()
         }
     }
@@ -967,22 +926,20 @@ class AddTodoViewController: UIViewController {
             
             switch pageType {
             case .addTodo:
-                return
-//                addTodoView.separatorView[4].snp.remakeConstraints {
-//                    $0.height.equalTo(0.3)
-//                    $0.leading.trailing.equalToSuperview().inset(20)
-//                    $0.top.equalTo(addTodoView.groupSelectionButton.snp.bottom).offset(15)
-//                    $0.bottom.equalToSuperview().inset(keyboardHeight)
-//                }
-//                addTodoView.memoTextView.snp.remakeConstraints {
-//                    $0.top.equalTo(addTodoView.separatorView[0].snp.bottom).offset(12)
-//                    $0.leading.trailing.equalToSuperview().inset(20)
-//                    $0.bottom.equalToSuperview().inset(keyboardHeight)
-//                }
+                addTodoView.smallCalendarView.snp.remakeConstraints {
+                    $0.top.equalTo(addTodoView.contentStackView.snp.bottom)
+                    $0.leading.trailing.equalToSuperview().inset(10)
+                    $0.height.equalTo(keyboardHeight)
+                    $0.bottom.equalToSuperview()
+                }
             case .selectCategory:
                 return
             case .createCategory:
-                return
+                categoryCreateView.descLabel.snp.remakeConstraints {
+                    $0.top.equalTo(categoryCreateView.collectionView.snp.bottom)
+                    $0.centerX.equalToSuperview()
+                    $0.bottom.equalToSuperview().inset(keyboardHeight+20)
+                }
             }
 
             self.view.layoutIfNeeded()
@@ -994,20 +951,20 @@ class AddTodoViewController: UIViewController {
     @objc func keyboardWillHide(_ notification:NSNotification) {
         switch pageType {
         case .addTodo:
-            return
-//            addTodoView.memoTextView.snp.remakeConstraints {
-//                $0.height.equalTo(0.3)
-//                $0.leading.trailing.equalToSuperview().inset(20)
-//                $0.top.equalTo(addTodoView.groupSelectionButton.snp.bottom).offset(15)
-//            }
-//            addTodoView.memoTextView.snp.remakeConstraints {
-//                $0.top.equalTo(addTodoView.separatorView[0].snp.bottom).offset(12)
-//                $0.leading.trailing.equalToSuperview().inset(20)
-//            }
+            addTodoView.smallCalendarView.snp.remakeConstraints {
+                $0.top.equalTo(addTodoView.contentStackView.snp.bottom).offset(12)
+                $0.leading.trailing.equalToSuperview().inset(10)
+                $0.height.equalTo(300)
+                $0.bottom.equalToSuperview()
+            }
         case .selectCategory:
             return
         case .createCategory:
-            return
+            categoryCreateView.descLabel.snp.remakeConstraints {
+                $0.top.equalTo(categoryCreateView.collectionView.snp.bottom)
+                $0.centerX.equalToSuperview()
+                $0.bottom.equalToSuperview().inset(40)
+            }
         }
         self.view.layoutIfNeeded()
     }
@@ -1058,18 +1015,6 @@ extension AddTodoViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 48
     }
-
-//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-//
-//        if editingStyle == .delete {
-//
-//            dataArray.remove(at: indexPath.row)
-//            tableView.deleteRows(at: [indexPath], with: .fade)
-//
-//        } else if editingStyle == .insert {
-//
-//        }
-//    }
 }
 
 extension AddTodoViewController: UITextFieldDelegate {
@@ -1091,7 +1036,7 @@ extension AddTodoViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
             textView.text = "메모를 입력하세요"
-            textView.textColor = .lightGray
+            textView.textColor = UIColor(hex: 0xBFC7D7)
         }
     }
     
