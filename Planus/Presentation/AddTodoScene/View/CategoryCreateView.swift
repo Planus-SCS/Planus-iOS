@@ -69,14 +69,14 @@ class CategoryCreateView: UIView, UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCreateViewCell.reuseIdentifier, for: indexPath) as? CategoryCreateViewCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCreateCell.reuseIdentifier, for: indexPath) as? CategoryCreateCell else { return UICollectionViewCell() }
         cell.fill(color: source[indexPath.item].todoLeadingColor)
         return cell
     }
     
     lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
-        cv.register(CategoryCreateViewCell.self, forCellWithReuseIdentifier: CategoryCreateViewCell.reuseIdentifier)
+        cv.register(CategoryCreateCell.self, forCellWithReuseIdentifier: CategoryCreateCell.reuseIdentifier)
         cv.dataSource = self
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
 
