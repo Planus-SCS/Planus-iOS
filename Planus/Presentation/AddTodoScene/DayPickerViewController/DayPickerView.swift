@@ -52,7 +52,7 @@ final class DayPickerView: UIView {
         return stackView
     }()
     
-    var smallCalendarCollectionView: DayPickerCollectionView = {
+    var dayPickerCollectionView: DayPickerCollectionView = {
         return DayPickerCollectionView(frame: .zero)
     }()
     
@@ -91,7 +91,7 @@ final class DayPickerView: UIView {
         self.addSubview(prevButton)
         self.addSubview(nextButton)
         self.addSubview(weekDaysStackView)
-        self.addSubview(smallCalendarCollectionView)
+        self.addSubview(dayPickerCollectionView)
     }
     
     func configureLayout() {
@@ -118,7 +118,7 @@ final class DayPickerView: UIView {
             $0.trailing.equalTo(self.safeAreaLayoutGuide.snp.trailing)
             $0.height.equalTo(20)
         }
-        smallCalendarCollectionView.snp.makeConstraints {
+        dayPickerCollectionView.snp.makeConstraints {
             $0.top.equalTo(weekDaysStackView.snp.bottom)
             $0.leading.equalTo(self.snp.leading)
             $0.trailing.equalTo(self.snp.trailing)

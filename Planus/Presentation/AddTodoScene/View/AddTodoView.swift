@@ -9,8 +9,6 @@ import UIKit
 
 class AddTodoView: UIView {
     
-    var smallCalendarView = SmallCalendarView(frame: .zero)
-
     lazy var titleField: UITextField = {
         let titleField = UITextField(frame: .zero)
         titleField.placeholder = "일정을 입력하세요"
@@ -184,7 +182,6 @@ class AddTodoView: UIView {
         }
         
         self.addSubview(contentStackView)
-        self.addSubview(smallCalendarView)
     }
 
     func configureLayout() {
@@ -231,13 +228,6 @@ class AddTodoView: UIView {
         contentStackView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.top.equalTo(headerBarView.snp.bottom)
-        }
-        
-        smallCalendarView.snp.makeConstraints {
-            $0.top.equalTo(contentStackView.snp.bottom).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(10)
-            $0.height.equalTo(300)
-            $0.bottom.equalToSuperview()
         }
     }
 }
