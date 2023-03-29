@@ -19,6 +19,7 @@ class SignInViewModel {
     var actions: SignInViewModelActions?
 
     let kakaoSignInUseCase: KakaoSignInUseCase
+    let googleSignInUseCase: GoogleSignInUseCase
     
     struct Input {
         var kakaoSignInTapped: Observable<Void>
@@ -31,8 +32,12 @@ class SignInViewModel {
         var showAppleSignInPage: Observable<Void>
     }
     
-    init(kakaoSignInUseCase: KakaoSignInUseCase) {
+    init(
+        kakaoSignInUseCase: KakaoSignInUseCase,
+        googleSignInUseCase: GoogleSignInUseCase
+    ) {
         self.kakaoSignInUseCase = kakaoSignInUseCase
+        self.googleSignInUseCase = googleSignInUseCase
     }
     
     func setActions(actions: SignInViewModelActions) {
@@ -52,8 +57,9 @@ class SignInViewModel {
         
         input
             .googleSignInTapped
-            .subscribe(onNext: {
-                
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.signInGoogle()
             })
             .disposed(by: bag)
         
@@ -88,6 +94,19 @@ class SignInViewModel {
                     self.actions?.showMainTabFlow?()
                 }, onFailure: { error in
 
+                })
+                .disposed(by: self.bag)
+        }
+    }
+    
+    func signInGoogle() {
+        actions?.showWebViewSignInPage?(.google) { [weak self] code in
+            guard let self else { return }
+            self.googleSignInUseCase.execute(code: code)
+                .subscribe(onSuccess: { data in
+                    self.actions?.showMainTabFlow?()
+                }, onFailure: { error in
+                    
                 })
                 .disposed(by: self.bag)
         }

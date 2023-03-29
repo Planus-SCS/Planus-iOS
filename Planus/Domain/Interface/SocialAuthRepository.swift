@@ -10,6 +10,6 @@ import RxSwift
 
 protocol SocialAuthRepository {
     func kakaoSignIn(code: String) -> Single<Data>
-    func googleSignIn()
+    func googleSignIn(code: String) -> Single<Data>
     func appleSignIn()
 }

@@ -28,8 +28,16 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
         return apiProvider.requestData(endPoint: endPoint)
     }
     
-    func googleSignIn() {
+    func googleSignIn(code: String) -> Single<Data> {
+        let endPoint = APIEndPoint(
+            url: GoogleAuthURL.googleSignInURL,
+            requestType: .get,
+            body: nil,
+            query: ["code": code],
+            header: nil
+        )
         
+        return apiProvider.requestData(endPoint: endPoint)
     }
     
     func appleSignIn() {

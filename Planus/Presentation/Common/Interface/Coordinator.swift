@@ -8,7 +8,7 @@
 import UIKit
 
 enum CoordinatorType {
-    case app, mainTab, signIn
+    case app, mainTab, signIn, homeCalendar, todo, search, group
 }
 
 protocol Coordinator: AnyObject {

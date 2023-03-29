@@ -97,16 +97,28 @@ final class MainTabCoordinator: NSObject, Coordinator {
         )
 
         // 각 코디네이터 생성 후 추가 예정
-//        switch page {
-//        case .calendar:
-//
-//        case .todo:
-//            <#code#>
-//        case .search:
-//            <#code#>
-//        case .group:
-//            <#code#>
-//        }
+        switch page {
+        case .calendar:
+            let homeCalendarCoordinator = HomeCalendarCoordinator(navigationController: navigation)
+            homeCalendarCoordinator.finishDelegate = self
+            childCoordinators.append(homeCalendarCoordinator)
+            homeCalendarCoordinator.start()
+        case .todo:
+            let todoCoordinator = TodoCoordinator(navigationController: navigation)
+            todoCoordinator.finishDelegate = self
+            childCoordinators.append(todoCoordinator)
+            todoCoordinator.start()
+        case .search:
+            let searchCoordinator = SearchCoordinator(navigationController: navigation)
+            searchCoordinator.finishDelegate = self
+            childCoordinators.append(searchCoordinator)
+            searchCoordinator.start()
+        case .group:
+            let groupCoordinator = GroupCoordinator(navigationController: navigation)
+            groupCoordinator.finishDelegate = self
+            childCoordinators.append(groupCoordinator)
+            groupCoordinator.start()
+        }
         
         return navigation
     }

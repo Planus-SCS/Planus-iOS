@@ -64,6 +64,7 @@ class RedirectionalWebViewController: UIViewController {
     
     func startWebView() {
         self.webView.navigationDelegate = self
+        self.webView.customUserAgent = WebViewCustomUserAgent.userAgent
         guard let viewModel else { return }
         
         if let url = URL(string: viewModel.type.requestURL) {
@@ -77,7 +78,7 @@ extension RedirectionalWebViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let viewModel,
               let redirectURL = URL(string: viewModel.type.redirectionURI) else { return }
-        
+        print(webView.url!.absoluteString)
         if let url = navigationAction.request.url,
            url.host == redirectURL.host,
            url.port == redirectURL.port,
@@ -92,5 +93,9 @@ extension RedirectionalWebViewController: WKNavigationDelegate {
         } else {
             decisionHandler(.allow)
         }
+    }
+    
+    func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
+        print(webView.url!.absoluteString)
     }
 }
