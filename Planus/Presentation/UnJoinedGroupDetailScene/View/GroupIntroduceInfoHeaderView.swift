@@ -7,7 +7,7 @@
 
 import UIKit
 
-class GroupIntroduceInfoHeaderSupplementaryView: UICollectionReusableView {
+class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     static let reuseIdentifier = "group-introduce-info-header-supplementary-view"
     
     var titleImageView: UIImageView = {

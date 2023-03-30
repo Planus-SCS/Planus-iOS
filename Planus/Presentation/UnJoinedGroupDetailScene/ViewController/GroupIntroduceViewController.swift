@@ -13,6 +13,28 @@ enum GroupIntroduceSectionKind: Int, CaseIterable {
     case info = 0
     case notice
     case member
+    
+    var title: String {
+        switch self {
+        case .info:
+            return ""
+        case .notice:
+            return "공지사항"
+        case .member:
+            return "그룹멤버"
+        }
+    }
+    
+    var desc: String {
+        switch self {
+        case .info:
+            return ""
+        case .notice:
+            return "우리 이렇게 공부해요"
+        case .member:
+            return "우리 함께해요"
+        }
+    }
 }
 
 class GroupIntroduceViewController: UIViewController {
@@ -36,11 +58,11 @@ class GroupIntroduceViewController: UIViewController {
             forCellWithReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier
         )
         cv.register(
-            GroupIntroduceHeaderSupplementaryView.self,
+            GroupIntroduceDefaultHeaderView.self,
             forSupplementaryViewOfKind: Self.headerElementKind,
-            withReuseIdentifier: GroupIntroduceHeaderSupplementaryView.reuseIdentifier
+            withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier
         )
-        cv.register(GroupIntroduceInfoHeaderSupplementaryView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderSupplementaryView.reuseIdentifier)
+        cv.register(GroupIntroduceInfoHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier)
         cv.dataSource = self
         return cv
     }()
@@ -93,25 +115,20 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
-        guard kind == Self.headerElementKind else { return UICollectionReusableView() }
-        
-        let sectionKind = GroupIntroduceSectionKind(rawValue: indexPath.section)
+        guard kind == Self.headerElementKind,
+              let sectionKind = GroupIntroduceSectionKind(rawValue: indexPath.section) else { return UICollectionReusableView() }
         
         switch sectionKind {
         case .info:
-            guard kind == Self.headerElementKind,
-                  let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? GroupIntroduceInfoHeaderSupplementaryView else { return UICollectionReusableView() }
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceInfoHeaderView else { return UICollectionReusableView() }
             view.fill(title: "가보자네카라쿠베베", tag: "dfdfdfdfdkfjfjfjfjfjfjfjfjfjfjfjfj", memCount: "1/4", captin: "기정이짱짱")
             view.fill(image: UIImage(named: "groupTest1")!)
             return view
-        case .notice:
-            return UICollectionReusableView()
-        case .member:
-            return UICollectionReusableView()
-        case .none:
-            return UICollectionReusableView()
+        case .notice, .member:
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
+            view.fill(title: sectionKind.title, description: sectionKind.desc)
+            return view
         }
-
     }
 }
 
@@ -146,11 +163,11 @@ extension GroupIntroduceViewController {
     }
     
     private func createNoticeSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
         
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(0.5))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
         
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 1)
         group.contentInsets = NSDirectionalEdgeInsets(top: 2.5, leading: 0, bottom: 2.5, trailing: 0)
@@ -158,15 +175,15 @@ extension GroupIntroduceViewController {
         let section = NSCollectionLayoutSection(group: group)
 
         let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                       heightDimension: .absolute(45))
+                                                       heightDimension: .absolute(50))
         
-//        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-//            layoutSize: sectionHeaderSize,
-//            elementKind: Self.headerElementKind,
-//            alignment: .top
-//        )
-//
-//        section.boundarySupplementaryItems = [sectionHeader]
+        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: sectionHeaderSize,
+            elementKind: Self.headerElementKind,
+            alignment: .top
+        )
+
+        section.boundarySupplementaryItems = [sectionHeader]
 
         return section
     }
@@ -184,15 +201,15 @@ extension GroupIntroduceViewController {
         let section = NSCollectionLayoutSection(group: group)
 
         let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                       heightDimension: .absolute(45))
+                                                       heightDimension: .absolute(50))
         
-//        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-//            layoutSize: sectionHeaderSize,
-//            elementKind: Self.headerElementKind,
-//            alignment: .top
-//        )
-//
-//        section.boundarySupplementaryItems = [sectionHeader]
+        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: sectionHeaderSize,
+            elementKind: Self.headerElementKind,
+            alignment: .top
+        )
+        
+        section.boundarySupplementaryItems = [sectionHeader]
 
         return section
     }
@@ -217,29 +234,6 @@ extension GroupIntroduceViewController {
 
 
 class StickyTopCompositionalLayout: UICollectionViewCompositionalLayout {
-//    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-//        let layoutAttributes = super.layoutAttributesForElements(in: rect)
-//
-//        layoutAttributes?.forEach({ (attributes) in
-//            if attributes.indexPath.section == 0 && attributes.indexPath.item == 0 {
-//                guard let collectionView = self.collectionView else { return }
-//
-//                let contentOffsetY = collectionView.contentOffset.y
-//
-//                if contentOffsetY > 0 {
-//                    return
-//                }
-//
-//                let width = collectionView.frame.width
-//                let height = attributes.frame.height - contentOffsetY
-//
-//                attributes.frame = CGRect(x: 0, y: contentOffsetY, width: width, height: height)
-//            }
-//
-//        })
-//
-//        return layoutAttributes
-//    }
     
     var headerSize: CGFloat = 330
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
