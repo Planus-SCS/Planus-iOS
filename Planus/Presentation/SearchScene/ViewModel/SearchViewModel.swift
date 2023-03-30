@@ -8,15 +8,22 @@
 import Foundation
 import RxSwift
 
+struct SearchViewModelActions {
+    var showSearchResultPage: ((String) -> Void)?
+    var showGroupIntroducePage: ((String) -> Void)?
+}
+
 class SearchViewModel {
     
     var bag = DisposeBag()
     
+    var actions: SearchViewModelActions?
+    
     var result: [GroupSearchResultViewModel] = [
-        GroupSearchResultViewModel(title: "네카라쿠베가보자",imageName: "groupTest1", tag: "#취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발", memCount: "1/2121212121212", captin: "이상민1ddfdfdfdfdfdfdf"),
-        GroupSearchResultViewModel(title: "당토직야도가야지",imageName: "groupTest2", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민2"),
-        GroupSearchResultViewModel(title: "안갈거야??",imageName: "groupTest3", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "1/2", captin: "이상민3"),
-        GroupSearchResultViewModel(title: "취업해야지?",imageName: "groupTest4", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민4")
+        GroupSearchResultViewModel(id: "1", title: "네카라쿠베가보자",imageName: "groupTest1", tag: "#취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발", memCount: "1/2121212121212", captin: "이상민1ddfdfdfdfdfdfdf"),
+        GroupSearchResultViewModel(id: "2", title: "당토직야도가야지",imageName: "groupTest2", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민2"),
+        GroupSearchResultViewModel(id: "3", title: "안갈거야??",imageName: "groupTest3", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "1/2", captin: "이상민3"),
+        GroupSearchResultViewModel(id: "4", title: "취업해야지?",imageName: "groupTest4", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민4")
     ]
     
     var keyword = BehaviorSubject<String?>(value: nil)
@@ -39,6 +46,10 @@ class SearchViewModel {
         var didAddResult: Observable<Int> //amount를 전달해서 insert
     }
     
+    func setActions(actions: SearchViewModelActions) {
+        self.actions = actions
+    }
+    
     func transform(input: Input) -> Output {
         input
             .viewDidLoad
@@ -53,8 +64,10 @@ class SearchViewModel {
         
         input
             .tappedItemAt
-            .subscribe(onNext: { index in
-                print(index)
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                let groupId = vm.result[index].id
+                vm.actions?.showGroupIntroducePage?(groupId)
             })
             .disposed(by: bag)
         
@@ -71,8 +84,10 @@ class SearchViewModel {
             .disposed(by: bag)
         
         input.searchBtnTapped
-            .subscribe(onNext: {
-                print("tap!")
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                guard let keyword = try? vm.keyword.value() else { return }
+                vm.actions?.showSearchResultPage?(keyword)
             })
             .disposed(by: bag)
         

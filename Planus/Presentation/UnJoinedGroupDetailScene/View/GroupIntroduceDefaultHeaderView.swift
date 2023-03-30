@@ -35,6 +35,8 @@ class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
     }
     
     func configureView() {
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+
         self.addSubview(titleLabel)
         self.addSubview(descLabel)
     }
@@ -47,7 +49,7 @@ class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
         
         descLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(3)
-            $0.leading.equalToSuperview().inset(8)
+            $0.leading.equalToSuperview().inset(24)
         }
     }
     

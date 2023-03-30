@@ -114,8 +114,8 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     }
     
     func configureView() {
-        self.backgroundColor = .orange
-        
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+
         self.addSubview(titleImageView)
         
         self.addSubview(centerContentView)

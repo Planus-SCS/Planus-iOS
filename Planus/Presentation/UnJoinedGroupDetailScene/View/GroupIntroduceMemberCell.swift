@@ -41,6 +41,9 @@ class GroupIntroduceMemberCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        configureView()
+        configureLayout()
     }
     
     required init?(coder: NSCoder) {
@@ -48,9 +51,11 @@ class GroupIntroduceMemberCell: UICollectionViewCell {
     }
     
     func configureView() {
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.addSubview(memberImageView)
         self.addSubview(memberNameLabel)
         self.addSubview(memberIntroduceLabel)
+        self.addSubview(captinIconView)
     }
     
     func configureLayout() {
