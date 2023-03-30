@@ -21,7 +21,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         guard let window = window else { return }
-        window.rootViewController = SearchViewController(nibName: nil, bundle: nil)
+        let vm = SearchViewModel()
+        window.rootViewController = SearchViewController(viewModel: vm)
         window.makeKeyAndVisible()
 //        self.appCoordinator = AppCoordinator(window: window)
 //        self.appCoordinator?.start()

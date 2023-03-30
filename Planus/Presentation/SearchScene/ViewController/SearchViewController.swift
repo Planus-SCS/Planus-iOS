@@ -6,25 +6,19 @@
 //
 
 import UIKit
-
-struct GroupSearchResult {
-    var title: String
-    var imageName: String
-    var tag: String?
-    var memCount: String
-    var captin: String
-}
+import RxSwift
+import RxCocoa
 
 class SearchViewController: UIViewController {
     
     // 필요한거 화면에 뿌려줄 컬렉션 뷰, 근데 검색 결과를 보여줄 땐 한 뎁스를 타고 들어가야 한다!
+    var bag = DisposeBag()
     
-    var testSource: [GroupSearchResult] = [
-        GroupSearchResult(title: "네카라쿠베가보자",imageName: "groupTest1", tag: "#취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발", memCount: "1/2121212121212", captin: "이상민1ddfdfdfdfdfdfdf"),
-        GroupSearchResult(title: "당토직야도가야지",imageName: "groupTest2", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민2"),
-        GroupSearchResult(title: "안갈거야??",imageName: "groupTest3", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "1/2", captin: "이상민3"),
-        GroupSearchResult(title: "취업해야지?",imageName: "groupTest4", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민4")
-    ]
+    var viewModel: SearchViewModel?
+    
+    var tappedItemAt = PublishSubject<Int>()
+    var refreshRequired = PublishSubject<Void>()
+    var searchBtnTapped = PublishSubject<Void>()
     
     lazy var refreshControl: UIRefreshControl = {
         let rc = UIRefreshControl(frame: .zero)
@@ -53,7 +47,7 @@ class SearchViewController: UIViewController {
         return view
     }()
     
-    var searchBarField: UITextField = {
+    lazy var searchBarField: UITextField = {
         let textField = UITextField(frame: .zero)
         textField.textColor = .black
         textField.font = UIFont(name: "Pretendard-Medium", size: 12)
@@ -61,7 +55,8 @@ class SearchViewController: UIViewController {
         textField.backgroundColor = .white
         textField.layer.cornerRadius = 10
         textField.clipsToBounds = true
-        
+        textField.clearButtonMode = .whileEditing
+        textField.delegate = self
         if let image = UIImage(named: "searchBarIcon") {
             textField.addleftimage(image: image, padding: 12)
         }
@@ -73,6 +68,11 @@ class SearchViewController: UIViewController {
 
         return textField
     }()
+    
+    convenience init(viewModel: SearchViewModel) {
+        self.init(nibName: nil, bundle: nil)
+        self.viewModel = viewModel
+    }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -87,6 +87,52 @@ class SearchViewController: UIViewController {
         
         configureView()
         configureLayout()
+        
+        bind()
+    }
+    
+    func bind() {
+        guard let viewModel else { return }
+        
+        let input = SearchViewModel.Input(
+            viewDidLoad: Observable.just(()),
+            tappedItemAt: tappedItemAt.asObservable(),
+            refreshRequired: refreshRequired.asObservable(),
+            keywordChanged: searchBarField.rx.text.asObservable(),
+            searchBtnTapped: searchBtnTapped.asObservable()
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        output
+            .didFinishFetchResult
+            .compactMap { $0 }
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.resultCollectionView.reloadData()
+            })
+            .disposed(by: bag)
+        
+        output
+            .fetchResultProcessing
+            .compactMap { $0 }
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                /*
+                 로딩 인디케이터 or 스켈레톤뷰
+                 */
+            })
+            .disposed(by: bag)
+        
+        output
+            .didAddResult
+            .withUnretained(self)
+            .subscribe(onNext: { count in
+                /*
+                 insert
+                 */
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {
@@ -121,19 +167,26 @@ class SearchViewController: UIViewController {
     }
 }
 
+extension SearchViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        searchBtnTapped.onNext(())
+        return true
+    }
+}
+
 extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        testSource.count
+        viewModel?.result.count ?? Int()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
+              let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
         
-        let item = testSource[indexPath.item]
         cell.fill(title: item.title, tag: item.tag, memCount: item.memCount, captin: item.captin)
         let image = UIImage(named: item.imageName) ?? UIImage()
         
@@ -146,9 +199,14 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-            if (refreshControl.isRefreshing) {
-                self.refreshControl.endRefreshing()
-            }
+        if (refreshControl.isRefreshing) {
+            self.refreshControl.endRefreshing()
+            refreshRequired.onNext(())
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        tappedItemAt.onNext(indexPath.item)
     }
 }
 
