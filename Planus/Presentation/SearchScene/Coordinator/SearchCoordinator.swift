@@ -32,7 +32,7 @@ class SearchCoordinator: Coordinator {
             showGroupIntroducePage: self?.showGroupIntroducePage
         ))
         let vc = SearchViewController(viewModel: vm)
-        self?.navigationController.pushViewController(vc, animated: true)
+        self?.navigationController.pushViewController(vc, animated: false)
     }
 
     lazy var showSearchResultPage: (String) -> Void = { [weak self] keyword in
@@ -40,7 +40,11 @@ class SearchCoordinator: Coordinator {
     }
     
     lazy var showGroupIntroducePage: (String) -> Void = { [weak self] groupId in
-        
+        guard let self else { return }
+        let groupIntroduceCoordinator = GroupIntroduceCoordinator(navigationController: self.navigationController)
+        groupIntroduceCoordinator.finishDelegate = self
+        self.childCoordinators.append(groupIntroduceCoordinator)
+        groupIntroduceCoordinator.start()
     }
 }
 

@@ -69,6 +69,26 @@ class SearchViewController: UIViewController {
         return textField
     }()
     
+    var groupAddButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setImage(UIImage(named: "GroupAddBtn"), for: .normal)
+        button.layer.cornerRadius = 25
+        button.layer.cornerCurve = .continuous
+        button.layer.masksToBounds = false
+        button.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
+        button.layer.shadowOpacity = 1
+        button.layer.shadowOffset = CGSize(width: 0, height: 1)
+        button.layer.shadowRadius = 2
+        return button
+    }()
+    
+    var navigationTitleView: UIImageView = {
+        let image = UIImage(named: "PlanusGroup")
+        let view = UIImageView(image: image)
+        view.clipsToBounds = true
+        return view
+    }()
+    
     convenience init(viewModel: SearchViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
@@ -89,6 +109,12 @@ class SearchViewController: UIViewController {
         configureLayout()
         
         bind()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        self.navigationItem.titleView = navigationTitleView
     }
     
     func bind() {
@@ -140,6 +166,7 @@ class SearchViewController: UIViewController {
         self.view.addSubview(resultCollectionView)
         self.view.addSubview(headerView)
         headerView.addSubview(searchBarField)
+        self.view.addSubview(groupAddButton)
     }
     
     func configureLayout() {
@@ -159,6 +186,11 @@ class SearchViewController: UIViewController {
             $0.centerY.equalToSuperview()
             $0.leading.trailing.equalToSuperview().inset(12)
             $0.height.equalTo(40)
+        }
+        
+        groupAddButton.snp.makeConstraints {
+            $0.bottom.trailing.equalToSuperview().inset(16)
+            $0.width.height.equalTo(50)
         }
     }
     

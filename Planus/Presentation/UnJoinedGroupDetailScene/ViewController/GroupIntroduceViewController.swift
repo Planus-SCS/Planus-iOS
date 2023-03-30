@@ -6,7 +6,8 @@
 //
 
 import UIKit
-
+import RxSwift
+import RxCocoa
 // 컴포지셔널 레이아웃 써서 어엄청 크게 만들자, 디퍼블을 쓸까? 고민되네
 
 enum GroupIntroduceSectionKind: Int, CaseIterable {
@@ -45,46 +46,32 @@ struct Member {
 }
 
 class GroupIntroduceViewController: UIViewController {
-    var memberTestSource: [Member] = [
-        Member(imageName: "member1", name: "기정이짱짱", isCap: true, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member2", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member3", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member4", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member5", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member6", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member7", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member8", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member9", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member10", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member11", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member12", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개"),
-        Member(imageName: "member13", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기소개")
-    ]
+
+    var bag = DisposeBag()
+    
+    var backButtonTapped = PublishSubject<Void>()
+    
     static let headerElementKind = "group-introduce-view-controller-header-kind"
     var headerSize: CGFloat = 330
+    
+    var viewModel: GroupIntroduceViewModel?
+    
     lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+
+        cv.register(GroupIntroduceNoticeCell.self,
+            forCellWithReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier)
         
-//        cv.register(
-//            GroupIntroduceInfoCell.self,
-//            forCellWithReuseIdentifier: GroupIntroduceInfoCell.reuseIdentifier
-//        )
+        cv.register(GroupIntroduceMemberCell.self,
+            forCellWithReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier)
         
-        cv.register(
-            GroupIntroduceNoticeCell.self,
-            forCellWithReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier
-        )
+        cv.register(GroupIntroduceDefaultHeaderView.self,
+                    forSupplementaryViewOfKind: Self.headerElementKind,
+                    withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier)
         
-        cv.register(
-            GroupIntroduceMemberCell.self,
-            forCellWithReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier
-        )
-        cv.register(
-            GroupIntroduceDefaultHeaderView.self,
-            forSupplementaryViewOfKind: Self.headerElementKind,
-            withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier
-        )
-        cv.register(GroupIntroduceInfoHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier)
+        cv.register(GroupIntroduceInfoHeaderView.self,
+                    forSupplementaryViewOfKind: Self.headerElementKind,
+                    withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier)
         cv.dataSource = self
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
         return cv
@@ -117,17 +104,65 @@ class GroupIntroduceViewController: UIViewController {
         return button
     }()
     
+    lazy var backButton: UIBarButtonItem = {
+        let image = UIImage(named: "back")
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        item.tintColor = .black
+        return item
+    }()
+    
+    lazy var shareButton: UIBarButtonItem = {
+        let image = UIImage(named: "share")
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(shareBtnAction))
+        item.tintColor = .black
+        return item
+    }()
+    
+    convenience init(viewModel: GroupIntroduceViewModel) {
+        self.init(nibName: nil, bundle: nil)
+        self.viewModel = viewModel
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         configureView()
         configureLayout()
+        
+        bind()
+        self.navigationItem.setLeftBarButton(backButton, animated: false)
+        self.navigationItem.setRightBarButton(shareButton, animated: false)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+
+    }
+    
+    func bind() {
+        guard let viewModel else { return }
+        
+        let input = GroupIntroduceViewModel.Input(
+            didTappedJoinBtn: joinButton.rx.tap.asObservable(),
+            didTappedBackBtn: backButtonTapped.asObservable()
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        output
+            .didGroupInfoFetched
+            .compactMap { $0 }
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, _ in
+                vc.collectionView.reloadData()
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
-
         self.view.addSubview(collectionView)
         self.view.addSubview(stickyFooterView)
         stickyFooterView.addSubview(joinButton)
@@ -146,8 +181,17 @@ class GroupIntroduceViewController: UIViewController {
         }
         
         collectionView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
+            $0.leading.trailing.bottom.equalToSuperview()
         }
+    }
+    
+    @objc func backBtnAction() {
+        backButtonTapped.onNext(())
+    }
+    
+    @objc func shareBtnAction() {
+        print("share!")
     }
 }
 
@@ -156,16 +200,15 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
         3
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let sectionKind = GroupIntroduceSectionKind(rawValue: section)
+        guard let sectionKind = GroupIntroduceSectionKind(rawValue: section) else { return 0 }
+        
         switch sectionKind {
         case .info:
             return 0
         case .notice:
-            return 1
+            return viewModel?.notice != nil ? 1 : 0
         case .member:
-            return memberTestSource.count
-        case .none:
-            fatalError()
+            return viewModel?.memberList?.count ?? 0
         }
     }
     
@@ -176,26 +219,14 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
         case .info:
             return UICollectionViewCell()
         case .notice:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier, for: indexPath) as? GroupIntroduceNoticeCell else { return UICollectionViewCell() }
-            cell.fill(notice: """
-함께하는 코딩 스터디, 참여해보세요!
-코딩 초보를 위한 스터디 그룹, 지금 모집합니다!
-함께 성장하는 코딩 스터디, 참여 신청 바로 받습니다!
-
-스터디 모임은 일주일에 한 번, 정기적으로 진행됩니다.
-
-각 참여자는 매주 주어지는 과제를 해결하고, 그 결과물을 다음 모임에 공유합니다.
-
-참여자끼리의 질문과 답변, 상호 피드백 등을 통해 서로의 실력을 향상시키고, 동기부여를 높입니다.
-
-스터디 모임에서는 주로 프로그래밍 언어, 알고리즘, 자료구조 등에 대한 학습과 실습을 진행합니다.
-
-참여 신청은 모집글에 댓글로 남겨주시거나, 개설자의 연락처로 문의해주시면 됩니다.
-""")
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier, for: indexPath) as? GroupIntroduceNoticeCell,
+                  let item = viewModel?.notice else { return UICollectionViewCell() }
+            cell.fill(notice: item)
             return cell
         case .member:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier, for: indexPath) as? GroupIntroduceMemberCell else { return UICollectionViewCell() }
-            let item = memberTestSource[indexPath.item]
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier, for: indexPath) as? GroupIntroduceMemberCell,
+                  let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
+
             cell.fill(name: item.name, introduce: item.desc, isCaptin: item.isCap)
             cell.fill(image: UIImage(named: "DefaultProfileMedium")!)
             return cell
@@ -210,7 +241,8 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
         switch sectionKind {
         case .info:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceInfoHeaderView else { return UICollectionReusableView() }
-            view.fill(title: "가보자네카라쿠베베", tag: "#태그개수수수수 #네개까지지지지 #제한하는거다다\n#어때아무글자텍스트테스트 #오개까지아무글자텍스", memCount: "1/4", captin: "기정이짱짱")
+            // 이부분 아무래도 셀로 만들어야할거같다.. 네트워크 받아오면 업댓해야되서 그전까지 비워놔야한다,,, 그냥 빈화면으로 보여줄까? 것도 낫베드긴한디
+            view.fill(title: viewModel?.groupTitle ?? "", tag: viewModel?.tag ?? "", memCount: viewModel?.memberCount ?? "", captin: viewModel?.captin ?? "")
             view.fill(image: UIImage(named: "groupTest1")!)
             return view
         case .notice, .member:
