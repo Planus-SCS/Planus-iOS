@@ -69,7 +69,7 @@ class SearchViewController: UIViewController {
         return textField
     }()
     
-    var groupAddButton: UIButton = {
+    var createGroupButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setImage(UIImage(named: "GroupAddBtn"), for: .normal)
         button.layer.cornerRadius = 25
@@ -125,7 +125,8 @@ class SearchViewController: UIViewController {
             tappedItemAt: tappedItemAt.asObservable(),
             refreshRequired: refreshRequired.asObservable(),
             keywordChanged: searchBarField.rx.text.asObservable(),
-            searchBtnTapped: searchBtnTapped.asObservable()
+            searchBtnTapped: searchBtnTapped.asObservable(),
+            createBtnTapped: createGroupButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -166,7 +167,7 @@ class SearchViewController: UIViewController {
         self.view.addSubview(resultCollectionView)
         self.view.addSubview(headerView)
         headerView.addSubview(searchBarField)
-        self.view.addSubview(groupAddButton)
+        self.view.addSubview(createGroupButton)
     }
     
     func configureLayout() {
@@ -188,7 +189,7 @@ class SearchViewController: UIViewController {
             $0.height.equalTo(40)
         }
         
-        groupAddButton.snp.makeConstraints {
+        createGroupButton.snp.makeConstraints {
             $0.bottom.trailing.equalToSuperview().inset(16)
             $0.width.height.equalTo(50)
         }

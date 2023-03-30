@@ -11,6 +11,7 @@ import RxSwift
 struct SearchViewModelActions {
     var showSearchResultPage: ((String) -> Void)?
     var showGroupIntroducePage: ((String) -> Void)?
+    var showGroupCreatePage: (() -> Void)?
 }
 
 class SearchViewModel {
@@ -22,8 +23,10 @@ class SearchViewModel {
     var result: [GroupSearchResultViewModel] = [
         GroupSearchResultViewModel(id: "1", title: "네카라쿠베가보자",imageName: "groupTest1", tag: "#취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발", memCount: "1/2121212121212", captin: "이상민1ddfdfdfdfdfdfdf"),
         GroupSearchResultViewModel(id: "2", title: "당토직야도가야지",imageName: "groupTest2", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민2"),
-        GroupSearchResultViewModel(id: "3", title: "안갈거야??",imageName: "groupTest3", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "1/2", captin: "이상민3"),
-        GroupSearchResultViewModel(id: "4", title: "취업해야지?",imageName: "groupTest4", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민4")
+        GroupSearchResultViewModel(id: "3", title: "우끼끼",imageName: "groupTest3", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "1/2", captin: "이상민3"),
+        GroupSearchResultViewModel(id: "4", title: "에헤헤",imageName: "groupTest4", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민4"),
+        GroupSearchResultViewModel(id: "5", title: "이히히",imageName: "groupTest1", tag: "#취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발", memCount: "1/2121212121212", captin: "이상민5"),
+        GroupSearchResultViewModel(id: "6", title: "우히히",imageName: "groupTest2", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민6"),
     ]
     
     var keyword = BehaviorSubject<String?>(value: nil)
@@ -38,6 +41,7 @@ class SearchViewModel {
         var refreshRequired: Observable<Void>
         var keywordChanged: Observable<String?>
         var searchBtnTapped: Observable<Void>
+        var createBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -88,6 +92,13 @@ class SearchViewModel {
             .subscribe(onNext: { vm, _ in
                 guard let keyword = try? vm.keyword.value() else { return }
                 vm.actions?.showSearchResultPage?(keyword)
+            })
+            .disposed(by: bag)
+        
+        input.createBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions?.showGroupCreatePage?()
             })
             .disposed(by: bag)
         

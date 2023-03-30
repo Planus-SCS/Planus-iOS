@@ -29,7 +29,8 @@ class SearchCoordinator: Coordinator {
         let vm = SearchViewModel()
         vm.setActions(actions: SearchViewModelActions(
             showSearchResultPage: self?.showSearchResultPage,
-            showGroupIntroducePage: self?.showGroupIntroducePage
+            showGroupIntroducePage: self?.showGroupIntroducePage,
+            showGroupCreatePage: self?.showGroupCreatePage
         ))
         let vc = SearchViewController(viewModel: vm)
         self?.navigationController.pushViewController(vc, animated: false)
@@ -45,6 +46,14 @@ class SearchCoordinator: Coordinator {
         groupIntroduceCoordinator.finishDelegate = self
         self.childCoordinators.append(groupIntroduceCoordinator)
         groupIntroduceCoordinator.start()
+    }
+    
+    lazy var showGroupCreatePage: () -> Void = { [weak self] in
+        guard let self else { return }
+        let groupCreateCoordinator = GroupCreateCoordinator(navigationController: self.navigationController)
+        groupCreateCoordinator.finishDelegate = self
+        self.childCoordinators.append(groupCreateCoordinator)
+        groupCreateCoordinator.start()
     }
 }
 
