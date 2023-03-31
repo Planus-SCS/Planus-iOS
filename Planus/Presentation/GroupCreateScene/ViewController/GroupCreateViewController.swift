@@ -154,6 +154,14 @@ class GroupCreateViewController: UIViewController {
         )
         return textField
     }()
+    var tagFirstStack: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.alignment = .fill
+        stackView.spacing = 8
+        return stackView
+    }()
+    
     var tagField4: UITextField = {
         let textField = UITextField(frame: .zero)
         textField.textColor = .black
@@ -189,6 +197,13 @@ class GroupCreateViewController: UIViewController {
             attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0xBFC7D7)]
         )
         return textField
+    }()
+    var tagSecondStack: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.alignment = .fill
+        stackView.spacing = 8
+        return stackView
     }()
     
     var tagCountValidateLabel: UILabel = {
@@ -292,6 +307,17 @@ class GroupCreateViewController: UIViewController {
         return button
     }()
     
+    lazy var backButton: UIBarButtonItem = {
+        let image = UIImage(named: "back")
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        item.tintColor = .black
+        return item
+    }()
+    
+    @objc func backBtnAction() {
+        navigationController?.popViewController(animated: true)
+    }
+    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
@@ -305,6 +331,9 @@ class GroupCreateViewController: UIViewController {
         
         configureView()
         configureLayout()
+        
+        self.navigationItem.setLeftBarButton(backButton, animated: false)
+        self.navigationItem.title = "그룹 생성"
     }
     
     func configureView() {
@@ -320,10 +349,15 @@ class GroupCreateViewController: UIViewController {
         contentView.addSubview(keyWordTitleLabel)
         contentView.addSubview(keyWordDescLabel)
         contentView.addSubview(tagField1)
-        contentView.addSubview(tagField2)
-        contentView.addSubview(tagField3)
-        contentView.addSubview(tagField4)
-        contentView.addSubview(tagField5)
+        
+        contentView.addSubview(tagFirstStack)
+        tagFirstStack.addArrangedSubview(tagField2)
+        tagFirstStack.addArrangedSubview(tagField3)
+        
+        contentView.addSubview(tagSecondStack)
+        tagSecondStack.addArrangedSubview(tagField4)
+        tagSecondStack.addArrangedSubview(tagField5)
+        
         contentView.addSubview(tagCountValidateLabel)
         contentView.addSubview(stringCountValidateLabel)
         contentView.addSubview(charcaterValidateLabel)
@@ -398,32 +432,33 @@ class GroupCreateViewController: UIViewController {
             $0.width.lessThanOrEqualToSuperview().offset(-40)
         }
         
-        tagField2.snp.makeConstraints {
-            $0.top.equalTo(tagField1.snp.bottom).offset(20)
+        tagFirstStack.snp.makeConstraints {
+            $0.top.equalTo(tagField1.snp.bottom).offset(10)
             $0.leading.equalToSuperview().inset(20)
+            $0.trailing.lessThanOrEqualToSuperview().inset(20)
             $0.height.equalTo(40)
-            $0.width.lessThanOrEqualToSuperview().offset(-40)
         }
         
+        tagField2.snp.makeConstraints {
+            $0.width.lessThanOrEqualTo(tagFirstStack.snp.width).offset(-50)
+        }
+
         tagField3.snp.makeConstraints {
-            $0.top.equalTo(tagField1.snp.bottom).offset(20)
-            $0.leading.equalTo(tagField2.snp.trailing).offset(8)
+            $0.width.lessThanOrEqualTo(tagFirstStack.snp.width).offset(-50)
+        }
+        tagSecondStack.snp.makeConstraints {
+            $0.top.equalTo(tagFirstStack.snp.bottom).offset(10)
+            $0.leading.equalToSuperview().inset(20)
+            $0.trailing.lessThanOrEqualToSuperview().inset(20)
             $0.height.equalTo(40)
-            $0.width.lessThanOrEqualToSuperview().offset(-40)
         }
         
         tagField4.snp.makeConstraints {
-            $0.top.equalTo(tagField2.snp.bottom).offset(20)
-            $0.leading.equalToSuperview().inset(20)
-            $0.height.equalTo(40)
-            $0.width.lessThanOrEqualToSuperview().offset(-40)
+            $0.width.lessThanOrEqualTo(tagSecondStack.snp.width).offset(-50)
         }
-        
+
         tagField5.snp.makeConstraints {
-            $0.top.equalTo(tagField2.snp.bottom).offset(20)
-            $0.leading.equalTo(tagField4.snp.trailing).offset(8)
-            $0.height.equalTo(40)
-            $0.width.lessThanOrEqualToSuperview().offset(-40)
+            $0.width.lessThanOrEqualTo(tagSecondStack.snp.width).offset(-50)
         }
         
         tagCountValidateLabel.snp.makeConstraints {
