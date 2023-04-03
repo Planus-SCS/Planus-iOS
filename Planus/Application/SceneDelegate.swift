@@ -23,10 +23,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let window = window else { return }
 //        let vm = SearchViewModel()
 //        window.rootViewController = SearchViewController(viewModel: vm)
-        window.rootViewController = GroupListViewController(nibName: nil, bundle: nil)
-        window.makeKeyAndVisible()
-//        self.appCoordinator = AppCoordinator(window: window)
-//        self.appCoordinator?.start()
+//        window.rootViewController = GroupListViewController(nibName: nil, bundle: nil)
+//        window.makeKeyAndVisible()
+        self.appCoordinator = AppCoordinator(window: window)
+        self.appCoordinator?.start()
         
     }
 

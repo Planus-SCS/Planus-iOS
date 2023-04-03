@@ -20,6 +20,8 @@ struct JoinedGroupViewModel {
 
 class GroupListViewController: UIViewController {
     
+    static let headerElementKind = "group-list-view-controller-header-kind"
+    
     var source: [JoinedGroupViewModel] = [
         JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest1", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
         JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest2", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
@@ -46,6 +48,7 @@ class GroupListViewController: UIViewController {
     lazy var resultCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.register(JoinedGroupCell.self, forCellWithReuseIdentifier: JoinedGroupCell.reuseIdentifier)
+        collectionView.register(JoinedGroupSectionHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: JoinedGroupSectionHeaderView.reuseIdentifier)
         collectionView.dataSource = self
 //        collectionView.delegate = self
         collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
@@ -53,10 +56,22 @@ class GroupListViewController: UIViewController {
         return collectionView
     }()
     
-    convenience init(viewModel: SearchViewModel) {
-        self.init(nibName: nil, bundle: nil)
-//        self.viewModel = viewModel
+    lazy var notificationButton: UIBarButtonItem = {
+        let image = UIImage(named: "notificationIcon")
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(notificationBtnAction))
+        item.tintColor = .black
+        return item
+    }()
+    
+    @objc func notificationBtnAction() {
+        let vc = NotificationViewController(nibName: nil, bundle: nil)
+        navigationController?.pushViewController(vc, animated: true)
     }
+    
+//    convenience init(viewModel: SearchViewModel) {
+//        self.init(nibName: nil, bundle: nil)
+////        self.viewModel = viewModel
+//    }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -71,14 +86,14 @@ class GroupListViewController: UIViewController {
         
         configureView()
         configureLayout()
-        
+        navigationItem.title = "내가 참여중인 그룹"
+        navigationItem.setRightBarButton(notificationButton, animated: true)
 //        bind()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        self.navigationItem.title = "그룹 신청 관리"
     }
     
 //    func bind() {
@@ -146,31 +161,38 @@ class GroupListViewController: UIViewController {
 //
 //
 extension GroupListViewController: UICollectionViewDataSource, UICollectionViewDelegate {
-
+    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         source.count
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupCell.reuseIdentifier, for: indexPath) as? JoinedGroupCell else { return UICollectionViewCell() }
-
+        
         let item = source[indexPath.item]
         cell.fill(title: item.title, tag: item.tag, memCount: item.memCount, captin: item.captin, onlineCount: item.onlineCount, image: item.imageName)
         return cell
     }
-
+    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if (refreshControl.isRefreshing) {
             self.refreshControl.endRefreshing()
             refreshRequired.onNext(())
         }
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         tappedItemAt.onNext(indexPath.item)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        
+        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: JoinedGroupSectionHeaderView.reuseIdentifier, for: indexPath) as? JoinedGroupSectionHeaderView else { return UICollectionReusableView() }
+        view.fill(title: "그룹 이미지 상단의 슬라이드를 움직여 스터디를 시작하세요")
+        return view
     }
 }
 
@@ -184,10 +206,21 @@ extension GroupListViewController {
                                                heightDimension: .absolute(250))
         
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 2)
-        group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
+        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 14, trailing: 0)
 
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: -7, trailing: 7)
+        
+        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
+                                                       heightDimension: .absolute(34))
+
+        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: sectionHeaderSize,
+            elementKind: Self.headerElementKind,
+            alignment: .top
+        )
+
+        section.boundarySupplementaryItems = [sectionHeader]
         
         let layout = UICollectionViewCompositionalLayout(section: section)
 

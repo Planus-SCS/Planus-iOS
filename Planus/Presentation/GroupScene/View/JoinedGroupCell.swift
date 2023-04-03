@@ -12,7 +12,7 @@ class JoinedGroupCell: SearchResultCell {
     var chatButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setTitle("바로가기", for: .normal)
-        button.backgroundColor = UIColor(hex: 0x000000, a: 0.8)
+        button.backgroundColor = UIColor(hex: 0x000000, a: 0.7)
         button.setTitleColor(UIColor(hex: 0xFFFFFF), for: .normal)
         button.setImage(UIImage(named: "messageIcon"), for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 12)
@@ -26,7 +26,7 @@ class JoinedGroupCell: SearchResultCell {
     var onlineButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setTitle("3", for: .normal)
-        button.backgroundColor = UIColor(hex: 0x000000, a: 0.8)
+        button.backgroundColor = UIColor(hex: 0x000000, a: 0.7)
         button.setTitleColor(UIColor(hex: 0xFFFFFF), for: .normal)
         button.setImage(UIImage(named: "onlineIcon"), for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 12)
@@ -45,7 +45,7 @@ class JoinedGroupCell: SearchResultCell {
         swicth.tintColor = UIColor.orange
         
         // Set Switch to On.
-        swicth.isOn = true
+        swicth.isOn = false
         
         // Set the event to be called when switching On / Off of Switch.
         /*For on state*/

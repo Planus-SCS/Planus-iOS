@@ -139,6 +139,5 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         groupTitleLabel.text = title
         nameLabel.text = name
         descLabel.text = desc
-        print(title, name, desc)
     }
 }

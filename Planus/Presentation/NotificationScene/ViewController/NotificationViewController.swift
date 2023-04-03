@@ -55,6 +55,13 @@ class NotificationViewController: UIViewController {
         return collectionView
     }()
     
+    lazy var backButton: UIBarButtonItem = {
+        let image = UIImage(named: "back")
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        item.tintColor = .black
+        return item
+    }()
+    
     convenience init(viewModel: SearchViewModel) {
         self.init(nibName: nil, bundle: nil)
 //        self.viewModel = viewModel
@@ -73,16 +80,20 @@ class NotificationViewController: UIViewController {
         
         configureView()
         configureLayout()
-        
+        navigationItem.title = "그룹 신청 관리"
+
+        navigationItem.setLeftBarButton(backButton, animated: false)
 //        bind()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        self.navigationItem.title = "그룹 신청 관리"
+
     }
     
+    @objc func backBtnAction() {
+        self.navigationController?.popViewController(animated: true)
+    }
 //    func bind() {
 //        guard let viewModel else { return }
 //
@@ -186,7 +197,7 @@ extension NotificationViewController {
                                                heightDimension: .absolute(122))
 
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
-        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 10, trailing: 16)
+        group.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 16, bottom: 0, trailing: 16)
 
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)

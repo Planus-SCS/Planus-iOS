@@ -26,7 +26,8 @@ class GroupCoordinator: Coordinator {
     }
     
     lazy var showGroupListPage: () -> Void = { [weak self] in
-
+        let vc = GroupListViewController(nibName: nil, bundle: nil)
+        self?.navigationController.pushViewController(vc, animated: true)
     }
 
     lazy var showGroupDetailPage: () -> Void = { [weak self] in
