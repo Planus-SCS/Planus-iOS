@@ -26,12 +26,18 @@ class GroupCoordinator: Coordinator {
     }
     
     lazy var showGroupListPage: () -> Void = { [weak self] in
-        let vc = GroupListViewController(nibName: nil, bundle: nil)
+        let vm = GroupListViewModel()
+        vm.setActions(actions: GroupListViewModelActions(showJoinedGroupDetail: self?.showGroupDetailPage))
+        let vc = GroupListViewController(viewModel: vm)
         self?.navigationController.pushViewController(vc, animated: true)
     }
 
-    lazy var showGroupDetailPage: () -> Void = { [weak self] in
-        
+    lazy var showGroupDetailPage: (String) -> Void = { [weak self] id in
+        guard let self else { return }
+        let coordinator = JoinedGroupDetailCoordinator(navigationController: self.navigationController)
+        coordinator.finishDelegate = self
+        self.childCoordinators.append(coordinator)
+        coordinator.start(id: id)
     }
 }
 

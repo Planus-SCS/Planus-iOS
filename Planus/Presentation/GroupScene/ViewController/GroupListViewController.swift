@@ -22,15 +22,7 @@ class GroupListViewController: UIViewController {
     
     static let headerElementKind = "group-list-view-controller-header-kind"
     
-    var source: [JoinedGroupViewModel] = [
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest1", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest2", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest3", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest4", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest2", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest1", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4")
-    ]
-    
+    var viewModel: GroupListViewModel?
     // 필요한거 화면에 뿌려줄 컬렉션 뷰, 근데 검색 결과를 보여줄 땐 한 뎁스를 타고 들어가야 한다!
     var bag = DisposeBag()
     
@@ -50,7 +42,7 @@ class GroupListViewController: UIViewController {
         collectionView.register(JoinedGroupCell.self, forCellWithReuseIdentifier: JoinedGroupCell.reuseIdentifier)
         collectionView.register(JoinedGroupSectionHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: JoinedGroupSectionHeaderView.reuseIdentifier)
         collectionView.dataSource = self
-//        collectionView.delegate = self
+        collectionView.delegate = self
         collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
         collectionView.refreshControl = refreshControl
         return collectionView
@@ -68,10 +60,10 @@ class GroupListViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
     
-//    convenience init(viewModel: SearchViewModel) {
-//        self.init(nibName: nil, bundle: nil)
-////        self.viewModel = viewModel
-//    }
+    convenience init(viewModel: GroupListViewModel) {
+        self.init(nibName: nil, bundle: nil)
+        self.viewModel = viewModel
+    }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -86,14 +78,28 @@ class GroupListViewController: UIViewController {
         
         configureView()
         configureLayout()
-        navigationItem.title = "내가 참여중인 그룹"
         navigationItem.setRightBarButton(notificationButton, animated: true)
-//        bind()
+        bind()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+        navigationItem.title = "내가 참여중인 그룹"
+    }
+    
+    func bind() {
+        guard let viewModel else { return }
+        let input = GroupListViewModel.Input(didTappedAt: tappedItemAt.asObservable())
+        let output = viewModel.transform(input: input)
+        output
+            .didFetchedJoinedGroup
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.resultCollectionView.reloadData()
+            })
+            .disposed(by: bag)
     }
     
 //    func bind() {
@@ -166,13 +172,13 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
         1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        source.count
+        viewModel?.groupList?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupCell.reuseIdentifier, for: indexPath) as? JoinedGroupCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupCell.reuseIdentifier, for: indexPath) as? JoinedGroupCell,
+              let item = viewModel?.groupList?[indexPath.item] else { return UICollectionViewCell() }
         
-        let item = source[indexPath.item]
         cell.fill(title: item.title, tag: item.tag, memCount: item.memCount, captin: item.captin, onlineCount: item.onlineCount, image: item.imageName)
         return cell
     }

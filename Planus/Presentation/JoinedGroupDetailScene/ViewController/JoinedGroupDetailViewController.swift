@@ -111,6 +111,13 @@ class JoinedGroupDetailViewController: UIViewController {
         return dataSource
     }()
     
+    lazy var backButton: UIBarButtonItem = {
+        let image = UIImage(named: "back")
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        item.tintColor = .black
+        return item
+    }()
+    
     convenience init(viewModel: JoinedGroupDetailViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
@@ -131,6 +138,17 @@ class JoinedGroupDetailViewController: UIViewController {
         configureLayout()
         
         testSetView()
+        navigationItem.setLeftBarButton(backButton, animated: false)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        navigationItem.title = "가보자네카라쿠배배"
+    }
+    
+    @objc func backBtnAction() {
+        viewModel?.actions?.pop?()
     }
     
     func testSetView() {
@@ -202,6 +220,9 @@ class JoinedGroupDetailViewController: UIViewController {
     }
     
     
+    
+    var exPositionOfOuter: CGFloat = 0
+    var exPositionOfInner: CGFloat = 0
 }
 
 extension JoinedGroupDetailViewController: UICollectionViewDelegate {
@@ -225,16 +246,26 @@ extension JoinedGroupDetailViewController: UICollectionViewDelegate {
         else {
             let outerScroll = outerScrollView == scrollView
             let innerScroll = !outerScroll
-            let moreScroll = scrollView.panGestureRecognizer.translation(in: scrollView).y < 0
-            let lessScroll = !moreScroll
             
-            // outer scroll이 스크롤 할 수 있는 최대값 (이 값을 sticky header 뷰가 있다면 그 뷰의 frame.maxY와 같은 값으로 사용해도 가능)
+            // outer scroll을 진행하던 중
+            /*
+             1. 끝에 달하지 않는다면 그대로 스크롤
+             2. 끝에 달한다면
+             */
             let outerScrollMaxOffsetY = outerScrollView.contentSize.height - outerScrollView.frame.height
             let innerScrollMaxOffsetY = innerScrollView.contentSize.height - innerScrollView.frame.height
             
+            let outerMoreScroll = outerScrollView.contentOffset.y > exPositionOfOuter
+            let innerMoreScroll = innerScrollView.contentOffset.y > exPositionOfInner
+                        
+            let moreScroll = scrollView.panGestureRecognizer.translation(in: scrollView).y < 0
+            let lessScroll = !moreScroll
+
+            
+            
             // 1. outer scroll을 more 스크롤
             // 만약 outer scroll을 more scroll 다 했으면, inner scroll을 more scroll
-            if outerScroll && moreScroll {
+            if outerScroll && outerMoreScroll {
                 print("1")
                 guard outerScrollMaxOffsetY < outerScrollView.contentOffset.y + Policy.floatingPointTolerance else { return }
                 innerScrollingDownDueToOuterScroll = true
@@ -249,7 +280,7 @@ extension JoinedGroupDetailViewController: UICollectionViewDelegate {
             
             // 2. outer scroll을 less 스크롤
             // 만약 inner scroll이 less 스크롤 할게 남아 있다면 inner scroll을 less 스크롤
-            if outerScroll && lessScroll {
+            if outerScroll && !outerMoreScroll {
                 print("2")
 
                 guard innerScrollView.contentOffset.y > 0 && outerScrollView.contentOffset.y < outerScrollMaxOffsetY else { return }
@@ -265,7 +296,7 @@ extension JoinedGroupDetailViewController: UICollectionViewDelegate {
             
             // 3. inner scroll을 less 스크롤
             // inner scroll을 모두 less scroll한 경우, outer scroll을 less scroll
-            if innerScroll && lessScroll {
+            if innerScroll && !innerMoreScroll {
                 print("3")
                 defer { innerScrollView.lastOffsetY = innerScrollView.contentOffset.y }
                 guard innerScrollView.contentOffset.y < 0 && outerScrollView.contentOffset.y > 0 else { return }
@@ -281,7 +312,7 @@ extension JoinedGroupDetailViewController: UICollectionViewDelegate {
             
             // 4. inner scroll을 more 스크롤
             // outer scroll이 아직 more 스크롤할게 남아 있다면, innerScroll을 그대로 두고 outer scroll을 more 스크롤
-            if innerScroll && moreScroll {
+            if innerScroll && innerMoreScroll {
                 print("4")
                 guard
                     outerScrollView.contentOffset.y + Policy.floatingPointTolerance < outerScrollMaxOffsetY,
@@ -296,6 +327,8 @@ extension JoinedGroupDetailViewController: UICollectionViewDelegate {
                 innerScrollView.contentOffset.y = 0
             }
             
+            exPositionOfOuter = outerScrollView.contentOffset.y
+            exPositionOfInner = innerScrollView.contentOffset.y
         }
 
     }

@@ -8,9 +8,13 @@
 import Foundation
 import RxSwift
 
+struct JoinedGroupDetailViewModelActions {
+    var pop: (() -> Void)?
+}
+
 class JoinedGroupDetailViewModel {
     var bag = DisposeBag()
-    var actions: GroupIntroduceViewModelActions?
+    var actions: JoinedGroupDetailViewModelActions?
     
     var mainDayList = [DayViewModel]()
     
@@ -72,6 +76,10 @@ class JoinedGroupDetailViewModel {
     func test() {
         self.mainDayList = createMonthlyCalendarUseCase.execute(date: Date())
         print(self.mainDayList)
+    }
+    
+    func setActions(actions: JoinedGroupDetailViewModelActions) {
+        self.actions = actions
     }
     
 //    func transform(input: Input) -> Output {

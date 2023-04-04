@@ -21,17 +21,18 @@ class JoinedGroupDetailCoordinator: Coordinator {
         self.navigationController = navigationController
     }
     
-    func start() {
-        showGroupDetailPage()
+    func start(id: String) {
+        showGroupDetailPage(id)
     }
     
-    lazy var showGroupDetailPage: () -> Void = { [weak self] in
-        let vm = GroupIntroduceViewModel()
-        vm.setActions(actions: GroupIntroduceViewModelActions(
-            popCurrentPage: self?.popCurrentPage,
-            didPop: self?.didPop)
-        )
-        let vc = GroupIntroduceViewController(viewModel: vm)
+    lazy var showGroupDetailPage: (String) -> Void = { [weak self] id in
+        let repo = TestTodoRepository()
+        let c = DefaultCreateMonthlyCalendarUseCase()
+        let f = DefaultFetchTodoListUseCase(todoRepository: repo)
+        let vm = JoinedGroupDetailViewModel(createMonthlyCalendarUseCase: c, fetchTodoListUseCase: f)
+        vm.setActions(actions: JoinedGroupDetailViewModelActions(pop: self?.popCurrentPage))
+
+        let vc = JoinedGroupDetailViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
 
         self?.navigationController.pushViewController(vc, animated: true)

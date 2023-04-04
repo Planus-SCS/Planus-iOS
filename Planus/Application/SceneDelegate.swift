@@ -24,14 +24,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let vm = SearchViewModel()
 //        window.rootViewController = SearchViewController(viewModel: vm)
         
-        let repo = TestTodoRepository()
-        let c = DefaultCreateMonthlyCalendarUseCase()
-        let f = DefaultFetchTodoListUseCase(todoRepository: repo)
-        let vm = JoinedGroupDetailViewModel(createMonthlyCalendarUseCase: c, fetchTodoListUseCase: f)
-        window.rootViewController = JoinedGroupDetailViewController(viewModel: vm)
-        window.makeKeyAndVisible()
-//        self.appCoordinator = AppCoordinator(window: window)
-//        self.appCoordinator?.start()
+        self.appCoordinator = AppCoordinator(window: window)
+        self.appCoordinator?.start()
         
     }
 
