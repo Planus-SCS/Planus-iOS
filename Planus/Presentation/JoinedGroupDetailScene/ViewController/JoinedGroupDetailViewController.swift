@@ -85,10 +85,17 @@ class JoinedGroupDetailViewController: UIViewController {
     }()
     
     lazy var calendarCollectionView: UICollectionView = {
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        layout.headerReferenceSize = CGSize(width: self.view.frame.width, height: 80)
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
         cv.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
+        cv.register(JoinedGroupDetailCalendarHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier)
         cv.dataSource = calendarCollectionViewDataSource
         cv.delegate = self
+        
         return cv
     }()
     
@@ -144,11 +151,13 @@ class JoinedGroupDetailViewController: UIViewController {
         outerScrollView.addSubview(contentView)
         
         contentView.addSubview(headerView)
-        contentView.addSubview(headerTabView)
         contentView.addSubview(horizontalScrollView)
         horizontalScrollView.addSubview(horizontalStackView)
         horizontalStackView.addArrangedSubview(noticeCollectionView)
         horizontalStackView.addArrangedSubview(calendarCollectionView)
+        
+        contentView.addSubview(headerTabView)
+
     }
     
     func configureLayout() {
@@ -359,30 +368,6 @@ extension JoinedGroupDetailViewController: JoinedGroupNoticeDataSourceDelegate {
     
     func isNoticeFetched() -> Bool {
         return (viewModel?.notice == nil) ? false : true
-    }
-}
-
-// 헤더에 날짜, 요일 등의 정보를 올리자..!
-class CalendarDataSource: NSObject, UICollectionViewDataSource {
-    weak var delegate: CalendarDataSourceDelegate?
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return delegate?.dayCount() ?? 0
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell,
-              let dayViewModel = delegate?.dayViewModel(index: indexPath.item) else {
-            return UICollectionViewCell()
-        }
-        
-        cell.fill(day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!, todoList: dayViewModel.todoList)
-
-        return cell
     }
 }
 
