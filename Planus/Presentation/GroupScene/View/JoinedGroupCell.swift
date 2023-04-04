@@ -38,20 +38,11 @@ class JoinedGroupCell: SearchResultCell {
     }()
     
     lazy var onlineSwitch: UISwitch = {
-        // Create a Switch.
         let swicth: UISwitch = UISwitch()
-        
-        // Display the border of Swicth.
         swicth.tintColor = UIColor.orange
-        
-        // Set Switch to On.
         swicth.isOn = false
-        
-        // Set the event to be called when switching On / Off of Switch.
-        /*For on state*/
-        swicth.onTintColor = UIColor(hex: 0x6495F4)
 
-        /*For off state*/
+        swicth.onTintColor = UIColor(hex: 0x6495F4)
         swicth.tintColor = UIColor(hex: 0x6F81A9)
         swicth.layer.cornerRadius = 14
         swicth.backgroundColor = UIColor(hex: 0x6F81A9)
