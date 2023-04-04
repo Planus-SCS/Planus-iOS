@@ -23,7 +23,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let window = window else { return }
 //        let vm = SearchViewModel()
 //        window.rootViewController = SearchViewController(viewModel: vm)
-        window.rootViewController = JoinedGroupDetailViewController(nibName: nil, bundle: nil)
+        
+        let repo = TestTodoRepository()
+        let c = DefaultCreateMonthlyCalendarUseCase()
+        let f = DefaultFetchTodoListUseCase(todoRepository: repo)
+        let vm = JoinedGroupDetailViewModel(createMonthlyCalendarUseCase: c, fetchTodoListUseCase: f)
+        window.rootViewController = JoinedGroupDetailViewController(viewModel: vm)
         window.makeKeyAndVisible()
 //        self.appCoordinator = AppCoordinator(window: window)
 //        self.appCoordinator?.start()
