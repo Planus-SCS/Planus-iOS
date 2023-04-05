@@ -129,11 +129,11 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
         switch sectionKind {
         case .notice:
             view.fill { [weak self] in
-                self?.noticeEditButtonTapped?.onNext(())
+                self?.noticeEditButtonTapped.onNext(())
             }
         case .member:
             view.fill { [weak self] in
-                self?.memberEditButtonTapped?.onNext(())
+                self?.memberEditButtonTapped.onNext(())
             }
         }
         return view
