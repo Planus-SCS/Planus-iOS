@@ -29,7 +29,7 @@ class JoinedGroupDetailCoordinator: Coordinator {
         let repo = TestTodoRepository()
         let c = DefaultCreateMonthlyCalendarUseCase()
         let f = DefaultFetchTodoListUseCase(todoRepository: repo)
-        let vm = JoinedGroupDetailViewModel(createMonthlyCalendarUseCase: c, fetchTodoListUseCase: f)
+        let vm = JoinedGroupDetailViewModel()
         vm.setActions(actions: JoinedGroupDetailViewModelActions(pop: self?.popCurrentPage))
 
         let vc = JoinedGroupDetailViewController(viewModel: vm)

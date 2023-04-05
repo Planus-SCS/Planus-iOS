@@ -7,110 +7,29 @@
 
 import UIKit
 import RxSwift
-
-enum JoinedGroupNoticeSectionKind: Int {
-    case notice = 0
-    case member
-    
-    var title: String {
-        switch self {
-        case .notice:
-            return "공지사항"
-        case .member:
-            return "그룹멤버"
-        }
-    }
-    
-    var desc: String {
-        switch self {
-        case .notice:
-            return "우리 이렇게 함께해요"
-        case .member:
-            return "우리 함께해요"
-        }
-    }
-}
+import SnapKit
 
 class JoinedGroupDetailViewController: UIViewController {
-    static let headerElementKind = "joined-group-detail-view-controller-header-kind"
-
     var viewModel: JoinedGroupDetailViewModel?
-    
-    lazy var innerScrollView: UIScrollView = noticeCollectionView
-    var innerScrollingDownDueToOuterScroll = false
-    
-    lazy var outerScrollView: UIScrollView = {
-        let scrollView = UIScrollView(frame: .zero)
-        scrollView.backgroundColor = UIColor(hex: 0xF5F5FB)
-        scrollView.delegate = self
-        return scrollView
-    }()
-    
-    var contentView: UIView = {
-        let view = UIView(frame: .zero)
-        view.backgroundColor = UIColor(hex: 0xF5F5FB)
-        return view
-    }()
-    
-    lazy var horizontalScrollView: UIScrollView = {
-        let scrollView = UIScrollView(frame: .zero)
-        scrollView.backgroundColor = .systemBackground
-        scrollView.delegate = self
-        scrollView.decelerationRate = .fast
-        scrollView.isPagingEnabled = true
-        scrollView.showsHorizontalScrollIndicator = false
-        return scrollView
-    }()
-
-    lazy var horizontalStackView: UIStackView = {
-        let stackView = UIStackView(frame: .zero)
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
-        stackView.alignment = .fill
-        return stackView
-    }()
     
     var headerView = JoinedGroupDetailHeaderView(frame: .zero)
     var headerTabView = JoinedGroupDetailHeaderTabView(frame: .zero)
+    var bottomView = UIView(frame: .zero)
+    var headerViewHeightConstraint: NSLayoutConstraint?
     
-    lazy var noticeCollectionView: UICollectionView = {
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: createNoticeLayout())
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
-        cv.register(GroupIntroduceNoticeCell.self, forCellWithReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier)
-        cv.register(GroupIntroduceMemberCell.self, forCellWithReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier)
-        cv.register(GroupIntroduceDefaultHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier)
-        cv.dataSource = noticeCollectionViewDataSource
-        cv.delegate = self
-        return cv
+    lazy var pageViewController: UIPageViewController = {
+        let pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
+        pageViewController.dataSource = self
+        pageViewController.delegate = self
+        return pageViewController
     }()
     
-    lazy var calendarCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        layout.headerReferenceSize = CGSize(width: self.view.frame.width, height: 80)
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
-        cv.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
-        cv.register(JoinedGroupDetailCalendarHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier)
-        cv.dataSource = calendarCollectionViewDataSource
-        cv.delegate = self
-        
-        return cv
-    }()
+    var childList = [UIViewController]()
     
-    lazy var noticeCollectionViewDataSource: JoinedGroupNoticeDataSource = {
-        let dataSource = JoinedGroupNoticeDataSource()
-        dataSource.delegate = self
-        return dataSource
-    }()
-    
-    lazy var calendarCollectionViewDataSource: CalendarDataSource = {
-        let dataSource = CalendarDataSource()
-        dataSource.delegate = self
-        return dataSource
-    }()
-    
+    var noticeViewController: JoinedGroupNoticeViewController?
+    var calendarViewController: JoinedGroupCalendarViewController?
+    var chatViewController: JoinedGroupChattingViewController?
+
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
@@ -136,6 +55,8 @@ class JoinedGroupDetailViewController: UIViewController {
         self.view.backgroundColor = .white
         configureView()
         configureLayout()
+        configureChild()
+        configurePanGesture()
         
         testSetView()
         navigationItem.setLeftBarButton(backButton, animated: false)
@@ -151,6 +72,40 @@ class JoinedGroupDetailViewController: UIViewController {
         viewModel?.actions?.pop?()
     }
     
+    var dragInitialY: CGFloat = 0
+    var dragPreviousY: CGFloat = 0
+    var dragDirection: DragDirection = .Up
+    
+    @objc func topViewMoved(_ gesture: UIPanGestureRecognizer) {
+        
+        var dragYDiff : CGFloat
+
+        switch gesture.state {
+            
+        case .began:
+            
+            dragInitialY = gesture.location(in: self.view).y
+            dragPreviousY = dragInitialY
+            
+        case .changed:
+            
+            let dragCurrentY = gesture.location(in: self.view).y
+            dragYDiff = dragPreviousY - dragCurrentY
+            dragPreviousY = dragCurrentY
+            dragDirection = dragYDiff < 0 ? .Down : .Up
+            innerTableViewDidScroll(withDistance: dragYDiff)
+            
+        case .ended:
+            
+            innerTableViewScrollEnded(withScrollDirection: dragDirection)
+            
+        default: return
+        
+        }
+    }
+    
+    
+    
     func testSetView() {
         headerView.titleImageView.image = UIImage(named: "groupTest1")
         headerView.tagLabel.text = "#태그개수수수수 #네개까지지지지 #제한하는거다다 #어때아무글자텍스트테스트 #오개까지아무글자텍스"
@@ -162,350 +117,222 @@ class JoinedGroupDetailViewController: UIViewController {
         headerView.memberProfileStack.addArrangedSubview(headerView.generateMemberProfileImageView(image: UIImage(named: "DefaultProfileSmall")))
         headerView.memberProfileStack.addArrangedSubview(headerView.generateMemberProfileImageView(image: UIImage(named: "DefaultProfileSmall")))
     }
+
     
     func configureView() {
-        self.view.addSubview(outerScrollView)
-        
-        outerScrollView.addSubview(contentView)
-        
-        contentView.addSubview(headerView)
-        contentView.addSubview(horizontalScrollView)
-        horizontalScrollView.addSubview(horizontalStackView)
-        horizontalStackView.addArrangedSubview(noticeCollectionView)
-        horizontalStackView.addArrangedSubview(calendarCollectionView)
-        
-        contentView.addSubview(headerTabView)
+        self.view.addSubview(headerView)
+        self.view.addSubview(bottomView)
+        self.view.addSubview(headerTabView)
+    }
+    
+    func configurePanGesture() {
+        let topViewPanGesture = UIPanGestureRecognizer(target: self, action: #selector(topViewMoved))
 
+        headerView.isUserInteractionEnabled = true
+        headerView.addGestureRecognizer(topViewPanGesture)
+
+    }
+    
+    func configureChild() {
+        let noticeViewModel = JoinedGroupNoticeViewModel()
+        let noticeViewController = JoinedGroupNoticeViewController(viewModel: noticeViewModel)
+        noticeViewController.delegate = self
+        self.noticeViewController = noticeViewController
+        
+        let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
+        let fetchTodoListUseCase = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
+        let calendarViewModel = JoinedGroupCalendarViewModel(createMonthlyCalendarUseCase: createMonthlyCalendarUseCase, fetchTodoListUseCase: fetchTodoListUseCase)
+        let calendarViewController = JoinedGroupCalendarViewController(viewModel: calendarViewModel)
+        calendarViewController.delegate = self
+        self.calendarViewController = calendarViewController
+        
+        let chattingViewController = JoinedGroupChattingViewController(nibName: nil, bundle: nil)
+        chattingViewController.delegate = self
+        self.chatViewController = chattingViewController
+        
+        childList.append(noticeViewController)
+        childList.append(calendarViewController)
+        childList.append(chattingViewController)
+        
+        pageViewController.setViewControllers([childList[0]], direction: .forward, animated: true)
+
+        self.addChild(pageViewController)
+        pageViewController.willMove(toParent: self)
+        bottomView.addSubview(pageViewController.view)
+        
+        pageViewController.view.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
     
     func configureLayout() {
-        
-        outerScrollView.snp.makeConstraints {
-            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
-        }
-        
-        contentView.snp.makeConstraints {
-            $0.edges.width.equalToSuperview()
-        }
-        
         headerView.snp.makeConstraints {
-            $0.leading.trailing.top.equalToSuperview()
-            $0.height.equalTo(260)
+            $0.top.leading.trailing.equalTo(self.view.safeAreaLayoutGuide)
+            $0.height.equalTo(220)
         }
         
         headerTabView.snp.makeConstraints {
+            $0.bottom.equalTo(headerView.snp.bottom)
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(headerView)
             $0.height.equalTo(40)
         }
-
-        horizontalScrollView.snp.makeConstraints {
-            $0.top.equalTo(headerView.snp.bottom)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(self.view.safeAreaLayoutGuide.snp.height).offset(-40)
-            $0.bottom.equalToSuperview()
+        
+        bottomView.snp.makeConstraints {
+            $0.top.equalTo(headerTabView.snp.bottom)
+            $0.leading.trailing.bottom.equalToSuperview()
         }
         
-        horizontalStackView.snp.makeConstraints {
-            $0.edges.height.equalToSuperview()
-        }
-        
-        noticeCollectionView.snp.makeConstraints {
-            $0.width.equalTo(self.view.frame.width)
-        }
-        
-        calendarCollectionView.snp.makeConstraints {
-            $0.width.equalTo(self.view.frame.width)
-        }
-    }
-    
-    
-    
-    var exPositionOfOuter: CGFloat = 0
-    var exPositionOfInner: CGFloat = 0
-}
-
-extension JoinedGroupDetailViewController: UICollectionViewDelegate {
-    private enum Policy {
-        static let floatingPointTolerance = 0.1
-    }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // more, less 스크롤 방향의 기준: 새로운 콘텐츠로 스크롤링하면 more, 이전 콘텐츠로 스크롤링하면 less
-        // ex) more scroll 한다는 의미: 손가락을 아래에서 위로 올려서 새로운 콘텐츠를 확인한다
-        
-        if scrollView == self.horizontalScrollView {
-            // x값이 바뀐경우
-            headerTabView.statusBarView.snp.updateConstraints {
-                $0.leading.equalToSuperview().offset(scrollView.contentOffset.x/3)
-            }
-            headerTabView.statusBackGroundView.setNeedsLayout()
-        }
-                // more, less 스크롤 방향의 기준: 새로운 콘텐츠로 스크롤링하면 more, 이전 콘텐츠로 스크롤링하면 less
-                // ex) more scroll 한다는 의미: 손가락을 아래에서 위로 올려서 새로운 콘텐츠를 확인한다
-        else {
-            let outerScroll = outerScrollView == scrollView
-            let innerScroll = !outerScroll
-            
-            // outer scroll을 진행하던 중
-            /*
-             1. 끝에 달하지 않는다면 그대로 스크롤
-             2. 끝에 달한다면
-             */
-            let outerScrollMaxOffsetY = outerScrollView.contentSize.height - outerScrollView.frame.height
-            let innerScrollMaxOffsetY = innerScrollView.contentSize.height - innerScrollView.frame.height
-            
-            let outerMoreScroll = outerScrollView.contentOffset.y > exPositionOfOuter
-            let innerMoreScroll = innerScrollView.contentOffset.y > exPositionOfInner
-                        
-            let moreScroll = scrollView.panGestureRecognizer.translation(in: scrollView).y < 0
-            let lessScroll = !moreScroll
-
-            
-            
-            // 1. outer scroll을 more 스크롤
-            // 만약 outer scroll을 more scroll 다 했으면, inner scroll을 more scroll
-            if outerScroll && outerMoreScroll {
-                print("1")
-                guard outerScrollMaxOffsetY < outerScrollView.contentOffset.y + Policy.floatingPointTolerance else { return }
-                innerScrollingDownDueToOuterScroll = true
-                defer { innerScrollingDownDueToOuterScroll = false }
-                
-                // innerScrollView를 모두 스크롤 한 경우 stop
-                guard innerScrollView.contentOffset.y < innerScrollMaxOffsetY else { return }
-                
-                innerScrollView.contentOffset.y = innerScrollView.contentOffset.y + outerScrollView.contentOffset.y - outerScrollMaxOffsetY
-                outerScrollView.contentOffset.y = outerScrollMaxOffsetY
-            }
-            
-            // 2. outer scroll을 less 스크롤
-            // 만약 inner scroll이 less 스크롤 할게 남아 있다면 inner scroll을 less 스크롤
-            if outerScroll && !outerMoreScroll {
-                print("2")
-
-                guard innerScrollView.contentOffset.y > 0 && outerScrollView.contentOffset.y < outerScrollMaxOffsetY else { return }
-                innerScrollingDownDueToOuterScroll = true
-                defer { innerScrollingDownDueToOuterScroll = false }
-                
-                // outer scroll에서 스크롤한 만큼 inner scroll에 적용
-                innerScrollView.contentOffset.y = max(innerScrollView.contentOffset.y - (outerScrollMaxOffsetY - outerScrollView.contentOffset.y), 0)
-                
-                // outer scroll은 스크롤 되지 않고 고정
-                outerScrollView.contentOffset.y = outerScrollMaxOffsetY
-            }
-            
-            // 3. inner scroll을 less 스크롤
-            // inner scroll을 모두 less scroll한 경우, outer scroll을 less scroll
-            if innerScroll && !innerMoreScroll {
-                print("3")
-                defer { innerScrollView.lastOffsetY = innerScrollView.contentOffset.y }
-                guard innerScrollView.contentOffset.y < 0 && outerScrollView.contentOffset.y > 0 else { return }
-                
-                // innerScrollView의 bounces에 의하여 다시 outerScrollView가 당겨질수 있으므로 bounces로 다시 되돌아가는 offset 방지
-                guard innerScrollView.lastOffsetY > innerScrollView.contentOffset.y else { return }
-                
-                let moveOffset = outerScrollMaxOffsetY - abs(innerScrollView.contentOffset.y) * 3
-                guard moveOffset < outerScrollView.contentOffset.y else { return }
-                
-                outerScrollView.contentOffset.y = max(moveOffset, 0)
-            }
-            
-            // 4. inner scroll을 more 스크롤
-            // outer scroll이 아직 more 스크롤할게 남아 있다면, innerScroll을 그대로 두고 outer scroll을 more 스크롤
-            if innerScroll && innerMoreScroll {
-                print("4")
-                guard
-                    outerScrollView.contentOffset.y + Policy.floatingPointTolerance < outerScrollMaxOffsetY,
-                    !innerScrollingDownDueToOuterScroll
-                else { return }
-                // outer scroll를 more 스크롤
-                let minOffetY = min(outerScrollView.contentOffset.y + innerScrollView.contentOffset.y, outerScrollMaxOffsetY)
-                let offsetY = max(minOffetY, 0)
-                outerScrollView.contentOffset.y = offsetY
-                
-                // inner scroll은 스크롤 되지 않아야 하므로 0으로 고정
-                innerScrollView.contentOffset.y = 0
-            }
-            
-            exPositionOfOuter = outerScrollView.contentOffset.y
-            exPositionOfInner = innerScrollView.contentOffset.y
-        }
-
-    }
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        if scrollView == self.horizontalScrollView {
-            headerTabView.titleButtonList.forEach {
-                $0.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
-            }
-            let index = (Int)(scrollView.contentOffset.x/self.view.frame.width)
-            headerTabView.titleButtonList[index].setTitleColor(UIColor(hex: 0x6F81A9), for: .normal)
-            
-            switch index {
-            case 0:
-                innerScrollView = noticeCollectionView
-            case 1:
-                innerScrollView = calendarCollectionView
-            default:
-                return
-            }
-        }
-
-    }
-}
-
-extension JoinedGroupDetailViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let viewModel else { return CGSize() }
-        let item = indexPath.item
-        
-        let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-            viewModel.mainDayList[a].todoList?.count ?? 0 < viewModel.mainDayList[b].todoList?.count ?? 0
-        }) ?? Int()
-        
-        let maxTodoViewModel = viewModel.mainDayList[maxItem]
-        
-        let frameSize = self.view.frame
-        
-        var todoCount = maxTodoViewModel.todoList?.count ?? 0
-        
-        if let height = viewModel.cachedCellHeightForTodoCount[todoCount] {
-            return CGSize(width: Double(1)/Double(7) * Double(frameSize.width), height: Double(height))
-            
-        } else {
-            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * frameSize.width, height: 116))
-            mockCell.fill(todoList: maxTodoViewModel.todoList)
-
-            mockCell.layoutIfNeeded()
-            
-            let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(width: Double(1)/Double(7) * frameSize.width, height: 116))
-            viewModel.cachedCellHeightForTodoCount[todoCount] = estimatedSize.height
-            
-            return CGSize(width: Double(1)/Double(7) * frameSize.width, height: estimatedSize.height)
-        }
-    }
-}
-
-extension JoinedGroupDetailViewController: JoinedGroupNoticeDataSourceDelegate {
-    func memberCount() -> Int? {
-        return viewModel?.memberList?.count
-    }
-    
-    func memberInfo(index: Int) -> Member? {
-        return viewModel?.memberList?[index]
-    }
-    
-    func notice() -> String? {
-        return viewModel?.notice
-    }
-    
-    func isNoticeFetched() -> Bool {
-        return (viewModel?.notice == nil) ? false : true
-    }
-}
-
-protocol CalendarDataSourceDelegate: NSObject {
-    func dayCount() -> Int?
-    func dayViewModel(index: Int) -> DayViewModel?
-}
-
-extension JoinedGroupDetailViewController: CalendarDataSourceDelegate {
-    func dayCount() -> Int? {
-        viewModel?.mainDayList.count ?? 0
-    }
-    
-    func dayViewModel(index: Int) -> DayViewModel? {
-        viewModel?.mainDayList[index] ?? nil
+        guard let headerViewHeightConstraint = headerView.constraints.first(where: { $0.firstAttribute == .height }) else { return }
+        self.headerViewHeightConstraint = headerViewHeightConstraint
     }
 }
 
 
-// MARK: Notice Tab collectionview layout
-extension JoinedGroupDetailViewController {
-    private func createNoticeSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
-        
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
-        
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 1)
-        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-        
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = .init(top: 0, leading: 0, bottom: 50, trailing: 0)
-        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                       heightDimension: .absolute(70))
-        
-        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
-            alignment: .top
-        )
-
-        section.boundarySupplementaryItems = [sectionHeader]
-
-        return section
-    }
-    
-    private func createMemberSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
-        
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(66))
-        
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 1)
-        group.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 26, bottom: 0, trailing: 26)
-        
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = .init(top: 0, leading: 0, bottom: 85, trailing: 0)
-        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                       heightDimension: .absolute(70))
-        
-        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
-            alignment: .top
-        )
-        
-        section.boundarySupplementaryItems = [sectionHeader]
-
-        return section
-    }
-    
-    private func createNoticeLayout() -> UICollectionViewLayout {
-        return UICollectionViewCompositionalLayout { [weak self] (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
-            guard let self,
-                  let sectionKind = JoinedGroupNoticeSectionKind(rawValue: sectionIndex) else { return nil }
-            
-            // MARK: Item Layout
-            switch sectionKind {
-            case .notice:
-                return self.createNoticeSection()
-            case .member:
-                return self.createMemberSection()
+extension JoinedGroupDetailViewController: UIPageViewControllerDataSource {
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        if let currentViewControllerIndex = childList.firstIndex(where: { $0 == viewController }) {
+            if (1..<childList.count).contains(currentViewControllerIndex) {
+                return childList[currentViewControllerIndex - 1]
             }
         }
+        return nil
+    }
+    
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        if let currentViewControllerIndex = childList.firstIndex(where: { $0 == viewController }) {
+            if (0..<(childList.count - 1)).contains(currentViewControllerIndex) {
+                return childList[currentViewControllerIndex + 1]
+            }
+        }
+        return nil
     }
 }
 
-// MARK: Calendar Tab Layout
+//MARK:- Delegate Method to tell Inner View Controller movement inside Page View Controller
+//Capture it and change the selection bar position in collection View
 
-
-
-
-private struct AssociatedKeys {
-    static var lastOffsetY = "lastOffsetY"
+extension JoinedGroupDetailViewController: UIPageViewControllerDelegate {
+    
+    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        guard completed else { return }
+        
+        guard let currentVC = pageViewController.viewControllers?.first else { return }
+        
+        guard let currentVCIndex = childList.firstIndex(where: { $0 == currentVC }) else { return }
+        
+        let indexPathAtCollectionView = IndexPath(item: currentVCIndex, section: 0)
+        
+        headerTabView.scrollToTab(index: currentVCIndex)
+    }
 }
 
-extension UIScrollView {
-    var lastOffsetY: CGFloat {
-        get {
-            (objc_getAssociatedObject(self, &AssociatedKeys.lastOffsetY) as? CGFloat) ?? contentOffset.y
+extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
+    
+    var currentHeaderHeight: CGFloat? {
+        return headerViewHeightConstraint?.constant
+    }
+    
+    func innerTableViewDidScroll(withDistance scrollDistance: CGFloat) {
+        guard let headerViewHeightConstraint else { return }
+        headerViewHeightConstraint.constant -= scrollDistance
+        
+        /* Don't restrict the downward scroll.
+ 
+        if headerViewHeightConstraint.constant > topViewInitialHeight {
+
+            headerViewHeightConstraint.constant = topViewInitialHeight
         }
-        set {
-            objc_setAssociatedObject(self, &AssociatedKeys.lastOffsetY, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+         
+        */
+        
+        if headerViewHeightConstraint.constant < topViewFinalHeight {
+            
+            headerViewHeightConstraint.constant = topViewFinalHeight
+        } else if headerViewHeightConstraint.constant >= topViewInitialHeight {
+            // 여기서 모든 스크롤의 속도를 fast로 바꿔야 하는데,,,!!!
+            print("here12121212112")
+            noticeViewController?.noticeCollectionView.decelerationRate = .fast
+            calendarViewController?.calendarCollectionView.decelerationRate = .fast
         }
+    }
+    
+    func innerTableViewScrollEnded(withScrollDirection scrollDirection: DragDirection) {
+        guard let headerViewHeightConstraint else { return }
+
+        let topViewHeight = headerViewHeightConstraint.constant
+        
+        /*
+         *  Scroll is not restricted.
+         *  So this check might cause the view to get stuck in the header height is greater than initial height.
+ 
+        if topViewHeight >= topViewInitialHeight || topViewHeight <= topViewFinalHeight { return }
+         
+        */
+        
+        if topViewHeight >= topViewInitialHeight {
+            scrollToInitialView()
+        }
+        
+//        if topViewHeight <= topViewFinalHeight + 20 {
+//
+//            scrollToFinalView()
+//
+//        } else if topViewHeight <= topViewInitialHeight - 20 {
+//            
+//            switch scrollDirection {
+//
+//            case .Down: scrollToInitialView()
+//            case .Up: scrollToFinalView()
+//
+//            }
+//
+//        } else {
+//
+//            scrollToInitialView()
+//        }
+    }
+    
+    func scrollToInitialView() {
+        guard let headerViewHeightConstraint else { return }
+
+        let topViewCurrentHeight = headerView.frame.height
+        
+        let distanceToBeMoved = abs(topViewCurrentHeight - topViewInitialHeight)
+        
+        var time = distanceToBeMoved / 500
+        
+        if time < 0.02 {
+            
+            time = 0.02
+        }
+        
+        headerViewHeightConstraint.constant = topViewInitialHeight
+        
+        UIView.animate(withDuration: TimeInterval(time), animations: {
+            
+            self.view.layoutIfNeeded()
+        })
+    }
+    
+    func scrollToFinalView() {
+        guard let headerViewHeightConstraint else { return }
+
+        let topViewCurrentHeight = headerView.frame.height
+        
+        let distanceToBeMoved = abs(topViewCurrentHeight - topViewFinalHeight)
+        
+        var time = distanceToBeMoved / 500
+        
+        if time < 0.02 {
+            
+            time = 0.02
+        }
+        
+        headerViewHeightConstraint.constant = topViewFinalHeight
+        
+        UIView.animate(withDuration: TimeInterval(time), animations: {
+            
+            self.view.layoutIfNeeded()
+        })
     }
 }

@@ -247,7 +247,7 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
             return view
         case .notice, .member:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
-            view.fill(title: sectionKind.title, description: sectionKind.desc)
+            view.fill(title: sectionKind.title, description: sectionKind.desc, isCaptin: false)
             return view
         }
     }

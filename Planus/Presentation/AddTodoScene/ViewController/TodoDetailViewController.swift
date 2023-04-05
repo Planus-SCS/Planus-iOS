@@ -608,9 +608,7 @@ extension TodoDetailViewController: UITextViewDelegate {
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        print("here1")
         if textView.textColor == UIColor(hex: 0xBFC7D7) {
-            print("here2")
             textView.text = nil
             textView.textColor = .black
         }

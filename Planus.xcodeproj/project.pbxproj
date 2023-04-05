@@ -205,12 +205,20 @@
 		6A987A0F29DBE60600C27D09 /* DefaultProfileSmall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A0C29DBE60600C27D09 /* DefaultProfileSmall@2x.png */; };
 		6A987A1029DBE60600C27D09 /* DefaultProfileSmall@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A0D29DBE60600C27D09 /* DefaultProfileSmall@3x.png */; };
 		6A987A1229DBEC4000C27D09 /* JoinedGroupDetailHeaderTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A1129DBEC4000C27D09 /* JoinedGroupDetailHeaderTabView.swift */; };
-		6A987A1529DBFEA100C27D09 /* JoinedGroupNoticeDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A1429DBFEA100C27D09 /* JoinedGroupNoticeDataSource.swift */; };
-		6A987A1729DBFECB00C27D09 /* JoinedGroupCalendarDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A1629DBFECB00C27D09 /* JoinedGroupCalendarDataSource.swift */; };
-		6A987A1929DBFF0400C27D09 /* JoinedGroupChattingDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A1829DBFF0400C27D09 /* JoinedGroupChattingDataSource.swift */; };
 		6A987A1B29DBFF3300C27D09 /* JoinedGroupDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A1A29DBFF3300C27D09 /* JoinedGroupDetailViewModel.swift */; };
 		6A987A1D29DC1E0A00C27D09 /* JoinedGroupDetailCalendarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A1C29DC1E0A00C27D09 /* JoinedGroupDetailCalendarHeaderView.swift */; };
 		6A987A1F29DC268E00C27D09 /* GroupListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A1E29DC268E00C27D09 /* GroupListViewModel.swift */; };
+		6A987A2129DCFC2500C27D09 /* JoinedGroupNoticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A2029DCFC2500C27D09 /* JoinedGroupNoticeViewController.swift */; };
+		6A987A2329DCFC3100C27D09 /* JoinedGroupCalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A2229DCFC3100C27D09 /* JoinedGroupCalendarViewController.swift */; };
+		6A987A2529DCFC4500C27D09 /* JoinedGroupChattingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A2429DCFC4500C27D09 /* JoinedGroupChattingViewController.swift */; };
+		6A987A2729DCFC5E00C27D09 /* JoinedGroupNoticeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A2629DCFC5E00C27D09 /* JoinedGroupNoticeViewModel.swift */; };
+		6A987A2929DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A2829DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift */; };
+		6A987A2B29DCFC7700C27D09 /* JoinedGroupChattingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A2A29DCFC7700C27D09 /* JoinedGroupChattingViewModel.swift */; };
+		6A987A2D29DCFDEF00C27D09 /* NestedScrollableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A2C29DCFDEF00C27D09 /* NestedScrollableViewController.swift */; };
+		6A987A3129DD995400C27D09 /* editBlack@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A2E29DD995400C27D09 /* editBlack@3x.png */; };
+		6A987A3229DD995400C27D09 /* editBlack@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A2F29DD995400C27D09 /* editBlack@2x.png */; };
+		6A987A3329DD995400C27D09 /* editBlack.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A3029DD995400C27D09 /* editBlack.png */; };
+		6A987A3729DD9F3400C27D09 /* MyGroupNoticeEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A3629DD9F3400C27D09 /* MyGroupNoticeEditViewController.swift */; };
 		6A9A07B229D3C7E70051AD43 /* arrow_white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */; };
 		6A9A07B329D3C7E70051AD43 /* arrow_white@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */; };
 		6A9A07B429D3C7E70051AD43 /* arrow_white.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B129D3C7E70051AD43 /* arrow_white.png */; };
@@ -440,12 +448,20 @@
 		6A987A0C29DBE60600C27D09 /* DefaultProfileSmall@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "DefaultProfileSmall@2x.png"; sourceTree = "<group>"; };
 		6A987A0D29DBE60600C27D09 /* DefaultProfileSmall@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "DefaultProfileSmall@3x.png"; sourceTree = "<group>"; };
 		6A987A1129DBEC4000C27D09 /* JoinedGroupDetailHeaderTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupDetailHeaderTabView.swift; sourceTree = "<group>"; };
-		6A987A1429DBFEA100C27D09 /* JoinedGroupNoticeDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupNoticeDataSource.swift; sourceTree = "<group>"; };
-		6A987A1629DBFECB00C27D09 /* JoinedGroupCalendarDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupCalendarDataSource.swift; sourceTree = "<group>"; };
-		6A987A1829DBFF0400C27D09 /* JoinedGroupChattingDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupChattingDataSource.swift; sourceTree = "<group>"; };
 		6A987A1A29DBFF3300C27D09 /* JoinedGroupDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupDetailViewModel.swift; sourceTree = "<group>"; };
 		6A987A1C29DC1E0A00C27D09 /* JoinedGroupDetailCalendarHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupDetailCalendarHeaderView.swift; sourceTree = "<group>"; };
 		6A987A1E29DC268E00C27D09 /* GroupListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListViewModel.swift; sourceTree = "<group>"; };
+		6A987A2029DCFC2500C27D09 /* JoinedGroupNoticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupNoticeViewController.swift; sourceTree = "<group>"; };
+		6A987A2229DCFC3100C27D09 /* JoinedGroupCalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupCalendarViewController.swift; sourceTree = "<group>"; };
+		6A987A2429DCFC4500C27D09 /* JoinedGroupChattingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupChattingViewController.swift; sourceTree = "<group>"; };
+		6A987A2629DCFC5E00C27D09 /* JoinedGroupNoticeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupNoticeViewModel.swift; sourceTree = "<group>"; };
+		6A987A2829DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupCalendarViewModel.swift; sourceTree = "<group>"; };
+		6A987A2A29DCFC7700C27D09 /* JoinedGroupChattingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupChattingViewModel.swift; sourceTree = "<group>"; };
+		6A987A2C29DCFDEF00C27D09 /* NestedScrollableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedScrollableViewController.swift; sourceTree = "<group>"; };
+		6A987A2E29DD995400C27D09 /* editBlack@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "editBlack@3x.png"; sourceTree = "<group>"; };
+		6A987A2F29DD995400C27D09 /* editBlack@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "editBlack@2x.png"; sourceTree = "<group>"; };
+		6A987A3029DD995400C27D09 /* editBlack.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = editBlack.png; sourceTree = "<group>"; };
+		6A987A3629DD9F3400C27D09 /* MyGroupNoticeEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupNoticeEditViewController.swift; sourceTree = "<group>"; };
 		6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@2x.png"; sourceTree = "<group>"; };
 		6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@3x.png"; sourceTree = "<group>"; };
 		6A9A07B129D3C7E70051AD43 /* arrow_white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_white.png; sourceTree = "<group>"; };
@@ -536,6 +552,7 @@
 		6A08AD6629C884B2005947D2 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				6A987A3429DD9F0500C27D09 /* MyGroupEditScene */,
 				6A9879FA29DBD0CF00C27D09 /* JoinedGroupDetailScene */,
 				6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */,
 				6A95E00729D5BC52009017D8 /* GroupCreateScene */,
@@ -619,6 +636,9 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A987A3029DD995400C27D09 /* editBlack.png */,
+				6A987A2F29DD995400C27D09 /* editBlack@2x.png */,
+				6A987A2E29DD995400C27D09 /* editBlack@3x.png */,
 				6A987A0B29DBE60600C27D09 /* DefaultProfileSmall.png */,
 				6A987A0C29DBE60600C27D09 /* DefaultProfileSmall@2x.png */,
 				6A987A0D29DBE60600C27D09 /* DefaultProfileSmall@3x.png */,
@@ -1225,6 +1245,10 @@
 			isa = PBXGroup;
 			children = (
 				6A987A0129DBD32700C27D09 /* JoinedGroupDetailViewController.swift */,
+				6A987A2029DCFC2500C27D09 /* JoinedGroupNoticeViewController.swift */,
+				6A987A2229DCFC3100C27D09 /* JoinedGroupCalendarViewController.swift */,
+				6A987A2429DCFC4500C27D09 /* JoinedGroupChattingViewController.swift */,
+				6A987A2C29DCFDEF00C27D09 /* NestedScrollableViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -1233,6 +1257,9 @@
 			isa = PBXGroup;
 			children = (
 				6A987A1A29DBFF3300C27D09 /* JoinedGroupDetailViewModel.swift */,
+				6A987A2629DCFC5E00C27D09 /* JoinedGroupNoticeViewModel.swift */,
+				6A987A2829DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift */,
+				6A987A2A29DCFC7700C27D09 /* JoinedGroupChattingViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1248,11 +1275,24 @@
 		6A987A1329DBFE8F00C27D09 /* DataSource */ = {
 			isa = PBXGroup;
 			children = (
-				6A987A1429DBFEA100C27D09 /* JoinedGroupNoticeDataSource.swift */,
-				6A987A1629DBFECB00C27D09 /* JoinedGroupCalendarDataSource.swift */,
-				6A987A1829DBFF0400C27D09 /* JoinedGroupChattingDataSource.swift */,
 			);
 			path = DataSource;
+			sourceTree = "<group>";
+		};
+		6A987A3429DD9F0500C27D09 /* MyGroupEditScene */ = {
+			isa = PBXGroup;
+			children = (
+				6A987A3529DD9F1900C27D09 /* ViewController */,
+			);
+			path = MyGroupEditScene;
+			sourceTree = "<group>";
+		};
+		6A987A3529DD9F1900C27D09 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6A987A3629DD9F3400C27D09 /* MyGroupNoticeEditViewController.swift */,
+			);
+			path = ViewController;
 			sourceTree = "<group>";
 		};
 		6A9A07C129D3D7B00051AD43 /* AddTodoScene */ = {
@@ -1397,7 +1437,9 @@
 				6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */,
 				6A95E00629D5B756009017D8 /* GroupAddBtn@2x.png in Resources */,
 				6A95DFF429D5B3DF009017D8 /* back@3x.png in Resources */,
+				6A987A3129DD995400C27D09 /* editBlack@3x.png in Resources */,
 				6A24F8B829CE3F800000FD64 /* Pretendard-Light.otf in Resources */,
+				6A987A3229DD995400C27D09 /* editBlack@2x.png in Resources */,
 				6A95E01829D5D145009017D8 /* GroupCreateDefaultImage@2x.png in Resources */,
 				6A24F8B629CE3F800000FD64 /* Pretendard-ExtraLight.otf in Resources */,
 				6A95DFE829D59511009017D8 /* DefaultProfileMedium@2x.png in Resources */,
@@ -1465,6 +1507,7 @@
 				6A08AD8429C892E0005947D2 /* calendar-date@3x.png in Resources */,
 				6A95DFBE29D4E2E6009017D8 /* searchBarIcon@2x.png in Resources */,
 				6A1B3F1529D7252900BFB3A6 /* notificationIcon@3x.png in Resources */,
+				6A987A3329DD995400C27D09 /* editBlack.png in Resources */,
 				6A1B3EFE29D710BC00BFB3A6 /* JoinNotificationProfile@2x.png in Resources */,
 				6A08ADAA29C89DEE005947D2 /* kakaoBtn@3x.png in Resources */,
 				6A08ADB029C89DEE005947D2 /* googleBtn@2x.png in Resources */,
@@ -1556,13 +1599,16 @@
 				6A08ADCC29C8C20E005947D2 /* APIRequestType.swift in Sources */,
 				6A24F85629CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift in Sources */,
 				6A987A1F29DC268E00C27D09 /* GroupListViewModel.swift in Sources */,
+				6A987A2D29DCFDEF00C27D09 /* NestedScrollableViewController.swift in Sources */,
 				6A95DFD929D51C23009017D8 /* GroupIntroduceViewController.swift in Sources */,
 				6A24F90829D210450000FD64 /* TodoMainViewModel.swift in Sources */,
 				6A08ADCA29C8C1F3005947D2 /* APIEndPoint.swift in Sources */,
 				6A9A07F129D40B3C0051AD43 /* DayPickerViewController.swift in Sources */,
 				6A24F84229CB4A8B0000FD64 /* ContinuousDay.swift in Sources */,
+				6A987A2529DCFC4500C27D09 /* JoinedGroupChattingViewController.swift in Sources */,
 				6A24F86029CB8A6B0000FD64 /* DefaultTodoRepository.swift in Sources */,
 				6A24F83629CB46640000FD64 /* GroupCoordinator.swift in Sources */,
+				6A987A2929DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift in Sources */,
 				6A24F84629CB4AED0000FD64 /* MonthStateOfDay.swift in Sources */,
 				6A95DFE229D53BA1009017D8 /* GroupIntroduceDefaultHeaderView.swift in Sources */,
 				6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */,
@@ -1572,6 +1618,7 @@
 				6A08ADCF29C8C231005947D2 /* APIProvider.swift in Sources */,
 				6A08AD7429C89143005947D2 /* MainTabCoordinator.swift in Sources */,
 				6A24F88C29CE26540000FD64 /* HomeCalendarViewController.swift in Sources */,
+				6A987A2329DCFC3100C27D09 /* JoinedGroupCalendarViewController.swift in Sources */,
 				6A1B3EF229D70F3E00BFB3A6 /* NotificationViewController.swift in Sources */,
 				6A9A07EF29D40B190051AD43 /* DayPickerModel.swift in Sources */,
 				6A24F85229CB7C400000FD64 /* HomeCalendarViewModel.swift in Sources */,
@@ -1583,10 +1630,10 @@
 				6A08ADD929C8D096005947D2 /* DefaultSocialAuthRepository.swift in Sources */,
 				6A24F86229CC5C400000FD64 /* TodoRepository.swift in Sources */,
 				6A95DFDC29D53B7C009017D8 /* GroupIntroduceInfoHeaderView.swift in Sources */,
+				6A987A2B29DCFC7700C27D09 /* JoinedGroupChattingViewModel.swift in Sources */,
 				6A08ADD129C8C256005947D2 /* NetworkManager.swift in Sources */,
 				6A24F89B29CE299A0000FD64 /* SmallTodoView.swift in Sources */,
 				6A1B3EFA29D7104000BFB3A6 /* JoinRequestNotificationCell.swift in Sources */,
-				6A987A1529DBFEA100C27D09 /* JoinedGroupNoticeDataSource.swift in Sources */,
 				6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */,
 				6A24F91B29D22D5B0000FD64 /* BigTodoCell.swift in Sources */,
 				6A9A080029D40BEF0051AD43 /* TodoDetailViewModel.swift in Sources */,
@@ -1604,17 +1651,18 @@
 				6A24F84C29CB6DC60000FD64 /* GoogleSignInUseCase.swift in Sources */,
 				6A1B3F0229D717B400BFB3A6 /* GroupListViewController.swift in Sources */,
 				6A9A07F729D40B820051AD43 /* DayPickerCollectionViewCell.swift in Sources */,
+				6A987A3729DD9F3400C27D09 /* MyGroupNoticeEditViewController.swift in Sources */,
 				6A95DFD029D50053009017D8 /* UIImage+Ext.swift in Sources */,
 				6A08ADD329C8C26F005947D2 /* NetworkError.swift in Sources */,
 				6A08AD9E29C89D93005947D2 /* SignInViewController.swift in Sources */,
 				6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */,
 				6A987A0029DBD10500C27D09 /* JoinedGroupDetailCoordinator.swift in Sources */,
 				6A9A080C29D40CA40051AD43 /* CategoryCreateCell.swift in Sources */,
-				6A987A1929DBFF0400C27D09 /* JoinedGroupChattingDataSource.swift in Sources */,
 				6A24F85429CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift in Sources */,
 				6A9A080629D40C6B0051AD43 /* CategorySelectView.swift in Sources */,
 				6A24F90E29D223D90000FD64 /* CreateDailyCalendarUseCase.swift in Sources */,
 				6A9A080829D40C7D0051AD43 /* CategorySelectCell.swift in Sources */,
+				6A987A2129DCFC2500C27D09 /* JoinedGroupNoticeViewController.swift in Sources */,
 				6A24F90C29D223960000FD64 /* DetailDayViewModel.swift in Sources */,
 				6A9A07FD29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift in Sources */,
 				6A987A1229DBEC4000C27D09 /* JoinedGroupDetailHeaderTabView.swift in Sources */,
@@ -1646,6 +1694,7 @@
 				6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */,
 				6A1B3F1829D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift in Sources */,
 				6A24F85E29CB87D70000FD64 /* FetchTodoListUseCase.swift in Sources */,
+				6A987A2729DCFC5E00C27D09 /* JoinedGroupNoticeViewModel.swift in Sources */,
 				6A24F85029CB77830000FD64 /* Calendar+Ext.swift in Sources */,
 				6A24F84029CB4A5C0000FD64 /* TodoType.swift in Sources */,
 				6A08AD9029C89761005947D2 /* UIColor+Ext.swift in Sources */,
@@ -1656,7 +1705,6 @@
 				6A987A1B29DBFF3300C27D09 /* JoinedGroupDetailViewModel.swift in Sources */,
 				6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */,
 				6A08ADDD29C8D5C0005947D2 /* SocialAuthRepository.swift in Sources */,
-				6A987A1729DBFECB00C27D09 /* JoinedGroupCalendarDataSource.swift in Sources */,
 				6A08AD5329C87C61005947D2 /* SceneDelegate.swift in Sources */,
 				6A24F89929CE29330000FD64 /* DailyCalendarCell.swift in Sources */,
 			);

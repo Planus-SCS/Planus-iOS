@@ -54,7 +54,7 @@ class GroupIntroduceNoticeCell: UICollectionViewCell {
     func configureLayout() {
         noticeTextView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(24)
-            $0.top.bottom.equalToSuperview().inset(10)
+            $0.top.bottom.equalToSuperview()
         }
     }
     

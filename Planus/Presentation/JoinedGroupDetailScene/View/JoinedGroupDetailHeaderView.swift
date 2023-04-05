@@ -133,6 +133,7 @@ class JoinedGroupDetailHeaderView: UIView {
     }
     
     func configureView() {
+        self.clipsToBounds = true
         self.addSubview(titleImageView)
         self.addSubview(tagLabel)
         self.addSubview(bottomStackView)

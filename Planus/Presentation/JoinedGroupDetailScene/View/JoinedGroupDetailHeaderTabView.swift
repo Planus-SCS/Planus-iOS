@@ -64,7 +64,6 @@ class JoinedGroupDetailHeaderTabView: UIView {
         configureView()
         configureLayout()
         
-        start()
     }
     
     required init?(coder: NSCoder) {
@@ -108,11 +107,19 @@ class JoinedGroupDetailHeaderTabView: UIView {
         }
     }
     
-    func start() {
+    func scrollToTab(index: Int) {
         statusBarView.snp.updateConstraints {
-            $0.leading.equalToSuperview()
+            $0.leading.equalTo(UIScreen.main.bounds.size.width/3*CGFloat(index))
         }
-        
-        titleButtonList[0].setTitleColor(UIColor(hex: 0x6F81A9), for: .normal)
+        (0..<titleButtonList.count).forEach {
+            if $0 == index {
+                titleButtonList[$0].setTitleColor(UIColor(hex: 0x6F81A9), for: .normal)
+            } else {
+                titleButtonList[$0].setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
+            }
+        }
+        UIView.animate(withDuration: 0.2, delay: 0, animations: {
+            self.layoutIfNeeded()
+        })
     }
 }
