@@ -8,13 +8,18 @@
 import UIKit
 
 class MyGroupMemberEditCell: GroupIntroduceMemberCell {
+    
+    var buttonActionClosure: (() -> Void)?
 
-    var resignButton: UIButton = {
+    lazy var resignButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.backgroundColor = UIColor(hex: 0xF9E3E9)
         button.setTitle("탈퇴", for: .normal)
         button.setTitleColor(UIColor(hex: 0xFF0000), for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 14)
+        button.addTarget(self, action: #selector(resignBtnAction), for: .touchUpInside)
+        button.layer.cornerRadius = 10
+        button.layer.cornerCurve = .continuous
         return button
     }()
     
@@ -43,9 +48,20 @@ class MyGroupMemberEditCell: GroupIntroduceMemberCell {
             $0.width.equalTo(64)
             $0.height.equalTo(28)
         }
-        
-        memberIntroduceLabel.snp.updateConstraints {
-            $0.trailing.equalTo(resignButton.snp.leading).offset(-10)
+        memberIntroduceLabel.snp.remakeConstraints {
+            $0.leading.equalTo(memberImageView.snp.trailing).offset(12)
+            $0.trailing.lessThanOrEqualTo(resignButton.snp.leading).offset(-10)
+            $0.top.equalTo(memberNameLabel.snp.bottom).offset(6)
+            $0.height.equalTo(17)
         }
+
+    }
+    
+    func fill(closure: @escaping () -> Void) {
+        self.buttonActionClosure = closure
+    }
+    
+    @objc func resignBtnAction(_ sender: UIButton) {
+        buttonActionClosure?()
     }
 }

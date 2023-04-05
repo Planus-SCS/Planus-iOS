@@ -56,6 +56,12 @@ class MyGroupNoticeEditViewController: UIViewController {
         configureLayout()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        navigationItem.title = "공지사항 관리"
+    }
+    
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(noticeTextView)

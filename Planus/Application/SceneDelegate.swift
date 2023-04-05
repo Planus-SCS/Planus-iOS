@@ -22,7 +22,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let window = window else { return }
 //        let vm = SearchViewModel()
-        window.rootViewController = MyGroupNoticeEditViewController(nibName: nil, bundle: nil)
+        let vm = MyGroupMemberEditViewModel()
+        window.rootViewController = MyGroupMemberEditViewController(viewModel: vm)
         window.makeKeyAndVisible()
 //        self.appCoordinator = AppCoordinator(window: window)
 //        self.appCoordinator?.start()
