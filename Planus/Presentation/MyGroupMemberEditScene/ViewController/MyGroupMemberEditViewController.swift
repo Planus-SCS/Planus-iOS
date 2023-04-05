@@ -8,9 +8,14 @@
 import UIKit
 
 class MyGroupMemberEditViewController: UIViewController {
+    
+    
+    
     lazy var memberCollectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createMemberSection())
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.register(MyGroupMemberEditCell.self, forCellWithReuseIdentifier: MyGroupMemberEditCell.reuseIdentifier)
+        cv.dataSource = self
         return cv
     }()
     
@@ -29,4 +34,20 @@ class MyGroupMemberEditViewController: UIViewController {
 
         return UICollectionViewCompositionalLayout(section: section)
     }
+}
+
+extension MyGroupMemberEditViewController: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        <#code#>
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        <#code#>
+    }
+    
+    
 }
