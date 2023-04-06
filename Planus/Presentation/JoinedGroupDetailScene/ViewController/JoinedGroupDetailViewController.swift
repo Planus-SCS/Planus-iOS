@@ -96,7 +96,6 @@ class JoinedGroupDetailViewController: UIViewController {
             innerTableViewDidScroll(withDistance: dragYDiff)
             
         case .ended:
-            return
             innerTableViewScrollEnded(withScrollDirection: dragDirection)
             
         default: return
@@ -236,10 +235,10 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
         guard let headerViewHeightConstraint else { return }
         headerViewHeightConstraint.constant -= scrollDistance
 
-        if headerViewHeightConstraint.constant < topViewFinalHeight {
-            headerViewHeightConstraint.constant = topViewFinalHeight
-        } else if headerViewHeightConstraint.constant >= topViewInitialHeight {
-            headerViewHeightConstraint.constant = topViewInitialHeight
+        if headerViewHeightConstraint.constant < joinedGroupTopViewFinalHeight {
+            headerViewHeightConstraint.constant = joinedGroupTopViewFinalHeight
+        } else if headerViewHeightConstraint.constant >= joinedGroupTopViewInitialHeight {
+            headerViewHeightConstraint.constant = joinedGroupTopViewInitialHeight
         }
     }
 //
@@ -256,7 +255,7 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
 
         */
 
-        if topViewHeight >= topViewInitialHeight {
+        if topViewHeight >= joinedGroupTopViewInitialHeight {
             scrollToInitialView()
         }
 
@@ -267,7 +266,7 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
 
         let topViewCurrentHeight = headerView.frame.height
 
-        let distanceToBeMoved = abs(topViewCurrentHeight - topViewInitialHeight)
+        let distanceToBeMoved = abs(topViewCurrentHeight - joinedGroupTopViewInitialHeight)
 
         var time = distanceToBeMoved / 500
 
@@ -276,7 +275,7 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
             time = 0.2
         }
 
-        headerViewHeightConstraint.constant = topViewInitialHeight
+        headerViewHeightConstraint.constant = joinedGroupTopViewInitialHeight
 
         UIView.animate(withDuration: TimeInterval(time), animations: {
 
@@ -289,7 +288,7 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
 
         let topViewCurrentHeight = headerView.frame.height
 
-        let distanceToBeMoved = abs(topViewCurrentHeight - topViewFinalHeight)
+        let distanceToBeMoved = abs(topViewCurrentHeight - joinedGroupTopViewFinalHeight)
 
         var time = distanceToBeMoved / 500
 
@@ -298,7 +297,7 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
             time = 0.2
         }
 
-        headerViewHeightConstraint.constant = topViewFinalHeight
+        headerViewHeightConstraint.constant = joinedGroupTopViewFinalHeight
 
         UIView.animate(withDuration: TimeInterval(time), animations: {
 

@@ -1,54 +1,47 @@
 //
-//  InnerScrollableViewController.swift
+//  NestedScrollableCell.swift
 //  Planus
 //
-//  Created by Sangmin Lee on 2023/04/05.
+//  Created by Sangmin Lee on 2023/04/06.
 //
 
 import UIKit
-import SnapKit
 
-var joinedGroupTopViewInitialHeight : CGFloat = 220
+var memberProfileTopViewInitialHeight : CGFloat = 208
 
-let joinedGroupTopViewFinalHeight : CGFloat = 40 //navigation hieght
+let memberProfileTopViewFinalHeight : CGFloat = 98 //navigation hieght
 
-let joinedGroupTopViewHeightConstraintRange = joinedGroupTopViewFinalHeight..<joinedGroupTopViewInitialHeight
+let memberProfileTopViewHeightConstraintRange = memberProfileTopViewFinalHeight..<memberProfileTopViewInitialHeight
 
-enum DragDirection {
-    case Up
-    case Down
-}
-
-class NestedScrollableViewController: UIViewController {
-    weak var delegate: NestedScrollableViewScrollDelegate?
-    
-    //MARK:- Stored Properties for Scroll Delegate
+class NestedScrollableCell: UICollectionViewCell {
+    weak var nestedScrollableCellDelegate: NestedScrollableCellDelegate?
     
     private var dragDirection: DragDirection = .Up
     private var oldContentOffset = CGPoint.zero
 }
 
-extension NestedScrollableViewController: UIScrollViewDelegate {
+extension NestedScrollableCell: UIScrollViewDelegate {
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         let delta = scrollView.contentOffset.y - oldContentOffset.y
         
-        let topViewCurrentHeightConst = delegate?.currentHeaderHeight
+        let topViewCurrentHeightConst = nestedScrollableCellDelegate?.currentHeaderHeight
         
         if let topViewUnwrappedHeight = topViewCurrentHeightConst {
  
             if delta > 0,
-                topViewUnwrappedHeight > joinedGroupTopViewHeightConstraintRange.lowerBound,
+                topViewUnwrappedHeight > memberProfileTopViewHeightConstraintRange.lowerBound,
                 scrollView.contentOffset.y > 0 {
                 dragDirection = .Up
-                delegate?.innerTableViewDidScroll(withDistance: delta)
+                nestedScrollableCellDelegate?.innerTableViewDidScroll(withDistance: delta)
                 scrollView.contentOffset.y -= delta
             }
             
             if delta < 0,
                 scrollView.contentOffset.y < 0 {
                 dragDirection = .Down
-                delegate?.innerTableViewDidScroll(withDistance: delta)
+                nestedScrollableCellDelegate?.innerTableViewDidScroll(withDistance: delta)
             }
         }
         
@@ -58,20 +51,19 @@ extension NestedScrollableViewController: UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 
         if scrollView.contentOffset.y <= 0 {
-            delegate?.innerTableViewScrollEnded(withScrollDirection: dragDirection)
+            nestedScrollableCellDelegate?.innerTableViewScrollEnded(withScrollDirection: dragDirection)
         }
     }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 
         if scrollView.contentOffset.y <= 0 {
-            delegate?.innerTableViewScrollEnded(withScrollDirection: dragDirection)
+            nestedScrollableCellDelegate?.innerTableViewScrollEnded(withScrollDirection: dragDirection)
         }
     }
 }
 
-
-protocol NestedScrollableViewScrollDelegate: class {
+protocol NestedScrollableCellDelegate: AnyObject {
     
     var currentHeaderHeight: CGFloat? { get }
     
