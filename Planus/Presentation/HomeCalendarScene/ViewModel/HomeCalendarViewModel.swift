@@ -19,7 +19,7 @@ class HomeCalendarViewModel {
     let cachingAmount = 10
     
     let endOfFirstIndex = -100
-    let endOfLastIndex = 1000
+    let endOfLastIndex = 500
     
     var latestPrevCacheRequestedIndex = 0
     var latestFollowingCacheRequestedIndex = 0

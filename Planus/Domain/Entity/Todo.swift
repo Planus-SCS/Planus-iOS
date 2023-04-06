@@ -11,11 +11,11 @@ struct Todo {
     var id: String
     var title: String
     var date: Date
-    var category: TodoCategory
+    var category: TodoCategoryColor
     var type: TodoType
     var time: String?
     
-    init(title: String, date: Date, category: TodoCategory, type: TodoType, time: String? = nil) {
+    init(title: String, date: Date, category: TodoCategoryColor, type: TodoType, time: String? = nil) {
         self.id = UUID().uuidString
         self.title = title
         self.date = date

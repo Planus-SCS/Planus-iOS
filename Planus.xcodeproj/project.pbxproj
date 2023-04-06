@@ -53,6 +53,18 @@
 		6A08ADD929C8D096005947D2 /* DefaultSocialAuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08ADD829C8D096005947D2 /* DefaultSocialAuthRepository.swift */; };
 		6A08ADDD29C8D5C0005947D2 /* SocialAuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08ADDC29C8D5C0005947D2 /* SocialAuthRepository.swift */; };
 		6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */; };
+		6A0BF75829D2BE0C006F2604 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75529D2BE0C006F2604 /* Icon.png */; };
+		6A0BF75929D2BE0C006F2604 /* Icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75629D2BE0C006F2604 /* Icon@3x.png */; };
+		6A0BF75A29D2BE0C006F2604 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75729D2BE0C006F2604 /* Icon@2x.png */; };
+		6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75B29D2C25B006F2604 /* edit@2x.png */; };
+		6A0BF75F29D2C25B006F2604 /* edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75C29D2C25B006F2604 /* edit.png */; };
+		6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75D29D2C25B006F2604 /* edit@3x.png */; };
+		6A0BF76429D35D2C006F2604 /* edit_swipe.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76129D35D2C006F2604 /* edit_swipe.png */; };
+		6A0BF76529D35D2C006F2604 /* edit_swipe@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76229D35D2C006F2604 /* edit_swipe@2x.png */; };
+		6A0BF76629D35D2C006F2604 /* edit_swipe@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76329D35D2C006F2604 /* edit_swipe@3x.png */; };
+		6A0BF76A29D35D47006F2604 /* remove_swipe@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76729D35D47006F2604 /* remove_swipe@3x.png */; };
+		6A0BF76B29D35D47006F2604 /* remove_swipe.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76829D35D47006F2604 /* remove_swipe.png */; };
+		6A0BF76C29D35D47006F2604 /* remove_swipe@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF76929D35D47006F2604 /* remove_swipe@2x.png */; };
 		6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */; };
 		6A24F83129CB45170000FD64 /* TodoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83029CB45170000FD64 /* TodoCoordinator.swift */; };
 		6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */; };
@@ -62,7 +74,7 @@
 		6A24F83E29CB4A440000FD64 /* Todo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83D29CB4A440000FD64 /* Todo.swift */; };
 		6A24F84029CB4A5C0000FD64 /* TodoType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83F29CB4A5C0000FD64 /* TodoType.swift */; };
 		6A24F84229CB4A8B0000FD64 /* ContinuousDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F84129CB4A8B0000FD64 /* ContinuousDay.swift */; };
-		6A24F84429CB4AAE0000FD64 /* TodoCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F84329CB4AAE0000FD64 /* TodoCategory.swift */; };
+		6A24F84429CB4AAE0000FD64 /* TodoCategoryColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F84329CB4AAE0000FD64 /* TodoCategoryColor.swift */; };
 		6A24F84629CB4AED0000FD64 /* MonthStateOfDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F84529CB4AED0000FD64 /* MonthStateOfDay.swift */; };
 		6A24F84C29CB6DC60000FD64 /* GoogleSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F84B29CB6DC60000FD64 /* GoogleSignInUseCase.swift */; };
 		6A24F84E29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F84D29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift */; };
@@ -107,9 +119,45 @@
 		6A24F8FB29D1D6470000FD64 /* chevron-left@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8F529D1D6470000FD64 /* chevron-left@2x.png */; };
 		6A24F8FC29D1D6470000FD64 /* chevron-right@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8F629D1D6470000FD64 /* chevron-right@2x.png */; };
 		6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F8FD29D1E20E0000FD64 /* MonthPickerViewModel.swift */; };
+		6A24F90829D210450000FD64 /* TodoMainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90729D210450000FD64 /* TodoMainViewModel.swift */; };
+		6A24F90A29D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90929D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift */; };
+		6A24F90C29D223960000FD64 /* DetailDayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90B29D223960000FD64 /* DetailDayViewModel.swift */; };
+		6A24F90E29D223D90000FD64 /* CreateDailyCalendarUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90D29D223D90000FD64 /* CreateDailyCalendarUseCase.swift */; };
+		6A24F91029D226810000FD64 /* TodoMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90F29D226810000FD64 /* TodoMainViewController.swift */; };
+		6A24F91929D22D080000FD64 /* TodoDailyCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F91829D22D080000FD64 /* TodoDailyCollectionView.swift */; };
+		6A24F91B29D22D5B0000FD64 /* BigTodoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F91A29D22D5B0000FD64 /* BigTodoCell.swift */; };
+		6A24F91D29D22D8B0000FD64 /* TodoSectionBackgroundDecorationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F91C29D22D8B0000FD64 /* TodoSectionBackgroundDecorationView.swift */; };
+		6A24F91F29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F91E29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift */; };
+		6A24F92129D22EC10000FD64 /* TodoDailyCalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F92029D22EC10000FD64 /* TodoDailyCalendarCell.swift */; };
+		6A24F92729D276FA0000FD64 /* SmallCalendarDayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F92629D276FA0000FD64 /* SmallCalendarDayViewModel.swift */; };
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
+		6A9A07B229D3C7E70051AD43 /* arrow_white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */; };
+		6A9A07B329D3C7E70051AD43 /* arrow_white@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */; };
+		6A9A07B429D3C7E70051AD43 /* arrow_white.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B129D3C7E70051AD43 /* arrow_white.png */; };
+		6A9A07B829D3C7F10051AD43 /* arrow_dark@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B529D3C7F10051AD43 /* arrow_dark@3x.png */; };
+		6A9A07B929D3C7F10051AD43 /* arrow_dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B629D3C7F10051AD43 /* arrow_dark.png */; };
+		6A9A07BA29D3C7F10051AD43 /* arrow_dark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B729D3C7F10051AD43 /* arrow_dark@2x.png */; };
+		6A9A07BE29D3D52B0051AD43 /* categoryCheck.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07BB29D3D52B0051AD43 /* categoryCheck.png */; };
+		6A9A07BF29D3D52B0051AD43 /* categoryCheck@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07BC29D3D52B0051AD43 /* categoryCheck@3x.png */; };
+		6A9A07C029D3D52B0051AD43 /* categoryCheck@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07BD29D3D52B0051AD43 /* categoryCheck@2x.png */; };
+		6A9A07C829D3D83B0051AD43 /* AddTodoControllerPageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07C729D3D83B0051AD43 /* AddTodoControllerPageType.swift */; };
+		6A9A07EF29D40B190051AD43 /* DayPickerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07EE29D40B190051AD43 /* DayPickerModel.swift */; };
+		6A9A07F129D40B3C0051AD43 /* DayPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07F029D40B3C0051AD43 /* DayPickerViewController.swift */; };
+		6A9A07F329D40B5D0051AD43 /* DayPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07F229D40B5D0051AD43 /* DayPickerView.swift */; };
+		6A9A07F529D40B700051AD43 /* DayPickerCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07F429D40B700051AD43 /* DayPickerCollectionView.swift */; };
+		6A9A07F729D40B820051AD43 /* DayPickerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07F629D40B820051AD43 /* DayPickerCollectionViewCell.swift */; };
+		6A9A07F929D40B970051AD43 /* DayPickerViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07F829D40B970051AD43 /* DayPickerViewControllerDelegate.swift */; };
+		6A9A07FB29D40BA90051AD43 /* DayPickerViewController+DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07FA29D40BA90051AD43 /* DayPickerViewController+DataSource.swift */; };
+		6A9A07FD29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07FC29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift */; };
+		6A9A080029D40BEF0051AD43 /* TodoDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A07FF29D40BEF0051AD43 /* TodoDetailViewModel.swift */; };
+		6A9A080229D40C130051AD43 /* TodoDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A080129D40C130051AD43 /* TodoDetailViewController.swift */; };
+		6A9A080429D40C560051AD43 /* AddTodoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A080329D40C560051AD43 /* AddTodoView.swift */; };
+		6A9A080629D40C6B0051AD43 /* CategorySelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A080529D40C6B0051AD43 /* CategorySelectView.swift */; };
+		6A9A080829D40C7D0051AD43 /* CategorySelectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A080729D40C7D0051AD43 /* CategorySelectCell.swift */; };
+		6A9A080A29D40C8D0051AD43 /* CategoryCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A080929D40C8D0051AD43 /* CategoryCreateView.swift */; };
+		6A9A080C29D40CA40051AD43 /* CategoryCreateCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A080B29D40CA40051AD43 /* CategoryCreateCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -161,6 +209,18 @@
 		6A08ADD829C8D096005947D2 /* DefaultSocialAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSocialAuthRepository.swift; sourceTree = "<group>"; };
 		6A08ADDC29C8D5C0005947D2 /* SocialAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialAuthRepository.swift; sourceTree = "<group>"; };
 		6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KakaoSignInUseCase.swift; sourceTree = "<group>"; };
+		6A0BF75529D2BE0C006F2604 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		6A0BF75629D2BE0C006F2604 /* Icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@3x.png"; sourceTree = "<group>"; };
+		6A0BF75729D2BE0C006F2604 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
+		6A0BF75B29D2C25B006F2604 /* edit@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@2x.png"; sourceTree = "<group>"; };
+		6A0BF75C29D2C25B006F2604 /* edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit.png; sourceTree = "<group>"; };
+		6A0BF75D29D2C25B006F2604 /* edit@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@3x.png"; sourceTree = "<group>"; };
+		6A0BF76129D35D2C006F2604 /* edit_swipe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit_swipe.png; sourceTree = "<group>"; };
+		6A0BF76229D35D2C006F2604 /* edit_swipe@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit_swipe@2x.png"; sourceTree = "<group>"; };
+		6A0BF76329D35D2C006F2604 /* edit_swipe@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit_swipe@3x.png"; sourceTree = "<group>"; };
+		6A0BF76729D35D47006F2604 /* remove_swipe@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "remove_swipe@3x.png"; sourceTree = "<group>"; };
+		6A0BF76829D35D47006F2604 /* remove_swipe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = remove_swipe.png; sourceTree = "<group>"; };
+		6A0BF76929D35D47006F2604 /* remove_swipe@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "remove_swipe@2x.png"; sourceTree = "<group>"; };
 		6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCalendarCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83029CB45170000FD64 /* TodoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoordinator.swift; sourceTree = "<group>"; };
@@ -170,7 +230,7 @@
 		6A24F83D29CB4A440000FD64 /* Todo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Todo.swift; sourceTree = "<group>"; };
 		6A24F83F29CB4A5C0000FD64 /* TodoType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoType.swift; sourceTree = "<group>"; };
 		6A24F84129CB4A8B0000FD64 /* ContinuousDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousDay.swift; sourceTree = "<group>"; };
-		6A24F84329CB4AAE0000FD64 /* TodoCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCategory.swift; sourceTree = "<group>"; };
+		6A24F84329CB4AAE0000FD64 /* TodoCategoryColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCategoryColor.swift; sourceTree = "<group>"; };
 		6A24F84529CB4AED0000FD64 /* MonthStateOfDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthStateOfDay.swift; sourceTree = "<group>"; };
 		6A24F84B29CB6DC60000FD64 /* GoogleSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignInUseCase.swift; sourceTree = "<group>"; };
 		6A24F84D29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultGoogleSignInUseCase.swift; sourceTree = "<group>"; };
@@ -215,10 +275,46 @@
 		6A24F8F529D1D6470000FD64 /* chevron-left@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chevron-left@2x.png"; sourceTree = "<group>"; };
 		6A24F8F629D1D6470000FD64 /* chevron-right@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chevron-right@2x.png"; sourceTree = "<group>"; };
 		6A24F8FD29D1E20E0000FD64 /* MonthPickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthPickerViewModel.swift; sourceTree = "<group>"; };
+		6A24F90729D210450000FD64 /* TodoMainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMainViewModel.swift; sourceTree = "<group>"; };
+		6A24F90929D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCreateDailyCalendarUseCase.swift; sourceTree = "<group>"; };
+		6A24F90B29D223960000FD64 /* DetailDayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailDayViewModel.swift; sourceTree = "<group>"; };
+		6A24F90D29D223D90000FD64 /* CreateDailyCalendarUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateDailyCalendarUseCase.swift; sourceTree = "<group>"; };
+		6A24F90F29D226810000FD64 /* TodoMainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMainViewController.swift; sourceTree = "<group>"; };
+		6A24F91829D22D080000FD64 /* TodoDailyCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyCollectionView.swift; sourceTree = "<group>"; };
+		6A24F91A29D22D5B0000FD64 /* BigTodoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BigTodoCell.swift; sourceTree = "<group>"; };
+		6A24F91C29D22D8B0000FD64 /* TodoSectionBackgroundDecorationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoSectionBackgroundDecorationView.swift; sourceTree = "<group>"; };
+		6A24F91E29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoSectionHeaderSupplementaryView.swift; sourceTree = "<group>"; };
+		6A24F92029D22EC10000FD64 /* TodoDailyCalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyCalendarCell.swift; sourceTree = "<group>"; };
+		6A24F92629D276FA0000FD64 /* SmallCalendarDayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallCalendarDayViewModel.swift; sourceTree = "<group>"; };
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
 		6A483DB129CA804C003375BF /* PlanusRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PlanusRelease.entitlements; sourceTree = "<group>"; };
+		6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@2x.png"; sourceTree = "<group>"; };
+		6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@3x.png"; sourceTree = "<group>"; };
+		6A9A07B129D3C7E70051AD43 /* arrow_white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_white.png; sourceTree = "<group>"; };
+		6A9A07B529D3C7F10051AD43 /* arrow_dark@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_dark@3x.png"; sourceTree = "<group>"; };
+		6A9A07B629D3C7F10051AD43 /* arrow_dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_dark.png; sourceTree = "<group>"; };
+		6A9A07B729D3C7F10051AD43 /* arrow_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_dark@2x.png"; sourceTree = "<group>"; };
+		6A9A07BB29D3D52B0051AD43 /* categoryCheck.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = categoryCheck.png; sourceTree = "<group>"; };
+		6A9A07BC29D3D52B0051AD43 /* categoryCheck@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "categoryCheck@3x.png"; sourceTree = "<group>"; };
+		6A9A07BD29D3D52B0051AD43 /* categoryCheck@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "categoryCheck@2x.png"; sourceTree = "<group>"; };
+		6A9A07C729D3D83B0051AD43 /* AddTodoControllerPageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTodoControllerPageType.swift; sourceTree = "<group>"; };
+		6A9A07EE29D40B190051AD43 /* DayPickerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPickerModel.swift; sourceTree = "<group>"; };
+		6A9A07F029D40B3C0051AD43 /* DayPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPickerViewController.swift; sourceTree = "<group>"; };
+		6A9A07F229D40B5D0051AD43 /* DayPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPickerView.swift; sourceTree = "<group>"; };
+		6A9A07F429D40B700051AD43 /* DayPickerCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPickerCollectionView.swift; sourceTree = "<group>"; };
+		6A9A07F629D40B820051AD43 /* DayPickerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPickerCollectionViewCell.swift; sourceTree = "<group>"; };
+		6A9A07F829D40B970051AD43 /* DayPickerViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPickerViewControllerDelegate.swift; sourceTree = "<group>"; };
+		6A9A07FA29D40BA90051AD43 /* DayPickerViewController+DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DayPickerViewController+DataSource.swift"; sourceTree = "<group>"; };
+		6A9A07FC29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DayPickerViewController+Delegate.swift"; sourceTree = "<group>"; };
+		6A9A07FF29D40BEF0051AD43 /* TodoDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailViewModel.swift; sourceTree = "<group>"; };
+		6A9A080129D40C130051AD43 /* TodoDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailViewController.swift; sourceTree = "<group>"; };
+		6A9A080329D40C560051AD43 /* AddTodoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTodoView.swift; sourceTree = "<group>"; };
+		6A9A080529D40C6B0051AD43 /* CategorySelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorySelectView.swift; sourceTree = "<group>"; };
+		6A9A080729D40C7D0051AD43 /* CategorySelectCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorySelectCell.swift; sourceTree = "<group>"; };
+		6A9A080929D40C8D0051AD43 /* CategoryCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCreateView.swift; sourceTree = "<group>"; };
+		6A9A080B29D40CA40051AD43 /* CategoryCreateCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCreateCell.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -284,6 +380,7 @@
 		6A08AD6629C884B2005947D2 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				6A9A07C129D3D7B00051AD43 /* AddTodoScene */,
 				6A08AD9129C898A1005947D2 /* HomeCalendarScene */,
 				6A24F82629CB44940000FD64 /* GroupScene */,
 				6A24F82529CB44850000FD64 /* SearchScene */,
@@ -362,6 +459,27 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A9A07BB29D3D52B0051AD43 /* categoryCheck.png */,
+				6A9A07BD29D3D52B0051AD43 /* categoryCheck@2x.png */,
+				6A9A07BC29D3D52B0051AD43 /* categoryCheck@3x.png */,
+				6A9A07B629D3C7F10051AD43 /* arrow_dark.png */,
+				6A9A07B729D3C7F10051AD43 /* arrow_dark@2x.png */,
+				6A9A07B529D3C7F10051AD43 /* arrow_dark@3x.png */,
+				6A9A07B129D3C7E70051AD43 /* arrow_white.png */,
+				6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */,
+				6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */,
+				6A0BF76829D35D47006F2604 /* remove_swipe.png */,
+				6A0BF76929D35D47006F2604 /* remove_swipe@2x.png */,
+				6A0BF76729D35D47006F2604 /* remove_swipe@3x.png */,
+				6A0BF76129D35D2C006F2604 /* edit_swipe.png */,
+				6A0BF76229D35D2C006F2604 /* edit_swipe@2x.png */,
+				6A0BF76329D35D2C006F2604 /* edit_swipe@3x.png */,
+				6A0BF75C29D2C25B006F2604 /* edit.png */,
+				6A0BF75B29D2C25B006F2604 /* edit@2x.png */,
+				6A0BF75D29D2C25B006F2604 /* edit@3x.png */,
+				6A0BF75529D2BE0C006F2604 /* Icon.png */,
+				6A0BF75729D2BE0C006F2604 /* Icon@2x.png */,
+				6A0BF75629D2BE0C006F2604 /* Icon@3x.png */,
 				6A08AD9F29C89DED005947D2 /* appleBtn.png */,
 				6A08ADA629C89DEE005947D2 /* appleBtn@2x.png */,
 				6A08ADA429C89DEE005947D2 /* appleBtn@3x.png */,
@@ -441,6 +559,7 @@
 			children = (
 				6A24F85129CB7C400000FD64 /* HomeCalendarViewModel.swift */,
 				6A24F8FD29D1E20E0000FD64 /* MonthPickerViewModel.swift */,
+				6A24F92629D276FA0000FD64 /* SmallCalendarDayViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -542,6 +661,7 @@
 				6A24F85529CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift */,
 				6A24F85929CB873B0000FD64 /* DefaultFetchTodoListUseCase.swift */,
 				6A24F86329CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift */,
+				6A24F90929D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift */,
 			);
 			path = UseCase;
 			sourceTree = "<group>";
@@ -563,6 +683,7 @@
 				6A24F85329CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift */,
 				6A24F85D29CB87D70000FD64 /* FetchTodoListUseCase.swift */,
 				6A24F86529CC84150000FD64 /* DateFormatYYYYMMUseCase.swift */,
+				6A24F90D29D223D90000FD64 /* CreateDailyCalendarUseCase.swift */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -570,6 +691,9 @@
 		6A24F82429CB44780000FD64 /* TodoScene */ = {
 			isa = PBXGroup;
 			children = (
+				6A24F91729D22CFC0000FD64 /* View */,
+				6A24F90429D2100C0000FD64 /* ViewModel */,
+				6A24F90329D210060000FD64 /* ViewController */,
 				6A24F82F29CB45090000FD64 /* Coordinator */,
 			);
 			path = TodoScene;
@@ -686,6 +810,34 @@
 			path = Font;
 			sourceTree = "<group>";
 		};
+		6A24F90329D210060000FD64 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6A24F90F29D226810000FD64 /* TodoMainViewController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		6A24F90429D2100C0000FD64 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				6A24F90729D210450000FD64 /* TodoMainViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		6A24F91729D22CFC0000FD64 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6A24F91829D22D080000FD64 /* TodoDailyCollectionView.swift */,
+				6A24F91A29D22D5B0000FD64 /* BigTodoCell.swift */,
+				6A24F91C29D22D8B0000FD64 /* TodoSectionBackgroundDecorationView.swift */,
+				6A24F91E29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift */,
+				6A24F92029D22EC10000FD64 /* TodoDailyCalendarCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		6A483DA829CA22D4003375BF /* Entity */ = {
 			isa = PBXGroup;
 			children = (
@@ -694,10 +846,66 @@
 				6A24F83D29CB4A440000FD64 /* Todo.swift */,
 				6A24F83F29CB4A5C0000FD64 /* TodoType.swift */,
 				6A24F84129CB4A8B0000FD64 /* ContinuousDay.swift */,
-				6A24F84329CB4AAE0000FD64 /* TodoCategory.swift */,
+				6A24F84329CB4AAE0000FD64 /* TodoCategoryColor.swift */,
 				6A24F84529CB4AED0000FD64 /* MonthStateOfDay.swift */,
+				6A24F90B29D223960000FD64 /* DetailDayViewModel.swift */,
 			);
 			path = Entity;
+			sourceTree = "<group>";
+		};
+		6A9A07C129D3D7B00051AD43 /* AddTodoScene */ = {
+			isa = PBXGroup;
+			children = (
+				6A9A07FE29D40BDF0051AD43 /* ViewModel */,
+				6A9A07D529D3DC5A0051AD43 /* DayPickerViewController */,
+				6A9A07C329D3D7BE0051AD43 /* ViewController */,
+				6A9A07C229D3D7B90051AD43 /* View */,
+				6A9A07C729D3D83B0051AD43 /* AddTodoControllerPageType.swift */,
+			);
+			path = AddTodoScene;
+			sourceTree = "<group>";
+		};
+		6A9A07C229D3D7B90051AD43 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6A9A080329D40C560051AD43 /* AddTodoView.swift */,
+				6A9A080529D40C6B0051AD43 /* CategorySelectView.swift */,
+				6A9A080729D40C7D0051AD43 /* CategorySelectCell.swift */,
+				6A9A080929D40C8D0051AD43 /* CategoryCreateView.swift */,
+				6A9A080B29D40CA40051AD43 /* CategoryCreateCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		6A9A07C329D3D7BE0051AD43 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6A9A080129D40C130051AD43 /* TodoDetailViewController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		6A9A07D529D3DC5A0051AD43 /* DayPickerViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6A9A07EE29D40B190051AD43 /* DayPickerModel.swift */,
+				6A9A07F029D40B3C0051AD43 /* DayPickerViewController.swift */,
+				6A9A07F229D40B5D0051AD43 /* DayPickerView.swift */,
+				6A9A07F429D40B700051AD43 /* DayPickerCollectionView.swift */,
+				6A9A07F629D40B820051AD43 /* DayPickerCollectionViewCell.swift */,
+				6A9A07F829D40B970051AD43 /* DayPickerViewControllerDelegate.swift */,
+				6A9A07FA29D40BA90051AD43 /* DayPickerViewController+DataSource.swift */,
+				6A9A07FC29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift */,
+			);
+			path = DayPickerViewController;
+			sourceTree = "<group>";
+		};
+		6A9A07FE29D40BDF0051AD43 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				6A9A07FF29D40BEF0051AD43 /* TodoDetailViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		974AE7300BB25B96DF1DF093 /* Pods */ = {
@@ -772,23 +980,34 @@
 				6A08AD8C29C892E0005947D2 /* search-sm.png in Resources */,
 				6A24F8B729CE3F800000FD64 /* Pretendard-Bold.otf in Resources */,
 				6A08ADB829C8A2B0005947D2 /* logo@2x.png in Resources */,
+				6A0BF76A29D35D47006F2604 /* remove_swipe@3x.png in Resources */,
 				6A24F8B429CE3F800000FD64 /* Pretendard-Black.otf in Resources */,
 				6A24F8E729D1D4A40000FD64 /* list@2x.png in Resources */,
+				6A9A07B229D3C7E70051AD43 /* arrow_white@2x.png in Resources */,
+				6A9A07B429D3C7E70051AD43 /* arrow_white.png in Resources */,
+				6A9A07BA29D3C7F10051AD43 /* arrow_dark@2x.png in Resources */,
 				6A08AD8B29C892E0005947D2 /* check-done-01@2x.png in Resources */,
+				6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */,
 				6A24F8B829CE3F800000FD64 /* Pretendard-Light.otf in Resources */,
 				6A24F8B629CE3F800000FD64 /* Pretendard-ExtraLight.otf in Resources */,
 				6A24F8F929D1D6470000FD64 /* chevron-left.png in Resources */,
+				6A0BF76429D35D2C006F2604 /* edit_swipe.png in Resources */,
 				6A24F8EC29D1D4A40000FD64 /* user-circle@3x.png in Resources */,
 				6A08AD8829C892E0005947D2 /* search-sm@3x.png in Resources */,
 				6A08AD8D29C892E0005947D2 /* users-02@2x.png in Resources */,
 				6A08AD8629C892E0005947D2 /* check-done-01@3x.png in Resources */,
 				6A24F8F729D1D6470000FD64 /* chevron-left@3x.png in Resources */,
 				6A08ADAB29C89DEE005947D2 /* kakaoBtn@2x.png in Resources */,
+				6A9A07B329D3C7E70051AD43 /* arrow_white@3x.png in Resources */,
 				6A24F8B329CE3F800000FD64 /* Pretendard-Medium.otf in Resources */,
 				6A24F8B929CE3F800000FD64 /* Pretendard-ExtraBold.otf in Resources */,
+				6A0BF75929D2BE0C006F2604 /* Icon@3x.png in Resources */,
 				6A08ADAF29C89DEE005947D2 /* appleBtn@2x.png in Resources */,
+				6A0BF75A29D2BE0C006F2604 /* Icon@2x.png in Resources */,
 				6A08AD8929C892E0005947D2 /* calendar-date@2x.png in Resources */,
 				6A24F8E929D1D4A40000FD64 /* user-circle.png in Resources */,
+				6A0BF76529D35D2C006F2604 /* edit_swipe@2x.png in Resources */,
+				6A9A07BF29D3D52B0051AD43 /* categoryCheck@3x.png in Resources */,
 				6A08ADA829C89DEE005947D2 /* appleBtn.png in Resources */,
 				6A24F8EA29D1D4A40000FD64 /* user-circle@2x.png in Resources */,
 				6A24F8BA29CE3F800000FD64 /* Pretendard-Thin.otf in Resources */,
@@ -796,24 +1015,34 @@
 				6A08AD8529C892E0005947D2 /* search-sm@2x.png in Resources */,
 				6A08AD8229C892E0005947D2 /* users-02@3x.png in Resources */,
 				6A24F8B229CE3F800000FD64 /* Pretendard-Regular.otf in Resources */,
+				6A0BF75F29D2C25B006F2604 /* edit.png in Resources */,
 				6A08ADAD29C89DEE005947D2 /* appleBtn@3x.png in Resources */,
 				6A08AD5D29C87C63005947D2 /* LaunchScreen.storyboard in Resources */,
 				6A24F8F829D1D6470000FD64 /* chevron-right@3x.png in Resources */,
+				6A0BF76629D35D2C006F2604 /* edit_swipe@3x.png in Resources */,
 				6A08AD8A29C892E0005947D2 /* users-02.png in Resources */,
+				6A9A07B829D3C7F10051AD43 /* arrow_dark@3x.png in Resources */,
+				6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */,
+				6A0BF76C29D35D47006F2604 /* remove_swipe@2x.png in Resources */,
+				6A9A07B929D3C7F10051AD43 /* arrow_dark.png in Resources */,
 				6A08ADB929C8A2B0005947D2 /* logo.png in Resources */,
 				6A08AD8429C892E0005947D2 /* calendar-date@3x.png in Resources */,
 				6A08ADAA29C89DEE005947D2 /* kakaoBtn@3x.png in Resources */,
 				6A08ADB029C89DEE005947D2 /* googleBtn@2x.png in Resources */,
+				6A0BF76B29D35D47006F2604 /* remove_swipe.png in Resources */,
 				6A24F8EB29D1D4A40000FD64 /* list.png in Resources */,
+				6A0BF75829D2BE0C006F2604 /* Icon.png in Resources */,
 				6A08ADBA29C8A2B0005947D2 /* logo@3x.png in Resources */,
 				6A08ADAE29C89DEE005947D2 /* googleBtn.png in Resources */,
 				6A08AD5A29C87C63005947D2 /* Assets.xcassets in Resources */,
 				6A24F8FC29D1D6470000FD64 /* chevron-right@2x.png in Resources */,
 				6A08AD8329C892E0005947D2 /* check-done-01.png in Resources */,
 				6A24F8E829D1D4A40000FD64 /* list@3x.png in Resources */,
+				6A9A07BE29D3D52B0051AD43 /* categoryCheck.png in Resources */,
 				6A24F8FA29D1D6470000FD64 /* chevron-right.png in Resources */,
 				6A24F8B529CE3F800000FD64 /* Pretendard-SemiBold.otf in Resources */,
 				6A24F8FB29D1D6470000FD64 /* chevron-left@2x.png in Resources */,
+				6A9A07C029D3D52B0051AD43 /* categoryCheck@2x.png in Resources */,
 				6A08ADAC29C89DEE005947D2 /* kakaoBtn.png in Resources */,
 				6A08ADA929C89DEE005947D2 /* googleBtn@3x.png in Resources */,
 			);
@@ -868,19 +1097,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6A24F84429CB4AAE0000FD64 /* TodoCategory.swift in Sources */,
+				6A24F84429CB4AAE0000FD64 /* TodoCategoryColor.swift in Sources */,
+				6A24F92129D22EC10000FD64 /* TodoDailyCalendarCell.swift in Sources */,
+				6A9A080429D40C560051AD43 /* AddTodoView.swift in Sources */,
 				6A08ADCC29C8C20E005947D2 /* APIRequestType.swift in Sources */,
 				6A24F85629CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift in Sources */,
+				6A24F90829D210450000FD64 /* TodoMainViewModel.swift in Sources */,
 				6A08ADCA29C8C1F3005947D2 /* APIEndPoint.swift in Sources */,
+				6A9A07F129D40B3C0051AD43 /* DayPickerViewController.swift in Sources */,
 				6A24F84229CB4A8B0000FD64 /* ContinuousDay.swift in Sources */,
 				6A24F86029CB8A6B0000FD64 /* DefaultTodoRepository.swift in Sources */,
 				6A24F83629CB46640000FD64 /* GroupCoordinator.swift in Sources */,
 				6A24F84629CB4AED0000FD64 /* MonthStateOfDay.swift in Sources */,
 				6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */,
 				6A08AD6E29C88969005947D2 /* Coordinator.swift in Sources */,
+				6A24F91F29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift in Sources */,
+				6A9A080229D40C130051AD43 /* TodoDetailViewController.swift in Sources */,
 				6A08ADCF29C8C231005947D2 /* APIProvider.swift in Sources */,
 				6A08AD7429C89143005947D2 /* MainTabCoordinator.swift in Sources */,
 				6A24F88C29CE26540000FD64 /* HomeCalendarViewController.swift in Sources */,
+				6A9A07EF29D40B190051AD43 /* DayPickerModel.swift in Sources */,
 				6A24F85229CB7C400000FD64 /* HomeCalendarViewModel.swift in Sources */,
 				6A24F89E29CE29F50000FD64 /* TodoCategory+Ext.swift in Sources */,
 				6A24F89529CE285F0000FD64 /* MonthlyCalendarCell.swift in Sources */,
@@ -891,28 +1127,46 @@
 				6A08ADD129C8C256005947D2 /* NetworkManager.swift in Sources */,
 				6A24F89B29CE299A0000FD64 /* SmallTodoView.swift in Sources */,
 				6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */,
+				6A24F91B29D22D5B0000FD64 /* BigTodoCell.swift in Sources */,
+				6A9A080029D40BEF0051AD43 /* TodoDetailViewModel.swift in Sources */,
+				6A9A080A29D40C8D0051AD43 /* CategoryCreateView.swift in Sources */,
 				6A08ADD629C8D048005947D2 /* DefaultKakaoSignInUseCase.swift in Sources */,
+				6A9A07C829D3D83B0051AD43 /* AddTodoControllerPageType.swift in Sources */,
 				6A24F8BC29CE50DC0000FD64 /* ScrollDirection.swift in Sources */,
 				6A08AD7029C889D6005947D2 /* AppCoordinator.swift in Sources */,
 				6A24F83A29CB49BD0000FD64 /* DayViewModel.swift in Sources */,
 				6A24F8F029D1D5F80000FD64 /* MonthPickerViewCell.swift in Sources */,
 				6A08ADB429C8A064005947D2 /* SignInCoordinator.swift in Sources */,
 				6A24F86629CC84150000FD64 /* DateFormatYYYYMMUseCase.swift in Sources */,
+				6A9A07F529D40B700051AD43 /* DayPickerCollectionView.swift in Sources */,
 				6A24F84C29CB6DC60000FD64 /* GoogleSignInUseCase.swift in Sources */,
+				6A9A07F729D40B820051AD43 /* DayPickerCollectionViewCell.swift in Sources */,
 				6A08ADD329C8C26F005947D2 /* NetworkError.swift in Sources */,
 				6A08AD9E29C89D93005947D2 /* SignInViewController.swift in Sources */,
 				6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */,
+				6A9A080C29D40CA40051AD43 /* CategoryCreateCell.swift in Sources */,
 				6A24F85429CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift in Sources */,
+				6A9A080629D40C6B0051AD43 /* CategorySelectView.swift in Sources */,
+				6A24F90E29D223D90000FD64 /* CreateDailyCalendarUseCase.swift in Sources */,
+				6A9A080829D40C7D0051AD43 /* CategorySelectCell.swift in Sources */,
+				6A24F90C29D223960000FD64 /* DetailDayViewModel.swift in Sources */,
+				6A9A07FD29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift in Sources */,
+				6A24F92729D276FA0000FD64 /* SmallCalendarDayViewModel.swift in Sources */,
 				6A24F83E29CB4A440000FD64 /* Todo.swift in Sources */,
 				6A24F8BE29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift in Sources */,
 				6A08ADB229C89E77005947D2 /* SignInViewModel.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
 				6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */,
+				6A9A07F929D40B970051AD43 /* DayPickerViewControllerDelegate.swift in Sources */,
 				6A24F83129CB45170000FD64 /* TodoCoordinator.swift in Sources */,
+				6A24F91D29D22D8B0000FD64 /* TodoSectionBackgroundDecorationView.swift in Sources */,
 				6A24F84E29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift in Sources */,
+				6A24F91029D226810000FD64 /* TodoMainViewController.swift in Sources */,
 				6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */,
 				6A24F86429CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift in Sources */,
+				6A24F91929D22D080000FD64 /* TodoDailyCollectionView.swift in Sources */,
 				6A24F83C29CB49F10000FD64 /* WeekDay.swift in Sources */,
+				6A9A07FB29D40BA90051AD43 /* DayPickerViewController+DataSource.swift in Sources */,
 				6A24F8EE29D1D5510000FD64 /* MonthPickerViewController.swift in Sources */,
 				6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */,
 				6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */,
@@ -920,6 +1174,8 @@
 				6A24F85029CB77830000FD64 /* Calendar+Ext.swift in Sources */,
 				6A24F84029CB4A5C0000FD64 /* TodoType.swift in Sources */,
 				6A08AD9029C89761005947D2 /* UIColor+Ext.swift in Sources */,
+				6A24F90A29D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift in Sources */,
+				6A9A07F329D40B5D0051AD43 /* DayPickerView.swift in Sources */,
 				6A08ADDD29C8D5C0005947D2 /* SocialAuthRepository.swift in Sources */,
 				6A08AD5329C87C61005947D2 /* SceneDelegate.swift in Sources */,
 				6A24F89929CE29330000FD64 /* DailyCalendarCell.swift in Sources */,

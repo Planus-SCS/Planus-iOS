@@ -139,6 +139,9 @@ class HomeCalendarViewController: UIViewController {
         output.showDailyTodoPage
             .subscribe(onNext: { date in
                 print(date)
+                let bottomSheetVC = TodoDetailViewController()
+                bottomSheetVC.modalPresentationStyle = .overFullScreen
+                self.present(bottomSheetVC, animated: false, completion: nil)
             })
             .disposed(by: bag)
         
