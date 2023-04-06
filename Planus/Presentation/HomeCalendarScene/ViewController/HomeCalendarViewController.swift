@@ -137,11 +137,19 @@ class HomeCalendarViewController: UIViewController {
             .disposed(by: bag)
         
         output.showDailyTodoPage
-            .subscribe(onNext: { date in
-                print(date)
-                let bottomSheetVC = TodoDetailViewController()
-                bottomSheetVC.modalPresentationStyle = .overFullScreen
-                self.present(bottomSheetVC, animated: false, completion: nil)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, date in
+                let fetchTodoListUseCase = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
+                let viewModel = TodoDailyViewModel(fetchTodoListUseCase: fetchTodoListUseCase)
+                viewModel.setDate(date: date)
+
+                let viewController = TodoDailyViewController(viewModel: viewModel)
+                let nav = UINavigationController(rootViewController: viewController)
+                nav.modalPresentationStyle = .pageSheet
+                if let sheet = nav.sheetPresentationController {
+                    sheet.detents = [.medium(), .large()]
+                }
+                vc.present(nav, animated: true)
             })
             .disposed(by: bag)
         

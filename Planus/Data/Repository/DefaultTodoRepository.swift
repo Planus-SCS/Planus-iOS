@@ -119,13 +119,13 @@ class TodoContainer {
         var date = from
         let components = DateComponents(day: 1)
         while date != to {
+            if let list = todoDict[date] {
+                todoList += list
+            }
             guard let newDate = calendar.date(byAdding: components, to: date) else {
                 return []
             }
             date = newDate
-            if let list = todoDict[date] {
-                todoList += list
-            }
         }
         return todoList
     }

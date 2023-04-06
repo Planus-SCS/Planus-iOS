@@ -31,6 +31,7 @@ class TodoDailyViewModel {
     }
     
     struct Output {
+        var didUpdateDateText: Observable<String?>
         var didRequestTodoList: Observable<Void?>
         var didFetchTodoList: Observable<Void?>
     }
@@ -68,6 +69,7 @@ class TodoDailyViewModel {
             .disposed(by: bag)
         
         return Output(
+            didUpdateDateText: currentDateText.asObservable(),
             didRequestTodoList: didRequestTodoList,
             didFetchTodoList: didFetchTodoList
         )
@@ -78,7 +80,9 @@ class TodoDailyViewModel {
     }
     
     func fetchTodoList(date: Date) {
-        fetchTodoListUseCase.execute(from: date, to: date)
+        let nextDate = Calendar.current.date(byAdding: DateComponents(day: 1), to: date) ?? date
+        print(date, nextDate)
+        fetchTodoListUseCase.execute(from: date, to: nextDate)
             .subscribe(onSuccess: { [weak self] dict in
                 var scheduled = [Todo]()
                 var unscheduled = [Todo]()

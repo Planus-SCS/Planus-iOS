@@ -239,6 +239,7 @@
 		6A987A7429DEED1600C27D09 /* TodoDailyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */; };
 		6A987A7729DEF55300C27D09 /* TodoDailyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7629DEF55300C27D09 /* TodoDailyCoordinator.swift */; };
 		6A987A7929DEFC6600C27D09 /* TodoDailyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */; };
+		6A987A7B29DF0E7600C27D09 /* SmallCalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7A29DF0E7600C27D09 /* SmallCalendarViewController.swift */; };
 		6A9A07B229D3C7E70051AD43 /* arrow_white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */; };
 		6A9A07B329D3C7E70051AD43 /* arrow_white@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */; };
 		6A9A07B429D3C7E70051AD43 /* arrow_white.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B129D3C7E70051AD43 /* arrow_white.png */; };
@@ -502,6 +503,7 @@
 		6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyViewController.swift; sourceTree = "<group>"; };
 		6A987A7629DEF55300C27D09 /* TodoDailyCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyCoordinator.swift; sourceTree = "<group>"; };
 		6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyViewModel.swift; sourceTree = "<group>"; };
+		6A987A7A29DF0E7600C27D09 /* SmallCalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallCalendarViewController.swift; sourceTree = "<group>"; };
 		6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@2x.png"; sourceTree = "<group>"; };
 		6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@3x.png"; sourceTree = "<group>"; };
 		6A9A07B129D3C7E70051AD43 /* arrow_white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_white.png; sourceTree = "<group>"; };
@@ -1463,6 +1465,7 @@
 			isa = PBXGroup;
 			children = (
 				6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */,
+				6A987A7A29DF0E7600C27D09 /* SmallCalendarViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -1878,6 +1881,7 @@
 				6A95DFDE29D53B87009017D8 /* GroupIntroduceNoticeCell.swift in Sources */,
 				6A08ADB229C89E77005947D2 /* SignInViewModel.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
+				6A987A7B29DF0E7600C27D09 /* SmallCalendarViewController.swift in Sources */,
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,
 				6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */,
 				6A9A07F929D40B970051AD43 /* DayPickerViewControllerDelegate.swift in Sources */,
