@@ -33,10 +33,10 @@ class TodoDailyViewController: UIViewController {
         return button
     }()
     
-    let collectionView: TodoDailyCollectionView = {
+    lazy var collectionView: TodoDailyCollectionView = {
         let cv = TodoDailyCollectionView(frame: .zero)
-//        cv.dataSource = self
-//        cv.delegate = self
+        cv.dataSource = self
+        cv.delegate = self
         return cv
     }()
     
@@ -112,13 +112,11 @@ class TodoDailyViewController: UIViewController {
 
 extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let index,
-              let item = delegate?.todoDailyCalendarCell(self, itemAt: index) else { return 0 }
         switch section {
         case 0:
-            return item.scheduledTodoList.count
+            return viewModel?.scheduledTodoList?.count ?? 0
         case 1:
-            return item.unSchedultedTodoList.count
+            return viewModel?.unscheduledTodoList?.count ?? 0
         default:
             return 0
         }
@@ -127,15 +125,16 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else { return UICollectionViewCell() }
         
-        var todoItem: Todo
+        var todoItem: Todo?
         switch indexPath.section {
         case 0:
-            todoItem = dayItem.scheduledTodoList[indexPath.item]
+            todoItem = viewModel?.scheduledTodoList?[indexPath.item]
         case 1:
-            todoItem = dayItem.unSchedultedTodoList[indexPath.item]
+            todoItem = viewModel?.scheduledTodoList?[indexPath.item]
         default:
             return UICollectionViewCell()
         }
+        guard let todoItem else { return UICollectionViewCell() }
         cell.fill(title: todoItem.title, time: nil, category: todoItem.category)
         return cell
     }
@@ -155,7 +154,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         case 1:
             title = "투두"
         default:
-            fatalError()
+            return UICollectionReusableView()
         }
         headerview.fill(title: title)
      
