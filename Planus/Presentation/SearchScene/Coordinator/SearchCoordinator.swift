@@ -22,19 +22,38 @@ class SearchCoordinator: Coordinator {
     }
     
     func start() {
-        showSearchPage()
+        showInitialSearchPage()
     }
     
-    lazy var showSearchPage: () -> Void = { [weak self] in
-
+    lazy var showInitialSearchPage: () -> Void = { [weak self] in
+        let vm = SearchViewModel()
+        vm.setActions(actions: SearchViewModelActions(
+            showSearchResultPage: self?.showSearchResultPage,
+            showGroupIntroducePage: self?.showGroupIntroducePage,
+            showGroupCreatePage: self?.showGroupCreatePage
+        ))
+        let vc = SearchViewController(viewModel: vm)
+        self?.navigationController.pushViewController(vc, animated: false)
     }
 
-    lazy var showSearchResultPage: () -> Void = { [weak self] in
+    lazy var showSearchResultPage: (String) -> Void = { [weak self] keyword in
         
     }
     
-    lazy var showGroupSummaryPage: () -> Void = { [weak self] in
-        
+    lazy var showGroupIntroducePage: (String) -> Void = { [weak self] groupId in
+        guard let self else { return }
+        let groupIntroduceCoordinator = GroupIntroduceCoordinator(navigationController: self.navigationController)
+        groupIntroduceCoordinator.finishDelegate = self
+        self.childCoordinators.append(groupIntroduceCoordinator)
+        groupIntroduceCoordinator.start()
+    }
+    
+    lazy var showGroupCreatePage: () -> Void = { [weak self] in
+        guard let self else { return }
+        let groupCreateCoordinator = GroupCreateCoordinator(navigationController: self.navigationController)
+        groupCreateCoordinator.finishDelegate = self
+        self.childCoordinators.append(groupCreateCoordinator)
+        groupCreateCoordinator.start()
     }
 }
 
