@@ -153,6 +153,21 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
         }
         return view
     }
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        let useCase1 = DefaultCreateMonthlyCalendarUseCase()
+        let useCase2 = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
+        let useCase3 = DefaultDateFormatYYYYMMUseCase()
+        
+        let vm = MemberProfileViewModel(
+            createMonthlyCalendarUseCase: useCase1,
+            fetchTodoListUseCase: useCase2,
+            dateFormatYYYYMMUseCase: useCase3
+        )
+        let vc = MemberProfileViewController(viewModel: vm)
+        self.navigationController?.pushViewController(vc, animated: true)
+        return false
+    }
 }
 
 

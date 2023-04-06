@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "DefaultProfileMedium2.png",
+      "filename" : "downButton.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "DefaultProfileMedium2@2x.png",
+      "filename" : "downButton@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "DefaultProfileMedium2@3x.png",
+      "filename" : "downButton@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

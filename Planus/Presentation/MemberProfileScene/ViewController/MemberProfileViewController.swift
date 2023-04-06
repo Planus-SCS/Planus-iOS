@@ -35,6 +35,17 @@ class MemberProfileViewController: UIViewController {
         return collectionView
     }()
     
+    lazy var backButton: UIBarButtonItem = {
+        let image = UIImage(named: "back")
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        item.tintColor = .black
+        return item
+    }()
+    
+    @objc func backBtnAction(_ sender: UIBarButtonItem) {
+        self.navigationController?.popViewController(animated: true)
+    }
+    
     convenience init(viewModel: MemberProfileViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
@@ -58,6 +69,13 @@ class MemberProfileViewController: UIViewController {
         bind()
         
         self.view.backgroundColor = .white
+        self.navigationItem.setLeftBarButton(backButton, animated: false)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        self.navigationItem.title = "그룹 멤버 캘린더"
     }
     
     func bind() {
@@ -160,7 +178,7 @@ class MemberProfileViewController: UIViewController {
         
         collectionView.snp.makeConstraints {
             $0.top.equalTo(calendarHeaderView.snp.bottom)
-            $0.leading.trailing.bottom.equalTo(self.view.safeAreaLayoutGuide)
+            $0.leading.trailing.bottom.equalToSuperview()
         }
     }
     

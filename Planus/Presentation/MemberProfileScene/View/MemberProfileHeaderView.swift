@@ -22,7 +22,7 @@ class MemberProfileHeaderView: UIView {
         view.layer.masksToBounds = false
         view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
         view.layer.shadowOpacity = 1
-        view.layer.shadowOffset = CGSize(width: 0, height: -2)
+        view.layer.shadowOffset = CGSize(width: 0, height: -1)
         view.layer.shadowRadius = 2
         return view
     }()
@@ -61,9 +61,9 @@ class MemberProfileHeaderView: UIView {
         let view = UIView(frame: .zero)
         view.backgroundColor = UIColor(hex: 0xBFC7D7)
         view.layer.masksToBounds = false
-        view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
-        view.layer.shadowOpacity = 1
-        view.layer.shadowOffset = CGSize(width: 0, height: -2)
+        view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).cgColor
+        view.layer.shadowOpacity = 10
+        view.layer.shadowOffset = CGSize(width: 0, height: -1)
         view.layer.shadowRadius = 2
         return view
     }()
