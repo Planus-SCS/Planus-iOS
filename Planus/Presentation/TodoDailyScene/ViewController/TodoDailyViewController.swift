@@ -109,56 +109,56 @@ class TodoDailyViewController: UIViewController {
 //        present(vc, animated: true, completion:nil)
 //    }
 }
-//
-//extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewDelegate {
-//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        guard let index,
-//              let item = delegate?.todoDailyCalendarCell(self, itemAt: index) else { return 0 }
-//        switch section {
-//        case 0:
-//            return item.scheduledTodoList.count
-//        case 1:
-//            return item.unSchedultedTodoList.count
-//        default:
-//            return 0
-//        }
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-//        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else { return UICollectionViewCell() }
-//
-//        var todoItem: Todo
-//        switch indexPath.section {
-//        case 0:
-//            todoItem = dayItem.scheduledTodoList[indexPath.item]
-//        case 1:
-//            todoItem = dayItem.unSchedultedTodoList[indexPath.item]
-//        default:
-//            return UICollectionViewCell()
-//        }
-//        cell.fill(title: todoItem.title, time: nil, category: todoItem.category)
-//        return cell
-//    }
-//
-//    func numberOfSections(in collectionView: UICollectionView) -> Int {
-//        2
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-//
-//        guard let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: TodoDailyCollectionView.headerKind, withReuseIdentifier: TodoSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? TodoSectionHeaderSupplementaryView else { return UICollectionReusableView() }
-//
-//        var title: String
-//        switch indexPath.section {
-//        case 0:
-//            title = "일정"
-//        case 1:
-//            title = "투두"
-//        default:
-//            fatalError()
-//        }
-//        headerview.fill(title: title)
-//
-//        return headerview
-//    }
-//}
+
+extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        guard let index,
+              let item = delegate?.todoDailyCalendarCell(self, itemAt: index) else { return 0 }
+        switch section {
+        case 0:
+            return item.scheduledTodoList.count
+        case 1:
+            return item.unSchedultedTodoList.count
+        default:
+            return 0
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else { return UICollectionViewCell() }
+        
+        var todoItem: Todo
+        switch indexPath.section {
+        case 0:
+            todoItem = dayItem.scheduledTodoList[indexPath.item]
+        case 1:
+            todoItem = dayItem.unSchedultedTodoList[indexPath.item]
+        default:
+            return UICollectionViewCell()
+        }
+        cell.fill(title: todoItem.title, time: nil, category: todoItem.category)
+        return cell
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+
+        guard let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: TodoDailyCollectionView.headerKind, withReuseIdentifier: TodoSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? TodoSectionHeaderSupplementaryView else { return UICollectionReusableView() }
+        
+        var title: String
+        switch indexPath.section {
+        case 0:
+            title = "일정"
+        case 1:
+            title = "투두"
+        default:
+            fatalError()
+        }
+        headerview.fill(title: title)
+     
+        return headerview
+    }
+}

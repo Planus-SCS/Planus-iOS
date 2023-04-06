@@ -238,6 +238,7 @@
 		6A987A6E29DEE44D00C27D09 /* DefaultProfileMedium2.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A6B29DEE44D00C27D09 /* DefaultProfileMedium2.png */; };
 		6A987A7429DEED1600C27D09 /* TodoDailyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */; };
 		6A987A7729DEF55300C27D09 /* TodoDailyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7629DEF55300C27D09 /* TodoDailyCoordinator.swift */; };
+		6A987A7929DEFC6600C27D09 /* TodoDailyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */; };
 		6A9A07B229D3C7E70051AD43 /* arrow_white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */; };
 		6A9A07B329D3C7E70051AD43 /* arrow_white@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */; };
 		6A9A07B429D3C7E70051AD43 /* arrow_white.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B129D3C7E70051AD43 /* arrow_white.png */; };
@@ -500,6 +501,7 @@
 		6A987A6B29DEE44D00C27D09 /* DefaultProfileMedium2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DefaultProfileMedium2.png; sourceTree = "<group>"; };
 		6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyViewController.swift; sourceTree = "<group>"; };
 		6A987A7629DEF55300C27D09 /* TodoDailyCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyCoordinator.swift; sourceTree = "<group>"; };
+		6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyViewModel.swift; sourceTree = "<group>"; };
 		6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@2x.png"; sourceTree = "<group>"; };
 		6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@3x.png"; sourceTree = "<group>"; };
 		6A9A07B129D3C7E70051AD43 /* arrow_white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_white.png; sourceTree = "<group>"; };
@@ -1468,6 +1470,7 @@
 		6A987A7229DEED0400C27D09 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1806,6 +1809,7 @@
 				6A24F84629CB4AED0000FD64 /* MonthStateOfDay.swift in Sources */,
 				6A95DFE229D53BA1009017D8 /* GroupIntroduceDefaultHeaderView.swift in Sources */,
 				6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */,
+				6A987A7929DEFC6600C27D09 /* TodoDailyViewModel.swift in Sources */,
 				6A08AD6E29C88969005947D2 /* Coordinator.swift in Sources */,
 				6A24F91F29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift in Sources */,
 				6A987A4329DDAE1000C27D09 /* MyGroupMemberEditViewModel.swift in Sources */,
