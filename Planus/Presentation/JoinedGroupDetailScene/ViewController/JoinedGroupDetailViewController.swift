@@ -96,7 +96,7 @@ class JoinedGroupDetailViewController: UIViewController {
             innerTableViewDidScroll(withDistance: dragYDiff)
             
         case .ended:
-            
+            return
             innerTableViewScrollEnded(withScrollDirection: dragDirection)
             
         default: return
@@ -235,103 +235,73 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
     func innerTableViewDidScroll(withDistance scrollDistance: CGFloat) {
         guard let headerViewHeightConstraint else { return }
         headerViewHeightConstraint.constant -= scrollDistance
-        
-        /* Don't restrict the downward scroll.
- 
-        if headerViewHeightConstraint.constant > topViewInitialHeight {
 
-            headerViewHeightConstraint.constant = topViewInitialHeight
-        }
-         
-        */
-        
         if headerViewHeightConstraint.constant < topViewFinalHeight {
-            
             headerViewHeightConstraint.constant = topViewFinalHeight
         } else if headerViewHeightConstraint.constant >= topViewInitialHeight {
-            // 여기서 모든 스크롤의 속도를 fast로 바꿔야 하는데,,,!!!
-            print("here12121212112")
-            noticeViewController?.noticeCollectionView.decelerationRate = .fast
-            calendarViewController?.calendarCollectionView.decelerationRate = .fast
+            headerViewHeightConstraint.constant = topViewInitialHeight
         }
     }
-    
+//
     func innerTableViewScrollEnded(withScrollDirection scrollDirection: DragDirection) {
         guard let headerViewHeightConstraint else { return }
 
         let topViewHeight = headerViewHeightConstraint.constant
-        
+
         /*
          *  Scroll is not restricted.
          *  So this check might cause the view to get stuck in the header height is greater than initial height.
- 
+
         if topViewHeight >= topViewInitialHeight || topViewHeight <= topViewFinalHeight { return }
-         
+
         */
-        
+
         if topViewHeight >= topViewInitialHeight {
             scrollToInitialView()
         }
-        
-//        if topViewHeight <= topViewFinalHeight + 20 {
-//
-//            scrollToFinalView()
-//
-//        } else if topViewHeight <= topViewInitialHeight - 20 {
-//            
-//            switch scrollDirection {
-//
-//            case .Down: scrollToInitialView()
-//            case .Up: scrollToFinalView()
-//
-//            }
-//
-//        } else {
-//
-//            scrollToInitialView()
-//        }
+
     }
-    
+
     func scrollToInitialView() {
         guard let headerViewHeightConstraint else { return }
 
         let topViewCurrentHeight = headerView.frame.height
-        
+
         let distanceToBeMoved = abs(topViewCurrentHeight - topViewInitialHeight)
-        
+
         var time = distanceToBeMoved / 500
-        
-        if time < 0.02 {
-            
-            time = 0.02
+
+        if time < 0.2 {
+
+            time = 0.2
         }
-        
+
         headerViewHeightConstraint.constant = topViewInitialHeight
-        
+
         UIView.animate(withDuration: TimeInterval(time), animations: {
-            
+
             self.view.layoutIfNeeded()
         })
     }
-    
+
     func scrollToFinalView() {
         guard let headerViewHeightConstraint else { return }
 
         let topViewCurrentHeight = headerView.frame.height
-        
+
         let distanceToBeMoved = abs(topViewCurrentHeight - topViewFinalHeight)
-        
+
         var time = distanceToBeMoved / 500
-        
-        if time < 0.02 {
-            
-            time = 0.02
+
+        if time < 0.2 {
+
+            time = 0.2
         }
-        
+
         headerViewHeightConstraint.constant = topViewFinalHeight
-        
+
         UIView.animate(withDuration: TimeInterval(time), animations: {
-            
+
             self.view.layoutIfNeeded()
         })
     }

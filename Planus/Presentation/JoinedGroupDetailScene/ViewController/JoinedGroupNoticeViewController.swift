@@ -32,6 +32,7 @@ enum JoinedGroupNoticeSectionKind: Int {
 }
 
 class JoinedGroupNoticeViewController: NestedScrollableViewController {
+    var bag = DisposeBag()
     static let headerElementKind = "joined-group-notice-header-kind"
     
     var viewModel: JoinedGroupNoticeViewModel?
@@ -74,7 +75,21 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
     }
     
     func bind() {
+        noticeEditButtonTapped
+            .subscribe(onNext: {
+                let vm = MyGroupNoticeEditViewModel()
+                let vc = MyGroupNoticeEditViewController(viewModel: vm)
+                self.navigationController?.pushViewController(vc, animated: true)
+            })
+            .disposed(by: bag)
         
+        memberEditButtonTapped
+            .subscribe(onNext: {
+                let vm = MyGroupMemberEditViewModel()
+                let vc = MyGroupMemberEditViewController(viewModel: vm)
+                self.navigationController?.pushViewController(vc, animated: true)
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {

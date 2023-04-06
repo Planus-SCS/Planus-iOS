@@ -100,7 +100,7 @@ class MyGroupMemberEditViewController: UIViewController {
     }
     
     @objc func backBtnAction(_ sender: UIBarButtonItem) {
-
+        self.navigationController?.popViewController(animated: true)
     }
     
     private func createMemberSection() -> UICollectionViewLayout {

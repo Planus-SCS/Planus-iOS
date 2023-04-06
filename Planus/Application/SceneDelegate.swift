@@ -22,11 +22,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let window = window else { return }
 //        let vm = SearchViewModel()
-        let vm = MyGroupMemberEditViewModel()
-        window.rootViewController = MyGroupMemberEditViewController(viewModel: vm)
-        window.makeKeyAndVisible()
-//        self.appCoordinator = AppCoordinator(window: window)
-//        self.appCoordinator?.start()
+//        let vm = MyGroupMemberEditViewModel()
+//        window.rootViewController = MyGroupMemberEditViewController(viewModel: vm)
+//        window.makeKeyAndVisible()
+        self.appCoordinator = AppCoordinator(window: window)
+        self.appCoordinator?.start()
         
     }
 

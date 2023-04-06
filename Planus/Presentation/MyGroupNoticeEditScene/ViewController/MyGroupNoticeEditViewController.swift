@@ -6,8 +6,13 @@
 //
 
 import UIKit
+import RxSwift
 
 class MyGroupNoticeEditViewController: UIViewController {
+    
+    var bag = DisposeBag()
+    var viewModel: MyGroupNoticeEditViewModel?
+    
     var noticeTextView: UITextView = {
         let textView = UITextView(frame: .zero)
         textView.layer.cornerRadius = 10
@@ -38,6 +43,11 @@ class MyGroupNoticeEditViewController: UIViewController {
         return item
     }()
     
+    convenience init(viewModel: MyGroupNoticeEditViewModel) {
+        self.init(nibName: nil, bundle: nil)
+        self.viewModel = viewModel
+    }
+    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
@@ -62,6 +72,30 @@ class MyGroupNoticeEditViewController: UIViewController {
         navigationItem.title = "공지사항 관리"
     }
     
+    func bind() {
+        guard let viewModel else { return }
+        let input = MyGroupNoticeEditViewModel.Input(
+            didTapSaveButton: saveButton.rx.tap.asObservable(),
+            didChangeNoticeValue: noticeTextView.rx.text.asObservable()
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        output
+            .didInitializedNotice
+            .bind(to: noticeTextView.rx.text)
+            .disposed(by: bag)
+        
+        output
+            .didEditCompleted
+            .subscribe(onNext: {
+                /*
+                 pop 로직 실행
+                 */
+            })
+            .disposed(by: bag)
+    }
+    
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(noticeTextView)
@@ -76,7 +110,7 @@ class MyGroupNoticeEditViewController: UIViewController {
     }
     
     @objc func backBtnAction(_ sender: UIBarButtonItem) {
-
+        self.navigationController?.popViewController(animated: true)
     }
     
     @objc func saveBtnAction(_ sender: UIBarButtonItem) {
