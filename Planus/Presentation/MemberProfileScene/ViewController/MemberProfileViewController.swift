@@ -8,8 +8,6 @@
 import UIKit
 import RxSwift
 
-// 애도 델리게이트 써서 위에 뷰를 작아지게 만들어야할듯? 하다 ㅋㅋ,,,,,, 맞냐이거...?
-
 class MemberProfileViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: MemberProfileViewModel?
@@ -68,7 +66,6 @@ class MemberProfileViewController: UIViewController {
         configurePanGesture()
         bind()
         
-        self.view.backgroundColor = .white
         self.navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
@@ -156,6 +153,8 @@ class MemberProfileViewController: UIViewController {
     }
     
     func configureView() {
+        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+
         self.view.addSubview(headerView)
         self.view.addSubview(calendarHeaderView)
         self.view.addSubview(collectionView)

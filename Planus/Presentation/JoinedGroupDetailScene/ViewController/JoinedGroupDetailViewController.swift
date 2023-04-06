@@ -119,6 +119,8 @@ class JoinedGroupDetailViewController: UIViewController {
 
     
     func configureView() {
+        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+
         self.view.addSubview(headerView)
         self.view.addSubview(bottomView)
         self.view.addSubview(headerTabView)

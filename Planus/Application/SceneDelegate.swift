@@ -34,8 +34,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        )
 //        window.rootViewController = MemberProfileViewController(viewModel: vm)
 //        window.makeKeyAndVisible()
-        self.appCoordinator = AppCoordinator(window: window)
-        self.appCoordinator?.start()
+        
+        let navi = UINavigationController()
+        let vc = TodoDailyViewController(nibName: nil, bundle: nil)
+        navi.present(vc, animated: true)
+//        self.appCoordinator = AppCoordinator(window: window)
+//        self.appCoordinator?.start()
         
     }
 
