@@ -51,7 +51,6 @@ class TodoContainer {
         
         var dict = [Date: [Todo]]()
         var calendarDate = Calendar.current.date(byAdding: DateComponents(day: 0), to: Calendar.current.date(byAdding: DateComponents(month: 0), to: standardDate) ?? Date()) ?? Date()
-        print(calendarDate)
         todoDict[calendarDate] = []
         todoDict[calendarDate]?.append(Todo(title: "창재형이랑 롤하기", date: calendarDate, category: .green, type: .normal)) //일상
         todoDict[calendarDate]?.append(Todo(title: "SCSY 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅

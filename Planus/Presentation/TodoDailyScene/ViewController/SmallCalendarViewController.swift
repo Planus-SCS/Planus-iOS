@@ -15,6 +15,7 @@ final class SmallCalendarViewController: UIViewController {
     var viewModel: SmallCalendarViewModel?
     
     var didScrolledToIndex = PublishSubject<Double>()
+    var didSelectItemAt = PublishSubject<IndexPath>()
     
     var smallCalendarView: SmallCalendarView?
     
@@ -50,6 +51,7 @@ final class SmallCalendarViewController: UIViewController {
         
         let input = SmallCalendarViewModel.Input(
             didLoadView: Observable.just(()),
+            didSelectAt: didSelectItemAt.asObservable(),
             didChangedIndex: didScrolledToIndex.asObservable()
         )
         
@@ -94,6 +96,15 @@ final class SmallCalendarViewController: UIViewController {
                 let exPointX = vc.smallCalendarView?.smallCalendarCollectionView.contentOffset.x ?? CGFloat()
                 let frameWidth = vc.view.frame.width
                 vc.reloadAndMove(to: CGPoint(x: exPointX - CGFloat(count)*frameWidth, y: 0))
+            })
+            .disposed(by: bag)
+        
+        output
+            .shouldDismiss
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, _ in
+                vc.dismiss(animated: true)
             })
             .disposed(by: bag)
     }
@@ -148,13 +159,27 @@ extension SmallCalendarViewController: UICollectionViewDataSource, UICollectionV
             for: indexPath
         ) as? SmallCalendarDayCell,
               let viewModel = self.viewModel,
+              let minDate = viewModel.minDate,
+              let maxDate = viewModel.maxDate,
               let currentDate = viewModel.currentDate else {
             return UICollectionViewCell()
         }
         
         let item = viewModel.days[indexPath.section][indexPath.row]
-        cell.fill(day: item.dayLabel, state: item.state, isSelectedDay: item.date == currentDate)
+        var isValid: Bool
+        switch item.date {
+        case (minDate...maxDate):
+            isValid = true
+        default:
+            isValid = false
+        }
+
+        cell.fill(day: item.dayLabel, state: item.state, isSelectedDay: item.date == currentDate, isValid: isValid)
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        didSelectItemAt.onNext(indexPath)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -163,23 +188,31 @@ extension SmallCalendarViewController: UICollectionViewDataSource, UICollectionV
         
         let index = pointX/frameWidth
         self.didScrolledToIndex.onNext(index)
-    }
-    
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if decelerate {
+        if index.truncatingRemainder(dividingBy: 1.0) == 0 {
             DispatchQueue.main.async { [weak self] in
-                scrollView.isUserInteractionEnabled = false
+                self?.smallCalendarView?.prevButton.isUserInteractionEnabled = true
+                self?.smallCalendarView?.nextButton.isUserInteractionEnabled = true
+            }
+        } else {
+            DispatchQueue.main.async { [weak self] in
                 self?.smallCalendarView?.prevButton.isUserInteractionEnabled = false
                 self?.smallCalendarView?.nextButton.isUserInteractionEnabled = false
             }
         }
     }
     
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if decelerate {
+            DispatchQueue.main.async { [weak self] in
+                scrollView.isUserInteractionEnabled = false
+            }
+        }
+    }
+    
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        print("end")
         DispatchQueue.main.async { [weak self] in
             scrollView.isUserInteractionEnabled = true
-            self?.smallCalendarView?.prevButton.isUserInteractionEnabled = true
-            self?.smallCalendarView?.nextButton.isUserInteractionEnabled = true
         }
     }
 }

@@ -13,11 +13,16 @@ final class SmallCalendarViewModel {
         
     let calendar = Calendar.current
     
+    var completionHandler: ((Date) -> Void)?
+    
     lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy년 MM월"
         return dateFormatter
     }()
+    
+    var minDate: Date?
+    var maxDate: Date?
     
     var currentMonth = BehaviorSubject<Date?>(value: nil)
     var currentDate: Date?
@@ -26,11 +31,11 @@ final class SmallCalendarViewModel {
     var days = [[SmallCalendarDayViewModel]]()
     var prevCachedDays = [[SmallCalendarDayViewModel]]()
     var followingCachedDays = [[SmallCalendarDayViewModel]]()
-
     
     var initDaysLoaded = BehaviorSubject<Int?>(value: nil) //뷰컨과 바인딩 전에 init될 수 있으므로
     var followingDaysLoaded = PublishSubject<Int>()
     var prevDaysLoaded = PublishSubject<Int>()
+    var shouldDismiss = PublishSubject<Void>()
     
     let cachingIndexDiff = 2
     let halfOfInitAmount = 5
@@ -39,6 +44,7 @@ final class SmallCalendarViewModel {
     
     struct Input {
         var didLoadView: Observable<Void>
+        var didSelectAt: Observable<IndexPath>
         var didChangedIndex: Observable<Double>
     }
     
@@ -47,17 +53,20 @@ final class SmallCalendarViewModel {
         var didLoadFollowingDays: Observable<Int>
         var didLoadPrevDays: Observable<Int>
         var didChangedTitleLabel: Observable<String?>
+        var shouldDismiss: Observable<Void>
     }
     
     init() {
         self.bind()
     }
     
-    func configureDate(date: Date) {
-        currentDate = date
+    func configureDate(currentDate: Date, min: Date, max: Date) {
+        self.currentDate = currentDate
+        self.minDate = min
+        self.maxDate = max
         let components = self.calendar.dateComponents(
             [.year, .month],
-            from: date
+            from: currentDate
         ) ?? DateComponents()
         
         let currentDate = self.calendar.date(from: components) ?? Date()
@@ -97,11 +106,22 @@ final class SmallCalendarViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .didSelectAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, indexPath in
+                let date = vm.days[indexPath.section][indexPath.row].date
+                vm.completionHandler?(date)
+                vm.shouldDismiss.onNext(())
+            })
+            .disposed(by: bag)
+        
         return Output(
             didLoadInitDays: initDaysLoaded.asObservable(),
             didLoadFollowingDays: followingDaysLoaded.asObservable(),
             didLoadPrevDays: prevDaysLoaded.asObservable(),
-            didChangedTitleLabel: currentDateLabel.asObservable()
+            didChangedTitleLabel: currentDateLabel.asObservable(),
+            shouldDismiss: shouldDismiss.asObservable()
         )
     }
 
@@ -112,10 +132,7 @@ final class SmallCalendarViewModel {
         let totalDaysToShow = indexOfFollowingStart + ((indexOfFollowingStart % 7 == 0) ? 0 : (7 - indexOfFollowingStart % 7)) //총 포문 돌 갯수
 
         var startDayOfMonth = self.calendar.startDayOfMonth(date: calendarDate)
-        if diff == 0 {
-            print(calendarDate)
-            print(indexOfCurrentStart, indexOfFollowingStart, totalDaysToShow)
-        }
+
         var dayList = [SmallCalendarDayViewModel]()
         for day in Int()..<totalDaysToShow {
             var date: Date
@@ -210,7 +227,7 @@ final class SmallCalendarViewModel {
         var additionalCalendar = [[SmallCalendarDayViewModel]]()
         
         let range = (1...amount).map {
-            return (amount > 0) ? $0 : $0-amount-1
+            return (diff > 0) ? $0 : $0-amount-1
         }
         range.forEach {
             additionalCalendar.append(monthlyCalendar(date: date, diff: $0+diff))

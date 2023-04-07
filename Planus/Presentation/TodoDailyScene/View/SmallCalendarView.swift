@@ -9,7 +9,7 @@ import UIKit
 
 final class SmallCalendarView: UIView {
     lazy var prevButton: UIButton = {
-        let image = UIImage(named: "monthPickerLeft")
+        let image = UIImage(named: "pickerLeft")
         let button = UIButton(frame: CGRect(
             x: 0,
             y: 0,
@@ -21,7 +21,7 @@ final class SmallCalendarView: UIView {
     }()
     
     lazy var nextButton: UIButton = {
-        let image = UIImage(named: "monthPickerRight")
+        let image = UIImage(named: "pickerRight")
         let button = UIButton(frame: CGRect(
             x: 0,
             y: 0,

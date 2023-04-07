@@ -45,17 +45,23 @@ class SmallCalendarDayCell: UICollectionViewCell {
         }
     }
     
-    func fill(day: String, state: MonthStateOfDay, isSelectedDay: Bool) {
+    func fill(day: String, state: MonthStateOfDay, isSelectedDay: Bool, isValid: Bool) {
         dayLabel.text = day
         switch state {
         case .prev:
-            dayLabel.textColor = UIColor(hex: 0x000000, a: 0.4)
+            dayLabel.textColor = .lightGray
         case .current:
-            print("selected? \(isSelectedDay)")
             dayLabel.textColor = isSelectedDay ? .white : .black
         case .following:
-            dayLabel.textColor = UIColor(hex: 0xBFC7D7, a: 0.4)
+            dayLabel.textColor = .lightGray
         }
-        self.backgroundColor = isSelectedDay ? UIColor(hex: 0x6495F4) : nil
+        self.backgroundColor = isSelectedDay ? UIColor(hex: 0x6495F4) : UIColor(hex: 0xF5F5FB)
+        
+        if !isValid {
+            dayLabel.textColor = UIColor(hex: 0xBFC7D7, a: 0.4)
+            self.isUserInteractionEnabled = false
+        } else {
+            self.isUserInteractionEnabled = true
+        }
     }
 }

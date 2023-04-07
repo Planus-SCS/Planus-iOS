@@ -118,9 +118,13 @@ class MemberProfileViewController: UIViewController {
         output.showDailyTodoPage
             .withUnretained(self)
             .subscribe(onNext: { vc, date in
+                guard let minDate = vc.viewModel?.mainDayList.first?.first?.date,
+                      let maxDate = vc.viewModel?.mainDayList.last?.last?.date else {
+                    return
+                }
                 let fetchTodoListUseCase = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
                 let viewModel = TodoDailyViewModel(fetchTodoListUseCase: fetchTodoListUseCase)
-                viewModel.setDate(date: date)
+                viewModel.setDate(currentDate: date, min: minDate, max: maxDate)
 
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)

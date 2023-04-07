@@ -8,8 +8,13 @@
 import Foundation
 import RxSwift
 
+// 초기화할때 minDate, maxDate 정의 필요함, 왜? 스몰캘린더 때문에..!
+
 class TodoDailyViewModel {
     var bag = DisposeBag()
+    
+    var minDate: Date?
+    var maxDate: Date?
     
     var scheduledTodoList: [Todo]?
     var unscheduledTodoList: [Todo]?
@@ -44,8 +49,10 @@ class TodoDailyViewModel {
         bind()
     }
     
-    func setDate(date: Date) {
-        currentDate.onNext(date)
+    func setDate(currentDate: Date, min: Date, max: Date) {
+        self.currentDate.onNext(currentDate)
+        self.minDate = min
+        self.maxDate = max
     }
     
     func bind() {
@@ -81,7 +88,6 @@ class TodoDailyViewModel {
     
     func fetchTodoList(date: Date) {
         let nextDate = Calendar.current.date(byAdding: DateComponents(day: 1), to: date) ?? date
-        print(date, nextDate)
         fetchTodoListUseCase.execute(from: date, to: nextDate)
             .subscribe(onSuccess: { [weak self] dict in
                 var scheduled = [Todo]()

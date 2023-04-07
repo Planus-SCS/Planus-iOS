@@ -112,6 +112,9 @@ class TodoDailyViewController: UIViewController {
     }
     
     func configureLayout() {
+        dateTitleButton.snp.makeConstraints {
+            $0.width.equalTo(160)
+        }
         collectionView.snp.makeConstraints {
             $0.top.equalTo(self.view.safeAreaLayoutGuide)
             $0.leading.trailing.bottom.equalToSuperview()
@@ -140,7 +143,10 @@ class TodoDailyViewController: UIViewController {
         }
         
         let vm = SmallCalendarViewModel()
-        vm.configureDate(date: currentDate)
+        vm.completionHandler = { [weak self] date in
+            self?.didChangeDate.onNext(date)
+        }
+        vm.configureDate(currentDate: currentDate, min: viewModel.minDate ?? Date(), max: viewModel.maxDate ?? Date())
         let vc = SmallCalendarViewController(viewModel: vm)
 
         vc.preferredContentSize = CGSize(width: 320, height: 400)
