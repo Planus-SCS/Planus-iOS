@@ -129,11 +129,16 @@ class TodoDailyViewController: UIViewController {
     }
     
     private func showSmallCalendar() {
+        
         guard let viewModel = self.viewModel,
               let currentDate = try? viewModel.currentDate.value() else {
             return
         }
 
+        if let sheet = self.sheetPresentationController {
+            sheet.invalidateDetents()
+        }
+        
         let vm = SmallCalendarViewModel()
         vm.configureDate(date: currentDate)
         let vc = SmallCalendarViewController(viewModel: vm)
@@ -199,5 +204,11 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         headerview.fill(title: title)
      
         return headerview
+    }
+}
+
+extension TodoDailyViewController: UIPopoverPresentationControllerDelegate {
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
     }
 }
