@@ -8,6 +8,9 @@
 import UIKit
 
 class MyPageReadableViewController: UIViewController {
+    
+    var viewModel: MyPageReadableViewModel?
+    
     var textView: UITextView = {
         let textView = UITextView(frame: .zero)
         textView.isEditable = false
@@ -24,6 +27,11 @@ class MyPageReadableViewController: UIViewController {
         return textView
     }()
     
+    convenience init(viewModel: MyPageReadableViewModel) {
+        self.init(nibName: nil, bundle: nil)
+        self.viewModel = viewModel
+    }
+    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
@@ -37,6 +45,15 @@ class MyPageReadableViewController: UIViewController {
         
         configureView()
         configureLayout()
+        
+        bind()
+    }
+    
+    func bind() {
+        guard let viewModel else { return }
+        let output = viewModel.transform(input: MyPageReadableViewModel.Input())
+        
+        textView.text = output.text
     }
     
     func configureView() {
