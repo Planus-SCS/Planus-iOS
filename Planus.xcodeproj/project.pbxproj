@@ -151,6 +151,7 @@
 		6A2BB1B329E40B890053C5CA /* MyPageMainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1B229E40B890053C5CA /* MyPageMainViewModel.swift */; };
 		6A2BB1B529E4164E0053C5CA /* MyPageMainHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1B429E4164E0053C5CA /* MyPageMainHeaderView.swift */; };
 		6A2BB1B729E41EC40053C5CA /* MyPageMainTitleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1B629E41EC40053C5CA /* MyPageMainTitleViewModel.swift */; };
+		6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1B829E426CD0053C5CA /* MyPageReadableViewController.swift */; };
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
@@ -426,6 +427,7 @@
 		6A2BB1B229E40B890053C5CA /* MyPageMainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageMainViewModel.swift; sourceTree = "<group>"; };
 		6A2BB1B429E4164E0053C5CA /* MyPageMainHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageMainHeaderView.swift; sourceTree = "<group>"; };
 		6A2BB1B629E41EC40053C5CA /* MyPageMainTitleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageMainTitleViewModel.swift; sourceTree = "<group>"; };
+		6A2BB1B829E426CD0053C5CA /* MyPageReadableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageReadableViewController.swift; sourceTree = "<group>"; };
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
@@ -1219,6 +1221,7 @@
 			isa = PBXGroup;
 			children = (
 				6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */,
+				6A2BB1B829E426CD0053C5CA /* MyPageReadableViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -1963,6 +1966,7 @@
 				6A95DFDE29D53B87009017D8 /* GroupIntroduceNoticeCell.swift in Sources */,
 				6A08ADB229C89E77005947D2 /* SignInViewModel.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
+				6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */,
 				6A987A7B29DF0E7600C27D09 /* SmallCalendarViewController.swift in Sources */,
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,
 				6A987A8E29DF119300C27D09 /* SmallCalendarCollectionView.swift in Sources */,
