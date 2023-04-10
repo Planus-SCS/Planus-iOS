@@ -27,17 +27,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let useCase2 = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
 //        let useCase3 = DefaultDateFormatYYYYMMUseCase()
 //
-//        let vm = MemberProfileViewModel(
-//            createMonthlyCalendarUseCase: useCase1,
-//            fetchTodoListUseCase: useCase2,
-//            dateFormatYYYYMMUseCase: useCase3
-//        )
-//        window.rootViewController = MemberProfileViewController(viewModel: vm)
-//        window.makeKeyAndVisible()
+        let vm = MyPageMainViewModel()
+        window.rootViewController = MyPageMainViewController(viewModel: vm)
+        window.makeKeyAndVisible()
         
 
-        self.appCoordinator = AppCoordinator(window: window)
-        self.appCoordinator?.start()
+//        self.appCoordinator = AppCoordinator(window: window)
+//        self.appCoordinator?.start()
         
     }
 

@@ -7,8 +7,11 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
-final class MyPageMainSwitchableCell: UITableViewCell {
+final class MyPageMainSwitchableCell: UICollectionViewCell {
+    
+    static let reuseIdentifier = "my-page-main-switchable-cell"
     
     private var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
@@ -30,8 +33,8 @@ final class MyPageMainSwitchableCell: UITableViewCell {
         return swicth
     }()
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         
         configureView()
         configureLayout()
@@ -48,6 +51,7 @@ final class MyPageMainSwitchableCell: UITableViewCell {
     }
     
     private func configureView() {
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.addSubview(titleLabel)
         self.addSubview(onSwitch)
     }
@@ -64,8 +68,16 @@ final class MyPageMainSwitchableCell: UITableViewCell {
         }
     }
     
-    public func fill(title: String, isOn: Bool) {
+    public func fill(title: String, isOn: BehaviorSubject<Bool>, pushSwitchBag: DisposeBag) {
         self.titleLabel.text = title
-        self.onSwitch.isOn = isOn
+        
+        // 양방향으로 바인딩하자... 네트워크에서 받아와서 뿌려주는거는 양방향 바인딩을 다 써도 되는건가?
+        isOn
+            .bind(to: onSwitch.rx.isOn)
+            .disposed(by: pushSwitchBag)
+
+        onSwitch.rx.isOn
+            .bind(to: isOn)
+            .disposed(by: pushSwitchBag)
     }
 }
