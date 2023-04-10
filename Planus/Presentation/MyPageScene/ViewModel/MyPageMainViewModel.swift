@@ -21,7 +21,7 @@ class MyPageMainViewModel {
     
     var didFetchUserProfile = BehaviorSubject<Void?>(value: nil)
     
-    lazy var titleList: [MyPageMainTitleViewModel] = [
+    lazy var titleList: [MyPageMainTitleViewModel] = [ //이 리스트까지 이넘으로 해서 caseIterable쓸까?
         MyPageMainTitleViewModel(title: "푸시 알림 설정", type: .toggle(self.isPushOn)),
         MyPageMainTitleViewModel(title: "공지 사항", type: .normal),
         MyPageMainTitleViewModel(title: "문의하기", type: .normal),
@@ -44,18 +44,14 @@ class MyPageMainViewModel {
          멤버 프로필만 가져오는 유즈케이스,
          푸시에 대한 정보 가져올 유즈케이스 필요함
          */
-        isPushOn
-            .subscribe(onNext: {
-                print($0)
-            })
-            .disposed(by: bag)
+
     }
     
     func transform(input: Input) -> Output {
         input
             .didSelectedAt
             .subscribe(onNext: { index in
-                
+
             })
             .disposed(by: bag)
         

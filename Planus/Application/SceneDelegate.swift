@@ -27,13 +27,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let useCase2 = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
 //        let useCase3 = DefaultDateFormatYYYYMMUseCase()
 //
-        let vm = MyPageMainViewModel()
-        window.rootViewController = MyPageMainViewController(viewModel: vm)
-        window.makeKeyAndVisible()
-        
+//        let vm = MyPageMainViewModel()
+//        let vc = MyPageMainViewController(viewModel: vm)
+//        let navi = UINavigationController(rootViewController: vc)
+//        window.rootViewController = navi
+//
+//        window.makeKeyAndVisible()
+//
 
-//        self.appCoordinator = AppCoordinator(window: window)
-//        self.appCoordinator?.start()
+        self.appCoordinator = AppCoordinator(window: window)
+        self.appCoordinator?.start()
         
     }
 

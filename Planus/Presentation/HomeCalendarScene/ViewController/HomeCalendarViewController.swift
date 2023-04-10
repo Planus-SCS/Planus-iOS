@@ -200,7 +200,9 @@ class HomeCalendarViewController: UIViewController {
     
 
     @objc func profileButtonTapped() {
-        print("to profile")
+        let vm = MyPageMainViewModel()
+        let vc = MyPageMainViewController(viewModel: vm)
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
 

@@ -27,6 +27,13 @@ class MyPageReadableViewController: UIViewController {
         return textView
     }()
     
+    lazy var backButton: UIBarButtonItem = {
+        let image = UIImage(named: "back")
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        item.tintColor = .black
+        return item
+    }()
+    
     convenience init(viewModel: MyPageReadableViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
@@ -49,10 +56,15 @@ class MyPageReadableViewController: UIViewController {
         bind()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationItem.setLeftBarButton(backButton, animated: false)
+    }
+    
     func bind() {
         guard let viewModel else { return }
         let output = viewModel.transform(input: MyPageReadableViewModel.Input())
-        
+        navigationItem.title = output.navigationTitle
         textView.text = output.text
     }
     
@@ -65,5 +77,9 @@ class MyPageReadableViewController: UIViewController {
         textView.snp.makeConstraints {
             $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
+    }
+    
+    @objc func backBtnAction(_ sender: UIBarButtonItem) {
+        self.navigationController?.popViewController(animated: true)
     }
 }
