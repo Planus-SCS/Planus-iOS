@@ -16,14 +16,13 @@ class TodoDailyViewModel {
     var minDate: Date?
     var maxDate: Date?
     
+    var isOwner: Bool?
+    
     var scheduledTodoList: [Todo]?
     var unscheduledTodoList: [Todo]?
-    
-    var didRequestTodoList = BehaviorSubject<Void?>(value: nil)
-    var didFetchTodoList = BehaviorSubject<Void?>(value: nil)
-    
-    var currentDate = BehaviorSubject<Date?>(value: nil)
-    var currentDateText = BehaviorSubject<String?>(value: nil)
+
+    var currentDate: Date?
+    var currentDateText: String?
         
     lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -32,80 +31,139 @@ class TodoDailyViewModel {
     }()
     
     struct Input {
-        var didChangedDate: Observable<Date>
+        var addTodoBtnTapped: Observable<Void>
+        var deleteTodoAt: Observable<IndexPath>
     }
     
     struct Output {
-        var didUpdateDateText: Observable<String?>
-        var didRequestTodoList: Observable<Void?>
-        var didFetchTodoList: Observable<Void?>
+        var currentDateText: String?
+        var isOwner: Bool?
+        var needInsertItem: Observable<IndexPath>
+        var needReloadItem: Observable<IndexPath>
+        var needDeleteItem: Observable<IndexPath>
     }
     
-    var fetchTodoListUseCase: ReadTodoListUseCase
+    var needInsertItem = PublishSubject<IndexPath>()
+    var needReloadItem = PublishSubject<IndexPath>()
+    var needDeleteItem = PublishSubject<IndexPath>()
     
-    init(fetchTodoListUseCase: ReadTodoListUseCase) {
-        self.fetchTodoListUseCase = fetchTodoListUseCase
-        
-        bind()
+    var createTodoUseCase: CreateTodoUseCase
+    var updateTodoUseCase: UpdateTodoUseCase
+    var deleteTodoUseCase: DeleteTodoUseCase
+    
+    init(
+        createTodoUseCase: CreateTodoUseCase,
+        updateTodoUseCase: UpdateTodoUseCase,
+        deleteTodoUseCase: DeleteTodoUseCase
+    ) {
+        self.createTodoUseCase = createTodoUseCase
+        self.updateTodoUseCase = updateTodoUseCase
+        self.deleteTodoUseCase = deleteTodoUseCase
+    }
+    
+    func setOwnership(isOwner: Bool) {
+        self.isOwner = isOwner
     }
     
     func setDate(currentDate: Date, min: Date, max: Date) {
-        self.currentDate.onNext(currentDate)
+        self.currentDate = currentDate
+        self.currentDateText = dateFormatter.string(from: currentDate)
         self.minDate = min
         self.maxDate = max
     }
     
-    func bind() {
-        currentDate
-            .compactMap { $0 }
+    func setTodoList(todoList: [Todo]) {
+        var scheduled = [Todo]()
+        var unscheduled = [Todo]()
+        todoList.forEach {
+            if let _ = $0.time {
+                scheduled.append($0)
+            } else {
+                unscheduled.append($0)
+            }
+        }
+        self.scheduledTodoList = scheduled
+        self.unscheduledTodoList = unscheduled
+        
+        bindAfterSetTodoList()
+    }
+    
+    func addTodo(todo: Todo) {
+        createTodoUseCase.execute(todo: todo)
+    }
+    
+    func bindAfterSetTodoList() {
+        createTodoUseCase
+            .didCreateTodo
             .withUnretained(self)
-            .subscribe(onNext: { vm, date in
-                vm.updateDateText(date: date)
-                vm.fetchTodoList(date: date)
+            .subscribe(onNext: { vm, todo in
+                var section: Int
+                var item: Int
+                if let _ = todo.time {
+                    vm.scheduledTodoList?.append(todo)
+                    section = 0
+                    item = (vm.scheduledTodoList?.count ?? Int()) - 1
+                } else {
+                    vm.unscheduledTodoList?.append(todo)
+                    section = 1
+                    item = (vm.unscheduledTodoList?.count ?? Int()) - 1
+                }
+                vm.needInsertItem.onNext(IndexPath(item: item, section: section))
+            })
+            .disposed(by: bag)
+        
+        updateTodoUseCase
+            .didUpdateTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                var section: Int
+                var item: Int
+                if let _ = todo.time {
+                    section = 0
+                    item = vm.scheduledTodoList?.firstIndex(where: { $0.id == todo.id }) ?? 0
+                    vm.scheduledTodoList?[item] = todo
+                } else {
+                    section = 1
+                    item = vm.unscheduledTodoList?.firstIndex(where: { $0.id == todo.id }) ?? 0
+                    vm.unscheduledTodoList?[item] = todo
+                }
+                vm.needReloadItem.onNext(IndexPath(item: item, section: section))
+            })
+            .disposed(by: bag)
+        
+        deleteTodoUseCase
+            .didDeleteTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                var section: Int
+                var item: Int
+                if let _ = todo.time {
+                    section = 0
+                    item = vm.scheduledTodoList?.firstIndex(where: { $0.id == todo.id }) ?? 0
+                    vm.scheduledTodoList?.remove(at: item)
+                } else {
+                    section = 1
+                    item = vm.unscheduledTodoList?.firstIndex(where: { $0.id == todo.id }) ?? 0
+                    vm.unscheduledTodoList?.remove(at: item)
+                }
+                vm.needDeleteItem.onNext(IndexPath(item: item, section: section))
             })
             .disposed(by: bag)
     }
     
     func transform(input: Input) -> Output {
         input
-            .didChangedDate
-            .withUnretained(self)
-            .subscribe(onNext: { vm, date in
-                vm.currentDate.onNext(date)
+            .addTodoBtnTapped
+            .subscribe(onNext: { _ in
+                
             })
             .disposed(by: bag)
         
         return Output(
-            didUpdateDateText: currentDateText.asObservable(),
-            didRequestTodoList: didRequestTodoList,
-            didFetchTodoList: didFetchTodoList
+            needInsertItem: needInsertItem.asObservable(),
+            needReloadItem: needReloadItem.asObservable(),
+            needDeleteItem: needDeleteItem.asObservable()
         )
     }
-    
-    func updateDateText(date: Date) {
-        currentDateText.onNext(dateFormatter.string(from: date))
-    }
-    
-    func fetchTodoList(date: Date) {
-        let nextDate = Calendar.current.date(byAdding: DateComponents(day: 1), to: date) ?? date
-        fetchTodoListUseCase.execute(from: date, to: nextDate)
-            .subscribe(onSuccess: { [weak self] dict in
-                var scheduled = [Todo]()
-                var unscheduled = [Todo]()
-                dict[date]?.forEach {
-                    if let _ = $0.time {
-                        scheduled.append($0)
-                    } else {
-                        unscheduled.append($0)
-                    }
-                }
-                self?.scheduledTodoList = scheduled
-                self?.unscheduledTodoList = unscheduled
-                self?.didFetchTodoList.onNext(())
-            }, onError: { error in
-                print(error)
-            })
-            .disposed(by: bag)
-        
-    }
+
 }

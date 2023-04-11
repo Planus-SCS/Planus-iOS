@@ -13,23 +13,12 @@ class TodoDailyViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: TodoDailyViewModel?
     
-    var didChangeDate = PublishSubject<Date>()
-    
-    var topIndicatorView: UIView = {
-        let view = UIView(frame: .zero)
-        view.backgroundColor = .gray
-        return view
-    }()
+    var didDeleteTodoAt = PublishSubject<IndexPath>()
     
     lazy var dateTitleButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
-        button.setImage(UIImage(named: "downButton"), for: .normal)
-        button.semanticContentAttribute = .forceRightToLeft
-        button.imageEdgeInsets = .init(top: 0, left: 5, bottom: 0, right: -5)
-        button.tintColor = .black
         button.setTitleColor(.black, for: .normal)
-        button.addTarget(self, action: #selector(dateTitleBtnTapped), for: .touchUpInside)
         button.sizeToFit()
         return button
     }()
@@ -70,6 +59,7 @@ class TodoDailyViewController: UIViewController {
         bind()
         
         navigationItem.setRightBarButton(addTodoButton, animated: false)
+        collectionView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -80,41 +70,47 @@ class TodoDailyViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
-        let input = TodoDailyViewModel.Input(didChangedDate: didChangeDate)
+        let input = TodoDailyViewModel.Input(
+            addTodoBtnTapped: addTodoButton.rx.tap.asObservable(),
+            deleteTodoAt: didDeleteTodoAt.asObservable()
+        )
         
         let output = viewModel.transform(input: input)
         
+        addTodoButton.isHidden = output.isOwner ?? false
+        dateTitleButton.setTitle(output.currentDateText, for: .normal)
+        
         output
-            .didUpdateDateText
-            .compactMap { $0 }
+            .needReloadItem
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, dateString in
-                vc.dateTitleButton.setTitle(dateString, for: .normal)
+            .subscribe(onNext: { vm, indexPath in
+                vm.collectionView.reloadItems(at: [indexPath])
             })
             .disposed(by: bag)
         
         output
-            .didRequestTodoList
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                
-            })
-            .disposed(by: bag)
-        
-        output
-            .didFetchTodoList
+            .needInsertItem
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.collectionView.reloadData()
+            .subscribe(onNext: { vm, indexPath in
+                vm.collectionView.insertItems(at: [indexPath])
             })
             .disposed(by: bag)
+            
+        output
+            .needDeleteItem
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vm, indexPath in
+                vm.collectionView.deleteItems(at: [indexPath])
+            })
+            .disposed(by: bag)
+
     }
     
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.view.addSubview(topIndicatorView)
         self.view.addSubview(collectionView)
     }
     
@@ -122,11 +118,7 @@ class TodoDailyViewController: UIViewController {
         dateTitleButton.snp.makeConstraints {
             $0.width.equalTo(160)
         }
-        topIndicatorView.snp.makeConstraints {
-            $0.bottom.equalToSuperview().offset(-10)
-            $0.width.equalTo(50)
-            $0.height.equalTo(5)
-        }
+
         collectionView.snp.makeConstraints {
             $0.top.equalTo(self.view.safeAreaLayoutGuide)
             $0.leading.trailing.bottom.equalToSuperview()
@@ -134,43 +126,46 @@ class TodoDailyViewController: UIViewController {
     }
     
     @objc func addTodoTapped(_ sender: UIButton) {
-        let bottomSheetVC = TodoDetailViewController()
-        bottomSheetVC.modalPresentationStyle = .overFullScreen
-        self.present(bottomSheetVC, animated: false, completion: nil)
+        let vm = TodoDetailViewModel()
+        vm.completionHandler = { [weak self] todo in
+            self?.viewModel?.addTodo(todo: todo)
+        }
+        let vc = TodoDetailViewController(viewModel: vm)
+        vc.modalPresentationStyle = .overFullScreen
+        self.present(vc, animated: false, completion: nil)
     }
     
-    @objc func dateTitleBtnTapped(_ sender: UIButton) {
-        showSmallCalendar()
-    }
+//    @objc func dateTitleBtnTapped(_ sender: UIButton) {
+//        showSmallCalendar()
+//    }
     
-    private func showSmallCalendar() {
-        
-        guard let viewModel = self.viewModel,
-              let currentDate = try? viewModel.currentDate.value() else {
-            return
-        }
-
-        if let sheet = self.sheetPresentationController {
-            sheet.invalidateDetents()
-        }
-        
-        let vm = SmallCalendarViewModel()
-        vm.completionHandler = { [weak self] date in
-            self?.didChangeDate.onNext(date)
-        }
-        vm.configureDate(currentDate: currentDate, min: viewModel.minDate ?? Date(), max: viewModel.maxDate ?? Date())
-        let vc = SmallCalendarViewController(viewModel: vm)
-
-        vc.preferredContentSize = CGSize(width: 320, height: 400)
-        vc.modalPresentationStyle = .popover
-
-        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
-        popover.delegate = self
-        popover.sourceView = self.view
-        popover.sourceItem = dateTitleButton
-
-        present(vc, animated: true, completion:nil)
-    }
+//    private func showSmallCalendar() {
+//
+//        guard let viewModel = self.viewModel else {
+//            return
+//        }
+//
+//        if let sheet = self.sheetPresentationController {
+//            sheet.invalidateDetents()
+//        }
+//
+//        let vm = SmallCalendarViewModel()
+//        vm.completionHandler = { [weak self] date in
+//            self?.didChangeDate.onNext(date)
+//        }
+//        vm.configureDate(currentDate: viewModel.currentDate ?? Date(), min: viewModel.minDate ?? Date(), max: viewModel.maxDate ?? Date())
+//        let vc = SmallCalendarViewController(viewModel: vm)
+//
+//        vc.preferredContentSize = CGSize(width: 320, height: 400)
+//        vc.modalPresentationStyle = .popover
+//
+//        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
+//        popover.delegate = self
+//        popover.sourceView = self.view
+//        popover.sourceItem = dateTitleButton
+//
+//        present(vc, animated: true, completion:nil)
+//    }
 }
 
 extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewDelegate {

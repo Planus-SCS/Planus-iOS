@@ -8,33 +8,6 @@
 import UIKit
 import RxSwift
 
-class VC: UIViewController {
-    lazy var button: UIButton = {
-        let button = UIButton(frame: .zero)
-        button.setTitle("이걸 눌러", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.addTarget(self, action: #selector(action), for: .touchUpInside)
-        
-        return button
-    }()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        self.view.addSubview(button)
-        button.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(100)
-        }
-        self.view.backgroundColor = .white
-
-    }
-    
-    @objc func action(_ sender: UIButton) {
-        let bottomSheetVC = TodoDetailViewController()
-        bottomSheetVC.modalPresentationStyle = .overFullScreen
-        self.present(bottomSheetVC, animated: false, completion: nil)
-    }
-}
-
 class TodoDetailViewController: UIViewController {
     var bag = DisposeBag()
 
@@ -47,7 +20,7 @@ class TodoDetailViewController: UIViewController {
     
     var pageType: AddTodoViewControllerPageType = .addTodo
 
-    var viewModel: AddTodoViewModel?
+    var viewModel: TodoDetailViewModel?
     
     // MARK: Child ViewController
     var dayPickerViewController = DayPickerViewController(nibName: nil, bundle: nil)
@@ -65,7 +38,7 @@ class TodoDetailViewController: UIViewController {
         return view
     }()
     
-    convenience init(viewModel: AddTodoViewModel) {
+    convenience init(viewModel: TodoDetailViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
@@ -80,8 +53,6 @@ class TodoDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.viewModel = AddTodoViewModel()
 
         configureView()
         configureLayout()
@@ -216,7 +187,7 @@ class TodoDetailViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
 
-        let input = AddTodoViewModel.Input(
+        let input = TodoDetailViewModel.Input(
             todoTitleChanged: addTodoView.titleField.rx.text.asObservable(),
             categorySelected: didSelectCategoryAt.asObservable(),
             startDayChanged: didSelectedStartDate.asObservable(),
@@ -315,6 +286,14 @@ class TodoDetailViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.view.endEditing(true)
+            })
+            .disposed(by: bag)
+        
+        output
+            .needDismiss
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.dismiss(animated: true)
             })
             .disposed(by: bag)
     }

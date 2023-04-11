@@ -1,5 +1,5 @@
 //
-//  AddTodoViewModel.swift
+//  TodoDetailViewModel.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/28.
@@ -13,11 +13,12 @@ enum CategoryCreateState {
     case edit(Int)
 }
 
-final class AddTodoViewModel {
+final class TodoDetailViewModel {
     var bag = DisposeBag()
     
-    var categoryColorList: [TodoCategoryColor] = Array(TodoCategoryColor.allCases[0..<TodoCategoryColor.allCases.count-1])
+    var completionHandler: ((Todo) -> Void)?
     
+    var categoryColorList: [TodoCategoryColor] = Array(TodoCategoryColor.allCases[0..<TodoCategoryColor.allCases.count-1])
     
     var categorys: [TodoCategory] = [
         TodoCategory(title: "카테고리1", color: .blue),
@@ -41,6 +42,8 @@ final class AddTodoViewModel {
     var todoEndDay: Date?
     var todoGroup: String?
     var todoMemo: String?
+    
+    var needDismiss = PublishSubject<Void>()
     
     var newCategoryName = BehaviorSubject<String?>(value: nil)
     var newCategoryColor = BehaviorSubject<TodoCategoryColor?>(value: nil)
@@ -78,6 +81,7 @@ final class AddTodoViewModel {
         var moveFromCreateToSelect: Observable<Void>
         var moveFromSelectToAdd: Observable<Void>
         var removeKeyboard: Observable<Void>
+        var needDismiss: Observable<Void>
     }
     
     init() {}
@@ -168,6 +172,12 @@ final class AddTodoViewModel {
             .todoSaveBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
+                guard let title = try? vm.todoTitle.value(),
+                      let date = try? vm.todoStartDay.value(),
+                      let category = try? vm.todoCategory.value() else { return }
+                let todo = Todo(title: title, date: date, category: category.color, type: .normal)
+                vm.completionHandler?(todo)
+                vm.needDismiss.onNext(())
             })
             .disposed(by: bag)
         
@@ -261,7 +271,8 @@ final class AddTodoViewModel {
             moveFromSelectToCreate: moveFromSelectToCreate.asObservable(),
             moveFromCreateToSelect: moveFromCreateToSelect.asObservable(),
             moveFromSelectToAdd: moveFromSelectToAdd.asObservable(),
-            removeKeyboard: removeKeyboard.asObservable()
+            removeKeyboard: removeKeyboard.asObservable(),
+            needDismiss: needDismiss.asObservable()
         )
     }
 
@@ -270,11 +281,4 @@ final class AddTodoViewModel {
          네트워크로 보낼 useCase 만들기
          */
     }
-    
-    func saveNewTodo() {
-        /*
-         네트워크로 보낼 useCase 만들기
-         */
-    }
-
 }
