@@ -55,12 +55,12 @@ class MemberProfileViewModel {
     }
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
-    let fetchTodoListUseCase: FetchTodoListUseCase
+    let fetchTodoListUseCase: ReadTodoListUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     
     init(
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        fetchTodoListUseCase: FetchTodoListUseCase,
+        fetchTodoListUseCase: ReadTodoListUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     ) {
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
@@ -128,12 +128,10 @@ class MemberProfileViewModel {
             .subscribe(onNext: { vm, date in
                 let start = vm.mainDayList[0][7].date
                 let index = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
-                print(index)
                 vm.currentIndex = index
                 vm.currentDate.onNext(date)
                 vm.didSelectMonth.onNext(index)
                 vm.initTodoList(date: date)
-                print(date)
             })
             .disposed(by: bag)
         
@@ -203,7 +201,6 @@ class MemberProfileViewModel {
             // 100에서 시작해서 92에 도달함. 리로드하고 어디부터? 83-90
             let fromIndex = currentIndex - cachingAmount // 92 - 10 - (10-8)
             let toIndex = currentIndex - (cachingAmount - cachingIndexDiff) //92 - (10-8) : 90
-            print("from: \(fromIndex), to: \(toIndex), current: \(currentIndex)")
             fetchTodoList(from: fromIndex, to: toIndex)
             
             // 100에서 시작함 108에 도달함. 리로드 실시하고 어디부터 어디까지? 111 - 118 까지
@@ -212,7 +209,6 @@ class MemberProfileViewModel {
             latestFollowingCacheRequestedIndex = currentIndex
             let fromIndex = currentIndex + cachingAmount - cachingIndexDiff + 1 // 108 + 10 - 8 + 1
             let toIndex = currentIndex + cachingAmount + 1 // 108 + 10
-            print("current: \(currentIndex), from: \(fromIndex), to: \(toIndex)")
             fetchTodoList(from: fromIndex, to: toIndex)
         }
     }

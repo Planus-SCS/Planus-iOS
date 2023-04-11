@@ -53,9 +53,6 @@
 		6A08ADD929C8D096005947D2 /* DefaultSocialAuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08ADD829C8D096005947D2 /* DefaultSocialAuthRepository.swift */; };
 		6A08ADDD29C8D5C0005947D2 /* SocialAuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08ADDC29C8D5C0005947D2 /* SocialAuthRepository.swift */; };
 		6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */; };
-		6A0BF75829D2BE0C006F2604 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75529D2BE0C006F2604 /* Icon.png */; };
-		6A0BF75929D2BE0C006F2604 /* Icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75629D2BE0C006F2604 /* Icon@3x.png */; };
-		6A0BF75A29D2BE0C006F2604 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75729D2BE0C006F2604 /* Icon@2x.png */; };
 		6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75B29D2C25B006F2604 /* edit@2x.png */; };
 		6A0BF75F29D2C25B006F2604 /* edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75C29D2C25B006F2604 /* edit.png */; };
 		6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75D29D2C25B006F2604 /* edit@3x.png */; };
@@ -99,8 +96,8 @@
 		6A24F85229CB7C400000FD64 /* HomeCalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F85129CB7C400000FD64 /* HomeCalendarViewModel.swift */; };
 		6A24F85429CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F85329CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift */; };
 		6A24F85629CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F85529CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift */; };
-		6A24F85A29CB873B0000FD64 /* DefaultFetchTodoListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F85929CB873B0000FD64 /* DefaultFetchTodoListUseCase.swift */; };
-		6A24F85E29CB87D70000FD64 /* FetchTodoListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F85D29CB87D70000FD64 /* FetchTodoListUseCase.swift */; };
+		6A24F85A29CB873B0000FD64 /* DefaultReadTodoListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F85929CB873B0000FD64 /* DefaultReadTodoListUseCase.swift */; };
+		6A24F85E29CB87D70000FD64 /* ReadTodoListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F85D29CB87D70000FD64 /* ReadTodoListUseCase.swift */; };
 		6A24F86029CB8A6B0000FD64 /* DefaultTodoRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F85F29CB8A6B0000FD64 /* DefaultTodoRepository.swift */; };
 		6A24F86229CC5C400000FD64 /* TodoRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F86129CC5C400000FD64 /* TodoRepository.swift */; };
 		6A24F86429CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F86329CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift */; };
@@ -146,7 +143,25 @@
 		6A24F91D29D22D8B0000FD64 /* TodoSectionBackgroundDecorationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F91C29D22D8B0000FD64 /* TodoSectionBackgroundDecorationView.swift */; };
 		6A24F91F29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F91E29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift */; };
 		6A24F92129D22EC10000FD64 /* TodoDailyCalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F92029D22EC10000FD64 /* TodoDailyCalendarCell.swift */; };
-		6A24F92729D276FA0000FD64 /* SmallCalendarDayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F92629D276FA0000FD64 /* SmallCalendarDayViewModel.swift */; };
+		6A2BB1A729E404DA0053C5CA /* MyPageMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */; };
+		6A2BB1A929E405060053C5CA /* MyPageMainSelectableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1A829E405060053C5CA /* MyPageMainSelectableCell.swift */; };
+		6A2BB1AC29E406A70053C5CA /* smallArrow@2.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */; };
+		6A2BB1AD29E406A70053C5CA /* smallArrow@3.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */; };
+		6A2BB1AF29E407F30053C5CA /* MyPageMainSwitchableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AE29E407F30053C5CA /* MyPageMainSwitchableCell.swift */; };
+		6A2BB1B329E40B890053C5CA /* MyPageMainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1B229E40B890053C5CA /* MyPageMainViewModel.swift */; };
+		6A2BB1B529E4164E0053C5CA /* MyPageMainHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1B429E4164E0053C5CA /* MyPageMainHeaderView.swift */; };
+		6A2BB1B729E41EC40053C5CA /* MyPageMainTitleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1B629E41EC40053C5CA /* MyPageMainTitleViewModel.swift */; };
+		6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1B829E426CD0053C5CA /* MyPageReadableViewController.swift */; };
+		6A2BB1BB29E429D50053C5CA /* MyPageReadableViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1BA29E429D50053C5CA /* MyPageReadableViewModel.swift */; };
+		6A2BB1BD29E431740053C5CA /* MyPageEnquireViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1BC29E431740053C5CA /* MyPageEnquireViewController.swift */; };
+		6A2BB1BF29E431F90053C5CA /* MyPageEnquireViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1BE29E431F90053C5CA /* MyPageEnquireViewModel.swift */; };
+		6A2BB1C129E437960053C5CA /* MyPageEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1C029E437960053C5CA /* MyPageEditViewController.swift */; };
+		6A2BB1C329E55E730053C5CA /* DefaultCreateTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1C229E55E730053C5CA /* DefaultCreateTodoUseCase.swift */; };
+		6A2BB1C529E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1C429E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift */; };
+		6A2BB1C729E55E8F0053C5CA /* DefaultDeleteTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1C629E55E8F0053C5CA /* DefaultDeleteTodoUseCase.swift */; };
+		6A2BB1C929E55EB60053C5CA /* CreateTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1C829E55EB60053C5CA /* CreateTodoUseCase.swift */; };
+		6A2BB1CB29E55EBE0053C5CA /* UpdateTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1CA29E55EBE0053C5CA /* UpdateTodoUseCase.swift */; };
+		6A2BB1CD29E55EC80053C5CA /* DeleteTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1CC29E55EC80053C5CA /* DeleteTodoUseCase.swift */; };
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
@@ -236,6 +251,18 @@
 		6A987A6C29DEE44D00C27D09 /* DefaultProfileMedium2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A6929DEE44D00C27D09 /* DefaultProfileMedium2@2x.png */; };
 		6A987A6D29DEE44D00C27D09 /* DefaultProfileMedium2@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A6A29DEE44D00C27D09 /* DefaultProfileMedium2@3x.png */; };
 		6A987A6E29DEE44D00C27D09 /* DefaultProfileMedium2.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A6B29DEE44D00C27D09 /* DefaultProfileMedium2.png */; };
+		6A987A7429DEED1600C27D09 /* TodoDailyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */; };
+		6A987A7729DEF55300C27D09 /* TodoDailyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7629DEF55300C27D09 /* TodoDailyCoordinator.swift */; };
+		6A987A7929DEFC6600C27D09 /* TodoDailyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */; };
+		6A987A7B29DF0E7600C27D09 /* SmallCalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7A29DF0E7600C27D09 /* SmallCalendarViewController.swift */; };
+		6A987A8829DF118000C27D09 /* SmallCalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A8729DF118000C27D09 /* SmallCalendarViewModel.swift */; };
+		6A987A8A29DF118800C27D09 /* SmallCalendarDayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A8929DF118800C27D09 /* SmallCalendarDayViewModel.swift */; };
+		6A987A8E29DF119300C27D09 /* SmallCalendarCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A8B29DF119300C27D09 /* SmallCalendarCollectionView.swift */; };
+		6A987A8F29DF119300C27D09 /* SmallCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A8C29DF119300C27D09 /* SmallCalendarView.swift */; };
+		6A987A9029DF119300C27D09 /* SmallCalendarDayCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A8D29DF119300C27D09 /* SmallCalendarDayCell.swift */; };
+		6A987A9429DF1A7A00C27D09 /* plusBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A9129DF1A7A00C27D09 /* plusBtn.png */; };
+		6A987A9529DF1A7A00C27D09 /* plusBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A9229DF1A7A00C27D09 /* plusBtn@2x.png */; };
+		6A987A9629DF1A7A00C27D09 /* plusBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A9329DF1A7A00C27D09 /* plusBtn@3x.png */; };
 		6A9A07B229D3C7E70051AD43 /* arrow_white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */; };
 		6A9A07B329D3C7E70051AD43 /* arrow_white@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */; };
 		6A9A07B429D3C7E70051AD43 /* arrow_white.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9A07B129D3C7E70051AD43 /* arrow_white.png */; };
@@ -312,9 +339,6 @@
 		6A08ADD829C8D096005947D2 /* DefaultSocialAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSocialAuthRepository.swift; sourceTree = "<group>"; };
 		6A08ADDC29C8D5C0005947D2 /* SocialAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialAuthRepository.swift; sourceTree = "<group>"; };
 		6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KakaoSignInUseCase.swift; sourceTree = "<group>"; };
-		6A0BF75529D2BE0C006F2604 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
-		6A0BF75629D2BE0C006F2604 /* Icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@3x.png"; sourceTree = "<group>"; };
-		6A0BF75729D2BE0C006F2604 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		6A0BF75B29D2C25B006F2604 /* edit@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@2x.png"; sourceTree = "<group>"; };
 		6A0BF75C29D2C25B006F2604 /* edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit.png; sourceTree = "<group>"; };
 		6A0BF75D29D2C25B006F2604 /* edit@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@3x.png"; sourceTree = "<group>"; };
@@ -358,8 +382,8 @@
 		6A24F85129CB7C400000FD64 /* HomeCalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCalendarViewModel.swift; sourceTree = "<group>"; };
 		6A24F85329CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateMonthlyCalendarUseCase.swift; sourceTree = "<group>"; };
 		6A24F85529CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCreateMonthlyCalendarUseCase.swift; sourceTree = "<group>"; };
-		6A24F85929CB873B0000FD64 /* DefaultFetchTodoListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchTodoListUseCase.swift; sourceTree = "<group>"; };
-		6A24F85D29CB87D70000FD64 /* FetchTodoListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchTodoListUseCase.swift; sourceTree = "<group>"; };
+		6A24F85929CB873B0000FD64 /* DefaultReadTodoListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultReadTodoListUseCase.swift; sourceTree = "<group>"; };
+		6A24F85D29CB87D70000FD64 /* ReadTodoListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadTodoListUseCase.swift; sourceTree = "<group>"; };
 		6A24F85F29CB8A6B0000FD64 /* DefaultTodoRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTodoRepository.swift; sourceTree = "<group>"; };
 		6A24F86129CC5C400000FD64 /* TodoRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoRepository.swift; sourceTree = "<group>"; };
 		6A24F86329CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultDateFormatYYYYMMUseCase.swift; sourceTree = "<group>"; };
@@ -405,7 +429,25 @@
 		6A24F91C29D22D8B0000FD64 /* TodoSectionBackgroundDecorationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoSectionBackgroundDecorationView.swift; sourceTree = "<group>"; };
 		6A24F91E29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoSectionHeaderSupplementaryView.swift; sourceTree = "<group>"; };
 		6A24F92029D22EC10000FD64 /* TodoDailyCalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyCalendarCell.swift; sourceTree = "<group>"; };
-		6A24F92629D276FA0000FD64 /* SmallCalendarDayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallCalendarDayViewModel.swift; sourceTree = "<group>"; };
+		6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MyPageMainViewController.swift; path = ../../../../../../Documents/MyPageMainViewController.swift; sourceTree = "<group>"; };
+		6A2BB1A829E405060053C5CA /* MyPageMainSelectableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MyPageMainSelectableCell.swift; path = ../../../../../../.Trash/MyPageScene/View/MyPageMainSelectableCell.swift; sourceTree = "<group>"; };
+		6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "smallArrow@2.png"; sourceTree = "<group>"; };
+		6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "smallArrow@3.png"; sourceTree = "<group>"; };
+		6A2BB1AE29E407F30053C5CA /* MyPageMainSwitchableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageMainSwitchableCell.swift; sourceTree = "<group>"; };
+		6A2BB1B229E40B890053C5CA /* MyPageMainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageMainViewModel.swift; sourceTree = "<group>"; };
+		6A2BB1B429E4164E0053C5CA /* MyPageMainHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageMainHeaderView.swift; sourceTree = "<group>"; };
+		6A2BB1B629E41EC40053C5CA /* MyPageMainTitleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageMainTitleViewModel.swift; sourceTree = "<group>"; };
+		6A2BB1B829E426CD0053C5CA /* MyPageReadableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageReadableViewController.swift; sourceTree = "<group>"; };
+		6A2BB1BA29E429D50053C5CA /* MyPageReadableViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageReadableViewModel.swift; sourceTree = "<group>"; };
+		6A2BB1BC29E431740053C5CA /* MyPageEnquireViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageEnquireViewController.swift; sourceTree = "<group>"; };
+		6A2BB1BE29E431F90053C5CA /* MyPageEnquireViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageEnquireViewModel.swift; sourceTree = "<group>"; };
+		6A2BB1C029E437960053C5CA /* MyPageEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageEditViewController.swift; sourceTree = "<group>"; };
+		6A2BB1C229E55E730053C5CA /* DefaultCreateTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCreateTodoUseCase.swift; sourceTree = "<group>"; };
+		6A2BB1C429E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultUpdateTodoUseCase.swift; sourceTree = "<group>"; };
+		6A2BB1C629E55E8F0053C5CA /* DefaultDeleteTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultDeleteTodoUseCase.swift; sourceTree = "<group>"; };
+		6A2BB1C829E55EB60053C5CA /* CreateTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTodoUseCase.swift; sourceTree = "<group>"; };
+		6A2BB1CA29E55EBE0053C5CA /* UpdateTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTodoUseCase.swift; sourceTree = "<group>"; };
+		6A2BB1CC29E55EC80053C5CA /* DeleteTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteTodoUseCase.swift; sourceTree = "<group>"; };
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
@@ -496,6 +538,18 @@
 		6A987A6929DEE44D00C27D09 /* DefaultProfileMedium2@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "DefaultProfileMedium2@2x.png"; sourceTree = "<group>"; };
 		6A987A6A29DEE44D00C27D09 /* DefaultProfileMedium2@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "DefaultProfileMedium2@3x.png"; sourceTree = "<group>"; };
 		6A987A6B29DEE44D00C27D09 /* DefaultProfileMedium2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DefaultProfileMedium2.png; sourceTree = "<group>"; };
+		6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyViewController.swift; sourceTree = "<group>"; };
+		6A987A7629DEF55300C27D09 /* TodoDailyCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyCoordinator.swift; sourceTree = "<group>"; };
+		6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyViewModel.swift; sourceTree = "<group>"; };
+		6A987A7A29DF0E7600C27D09 /* SmallCalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallCalendarViewController.swift; sourceTree = "<group>"; };
+		6A987A8729DF118000C27D09 /* SmallCalendarViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallCalendarViewModel.swift; sourceTree = "<group>"; };
+		6A987A8929DF118800C27D09 /* SmallCalendarDayViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallCalendarDayViewModel.swift; sourceTree = "<group>"; };
+		6A987A8B29DF119300C27D09 /* SmallCalendarCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallCalendarCollectionView.swift; sourceTree = "<group>"; };
+		6A987A8C29DF119300C27D09 /* SmallCalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallCalendarView.swift; sourceTree = "<group>"; };
+		6A987A8D29DF119300C27D09 /* SmallCalendarDayCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallCalendarDayCell.swift; sourceTree = "<group>"; };
+		6A987A9129DF1A7A00C27D09 /* plusBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = plusBtn.png; sourceTree = "<group>"; };
+		6A987A9229DF1A7A00C27D09 /* plusBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "plusBtn@2x.png"; sourceTree = "<group>"; };
+		6A987A9329DF1A7A00C27D09 /* plusBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "plusBtn@3x.png"; sourceTree = "<group>"; };
 		6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@2x.png"; sourceTree = "<group>"; };
 		6A9A07B029D3C7E70051AD43 /* arrow_white@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_white@3x.png"; sourceTree = "<group>"; };
 		6A9A07B129D3C7E70051AD43 /* arrow_white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_white.png; sourceTree = "<group>"; };
@@ -586,6 +640,8 @@
 		6A08AD6629C884B2005947D2 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				6A2BB1A129E404B20053C5CA /* MyPageScene */,
+				6A987A6F29DEECEE00C27D09 /* TodoDailyScene */,
 				6A987A4D29DE494E00C27D09 /* MemberProfileScene */,
 				6A987A3829DDA60000C27D09 /* MyGroupMemberEditScene */,
 				6A987A3429DD9F0500C27D09 /* MyGroupNoticeEditScene */,
@@ -672,6 +728,8 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */,
+				6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */,
 				6A987A6B29DEE44D00C27D09 /* DefaultProfileMedium2.png */,
 				6A987A6929DEE44D00C27D09 /* DefaultProfileMedium2@2x.png */,
 				6A987A6A29DEE44D00C27D09 /* DefaultProfileMedium2@3x.png */,
@@ -734,6 +792,9 @@
 				6A9A07BC29D3D52B0051AD43 /* categoryCheck@3x.png */,
 				6A9A07B629D3C7F10051AD43 /* arrow_dark.png */,
 				6A9A07B729D3C7F10051AD43 /* arrow_dark@2x.png */,
+				6A987A9129DF1A7A00C27D09 /* plusBtn.png */,
+				6A987A9229DF1A7A00C27D09 /* plusBtn@2x.png */,
+				6A987A9329DF1A7A00C27D09 /* plusBtn@3x.png */,
 				6A9A07B529D3C7F10051AD43 /* arrow_dark@3x.png */,
 				6A9A07B129D3C7E70051AD43 /* arrow_white.png */,
 				6A9A07AF29D3C7E70051AD43 /* arrow_white@2x.png */,
@@ -747,9 +808,6 @@
 				6A0BF75C29D2C25B006F2604 /* edit.png */,
 				6A0BF75B29D2C25B006F2604 /* edit@2x.png */,
 				6A0BF75D29D2C25B006F2604 /* edit@3x.png */,
-				6A0BF75529D2BE0C006F2604 /* Icon.png */,
-				6A0BF75729D2BE0C006F2604 /* Icon@2x.png */,
-				6A0BF75629D2BE0C006F2604 /* Icon@3x.png */,
 				6A08AD9F29C89DED005947D2 /* appleBtn.png */,
 				6A08ADA629C89DEE005947D2 /* appleBtn@2x.png */,
 				6A08ADA429C89DEE005947D2 /* appleBtn@3x.png */,
@@ -831,7 +889,6 @@
 			children = (
 				6A24F85129CB7C400000FD64 /* HomeCalendarViewModel.swift */,
 				6A24F8FD29D1E20E0000FD64 /* MonthPickerViewModel.swift */,
-				6A24F92629D276FA0000FD64 /* SmallCalendarDayViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -931,9 +988,12 @@
 				6A08ADD529C8D048005947D2 /* DefaultKakaoSignInUseCase.swift */,
 				6A24F84D29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift */,
 				6A24F85529CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift */,
-				6A24F85929CB873B0000FD64 /* DefaultFetchTodoListUseCase.swift */,
 				6A24F86329CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift */,
 				6A24F90929D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift */,
+				6A24F85929CB873B0000FD64 /* DefaultReadTodoListUseCase.swift */,
+				6A2BB1C229E55E730053C5CA /* DefaultCreateTodoUseCase.swift */,
+				6A2BB1C429E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift */,
+				6A2BB1C629E55E8F0053C5CA /* DefaultDeleteTodoUseCase.swift */,
 			);
 			path = UseCase;
 			sourceTree = "<group>";
@@ -953,9 +1013,12 @@
 				6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */,
 				6A24F84B29CB6DC60000FD64 /* GoogleSignInUseCase.swift */,
 				6A24F85329CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift */,
-				6A24F85D29CB87D70000FD64 /* FetchTodoListUseCase.swift */,
+				6A24F85D29CB87D70000FD64 /* ReadTodoListUseCase.swift */,
 				6A24F86529CC84150000FD64 /* DateFormatYYYYMMUseCase.swift */,
 				6A24F90D29D223D90000FD64 /* CreateDailyCalendarUseCase.swift */,
+				6A2BB1C829E55EB60053C5CA /* CreateTodoUseCase.swift */,
+				6A2BB1CA29E55EBE0053C5CA /* UpdateTodoUseCase.swift */,
+				6A2BB1CC29E55EC80053C5CA /* DeleteTodoUseCase.swift */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -1157,6 +1220,56 @@
 				6A24F92029D22EC10000FD64 /* TodoDailyCalendarCell.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		6A2BB1A129E404B20053C5CA /* MyPageScene */ = {
+			isa = PBXGroup;
+			children = (
+				6A2BB1A529E404CC0053C5CA /* Coordinator */,
+				6A2BB1A429E404C60053C5CA /* ViewModel */,
+				6A2BB1A329E404BE0053C5CA /* ViewController */,
+				6A2BB1A229E404B90053C5CA /* View */,
+			);
+			path = MyPageScene;
+			sourceTree = "<group>";
+		};
+		6A2BB1A229E404B90053C5CA /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6A2BB1A829E405060053C5CA /* MyPageMainSelectableCell.swift */,
+				6A2BB1AE29E407F30053C5CA /* MyPageMainSwitchableCell.swift */,
+				6A2BB1B429E4164E0053C5CA /* MyPageMainHeaderView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		6A2BB1A329E404BE0053C5CA /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */,
+				6A2BB1B829E426CD0053C5CA /* MyPageReadableViewController.swift */,
+				6A2BB1BC29E431740053C5CA /* MyPageEnquireViewController.swift */,
+				6A2BB1C029E437960053C5CA /* MyPageEditViewController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		6A2BB1A429E404C60053C5CA /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				6A2BB1B229E40B890053C5CA /* MyPageMainViewModel.swift */,
+				6A2BB1B629E41EC40053C5CA /* MyPageMainTitleViewModel.swift */,
+				6A2BB1BA29E429D50053C5CA /* MyPageReadableViewModel.swift */,
+				6A2BB1BE29E431F90053C5CA /* MyPageEnquireViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		6A2BB1A529E404CC0053C5CA /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Coordinator;
 			sourceTree = "<group>";
 		};
 		6A483DA829CA22D4003375BF /* Entity */ = {
@@ -1434,6 +1547,54 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		6A987A6F29DEECEE00C27D09 /* TodoDailyScene */ = {
+			isa = PBXGroup;
+			children = (
+				6A987A8629DF111500C27D09 /* View */,
+				6A987A7529DEF54100C27D09 /* Coordinator */,
+				6A987A7229DEED0400C27D09 /* ViewModel */,
+				6A987A7129DEECFC00C27D09 /* ViewController */,
+			);
+			path = TodoDailyScene;
+			sourceTree = "<group>";
+		};
+		6A987A7129DEECFC00C27D09 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */,
+				6A987A7A29DF0E7600C27D09 /* SmallCalendarViewController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		6A987A7229DEED0400C27D09 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */,
+				6A987A8729DF118000C27D09 /* SmallCalendarViewModel.swift */,
+				6A987A8929DF118800C27D09 /* SmallCalendarDayViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		6A987A7529DEF54100C27D09 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				6A987A7629DEF55300C27D09 /* TodoDailyCoordinator.swift */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		6A987A8629DF111500C27D09 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6A987A8B29DF119300C27D09 /* SmallCalendarCollectionView.swift */,
+				6A987A8D29DF119300C27D09 /* SmallCalendarDayCell.swift */,
+				6A987A8C29DF119300C27D09 /* SmallCalendarView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		6A9A07C129D3D7B00051AD43 /* AddTodoScene */ = {
 			isa = PBXGroup;
 			children = (
@@ -1572,6 +1733,7 @@
 				6A24F8E729D1D4A40000FD64 /* list@2x.png in Resources */,
 				6A9A07B229D3C7E70051AD43 /* arrow_white@2x.png in Resources */,
 				6A9A07B429D3C7E70051AD43 /* arrow_white.png in Resources */,
+				6A987A9429DF1A7A00C27D09 /* plusBtn.png in Resources */,
 				6A9A07BA29D3C7F10051AD43 /* arrow_dark@2x.png in Resources */,
 				6A95DFBF29D4E2E6009017D8 /* searchBarIcon@3x.png in Resources */,
 				6A08AD8B29C892E0005947D2 /* check-done-01@2x.png in Resources */,
@@ -1599,11 +1761,9 @@
 				6A1B3F0F29D7192A00BFB3A6 /* onlineIcon@2x.png in Resources */,
 				6A24F8B329CE3F800000FD64 /* Pretendard-Medium.otf in Resources */,
 				6A24F8B929CE3F800000FD64 /* Pretendard-ExtraBold.otf in Resources */,
-				6A0BF75929D2BE0C006F2604 /* Icon@3x.png in Resources */,
 				6A08ADAF29C89DEE005947D2 /* appleBtn@2x.png in Resources */,
 				6A987A0E29DBE60600C27D09 /* DefaultProfileSmall.png in Resources */,
 				6A95DFFF29D5B5A9009017D8 /* PlanusGroup@2x.png in Resources */,
-				6A0BF75A29D2BE0C006F2604 /* Icon@2x.png in Resources */,
 				6A987A6729DEE31600C27D09 /* downButton@3x.png in Resources */,
 				6A08AD8929C892E0005947D2 /* calendar-date@2x.png in Resources */,
 				6A24F8E929D1D4A40000FD64 /* user-circle.png in Resources */,
@@ -1614,6 +1774,8 @@
 				6A9A07BF29D3D52B0051AD43 /* categoryCheck@3x.png in Resources */,
 				6A987A6629DEE31600C27D09 /* downButton@2x.png in Resources */,
 				6A08ADA829C89DEE005947D2 /* appleBtn.png in Resources */,
+				6A2BB1AC29E406A70053C5CA /* smallArrow@2.png in Resources */,
+				6A987A9529DF1A7A00C27D09 /* plusBtn@2x.png in Resources */,
 				6A987A6829DEE31600C27D09 /* downButton.png in Resources */,
 				6A24F8EA29D1D4A40000FD64 /* user-circle@2x.png in Resources */,
 				6A24F8BA29CE3F800000FD64 /* Pretendard-Thin.otf in Resources */,
@@ -1621,6 +1783,7 @@
 				6A08AD8729C892E0005947D2 /* calendar-date.png in Resources */,
 				6A08AD8529C892E0005947D2 /* search-sm@2x.png in Resources */,
 				6A95DFFE29D5B5A9009017D8 /* PlanusGroup.png in Resources */,
+				6A2BB1AD29E406A70053C5CA /* smallArrow@3.png in Resources */,
 				6A08AD8229C892E0005947D2 /* users-02@3x.png in Resources */,
 				6A24F8B229CE3F800000FD64 /* Pretendard-Regular.otf in Resources */,
 				6A0BF75F29D2C25B006F2604 /* edit.png in Resources */,
@@ -1661,7 +1824,6 @@
 				6A95DFF829D5B3FF009017D8 /* share@2x.png in Resources */,
 				6A24F8EB29D1D4A40000FD64 /* list.png in Resources */,
 				6A95DFF929D5B400009017D8 /* share@3x.png in Resources */,
-				6A0BF75829D2BE0C006F2604 /* Icon.png in Resources */,
 				6A08ADBA29C8A2B0005947D2 /* logo@3x.png in Resources */,
 				6A08ADAE29C89DEE005947D2 /* googleBtn.png in Resources */,
 				6A08AD5A29C87C63005947D2 /* Assets.xcassets in Resources */,
@@ -1669,6 +1831,7 @@
 				6A08AD8329C892E0005947D2 /* check-done-01.png in Resources */,
 				6A95E00529D5B756009017D8 /* GroupAddBtn.png in Resources */,
 				6A1B3F0A29D7192100BFB3A6 /* messageIcon@3x.png in Resources */,
+				6A987A9629DF1A7A00C27D09 /* plusBtn@3x.png in Resources */,
 				6A987A6229DEDCE700C27D09 /* DefaultProfileMedium@3x.png in Resources */,
 				6A24F8E829D1D4A40000FD64 /* list@3x.png in Resources */,
 				6A987A0A29DBE56100C27D09 /* peopleWhite.png in Resources */,
@@ -1739,6 +1902,7 @@
 				6A24F92129D22EC10000FD64 /* TodoDailyCalendarCell.swift in Sources */,
 				6A95DFC129D4E882009017D8 /* SearchResultCell.swift in Sources */,
 				6A987A1D29DC1E0A00C27D09 /* JoinedGroupDetailCalendarHeaderView.swift in Sources */,
+				6A2BB1C129E437960053C5CA /* MyPageEditViewController.swift in Sources */,
 				6A9A080429D40C560051AD43 /* AddTodoView.swift in Sources */,
 				6A95E01B29D5D47B009017D8 /* GroupCreateCoordinator.swift in Sources */,
 				6A08ADCC29C8C20E005947D2 /* APIRequestType.swift in Sources */,
@@ -1746,20 +1910,25 @@
 				6A24F85629CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift in Sources */,
 				6A987A1F29DC268E00C27D09 /* GroupListViewModel.swift in Sources */,
 				6A987A2D29DCFDEF00C27D09 /* NestedScrollableViewController.swift in Sources */,
+				6A2BB1CB29E55EBE0053C5CA /* UpdateTodoUseCase.swift in Sources */,
 				6A987A4829DDB97A00C27D09 /* MyGroupNoticeEditCoordinator.swift in Sources */,
 				6A95DFD929D51C23009017D8 /* GroupIntroduceViewController.swift in Sources */,
 				6A24F90829D210450000FD64 /* TodoMainViewModel.swift in Sources */,
 				6A08ADCA29C8C1F3005947D2 /* APIEndPoint.swift in Sources */,
 				6A987A5029DE4A1400C27D09 /* MemberProfileViewController.swift in Sources */,
 				6A9A07F129D40B3C0051AD43 /* DayPickerViewController.swift in Sources */,
+				6A2BB1A729E404DA0053C5CA /* MyPageMainViewController.swift in Sources */,
 				6A24F84229CB4A8B0000FD64 /* ContinuousDay.swift in Sources */,
 				6A987A2529DCFC4500C27D09 /* JoinedGroupChattingViewController.swift in Sources */,
 				6A24F86029CB8A6B0000FD64 /* DefaultTodoRepository.swift in Sources */,
 				6A24F83629CB46640000FD64 /* GroupCoordinator.swift in Sources */,
 				6A987A2929DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift in Sources */,
 				6A24F84629CB4AED0000FD64 /* MonthStateOfDay.swift in Sources */,
+				6A2BB1BD29E431740053C5CA /* MyPageEnquireViewController.swift in Sources */,
 				6A95DFE229D53BA1009017D8 /* GroupIntroduceDefaultHeaderView.swift in Sources */,
+				6A987A8F29DF119300C27D09 /* SmallCalendarView.swift in Sources */,
 				6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */,
+				6A987A7929DEFC6600C27D09 /* TodoDailyViewModel.swift in Sources */,
 				6A08AD6E29C88969005947D2 /* Coordinator.swift in Sources */,
 				6A24F91F29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift in Sources */,
 				6A987A4329DDAE1000C27D09 /* MyGroupMemberEditViewModel.swift in Sources */,
@@ -1767,23 +1936,30 @@
 				6A08ADCF29C8C231005947D2 /* APIProvider.swift in Sources */,
 				6A08AD7429C89143005947D2 /* MainTabCoordinator.swift in Sources */,
 				6A24F88C29CE26540000FD64 /* HomeCalendarViewController.swift in Sources */,
+				6A987A9029DF119300C27D09 /* SmallCalendarDayCell.swift in Sources */,
+				6A2BB1CD29E55EC80053C5CA /* DeleteTodoUseCase.swift in Sources */,
+				6A2BB1AF29E407F30053C5CA /* MyPageMainSwitchableCell.swift in Sources */,
 				6A987A2329DCFC3100C27D09 /* JoinedGroupCalendarViewController.swift in Sources */,
 				6A1B3EF229D70F3E00BFB3A6 /* NotificationViewController.swift in Sources */,
 				6A9A07EF29D40B190051AD43 /* DayPickerModel.swift in Sources */,
 				6A24F85229CB7C400000FD64 /* HomeCalendarViewModel.swift in Sources */,
 				6A24F89E29CE29F50000FD64 /* TodoCategory+Ext.swift in Sources */,
+				6A2BB1BF29E431F90053C5CA /* MyPageEnquireViewModel.swift in Sources */,
+				6A2BB1C329E55E730053C5CA /* DefaultCreateTodoUseCase.swift in Sources */,
 				6A24F89529CE285F0000FD64 /* MonthlyCalendarCell.swift in Sources */,
 				6A95E00D29D5BC92009017D8 /* GroupCreateViewController.swift in Sources */,
 				6A08AD5529C87C61005947D2 /* ViewController.swift in Sources */,
-				6A24F85A29CB873B0000FD64 /* DefaultFetchTodoListUseCase.swift in Sources */,
+				6A24F85A29CB873B0000FD64 /* DefaultReadTodoListUseCase.swift in Sources */,
 				6A08ADD929C8D096005947D2 /* DefaultSocialAuthRepository.swift in Sources */,
 				6A24F86229CC5C400000FD64 /* TodoRepository.swift in Sources */,
 				6A95DFDC29D53B7C009017D8 /* GroupIntroduceInfoHeaderView.swift in Sources */,
 				6A987A5C29DECB0300C27D09 /* MemberProfileViewModel.swift in Sources */,
 				6A987A2B29DCFC7700C27D09 /* JoinedGroupChattingViewModel.swift in Sources */,
 				6A987A5529DEAF5D00C27D09 /* NestedScrollableCell.swift in Sources */,
+				6A2BB1B329E40B890053C5CA /* MyPageMainViewModel.swift in Sources */,
 				6A08ADD129C8C256005947D2 /* NetworkManager.swift in Sources */,
 				6A24F89B29CE299A0000FD64 /* SmallTodoView.swift in Sources */,
+				6A2BB1BB29E429D50053C5CA /* MyPageReadableViewModel.swift in Sources */,
 				6A1B3EFA29D7104000BFB3A6 /* JoinRequestNotificationCell.swift in Sources */,
 				6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */,
 				6A24F91B29D22D5B0000FD64 /* BigTodoCell.swift in Sources */,
@@ -1800,6 +1976,8 @@
 				6A08ADB429C8A064005947D2 /* SignInCoordinator.swift in Sources */,
 				6A24F86629CC84150000FD64 /* DateFormatYYYYMMUseCase.swift in Sources */,
 				6A9A07F529D40B700051AD43 /* DayPickerCollectionView.swift in Sources */,
+				6A2BB1C729E55E8F0053C5CA /* DefaultDeleteTodoUseCase.swift in Sources */,
+				6A2BB1C529E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift in Sources */,
 				6A24F84C29CB6DC60000FD64 /* GoogleSignInUseCase.swift in Sources */,
 				6A1B3F0229D717B400BFB3A6 /* GroupListViewController.swift in Sources */,
 				6A9A07F729D40B820051AD43 /* DayPickerCollectionViewCell.swift in Sources */,
@@ -1812,7 +1990,9 @@
 				6A9A080C29D40CA40051AD43 /* CategoryCreateCell.swift in Sources */,
 				6A24F85429CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift in Sources */,
 				6A9A080629D40C6B0051AD43 /* CategorySelectView.swift in Sources */,
+				6A2BB1C929E55EB60053C5CA /* CreateTodoUseCase.swift in Sources */,
 				6A24F90E29D223D90000FD64 /* CreateDailyCalendarUseCase.swift in Sources */,
+				6A987A7729DEF55300C27D09 /* TodoDailyCoordinator.swift in Sources */,
 				6A9A080829D40C7D0051AD43 /* CategorySelectCell.swift in Sources */,
 				6A987A2129DCFC2500C27D09 /* JoinedGroupNoticeViewController.swift in Sources */,
 				6A987A3E29DDA88800C27D09 /* MyGroupMemberEditCell.swift in Sources */,
@@ -1820,18 +2000,23 @@
 				6A9A07FD29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift in Sources */,
 				6A987A4A29DDBB4200C27D09 /* MyGroupNoticeEditViewModel.swift in Sources */,
 				6A987A1229DBEC4000C27D09 /* JoinedGroupDetailHeaderTabView.swift in Sources */,
-				6A24F92729D276FA0000FD64 /* SmallCalendarDayViewModel.swift in Sources */,
 				6A987A0429DBD40A00C27D09 /* JoinedGroupDetailHeaderView.swift in Sources */,
 				6A24F83E29CB4A440000FD64 /* Todo.swift in Sources */,
 				6A24F8BE29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift in Sources */,
 				6A95DFDE29D53B87009017D8 /* GroupIntroduceNoticeCell.swift in Sources */,
 				6A08ADB229C89E77005947D2 /* SignInViewModel.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
+				6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */,
+				6A987A7B29DF0E7600C27D09 /* SmallCalendarViewController.swift in Sources */,
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,
+				6A987A8E29DF119300C27D09 /* SmallCalendarCollectionView.swift in Sources */,
 				6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */,
+				6A987A8829DF118000C27D09 /* SmallCalendarViewModel.swift in Sources */,
 				6A9A07F929D40B970051AD43 /* DayPickerViewControllerDelegate.swift in Sources */,
 				6A95DFB529D4DD33009017D8 /* SearchViewController.swift in Sources */,
 				6A24F83129CB45170000FD64 /* TodoCoordinator.swift in Sources */,
+				6A2BB1B529E4164E0053C5CA /* MyPageMainHeaderView.swift in Sources */,
+				6A987A8A29DF118800C27D09 /* SmallCalendarDayViewModel.swift in Sources */,
 				6A95DFEB29D5A132009017D8 /* GroupIntroduceViewModel.swift in Sources */,
 				6A24F91D29D22D8B0000FD64 /* TodoSectionBackgroundDecorationView.swift in Sources */,
 				6A24F84E29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift in Sources */,
@@ -1845,18 +2030,21 @@
 				6A24F8EE29D1D5510000FD64 /* MonthPickerViewController.swift in Sources */,
 				6A95DFD529D50913009017D8 /* SearchGroupResultViewModel.swift in Sources */,
 				6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */,
+				6A987A7429DEED1600C27D09 /* TodoDailyViewController.swift in Sources */,
 				6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */,
 				6A1B3F1829D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift in Sources */,
-				6A24F85E29CB87D70000FD64 /* FetchTodoListUseCase.swift in Sources */,
+				6A24F85E29CB87D70000FD64 /* ReadTodoListUseCase.swift in Sources */,
 				6A987A2729DCFC5E00C27D09 /* JoinedGroupNoticeViewModel.swift in Sources */,
 				6A987A5929DECACB00C27D09 /* MemberProfileCalendarHeaderView.swift in Sources */,
 				6A24F85029CB77830000FD64 /* Calendar+Ext.swift in Sources */,
 				6A987A3B29DDA61F00C27D09 /* MyGroupMemberEditViewController.swift in Sources */,
 				6A24F84029CB4A5C0000FD64 /* TodoType.swift in Sources */,
+				6A2BB1A929E405060053C5CA /* MyPageMainSelectableCell.swift in Sources */,
 				6A08AD9029C89761005947D2 /* UIColor+Ext.swift in Sources */,
 				6A987A0229DBD32700C27D09 /* JoinedGroupDetailViewController.swift in Sources */,
 				6A95DFB729D4DD40009017D8 /* SearchViewModel.swift in Sources */,
 				6A24F90A29D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift in Sources */,
+				6A2BB1B729E41EC40053C5CA /* MyPageMainTitleViewModel.swift in Sources */,
 				6A9A07F329D40B5D0051AD43 /* DayPickerView.swift in Sources */,
 				6A987A1B29DBFF3300C27D09 /* JoinedGroupDetailViewModel.swift in Sources */,
 				6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */,

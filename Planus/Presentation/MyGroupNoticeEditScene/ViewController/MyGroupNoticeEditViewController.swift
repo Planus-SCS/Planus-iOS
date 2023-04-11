@@ -66,8 +66,8 @@ class MyGroupNoticeEditViewController: UIViewController {
         configureLayout()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
         navigationItem.title = "공지사항 관리"
     }

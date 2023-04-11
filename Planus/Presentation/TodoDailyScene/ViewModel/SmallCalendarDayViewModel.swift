@@ -1,8 +1,8 @@
 //
 //  SmallCalendarDayViewModel.swift
-//  Planus
+//  calendarTest
 //
-//  Created by Sangmin Lee on 2023/03/28.
+//  Created by Sangmin Lee on 2023/03/20.
 //
 
 import Foundation

@@ -156,7 +156,7 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         let useCase1 = DefaultCreateMonthlyCalendarUseCase()
-        let useCase2 = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
+        let useCase2 = DefaultReadTodoListUseCase(todoRepository: TestTodoRepository())
         let useCase3 = DefaultDateFormatYYYYMMUseCase()
         
         let vm = MemberProfileViewModel(

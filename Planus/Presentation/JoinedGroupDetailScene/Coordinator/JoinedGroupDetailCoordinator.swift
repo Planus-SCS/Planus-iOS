@@ -28,7 +28,7 @@ class JoinedGroupDetailCoordinator: Coordinator {
     lazy var showGroupDetailPage: (String) -> Void = { [weak self] id in
         let repo = TestTodoRepository()
         let c = DefaultCreateMonthlyCalendarUseCase()
-        let f = DefaultFetchTodoListUseCase(todoRepository: repo)
+        let f = DefaultReadTodoListUseCase(todoRepository: repo)
         let vm = JoinedGroupDetailViewModel()
         vm.setActions(actions: JoinedGroupDetailViewModelActions(pop: self?.popCurrentPage))
 

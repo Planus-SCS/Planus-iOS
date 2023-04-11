@@ -62,8 +62,8 @@ class JoinedGroupDetailViewController: UIViewController {
         navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
         navigationItem.title = "가보자네카라쿠배배"
     }
@@ -119,6 +119,8 @@ class JoinedGroupDetailViewController: UIViewController {
 
     
     func configureView() {
+        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+
         self.view.addSubview(headerView)
         self.view.addSubview(bottomView)
         self.view.addSubview(headerTabView)
@@ -139,7 +141,7 @@ class JoinedGroupDetailViewController: UIViewController {
         self.noticeViewController = noticeViewController
         
         let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-        let fetchTodoListUseCase = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
+        let fetchTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: TestTodoRepository())
         let calendarViewModel = JoinedGroupCalendarViewModel(createMonthlyCalendarUseCase: createMonthlyCalendarUseCase, fetchTodoListUseCase: fetchTodoListUseCase)
         let calendarViewController = JoinedGroupCalendarViewController(viewModel: calendarViewModel)
         calendarViewController.delegate = self

@@ -8,8 +8,6 @@
 import UIKit
 import RxSwift
 
-// 애도 델리게이트 써서 위에 뷰를 작아지게 만들어야할듯? 하다 ㅋㅋ,,,,,, 맞냐이거...?
-
 class MemberProfileViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: MemberProfileViewModel?
@@ -68,12 +66,11 @@ class MemberProfileViewController: UIViewController {
         configurePanGesture()
         bind()
         
-        self.view.backgroundColor = .white
         self.navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
         self.navigationItem.title = "그룹 멤버 캘린더"
     }
@@ -119,11 +116,23 @@ class MemberProfileViewController: UIViewController {
             .disposed(by: bag)
         
         output.showDailyTodoPage
-            .subscribe(onNext: { date in
-                print(date)
-                let bottomSheetVC = TodoDetailViewController()
-                bottomSheetVC.modalPresentationStyle = .overFullScreen
-                self.present(bottomSheetVC, animated: false, completion: nil)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, date in
+                guard let minDate = vc.viewModel?.mainDayList.first?.first?.date,
+                      let maxDate = vc.viewModel?.mainDayList.last?.last?.date else {
+                    return
+                }
+                let fetchTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: TestTodoRepository())
+                let viewModel = TodoDailyViewModel(fetchTodoListUseCase: fetchTodoListUseCase)
+                viewModel.setDate(currentDate: date, min: minDate, max: maxDate)
+
+                let viewController = TodoDailyViewController(viewModel: viewModel)
+                let nav = UINavigationController(rootViewController: viewController)
+                nav.modalPresentationStyle = .pageSheet
+                if let sheet = nav.sheetPresentationController {
+                    sheet.detents = [.medium(), .large()]
+                }
+                vc.present(nav, animated: true)
             })
             .disposed(by: bag)
         
@@ -156,6 +165,8 @@ class MemberProfileViewController: UIViewController {
     }
     
     func configureView() {
+        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+
         self.view.addSubview(headerView)
         self.view.addSubview(calendarHeaderView)
         self.view.addSubview(collectionView)

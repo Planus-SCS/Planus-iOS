@@ -30,7 +30,7 @@ class HomeCalendarCoordinator: Coordinator {
         let todoRepository = TestTodoRepository()
         
         let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-        let fetchTodoListUseCase = DefaultFetchTodoListUseCase(todoRepository: todoRepository)
+        let fetchTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: todoRepository)
         let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
          
         let vm = HomeCalendarViewModel(

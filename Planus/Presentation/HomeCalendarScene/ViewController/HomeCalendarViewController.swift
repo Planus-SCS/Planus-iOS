@@ -91,8 +91,8 @@ class HomeCalendarViewController: UIViewController {
         configureLayout()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         self.navigationItem.titleView = yearMonthButton
     }
     
@@ -137,11 +137,23 @@ class HomeCalendarViewController: UIViewController {
             .disposed(by: bag)
         
         output.showDailyTodoPage
-            .subscribe(onNext: { date in
-                print(date)
-                let bottomSheetVC = TodoDetailViewController()
-                bottomSheetVC.modalPresentationStyle = .overFullScreen
-                self.present(bottomSheetVC, animated: false, completion: nil)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, date in
+                guard let minDate = vc.viewModel?.mainDayList.first?.first?.date,
+                      let maxDate = vc.viewModel?.mainDayList.last?.last?.date else {
+                    return
+                }
+                let fetchTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: TestTodoRepository())
+                let viewModel = TodoDailyViewModel(fetchTodoListUseCase: fetchTodoListUseCase)
+                viewModel.setDate(currentDate: date, min: minDate, max: maxDate)
+
+                let viewController = TodoDailyViewController(viewModel: viewModel)
+                let nav = UINavigationController(rootViewController: viewController)
+                nav.modalPresentationStyle = .pageSheet
+                if let sheet = nav.sheetPresentationController {
+                    sheet.detents = [.medium(), .large()]
+                }
+                vc.present(nav, animated: true)
             })
             .disposed(by: bag)
         
@@ -184,11 +196,22 @@ class HomeCalendarViewController: UIViewController {
                 self.collectionView.isUserInteractionEnabled = !bool
             })
             .disposed(by: bag)
+        
+        output.needReloadSectionSet
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, indexSet in
+                vc.collectionView.reloadSections(indexSet)
+            })
+            .disposed(by: bag)
     }
     
 
     @objc func profileButtonTapped() {
-        print("to profile")
+        let vm = MyPageMainViewModel()
+        let vc = MyPageMainViewController(viewModel: vm)
+        vc.hidesBottomBarWhenPushed = true
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
 

@@ -33,7 +33,7 @@ class TestTodoRepository: TodoRepository {
         return Single<Void>.just(()).delay(.seconds(2), scheduler: MainScheduler.asyncInstance)
     }
     
-    func deleteTodo() -> Single<Void> {
+    func deleteTodo(todo: Todo) -> Single<Void> {
         return Single<Void>.just(()).delay(.seconds(2), scheduler: MainScheduler.asyncInstance)
     }
 }
@@ -51,7 +51,6 @@ class TodoContainer {
         
         var dict = [Date: [Todo]]()
         var calendarDate = Calendar.current.date(byAdding: DateComponents(day: 0), to: Calendar.current.date(byAdding: DateComponents(month: 0), to: standardDate) ?? Date()) ?? Date()
-        print(calendarDate)
         todoDict[calendarDate] = []
         todoDict[calendarDate]?.append(Todo(title: "창재형이랑 롤하기", date: calendarDate, category: .green, type: .normal)) //일상
         todoDict[calendarDate]?.append(Todo(title: "SCSY 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
@@ -119,13 +118,13 @@ class TodoContainer {
         var date = from
         let components = DateComponents(day: 1)
         while date != to {
+            if let list = todoDict[date] {
+                todoList += list
+            }
             guard let newDate = calendar.date(byAdding: components, to: date) else {
                 return []
             }
             date = newDate
-            if let list = todoDict[date] {
-                todoList += list
-            }
         }
         return todoList
     }
