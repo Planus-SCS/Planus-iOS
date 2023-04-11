@@ -122,7 +122,7 @@ class MemberProfileViewController: UIViewController {
                       let maxDate = vc.viewModel?.mainDayList.last?.last?.date else {
                     return
                 }
-                let fetchTodoListUseCase = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
+                let fetchTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: TestTodoRepository())
                 let viewModel = TodoDailyViewModel(fetchTodoListUseCase: fetchTodoListUseCase)
                 viewModel.setDate(currentDate: date, min: minDate, max: maxDate)
 

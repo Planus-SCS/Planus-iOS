@@ -41,9 +41,9 @@ class TodoDailyViewModel {
         var didFetchTodoList: Observable<Void?>
     }
     
-    var fetchTodoListUseCase: FetchTodoListUseCase
+    var fetchTodoListUseCase: ReadTodoListUseCase
     
-    init(fetchTodoListUseCase: FetchTodoListUseCase) {
+    init(fetchTodoListUseCase: ReadTodoListUseCase) {
         self.fetchTodoListUseCase = fetchTodoListUseCase
         
         bind()

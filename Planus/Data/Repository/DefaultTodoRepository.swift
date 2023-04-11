@@ -33,7 +33,7 @@ class TestTodoRepository: TodoRepository {
         return Single<Void>.just(()).delay(.seconds(2), scheduler: MainScheduler.asyncInstance)
     }
     
-    func deleteTodo() -> Single<Void> {
+    func deleteTodo(todo: Todo) -> Single<Void> {
         return Single<Void>.just(()).delay(.seconds(2), scheduler: MainScheduler.asyncInstance)
     }
 }

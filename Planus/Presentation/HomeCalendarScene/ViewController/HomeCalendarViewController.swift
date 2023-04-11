@@ -143,7 +143,7 @@ class HomeCalendarViewController: UIViewController {
                       let maxDate = vc.viewModel?.mainDayList.last?.last?.date else {
                     return
                 }
-                let fetchTodoListUseCase = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
+                let fetchTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: TestTodoRepository())
                 let viewModel = TodoDailyViewModel(fetchTodoListUseCase: fetchTodoListUseCase)
                 viewModel.setDate(currentDate: date, min: minDate, max: maxDate)
 
@@ -194,6 +194,14 @@ class HomeCalendarViewController: UIViewController {
             .subscribe(onNext: { bool in
                 self.collectionView.isScrollEnabled = !bool
                 self.collectionView.isUserInteractionEnabled = !bool
+            })
+            .disposed(by: bag)
+        
+        output.needReloadSectionSet
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, indexSet in
+                vc.collectionView.reloadSections(indexSet)
             })
             .disposed(by: bag)
     }

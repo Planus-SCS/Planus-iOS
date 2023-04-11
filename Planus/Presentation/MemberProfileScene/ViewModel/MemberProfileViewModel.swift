@@ -55,12 +55,12 @@ class MemberProfileViewModel {
     }
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
-    let fetchTodoListUseCase: FetchTodoListUseCase
+    let fetchTodoListUseCase: ReadTodoListUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     
     init(
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        fetchTodoListUseCase: FetchTodoListUseCase,
+        fetchTodoListUseCase: ReadTodoListUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     ) {
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase

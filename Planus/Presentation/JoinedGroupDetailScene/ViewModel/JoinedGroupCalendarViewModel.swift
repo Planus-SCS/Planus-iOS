@@ -32,12 +32,12 @@ class JoinedGroupCalendarViewModel {
     var didFetchTodo = BehaviorSubject<Void?>(value: nil)
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
-    let fetchTodoListUseCase: FetchTodoListUseCase
+    let fetchTodoListUseCase: ReadTodoListUseCase
     
     
     init(
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        fetchTodoListUseCase: FetchTodoListUseCase
+        fetchTodoListUseCase: ReadTodoListUseCase
     ) {
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.fetchTodoListUseCase = fetchTodoListUseCase

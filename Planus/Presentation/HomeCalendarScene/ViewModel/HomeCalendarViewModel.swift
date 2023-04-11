@@ -35,6 +35,7 @@ class HomeCalendarViewModel {
     var showDailyTodoPage = PublishSubject<Date>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
+    var needReloadSectionSet = PublishSubject<IndexSet>() //리로드 섹션을 해야함 왜?
     
     var currentIndex = Int()
     var cachedCellHeightForTodoCount = [Int: Double]()
@@ -57,20 +58,32 @@ class HomeCalendarViewModel {
         var showDailyTodoPage: Observable<Date>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
+        var needReloadSectionSet: Observable<IndexSet>
     }
     
+    let createTodoUseCase: CreateTodoUseCase
+    let readTodoListUseCase: ReadTodoListUseCase
+    let updateTodoUseCase: UpdateTodoUseCase
+    let deleteTodoUseCase: DeleteTodoUseCase
+    
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
-    let fetchTodoListUseCase: FetchTodoListUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     
     init(
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        fetchTodoListUseCase: FetchTodoListUseCase,
+        readTodoListUseCase: ReadTodoListUseCase,
+        createTodoUseCase: CreateTodoUseCase,
+        updateTodoUseCase: UpdateTodoUseCase,
+        deleteTodoUseCase: DeleteTodoUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     ) {
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
-        self.fetchTodoListUseCase = fetchTodoListUseCase
+        self.readTodoListUseCase = readTodoListUseCase
+        self.createTodoUseCase = createTodoUseCase
+        self.updateTodoUseCase = updateTodoUseCase
+        self.deleteTodoUseCase = deleteTodoUseCase
         self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
+        
         bind()
     }
     
@@ -160,7 +173,8 @@ class HomeCalendarViewModel {
             showCreateMultipleTodo: showCreateMultipleTodo.asObservable(),
             showDailyTodoPage: showDailyTodoPage.asObservable(),
             showMonthPicker: showMonthPicker.asObservable(),
-            monthChangedByPicker: didSelectMonth.asObservable()
+            monthChangedByPicker: didSelectMonth.asObservable(),
+            needReloadSectionSet: needReloadSectionSet.asObservable()
         )
     }
     
@@ -169,8 +183,8 @@ class HomeCalendarViewModel {
     }
     
     func initCalendar(date: Date) {
-        mainDayList = (endOfFirstIndex...endOfLastIndex).map { difference -> [DayViewModel] in
-            let calendarDate = self.calendar.date(byAdding: DateComponents(month: difference), to: date) ?? Date()
+        mainDayList = (endOfFirstIndex...endOfLastIndex).map { diff -> [DayViewModel] in
+            let calendarDate = self.calendar.date(byAdding: DateComponents(month: diff), to: date) ?? Date()
             return createMonthlyCalendarUseCase.execute(date: calendarDate)
         }
         currentIndex = -endOfFirstIndex
@@ -178,6 +192,107 @@ class HomeCalendarViewModel {
         latestFollowingCacheRequestedIndex = currentIndex
         
         initialDayListFetchedInCenterIndex.onNext(currentIndex)
+        bindAfterCalendarCreated()
+        // 여기서 바인딩 할것인가?
+    }
+    
+    func bindAfterCalendarCreated() {
+        createTodoUseCase
+            .didCreateTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                let date = todo.date
+                let start = vm.mainDayList[0][7].date
+                let monthIndex = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
+                
+                var sectionSet = IndexSet()
+
+                if monthIndex > 0,
+                   let prevDayIndex = vm.mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }) {
+                    vm.mainDayList[monthIndex][prevDayIndex].todoList?.append(todo)
+                    sectionSet.insert(monthIndex - 1)
+                }
+                if let dayIndex = vm.mainDayList[monthIndex].firstIndex(where: { $0.date == date }) {
+                    vm.mainDayList[monthIndex][dayIndex].todoList?.append(todo)
+                    sectionSet.insert(monthIndex)
+                }
+                if monthIndex < vm.mainDayList.count - 1,
+                   let followingDayIndex = vm.mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}) {
+                    vm.mainDayList[monthIndex][followingDayIndex].todoList?.append(todo)
+                    sectionSet.insert(monthIndex + 1)
+                }
+                
+                vm.needReloadSectionSet.onNext(sectionSet)
+            })
+            .disposed(by: bag)
+        
+        updateTodoUseCase
+            .didUpdateTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                let date = todo.date
+                let start = vm.mainDayList[0][7].date
+                let monthIndex = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
+                
+                var sectionSet = IndexSet()
+
+                if monthIndex > 0,
+                   let prevDayIndex = vm.mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }),
+                   let todoIndex = vm.mainDayList[monthIndex - 1][prevDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+                    vm.mainDayList[monthIndex - 1][prevDayIndex].todoList?[todoIndex] = todo
+                    sectionSet.insert(monthIndex - 1)
+                }
+                
+                if let dayIndex = vm.mainDayList[monthIndex].firstIndex(where: { $0.date == date }),
+                   let todoIndex = vm.mainDayList[monthIndex][dayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+                    vm.mainDayList[monthIndex][dayIndex].todoList?[todoIndex] = todo
+                    sectionSet.insert(monthIndex)
+                }
+                
+                if monthIndex < vm.mainDayList.count - 1,
+                   let followingDayIndex = vm.mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}),
+                   let todoIndex = vm.mainDayList[monthIndex + 1][followingDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+                    vm.mainDayList[monthIndex + 1][followingDayIndex].todoList?[todoIndex] = todo
+                    sectionSet.insert(monthIndex + 1)
+                }
+                
+                vm.needReloadSectionSet.onNext(sectionSet)
+            })
+            .disposed(by: bag)
+        
+        deleteTodoUseCase
+            .didDeleteTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                let date = todo.date
+                let start = vm.mainDayList[0][7].date
+                let monthIndex = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
+                
+                var sectionSet = IndexSet()
+
+                if monthIndex > 0,
+                   let prevDayIndex = vm.mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }),
+                   let todoIndex = vm.mainDayList[monthIndex - 1][prevDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+                    vm.mainDayList[monthIndex - 1][prevDayIndex].todoList?.remove(at: todoIndex)
+                    sectionSet.insert(monthIndex - 1)
+                }
+                
+                if let dayIndex = vm.mainDayList[monthIndex].firstIndex(where: { $0.date == date }),
+                   let todoIndex = vm.mainDayList[monthIndex][dayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+                    vm.mainDayList[monthIndex][dayIndex].todoList?.remove(at: todoIndex)
+                    sectionSet.insert(monthIndex)
+                }
+                
+                if monthIndex < vm.mainDayList.count - 1,
+                   let followingDayIndex = vm.mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}),
+                   let todoIndex = vm.mainDayList[monthIndex + 1][followingDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+                    vm.mainDayList[monthIndex + 1][followingDayIndex].todoList?.remove(at: todoIndex)
+                    sectionSet.insert(monthIndex + 1)
+                }
+                
+                vm.needReloadSectionSet.onNext(sectionSet)
+            })
+            .disposed(by: bag)
     }
     
     func initTodoList(date: Date) {
@@ -220,7 +335,6 @@ class HomeCalendarViewModel {
             // 100에서 시작해서 92에 도달함. 리로드하고 어디부터? 83-90
             let fromIndex = currentIndex - cachingAmount // 92 - 10 - (10-8)
             let toIndex = currentIndex - (cachingAmount - cachingIndexDiff) //92 - (10-8) : 90
-            print("from: \(fromIndex), to: \(toIndex), current: \(currentIndex)")
             fetchTodoList(from: fromIndex, to: toIndex)
             
             // 100에서 시작함 108에 도달함. 리로드 실시하고 어디부터 어디까지? 111 - 118 까지
@@ -229,7 +343,6 @@ class HomeCalendarViewModel {
             latestFollowingCacheRequestedIndex = currentIndex
             let fromIndex = currentIndex + cachingAmount - cachingIndexDiff + 1 // 108 + 10 - 8 + 1
             let toIndex = currentIndex + cachingAmount + 1 // 108 + 10
-            print("current: \(currentIndex), from: \(fromIndex), to: \(toIndex)")
             fetchTodoList(from: fromIndex, to: toIndex)
         }
     }
@@ -243,7 +356,7 @@ class HomeCalendarViewModel {
         let fromMonthStart = calendar.date(byAdding: DateComponents(day: -7), to: calendar.startOfDay(for: fromMonth)) ?? Date()
         let toMonthStart = calendar.date(byAdding: DateComponents(day: 7), to: calendar.startOfDay(for: toMonth)) ?? Date()
 
-        fetchTodoListUseCase.execute(from: fromMonthStart, to: toMonthStart)
+        readTodoListUseCase.execute(from: fromMonthStart, to: toMonthStart)
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 (fromIndex..<toIndex).forEach { index in

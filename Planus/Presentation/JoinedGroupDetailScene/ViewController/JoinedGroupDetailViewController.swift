@@ -141,7 +141,7 @@ class JoinedGroupDetailViewController: UIViewController {
         self.noticeViewController = noticeViewController
         
         let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-        let fetchTodoListUseCase = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
+        let fetchTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: TestTodoRepository())
         let calendarViewModel = JoinedGroupCalendarViewModel(createMonthlyCalendarUseCase: createMonthlyCalendarUseCase, fetchTodoListUseCase: fetchTodoListUseCase)
         let calendarViewController = JoinedGroupCalendarViewController(viewModel: calendarViewModel)
         calendarViewController.delegate = self
