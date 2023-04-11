@@ -62,8 +62,8 @@ class JoinedGroupDetailViewController: UIViewController {
         navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
         navigationItem.title = "가보자네카라쿠배배"
     }

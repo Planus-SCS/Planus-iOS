@@ -15,6 +15,12 @@ class TodoDailyViewController: UIViewController {
     
     var didChangeDate = PublishSubject<Date>()
     
+    var topIndicatorView: UIView = {
+        let view = UIView(frame: .zero)
+        view.backgroundColor = .gray
+        return view
+    }()
+    
     lazy var dateTitleButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
@@ -66,8 +72,8 @@ class TodoDailyViewController: UIViewController {
         navigationItem.setRightBarButton(addTodoButton, animated: false)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         navigationItem.titleView = dateTitleButton
     }
     
@@ -108,12 +114,18 @@ class TodoDailyViewController: UIViewController {
     
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.addSubview(topIndicatorView)
         self.view.addSubview(collectionView)
     }
     
     func configureLayout() {
         dateTitleButton.snp.makeConstraints {
             $0.width.equalTo(160)
+        }
+        topIndicatorView.snp.makeConstraints {
+            $0.bottom.equalToSuperview().offset(-10)
+            $0.width.equalTo(50)
+            $0.height.equalTo(5)
         }
         collectionView.snp.makeConstraints {
             $0.top.equalTo(self.view.safeAreaLayoutGuide)

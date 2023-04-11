@@ -69,8 +69,8 @@ class MemberProfileViewController: UIViewController {
         self.navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
         self.navigationItem.title = "그룹 멤버 캘린더"
     }

@@ -91,8 +91,8 @@ class HomeCalendarViewController: UIViewController {
         configureLayout()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         self.navigationItem.titleView = yearMonthButton
     }
     
@@ -202,6 +202,7 @@ class HomeCalendarViewController: UIViewController {
     @objc func profileButtonTapped() {
         let vm = MyPageMainViewModel()
         let vc = MyPageMainViewController(viewModel: vm)
+        vc.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(vc, animated: true)
     }
 }
