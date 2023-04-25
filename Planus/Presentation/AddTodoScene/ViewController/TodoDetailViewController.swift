@@ -363,7 +363,8 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_white")
         addTodoView.endDateButton.setTitle("2000.00.00", for: .normal)
         addTodoView.endDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
-        print(didSelectDate)
+        didSelectedStartDate.onNext(didSelectDate)
+        didSelectedEndDate.onNext(nil)
     }
     
     func unHighlightAllItem(_ dayPickerViewController: DayPickerViewController) {
@@ -372,6 +373,8 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_white")
         addTodoView.endDateButton.setTitle("2000.00.00", for: .normal)
         addTodoView.endDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
+        didSelectedStartDate.onNext(nil)
+        didSelectedEndDate.onNext(nil)
     }
     
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDateInRange: (Date, Date)) {
@@ -386,6 +389,9 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_dark")
         addTodoView.endDateButton.setTitle("\(dayPickerViewController.dateFormatter2.string(from: max))", for: .normal)
         addTodoView.endDateButton.setTitleColor(.black, for: .normal)
+        
+        didSelectedStartDate.onNext(min)
+        didSelectedEndDate.onNext(max)
     }
 }
 

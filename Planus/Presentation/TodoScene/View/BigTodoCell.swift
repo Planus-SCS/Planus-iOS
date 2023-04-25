@@ -24,40 +24,54 @@ class BigTodoCell: UICollectionViewCell {
         return label
     }()
 
-    lazy var checkButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    lazy var checkButton: TodoCheckButton = {
+        let button = TodoCheckButton(frame: .zero)
         button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         return button
     }()
-    
-    var checkImageView: UIImageView = {
-        let image = UIImage(named: "checkedBox")
-        let imageView = UIImageView(frame: CGRect(
-            x: 0,
-            y: 0,
-            width: 18,
-            height: 18
-        ))
-        imageView.image = image
-        imageView.layer.masksToBounds = true
-        imageView.contentMode = .scaleAspectFit
+        
+    var groupSymbol: UIImageView = {
+        let image = UIImage(named: "todoGroup")
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: image?.size.width ?? 0, height: image?.size.height ?? 0))
+        imageView.image = image?.withRenderingMode(.alwaysTemplate)
+        
         return imageView
     }()
     
-    var uncheckImageView: UIImageView = {
-        let image = UIImage(named: "uncheckedBox")
-        let imageView = UIImageView(frame: CGRect(
-            x: 0,
-            y: 0,
-            width: 18,
-            height: 18
-        ))
-        imageView.image = image
-        imageView.layer.masksToBounds = true
-        imageView.contentMode = .scaleAspectFit
+    var periodSymbol: UIImageView = {
+        let image = UIImage(named: "todoCalendar")
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: image?.size.width ?? 0, height: image?.size.height ?? 0))
+        imageView.image = image?.withRenderingMode(.alwaysTemplate)
+        
         return imageView
+    }()
+    
+    var memoSymbol: UIImageView = {
+        let image = UIImage(named: "todoMemo")
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: image?.size.width ?? 0, height: image?.size.height ?? 0))
+        imageView.image = image?.withRenderingMode(.alwaysTemplate)
+        
+        return imageView
+    }()
+    
+    var symbolStackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .equalSpacing
+        stackView.spacing = 8
+        return stackView
     }()
 
+    var trailingComponentStackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .equalSpacing
+        stackView.spacing = 10
+        return stackView
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -70,45 +84,42 @@ class BigTodoCell: UICollectionViewCell {
     }
     
     override func prepareForReuse() {
-        self.checkImageView.isHidden = true
-        self.uncheckImageView.isHidden = false
+        checkButton.isOn = false
     }
     
     func configureView() {
         self.layer.cornerRadius = 9
         self.layer.cornerCurve = .continuous
         
-        self.addSubview(checkImageView)
-        self.addSubview(uncheckImageView)
         self.addSubview(titleLabel)
-        self.addSubview(checkButton)
-        self.addSubview(timeLabel)
+        
+        symbolStackView.addArrangedSubview(memoSymbol)
+        symbolStackView.addArrangedSubview(periodSymbol)
+        symbolStackView.addArrangedSubview(groupSymbol)
+        
+        trailingComponentStackView.addArrangedSubview(symbolStackView)
+        trailingComponentStackView.addArrangedSubview(timeLabel)
+        trailingComponentStackView.addArrangedSubview(checkButton)
+
+        
+        self.addSubview(trailingComponentStackView)
     }
     
     func configureLayout() {
         
-        checkImageView.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
+        symbolStackView.snp.makeConstraints {
+            $0.height.equalTo(14)
+        }
+        
+        trailingComponentStackView.snp.makeConstraints {
+            $0.top.bottom.equalToSuperview()
             $0.trailing.equalToSuperview().inset(10)
-        }
-        uncheckImageView.snp.makeConstraints {
-            $0.center.equalTo(checkImageView)
-        }
-        
-        checkButton.snp.makeConstraints {
-            $0.center.width.height.equalTo(checkImageView)
-        }
-        
-        timeLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.trailing.equalTo(checkButton.snp.leading).offset(-13)
         }
         
         titleLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview().inset(16)
-            $0.trailing.lessThanOrEqualTo(timeLabel.snp.leading).offset(-13)
-            $0.trailing.lessThanOrEqualTo(checkButton.snp.leading).offset(-13)
+            $0.trailing.lessThanOrEqualTo(trailingComponentStackView.snp.leading).offset(-13)
         }
     }
     
@@ -117,8 +128,7 @@ class BigTodoCell: UICollectionViewCell {
     }
 
     func fill(title: String, time: String?, category: TodoCategoryColor) {
-        self.checkImageView.isHidden = true
-        self.uncheckImageView.isHidden = false
+
         if let time = time {
             timeLabel.isHidden = false
             timeLabel.text = time
@@ -130,11 +140,14 @@ class BigTodoCell: UICollectionViewCell {
         self.backgroundColor = category.todoForCalendarColor
         self.titleLabel.textColor = category.todoThickColor
         self.timeLabel.textColor = category.todoThickColor
+        groupSymbol.tintColor = category.todoThickColor
+        periodSymbol.tintColor = category.todoThickColor
+        memoSymbol.tintColor = category.todoThickColor
+        checkButton.setColor(color: category)
     }
 
     @objc func buttonAction(_ sender: UIButton) {
-        self.checkImageView.isHidden = !self.checkImageView.isHidden
-        self.uncheckImageView.isHidden = !self.uncheckImageView.isHidden
+        print("here111")
         buttonClosure?()
     }
 }

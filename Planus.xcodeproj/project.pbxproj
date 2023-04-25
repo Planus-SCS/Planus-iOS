@@ -288,6 +288,25 @@
 		6A9A080A29D40C8D0051AD43 /* CategoryCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A080929D40C8D0051AD43 /* CategoryCreateView.swift */; };
 		6A9A080C29D40CA40051AD43 /* CategoryCreateCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9A080B29D40CA40051AD43 /* CategoryCreateCell.swift */; };
 		6A9AAAC429F7FCF2002A6DAF /* MyPageMainSelectableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAAC329F7FCF2002A6DAF /* MyPageMainSelectableCell.swift */; };
+		6A9AAAC629F808FB002A6DAF /* TodoCheckButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAAC529F808FB002A6DAF /* TodoCheckButton.swift */; };
+		6A9AAACA29F809CC002A6DAF /* todoGroup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAC729F809CC002A6DAF /* todoGroup@2x.png */; };
+		6A9AAACB29F809CC002A6DAF /* todoGroup@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAC829F809CC002A6DAF /* todoGroup@3x.png */; };
+		6A9AAACC29F809CC002A6DAF /* todoGroup.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAC929F809CC002A6DAF /* todoGroup.png */; };
+		6A9AAAD029F809EF002A6DAF /* todoCalendar@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAACD29F809EE002A6DAF /* todoCalendar@2x.png */; };
+		6A9AAAD129F809EF002A6DAF /* todoCalendar@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAACE29F809EE002A6DAF /* todoCalendar@3x.png */; };
+		6A9AAAD229F809EF002A6DAF /* todoCalendar.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAACF29F809EE002A6DAF /* todoCalendar.png */; };
+		6A9AAAD629F80A0D002A6DAF /* todoMemo@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAD329F80A0D002A6DAF /* todoMemo@3x.png */; };
+		6A9AAAD729F80A0D002A6DAF /* todoMemo@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAD429F80A0D002A6DAF /* todoMemo@2x.png */; };
+		6A9AAAD829F80A0D002A6DAF /* todoMemo.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAD529F80A0D002A6DAF /* todoMemo.png */; };
+		6A9AAADC29F80F69002A6DAF /* uncheckedBox@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAD929F80F69002A6DAF /* uncheckedBox@3x.png */; };
+		6A9AAADD29F80F69002A6DAF /* uncheckedBox.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAADA29F80F69002A6DAF /* uncheckedBox.png */; };
+		6A9AAADE29F80F69002A6DAF /* uncheckedBox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAADB29F80F69002A6DAF /* uncheckedBox@2x.png */; };
+		6A9AAAE229F80F73002A6DAF /* checkedBox@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAADF29F80F73002A6DAF /* checkedBox@3x.png */; };
+		6A9AAAE329F80F73002A6DAF /* checkedBox.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAE029F80F73002A6DAF /* checkedBox.png */; };
+		6A9AAAE429F80F73002A6DAF /* checkedBox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAE129F80F73002A6DAF /* checkedBox@2x.png */; };
+		6A9AAAF429F8151A002A6DAF /* todoCheck.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAF129F8151A002A6DAF /* todoCheck.png */; };
+		6A9AAAF529F8151A002A6DAF /* todoCheck@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAF229F8151A002A6DAF /* todoCheck@2x.png */; };
+		6A9AAAF629F8151A002A6DAF /* todoCheck@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAF329F8151A002A6DAF /* todoCheck@3x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -575,6 +594,25 @@
 		6A9A080929D40C8D0051AD43 /* CategoryCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCreateView.swift; sourceTree = "<group>"; };
 		6A9A080B29D40CA40051AD43 /* CategoryCreateCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCreateCell.swift; sourceTree = "<group>"; };
 		6A9AAAC329F7FCF2002A6DAF /* MyPageMainSelectableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageMainSelectableCell.swift; sourceTree = "<group>"; };
+		6A9AAAC529F808FB002A6DAF /* TodoCheckButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCheckButton.swift; sourceTree = "<group>"; };
+		6A9AAAC729F809CC002A6DAF /* todoGroup@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "todoGroup@2x.png"; sourceTree = "<group>"; };
+		6A9AAAC829F809CC002A6DAF /* todoGroup@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "todoGroup@3x.png"; sourceTree = "<group>"; };
+		6A9AAAC929F809CC002A6DAF /* todoGroup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = todoGroup.png; sourceTree = "<group>"; };
+		6A9AAACD29F809EE002A6DAF /* todoCalendar@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "todoCalendar@2x.png"; sourceTree = "<group>"; };
+		6A9AAACE29F809EE002A6DAF /* todoCalendar@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "todoCalendar@3x.png"; sourceTree = "<group>"; };
+		6A9AAACF29F809EE002A6DAF /* todoCalendar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = todoCalendar.png; sourceTree = "<group>"; };
+		6A9AAAD329F80A0D002A6DAF /* todoMemo@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "todoMemo@3x.png"; sourceTree = "<group>"; };
+		6A9AAAD429F80A0D002A6DAF /* todoMemo@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "todoMemo@2x.png"; sourceTree = "<group>"; };
+		6A9AAAD529F80A0D002A6DAF /* todoMemo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = todoMemo.png; sourceTree = "<group>"; };
+		6A9AAAD929F80F69002A6DAF /* uncheckedBox@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "uncheckedBox@3x.png"; sourceTree = "<group>"; };
+		6A9AAADA29F80F69002A6DAF /* uncheckedBox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = uncheckedBox.png; sourceTree = "<group>"; };
+		6A9AAADB29F80F69002A6DAF /* uncheckedBox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "uncheckedBox@2x.png"; sourceTree = "<group>"; };
+		6A9AAADF29F80F73002A6DAF /* checkedBox@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "checkedBox@3x.png"; sourceTree = "<group>"; };
+		6A9AAAE029F80F73002A6DAF /* checkedBox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkedBox.png; sourceTree = "<group>"; };
+		6A9AAAE129F80F73002A6DAF /* checkedBox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "checkedBox@2x.png"; sourceTree = "<group>"; };
+		6A9AAAF129F8151A002A6DAF /* todoCheck.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = todoCheck.png; sourceTree = "<group>"; };
+		6A9AAAF229F8151A002A6DAF /* todoCheck@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "todoCheck@2x.png"; sourceTree = "<group>"; };
+		6A9AAAF329F8151A002A6DAF /* todoCheck@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "todoCheck@3x.png"; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -728,6 +766,24 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A9AAAF129F8151A002A6DAF /* todoCheck.png */,
+				6A9AAAF229F8151A002A6DAF /* todoCheck@2x.png */,
+				6A9AAAF329F8151A002A6DAF /* todoCheck@3x.png */,
+				6A9AAAE029F80F73002A6DAF /* checkedBox.png */,
+				6A9AAAE129F80F73002A6DAF /* checkedBox@2x.png */,
+				6A9AAADF29F80F73002A6DAF /* checkedBox@3x.png */,
+				6A9AAADA29F80F69002A6DAF /* uncheckedBox.png */,
+				6A9AAADB29F80F69002A6DAF /* uncheckedBox@2x.png */,
+				6A9AAAD929F80F69002A6DAF /* uncheckedBox@3x.png */,
+				6A9AAAD529F80A0D002A6DAF /* todoMemo.png */,
+				6A9AAAD429F80A0D002A6DAF /* todoMemo@2x.png */,
+				6A9AAAD329F80A0D002A6DAF /* todoMemo@3x.png */,
+				6A9AAACF29F809EE002A6DAF /* todoCalendar.png */,
+				6A9AAACD29F809EE002A6DAF /* todoCalendar@2x.png */,
+				6A9AAACE29F809EE002A6DAF /* todoCalendar@3x.png */,
+				6A9AAAC929F809CC002A6DAF /* todoGroup.png */,
+				6A9AAAC729F809CC002A6DAF /* todoGroup@2x.png */,
+				6A9AAAC829F809CC002A6DAF /* todoGroup@3x.png */,
 				6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */,
 				6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */,
 				6A987A6B29DEE44D00C27D09 /* DefaultProfileMedium2.png */,
@@ -1218,6 +1274,7 @@
 				6A24F91C29D22D8B0000FD64 /* TodoSectionBackgroundDecorationView.swift */,
 				6A24F91E29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift */,
 				6A24F92029D22EC10000FD64 /* TodoDailyCalendarCell.swift */,
+				6A9AAAC529F808FB002A6DAF /* TodoCheckButton.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1726,7 +1783,9 @@
 				6A08ADB829C8A2B0005947D2 /* logo@2x.png in Resources */,
 				6A95E01929D5D145009017D8 /* GroupCreateDefaultImage@3x.png in Resources */,
 				6A0BF76A29D35D47006F2604 /* remove_swipe@3x.png in Resources */,
+				6A9AAAE229F80F73002A6DAF /* checkedBox@3x.png in Resources */,
 				6A987A6D29DEE44D00C27D09 /* DefaultProfileMedium2@3x.png in Resources */,
+				6A9AAAE329F80F73002A6DAF /* checkedBox.png in Resources */,
 				6A24F8B429CE3F800000FD64 /* Pretendard-Black.otf in Resources */,
 				6A95DFC529D4EB7C009017D8 /* peopleSmall@2x.png in Resources */,
 				6A1B3F0029D710BC00BFB3A6 /* JoinNotificationProfile.png in Resources */,
@@ -1736,6 +1795,7 @@
 				6A987A9429DF1A7A00C27D09 /* plusBtn.png in Resources */,
 				6A9A07BA29D3C7F10051AD43 /* arrow_dark@2x.png in Resources */,
 				6A95DFBF29D4E2E6009017D8 /* searchBarIcon@3x.png in Resources */,
+				6A9AAAF629F8151A002A6DAF /* todoCheck@3x.png in Resources */,
 				6A08AD8B29C892E0005947D2 /* check-done-01@2x.png in Resources */,
 				6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */,
 				6A95E00629D5B756009017D8 /* GroupAddBtn@2x.png in Resources */,
@@ -1744,29 +1804,39 @@
 				6A24F8B829CE3F800000FD64 /* Pretendard-Light.otf in Resources */,
 				6A987A3229DD995400C27D09 /* editBlack@2x.png in Resources */,
 				6A95E01829D5D145009017D8 /* GroupCreateDefaultImage@2x.png in Resources */,
+				6A9AAAD629F80A0D002A6DAF /* todoMemo@3x.png in Resources */,
 				6A24F8B629CE3F800000FD64 /* Pretendard-ExtraLight.otf in Resources */,
+				6A9AAAD829F80A0D002A6DAF /* todoMemo.png in Resources */,
+				6A9AAAF429F8151A002A6DAF /* todoCheck.png in Resources */,
 				6A24F8F929D1D6470000FD64 /* chevron-left.png in Resources */,
 				6A0BF76429D35D2C006F2604 /* edit_swipe.png in Resources */,
+				6A9AAADD29F80F69002A6DAF /* uncheckedBox.png in Resources */,
 				6A24F8EC29D1D4A40000FD64 /* user-circle@3x.png in Resources */,
 				6A08AD8829C892E0005947D2 /* search-sm@3x.png in Resources */,
 				6A08AD8D29C892E0005947D2 /* users-02@2x.png in Resources */,
 				6A95E01729D5D145009017D8 /* GroupCreateDefaultImage.png in Resources */,
 				6A08AD8629C892E0005947D2 /* check-done-01@3x.png in Resources */,
+				6A9AAAE429F80F73002A6DAF /* checkedBox@2x.png in Resources */,
 				6A24F8F729D1D6470000FD64 /* chevron-left@3x.png in Resources */,
+				6A9AAADE29F80F69002A6DAF /* uncheckedBox@2x.png in Resources */,
 				6A1B3EFF29D710BC00BFB3A6 /* JoinNotificationProfile@3x.png in Resources */,
 				6A987A6E29DEE44D00C27D09 /* DefaultProfileMedium2.png in Resources */,
 				6A95DFC729D4EB7C009017D8 /* peopleSmall@3x.png in Resources */,
 				6A08ADAB29C89DEE005947D2 /* kakaoBtn@2x.png in Resources */,
 				6A9A07B329D3C7E70051AD43 /* arrow_white@3x.png in Resources */,
+				6A9AAAD729F80A0D002A6DAF /* todoMemo@2x.png in Resources */,
 				6A1B3F0F29D7192A00BFB3A6 /* onlineIcon@2x.png in Resources */,
 				6A24F8B329CE3F800000FD64 /* Pretendard-Medium.otf in Resources */,
 				6A24F8B929CE3F800000FD64 /* Pretendard-ExtraBold.otf in Resources */,
 				6A08ADAF29C89DEE005947D2 /* appleBtn@2x.png in Resources */,
+				6A9AAACC29F809CC002A6DAF /* todoGroup.png in Resources */,
 				6A987A0E29DBE60600C27D09 /* DefaultProfileSmall.png in Resources */,
 				6A95DFFF29D5B5A9009017D8 /* PlanusGroup@2x.png in Resources */,
 				6A987A6729DEE31600C27D09 /* downButton@3x.png in Resources */,
 				6A08AD8929C892E0005947D2 /* calendar-date@2x.png in Resources */,
 				6A24F8E929D1D4A40000FD64 /* user-circle.png in Resources */,
+				6A9AAAD129F809EF002A6DAF /* todoCalendar@3x.png in Resources */,
+				6A9AAACA29F809CC002A6DAF /* todoGroup@2x.png in Resources */,
 				6A95DFBD29D4E2E6009017D8 /* searchBarIcon.png in Resources */,
 				6A0BF76529D35D2C006F2604 /* edit_swipe@2x.png in Resources */,
 				6A95E00429D5B756009017D8 /* GroupAddBtn@3x.png in Resources */,
@@ -1784,15 +1854,18 @@
 				6A08AD8529C892E0005947D2 /* search-sm@2x.png in Resources */,
 				6A95DFFE29D5B5A9009017D8 /* PlanusGroup.png in Resources */,
 				6A2BB1AD29E406A70053C5CA /* smallArrow@3.png in Resources */,
+				6A9AAADC29F80F69002A6DAF /* uncheckedBox@3x.png in Resources */,
 				6A08AD8229C892E0005947D2 /* users-02@3x.png in Resources */,
 				6A24F8B229CE3F800000FD64 /* Pretendard-Regular.otf in Resources */,
 				6A0BF75F29D2C25B006F2604 /* edit.png in Resources */,
+				6A9AAAF529F8151A002A6DAF /* todoCheck@2x.png in Resources */,
 				6A95DFCD29D4EC8D009017D8 /* captinSmall@2x.png in Resources */,
 				6A08ADAD29C89DEE005947D2 /* appleBtn@3x.png in Resources */,
 				6A95E00029D5B5A9009017D8 /* PlanusGroup@3x.png in Resources */,
 				6A1B3F0829D7192100BFB3A6 /* messageIcon.png in Resources */,
 				6A1B3F0929D7192100BFB3A6 /* messageIcon@2x.png in Resources */,
 				6A08AD5D29C87C63005947D2 /* LaunchScreen.storyboard in Resources */,
+				6A9AAAD229F809EF002A6DAF /* todoCalendar.png in Resources */,
 				6A95DFCB29D4EC8D009017D8 /* captinSmall@3x.png in Resources */,
 				6A95DFCC29D4EC8D009017D8 /* captinSmall.png in Resources */,
 				6A24F8F829D1D6470000FD64 /* chevron-right@3x.png in Resources */,
@@ -1803,9 +1876,11 @@
 				6A9A07B829D3C7F10051AD43 /* arrow_dark@3x.png in Resources */,
 				6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */,
 				6A95E01229D5BE8B009017D8 /* cameraBtn@3x.png in Resources */,
+				6A9AAAD029F809EF002A6DAF /* todoCalendar@2x.png in Resources */,
 				6A95DFF229D5B3DF009017D8 /* back.png in Resources */,
 				6A95DFF329D5B3DF009017D8 /* back@2x.png in Resources */,
 				6A0BF76C29D35D47006F2604 /* remove_swipe@2x.png in Resources */,
+				6A9AAACB29F809CC002A6DAF /* todoGroup@3x.png in Resources */,
 				6A9A07B929D3C7F10051AD43 /* arrow_dark.png in Resources */,
 				6A95DFFA29D5B400009017D8 /* share.png in Resources */,
 				6A987A6129DEDCE700C27D09 /* DefaultProfileMedium@2x.png in Resources */,
@@ -1910,6 +1985,7 @@
 				6A24F85629CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift in Sources */,
 				6A987A1F29DC268E00C27D09 /* GroupListViewModel.swift in Sources */,
 				6A987A2D29DCFDEF00C27D09 /* NestedScrollableViewController.swift in Sources */,
+				6A9AAAC629F808FB002A6DAF /* TodoCheckButton.swift in Sources */,
 				6A2BB1CB29E55EBE0053C5CA /* UpdateTodoUseCase.swift in Sources */,
 				6A987A4829DDB97A00C27D09 /* MyGroupNoticeEditCoordinator.swift in Sources */,
 				6A95DFD929D51C23009017D8 /* GroupIntroduceViewController.swift in Sources */,

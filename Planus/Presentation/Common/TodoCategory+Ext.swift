@@ -76,4 +76,35 @@ extension TodoCategoryColor {
             return UIColor(hex: 0x000000)
         }
     }
+    
+    var todoCheckColor: UIColor {
+        switch self {
+        case .blue:
+            return UIColor(hex: 0xD2E6F6)
+        case .gold:
+            return UIColor(hex: 0xFCF0CE)
+
+        case .pink:
+            return UIColor(hex: 0xF9E3E9)
+
+        case .purple:
+            return UIColor(hex: 0xE8D4F5)
+
+        case .green:
+            return UIColor(hex: 0xD7EDCD)
+
+        case .navy:
+            return UIColor(hex: 0xD3D2F2)
+
+        case .red:
+            return UIColor(hex: 0xF8D8D4)
+
+        case .yello:
+            return UIColor(hex: 0xFCF0CE)
+
+        case .none:
+            return UIColor(hex: 0xD2E6F6)
+
+        }
+    }
 }

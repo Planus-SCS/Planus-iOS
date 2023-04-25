@@ -172,9 +172,11 @@ final class TodoDetailViewModel {
             .todoSaveBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
+                print("1")
                 guard let title = try? vm.todoTitle.value(),
                       let date = try? vm.todoStartDay.value(),
                       let category = try? vm.todoCategory.value() else { return }
+                print("2")
                 let todo = Todo(title: title, date: date, category: category.color, type: .normal)
                 vm.completionHandler?(todo)
                 vm.needDismiss.onNext(())
