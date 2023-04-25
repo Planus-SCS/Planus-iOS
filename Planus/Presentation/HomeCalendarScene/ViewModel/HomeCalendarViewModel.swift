@@ -32,7 +32,7 @@ class HomeCalendarViewModel {
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
     var showCreateMultipleTodo = PublishSubject<(Date, Date)>()
-    var showDailyTodoPage = PublishSubject<Date>()
+    var showDailyTodoPage = PublishSubject<DayViewModel>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
     var needReloadSectionSet = PublishSubject<IndexSet>() //리로드 섹션을 해야함 왜?
@@ -55,7 +55,7 @@ class HomeCalendarViewModel {
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var todoListFetchedInIndexRange: Observable<(Int, Int)?> // a부터 b까지 리로드 해라!
         var showCreateMultipleTodo: Observable<(Date, Date)>
-        var showDailyTodoPage: Observable<Date>
+        var showDailyTodoPage: Observable<DayViewModel>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var needReloadSectionSet: Observable<IndexSet>
@@ -125,7 +125,7 @@ class HomeCalendarViewModel {
             .didSelectItem
             .withUnretained(self)
             .subscribe { vm, index in
-                vm.showDailyTodoPage.onNext(vm.mainDayList[index.0][index.1].date)
+                vm.showDailyTodoPage.onNext(vm.mainDayList[index.0][index.1])
             }
             .disposed(by: bag)
         

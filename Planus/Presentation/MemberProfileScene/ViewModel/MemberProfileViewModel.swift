@@ -30,7 +30,7 @@ class MemberProfileViewModel {
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
-    var showDailyTodoPage = PublishSubject<Date>()
+    var showDailyTodoPage = PublishSubject<DayViewModel>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
     
@@ -49,7 +49,7 @@ class MemberProfileViewModel {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var todoListFetchedInIndexRange: Observable<(Int, Int)?> // a부터 b까지 리로드 해라!
-        var showDailyTodoPage: Observable<Date>
+        var showDailyTodoPage: Observable<DayViewModel>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
     }
@@ -107,7 +107,7 @@ class MemberProfileViewModel {
             .didSelectItem
             .withUnretained(self)
             .subscribe { vm, indexPath in
-                vm.showDailyTodoPage.onNext(vm.mainDayList[indexPath.section][indexPath.item].date)
+                vm.showDailyTodoPage.onNext(vm.mainDayList[indexPath.section][indexPath.item])
             }
             .disposed(by: bag)
         

@@ -58,26 +58,25 @@ class TodoDailyViewController: UIViewController {
         
         bind()
         
-        navigationItem.setRightBarButton(addTodoButton, animated: false)
         collectionView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationItem.titleView = dateTitleButton
+        navigationItem.setRightBarButton(addTodoButton, animated: false)
     }
     
     func bind() {
         guard let viewModel else { return }
         
         let input = TodoDailyViewModel.Input(
-            addTodoBtnTapped: addTodoButton.rx.tap.asObservable(),
             deleteTodoAt: didDeleteTodoAt.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
-        addTodoButton.isHidden = output.isOwner ?? false
+        addTodoButton.isHidden = !(output.isOwner ?? true)
         dateTitleButton.setTitle(output.currentDateText, for: .normal)
         
         output

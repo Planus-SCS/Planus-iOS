@@ -138,14 +138,20 @@ class HomeCalendarViewController: UIViewController {
         
         output.showDailyTodoPage
             .withUnretained(self)
-            .subscribe(onNext: { vc, date in
-                guard let minDate = vc.viewModel?.mainDayList.first?.first?.date,
-                      let maxDate = vc.viewModel?.mainDayList.last?.last?.date else {
-                    return
-                }
-                let fetchTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: TestTodoRepository())
-                let viewModel = TodoDailyViewModel(fetchTodoListUseCase: fetchTodoListUseCase)
-                viewModel.setDate(currentDate: date, min: minDate, max: maxDate)
+            .subscribe(onNext: { vc, dayViewModel in
+
+                let createTodoUseCase = DefaultCreateTodoUseCase.shared
+                let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
+                let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
+                
+                let viewModel = TodoDailyViewModel(
+                    createTodoUseCase: createTodoUseCase,
+                    updateTodoUseCase: updateTodoUseCase,
+                    deleteTodoUseCase: deleteTodoUseCase
+                )
+                
+                viewModel.setDate(currentDate: dayViewModel.date)
+                viewModel.setTodoList(todoList: dayViewModel.todoList ?? [])
 
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)

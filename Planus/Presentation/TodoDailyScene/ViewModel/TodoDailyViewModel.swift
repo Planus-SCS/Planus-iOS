@@ -12,10 +12,7 @@ import RxSwift
 
 class TodoDailyViewModel {
     var bag = DisposeBag()
-    
-    var minDate: Date?
-    var maxDate: Date?
-    
+
     var isOwner: Bool?
     
     var scheduledTodoList: [Todo]?
@@ -31,7 +28,6 @@ class TodoDailyViewModel {
     }()
     
     struct Input {
-        var addTodoBtnTapped: Observable<Void>
         var deleteTodoAt: Observable<IndexPath>
     }
     
@@ -65,11 +61,10 @@ class TodoDailyViewModel {
         self.isOwner = isOwner
     }
     
-    func setDate(currentDate: Date, min: Date, max: Date) {
+    func setDate(currentDate: Date) {
         self.currentDate = currentDate
         self.currentDateText = dateFormatter.string(from: currentDate)
-        self.minDate = min
-        self.maxDate = max
+        print(self.currentDateText)
     }
     
     func setTodoList(todoList: [Todo]) {
@@ -152,14 +147,10 @@ class TodoDailyViewModel {
     }
     
     func transform(input: Input) -> Output {
-        input
-            .addTodoBtnTapped
-            .subscribe(onNext: { _ in
-                
-            })
-            .disposed(by: bag)
         
         return Output(
+            currentDateText: currentDateText,
+            isOwner: true,
             needInsertItem: needInsertItem.asObservable(),
             needReloadItem: needReloadItem.asObservable(),
             needDeleteItem: needDeleteItem.asObservable()
