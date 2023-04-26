@@ -22,10 +22,10 @@ class DefaultReadTodoListUseCase: ReadTodoListUseCase {
             .map { list in
                 var dict = [Date: [Todo]]()
                 list.forEach { todo in
-                    if dict[todo.date] == nil {
-                        dict[todo.date] = []
+                    if dict[todo.startDate] == nil {
+                        dict[todo.startDate] = []
                     }
-                    dict[todo.date]?.append(todo)
+                    dict[todo.startDate]?.append(todo)
                 }
                 return dict
             }

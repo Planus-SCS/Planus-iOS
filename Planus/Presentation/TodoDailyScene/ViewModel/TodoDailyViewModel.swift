@@ -71,7 +71,7 @@ class TodoDailyViewModel {
         var scheduled = [Todo]()
         var unscheduled = [Todo]()
         todoList.forEach {
-            if let _ = $0.time {
+            if let _ = $0.startTime {
                 scheduled.append($0)
             } else {
                 unscheduled.append($0)
@@ -94,7 +94,7 @@ class TodoDailyViewModel {
             .subscribe(onNext: { vm, todo in
                 var section: Int
                 var item: Int
-                if let _ = todo.time {
+                if let _ = todo.startTime {
                     vm.scheduledTodoList?.append(todo)
                     section = 0
                     item = (vm.scheduledTodoList?.count ?? Int()) - 1
@@ -113,7 +113,7 @@ class TodoDailyViewModel {
             .subscribe(onNext: { vm, todo in
                 var section: Int
                 var item: Int
-                if let _ = todo.time {
+                if let _ = todo.startTime {
                     section = 0
                     item = vm.scheduledTodoList?.firstIndex(where: { $0.id == todo.id }) ?? 0
                     vm.scheduledTodoList?[item] = todo
@@ -132,7 +132,7 @@ class TodoDailyViewModel {
             .subscribe(onNext: { vm, todo in
                 var section: Int
                 var item: Int
-                if let _ = todo.time {
+                if let _ = todo.startTime {
                     section = 0
                     item = vm.scheduledTodoList?.firstIndex(where: { $0.id == todo.id }) ?? 0
                     vm.scheduledTodoList?.remove(at: item)

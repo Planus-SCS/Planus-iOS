@@ -249,8 +249,8 @@ class TodoMainViewModel {
                 (fromIndex..<toIndex).forEach { index in
                     var detailDayViewModel = self.mainDayList[index]
                     if let list = todoDict[detailDayViewModel.date] {
-                        detailDayViewModel.scheduledTodoList = list.filter { $0.time != nil }
-                        detailDayViewModel.unSchedultedTodoList = list.filter { $0.time == nil }
+                        detailDayViewModel.scheduledTodoList = list.filter { $0.startTime != nil }
+                        detailDayViewModel.unSchedultedTodoList = list.filter { $0.startTime == nil }
                     }
                     self.mainDayList[index] = detailDayViewModel
                 }

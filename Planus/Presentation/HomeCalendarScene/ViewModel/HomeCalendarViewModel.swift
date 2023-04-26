@@ -201,7 +201,7 @@ class HomeCalendarViewModel {
             .didCreateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
-                let date = todo.date
+                let date = todo.startDate
                 let start = vm.mainDayList[0][7].date
                 let monthIndex = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
                 
@@ -230,7 +230,7 @@ class HomeCalendarViewModel {
             .didUpdateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
-                let date = todo.date
+                let date = todo.startDate
                 let start = vm.mainDayList[0][7].date
                 let monthIndex = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
                 
@@ -264,7 +264,7 @@ class HomeCalendarViewModel {
             .didDeleteTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
-                let date = todo.date
+                let date = todo.startDate
                 let start = vm.mainDayList[0][7].date
                 let monthIndex = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
                 

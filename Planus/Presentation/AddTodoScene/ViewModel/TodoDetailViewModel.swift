@@ -177,7 +177,7 @@ final class TodoDetailViewModel {
                       let date = try? vm.todoStartDay.value(),
                       let category = try? vm.todoCategory.value() else { return }
                 print("2")
-                let todo = Todo(title: title, date: date, category: category.color, type: .normal)
+                let todo = Todo(title: title, startDate: date, category: category.color, type: .normal)
                 vm.completionHandler?(todo)
                 vm.needDismiss.onNext(())
             })

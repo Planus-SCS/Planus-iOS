@@ -52,50 +52,50 @@ class TodoContainer {
         var dict = [Date: [Todo]]()
         var calendarDate = Calendar.current.date(byAdding: DateComponents(day: 0), to: Calendar.current.date(byAdding: DateComponents(month: 0), to: standardDate) ?? Date()) ?? Date()
         todoDict[calendarDate] = []
-        todoDict[calendarDate]?.append(Todo(title: "창재형이랑 롤하기", date: calendarDate, category: .green, type: .normal)) //일상
-        todoDict[calendarDate]?.append(Todo(title: "SCSY 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
-        todoDict[calendarDate]?.append(Todo(title: "알고리즘 스터디 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 5시")) //미팅
-        todoDict[calendarDate]?.append(Todo(title: "백준 12746 풀기", date: calendarDate, category: .purple, type: .normal)) //개인 공부
-        todoDict[calendarDate]?.append(Todo(title: "헬스장!!", date: calendarDate, category: .green, type: .normal))
-        todoDict[calendarDate]?.append(Todo(title: "백준 12746 풀기", date: calendarDate, category: .yello, type: .normal)) //개인 공부
-        todoDict[calendarDate]?.append(Todo(title: "헬스장!!", date: calendarDate, category: .navy, type: .normal))
+        todoDict[calendarDate]?.append(Todo(title: "창재형이랑 롤하기", startDate: calendarDate, category: .green, type: .normal)) //일상
+        todoDict[calendarDate]?.append(Todo(title: "SCSY 미팅", startDate: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
+        todoDict[calendarDate]?.append(Todo(title: "알고리즘 스터디 미팅", startDate: calendarDate, category: .blue, type: .normal, time: "오후 5시")) //미팅
+        todoDict[calendarDate]?.append(Todo(title: "백준 12746 풀기", startDate: calendarDate, category: .purple, type: .normal)) //개인 공부
+        todoDict[calendarDate]?.append(Todo(title: "헬스장!!", startDate: calendarDate, category: .green, type: .normal))
+        todoDict[calendarDate]?.append(Todo(title: "백준 12746 풀기", startDate: calendarDate, category: .yello, type: .normal)) //개인 공부
+        todoDict[calendarDate]?.append(Todo(title: "헬스장!!", startDate: calendarDate, category: .navy, type: .normal))
         let date2 = Calendar.current.date(byAdding: DateComponents(day: 1), to: calendarDate) ?? Date()
 
         todoDict[date2] = []
-        todoDict[date2]?.append(Todo(title: "창재형이랑 롤하기2", date: calendarDate, category: .green, type: .normal)) //일상
-        todoDict[date2]?.append(Todo(title: "SCSY 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
-        todoDict[date2]?.append(Todo(title: "백준 12746 풀기", date: calendarDate, category: .purple, type: .normal)) //개인 공부
+        todoDict[date2]?.append(Todo(title: "창재형이랑 롤하기2", startDate: calendarDate, category: .green, type: .normal)) //일상
+        todoDict[date2]?.append(Todo(title: "SCSY 미팅", startDate: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
+        todoDict[date2]?.append(Todo(title: "백준 12746 풀기", startDate: calendarDate, category: .purple, type: .normal)) //개인 공부
 
 
         let date3 = Calendar.current.date(byAdding: DateComponents(day: 1), to: date2) ?? Date()
 
         todoDict[date3] = []
-        todoDict[date3]?.append(Todo(title: "창재형이랑 롤하기3", date: calendarDate, category: .green, type: .normal)) //일상
-        todoDict[date3]?.append(Todo(title: "SCSY 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
-        todoDict[date3]?.append(Todo(title: "백준 12746 풀기", date: calendarDate, category: .purple, type: .normal)) //개인 공부
+        todoDict[date3]?.append(Todo(title: "창재형이랑 롤하기3", startDate: calendarDate, category: .green, type: .normal)) //일상
+        todoDict[date3]?.append(Todo(title: "SCSY 미팅", startDate: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
+        todoDict[date3]?.append(Todo(title: "백준 12746 풀기", startDate: calendarDate, category: .purple, type: .normal)) //개인 공부
 
 
         let date4 = Calendar.current.date(byAdding: DateComponents(day: 1), to: date3) ?? Date()
 
         todoDict[date4] = []
-        todoDict[date4]?.append(Todo(title: "창재형이랑 롤하기4", date: calendarDate, category: .green, type: .normal)) //일상
-        todoDict[date4]?.append(Todo(title: "SCSY 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
-        todoDict[date4]?.append(Todo(title: "백준 12746 풀기", date: calendarDate, category: .purple, type: .normal)) //개인 공부
+        todoDict[date4]?.append(Todo(title: "창재형이랑 롤하기4", startDate: calendarDate, category: .green, type: .normal)) //일상
+        todoDict[date4]?.append(Todo(title: "SCSY 미팅", startDate: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
+        todoDict[date4]?.append(Todo(title: "백준 12746 풀기", startDate: calendarDate, category: .purple, type: .normal)) //개인 공부
 
         let date5 = Calendar.current.date(byAdding: DateComponents(day: 1), to: date4) ?? Date()
 
         todoDict[date5] = []
-        todoDict[date5]?.append(Todo(title: "창재형이랑 롤하기5", date: calendarDate, category: .green, type: .normal)) //일상
-        todoDict[date5]?.append(Todo(title: "SCSY 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
-        todoDict[date5]?.append(Todo(title: "백준 12746 풀기", date: calendarDate, category: .purple, type: .normal)) //개인 공부
+        todoDict[date5]?.append(Todo(title: "창재형이랑 롤하기5", startDate: calendarDate, category: .green, type: .normal)) //일상
+        todoDict[date5]?.append(Todo(title: "SCSY 미팅", startDate: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
+        todoDict[date5]?.append(Todo(title: "백준 12746 풀기", startDate: calendarDate, category: .purple, type: .normal)) //개인 공부
 
 
         let date6 = Calendar.current.date(byAdding: DateComponents(day: 1), to: date5) ?? Date()
 
         todoDict[date6] = []
-        todoDict[date6]?.append(Todo(title: "창재형이랑 롤하기6", date: calendarDate, category: .green, type: .normal)) //일상
-        todoDict[date6]?.append(Todo(title: "SCSY 미팅", date: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
-        todoDict[date6]?.append(Todo(title: "백준 12746 풀기", date: calendarDate, category: .purple, type: .normal)) //개인 공부
+        todoDict[date6]?.append(Todo(title: "창재형이랑 롤하기6", startDate: calendarDate, category: .green, type: .normal)) //일상
+        todoDict[date6]?.append(Todo(title: "SCSY 미팅", startDate: calendarDate, category: .blue, type: .normal, time: "오후 2시")) //미팅
+        todoDict[date6]?.append(Todo(title: "백준 12746 풀기", startDate: calendarDate, category: .purple, type: .normal)) //개인 공부
         
         calendarDate = Calendar.current.date(byAdding: DateComponents(year: -1), to: calendarDate) ?? Date()
         
@@ -105,7 +105,7 @@ class TodoContainer {
 
             todoDict[tmpCalendarDate] = []
             for j in 0..<2 {
-                todoDict[tmpCalendarDate]?.append(Todo(title: "\(dateFormatter.string(from: tmpCalendarDate))", date: tmpCalendarDate, category: .init(rawValue: j)!, type: .normal))
+                todoDict[tmpCalendarDate]?.append(Todo(title: "\(dateFormatter.string(from: tmpCalendarDate))", startDate: tmpCalendarDate, category: .init(rawValue: j)!, type: .normal))
             }
         }
         
@@ -130,10 +130,10 @@ class TodoContainer {
     }
     
     func uploadTodo(todo: Todo) {
-        if todoDict[todo.date] == nil {
-            todoDict[todo.date] = []
+        if todoDict[todo.startDate] == nil {
+            todoDict[todo.startDate] = []
         }
-        todoDict[todo.date]?.append(todo)
+        todoDict[todo.startDate]?.append(todo)
         
     }
 }

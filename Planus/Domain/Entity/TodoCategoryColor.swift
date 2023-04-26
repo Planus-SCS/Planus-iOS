@@ -20,6 +20,13 @@ enum TodoCategoryColor: Int, CaseIterable {
 }
 
 struct TodoCategory {
+    var id: String
     var title: String
     var color: TodoCategoryColor
+    
+    init(title: String, color: TodoCategoryColor) {
+        self.id = UUID().uuidString
+        self.title = title
+        self.color = color
+    }
 }
