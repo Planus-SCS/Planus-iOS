@@ -14,7 +14,7 @@ class DefaultCreateMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase {
         self.calendar = Calendar.current
     }
     
-    func execute(date: Date) -> [DayViewModel] { //여기서 달력을 생산하고, 저짝에서 이 모든 달력에 대해 투두를 뽑아서 하나의 달력뷰모델에 넣어두면 되는거 아녀?
+    func execute(date: Date) -> [DayViewModel] {
         
         let currentMonthStartIndex = (calendar.startDayOfTheWeek(from: date) + 7 - 1)%7
         let followingMonthStartIndex = currentMonthStartIndex + calendar.endDateOfMonth(for: date)

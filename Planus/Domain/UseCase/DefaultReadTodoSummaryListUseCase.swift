@@ -8,19 +8,19 @@
 import Foundation
 import RxSwift
 
-class DefaultReadTodoListUseCase: ReadTodoListUseCase {
+class DefaultReadTodoSummaryListUseCase: ReadTodoSummaryListUseCase {
     
-    let todoRepository: TodoRepository
+    let todoRepository: TodoDetailRepository
     
-    init(todoRepository: TodoRepository) {
+    init(todoRepository: TodoDetailRepository) {
         self.todoRepository = todoRepository
     }
     
-    func execute(from: Date, to: Date) -> Single<[Date: [Todo]]> { //정렬된 상태로 받는다는 가정 하에 이런식으로 day마다 리스트를 나눠줌
+    func execute(from: Date, to: Date) -> Single<[Date: [TodoSummary]]> { //정렬된 상태로 받는다는 가정 하에 이런식으로 day마다 리스트를 나눠줌
         return todoRepository
             .readTodo(from: from, to: to)
             .map { list in
-                var dict = [Date: [Todo]]()
+                var dict = [Date: [TodoSummary]]()
                 list.forEach { todo in
                     if dict[todo.startDate] == nil {
                         dict[todo.startDate] = []

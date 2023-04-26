@@ -62,7 +62,7 @@ class HomeCalendarViewModel {
     }
     
     let createTodoUseCase: CreateTodoUseCase
-    let readTodoListUseCase: ReadTodoListUseCase
+    let readTodoListUseCase: ReadTodoSummaryListUseCase
     let updateTodoUseCase: UpdateTodoUseCase
     let deleteTodoUseCase: DeleteTodoUseCase
     
@@ -71,7 +71,7 @@ class HomeCalendarViewModel {
     
     init(
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        readTodoListUseCase: ReadTodoListUseCase,
+        readTodoListUseCase: ReadTodoSummaryListUseCase,
         createTodoUseCase: CreateTodoUseCase,
         updateTodoUseCase: UpdateTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,

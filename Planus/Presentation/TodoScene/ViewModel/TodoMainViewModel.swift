@@ -59,11 +59,11 @@ class TodoMainViewModel {
         var dayChangedByPicker: Observable<Date> //인덱스만 알려주자!
     }
     
-    let fetchTodoListUseCase: ReadTodoListUseCase
+    let fetchTodoListUseCase: ReadTodoSummaryListUseCase
     let createDailyCalendarUseCase: CreateDailyCalendarUseCase
     
     init(
-        fetchTodoListUseCase: ReadTodoListUseCase,
+        fetchTodoListUseCase: ReadTodoSummaryListUseCase,
         createDailyCalendarUseCase: CreateDailyCalendarUseCase
     ) {
         self.fetchTodoListUseCase = fetchTodoListUseCase

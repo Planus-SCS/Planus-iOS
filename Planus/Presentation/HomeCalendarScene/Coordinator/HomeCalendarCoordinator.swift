@@ -27,10 +27,10 @@ class HomeCalendarCoordinator: Coordinator {
     
     lazy var showHomeCalendarPage: () -> Void = { [weak self] in
         
-        let todoRepository = TestTodoRepository()
+        let todoRepository = TestTodoDetailRepository()
         
         let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-        let readTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: todoRepository)
+        let readTodoListUseCase = DefaultReadTodoSummaryListUseCase(todoRepository: todoRepository)
         let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
         let createTodoUseCase = DefaultCreateTodoUseCase.shared
         let updateTodoUseCase = DefaultUpdateTodoUseCase.shared

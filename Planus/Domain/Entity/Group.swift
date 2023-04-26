@@ -17,7 +17,7 @@ struct Group {
     }
 }
 
-struct GroupResponseDTO {
+struct GroupResponseDTO: Codable {
     var id: Int
     var title: String
     
