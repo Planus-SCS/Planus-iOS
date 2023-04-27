@@ -8,13 +8,13 @@
 import Foundation
 
 struct Todo {
-    var id: Int
+    var id: Int?
     var title: String
     var startDate: Date
     var endDate: Date
     var memo: String?
-    var group: Group?
-    var category: Category?
+    var groupId: Int?
+    var categoryId: Int
     var startTime: String?
     
     init(
@@ -23,8 +23,8 @@ struct Todo {
         startDate: Date,
         endDate: Date,
         memo: String?,
-        group: Group?,
-        category: Category?,
+        groupId: Int?,
+        categoryId: Int,
         startTime: String?
     ) {
         self.id = id
@@ -32,9 +32,26 @@ struct Todo {
         self.startDate = startDate
         self.endDate = endDate
         self.memo = memo
-        self.group = group
-        self.category = category
+        self.groupId = groupId
+        self.categoryId = categoryId
         self.startTime = startTime
     }
 }
 
+extension Todo {
+    func toDTO() -> TodoRequestDTO {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = .current
+        
+        return TodoRequestDTO(
+            title: title,
+            categoryId: categoryId,
+            groupId: groupId,
+            startDate: dateFormatter.string(from: startDate),
+            endDate: dateFormatter.string(from: endDate),
+            startTime: startTime,
+            description: memo
+        )
+    }
+}

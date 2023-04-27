@@ -11,6 +11,8 @@ class DailyCalendarCell: UICollectionViewCell {
     
     static let identifier = "daily-calendar-cell"
     
+    weak var delegate: DailyCalendarCellDelegate?
+    
     override var isSelected: Bool {
       didSet {
         if isSelected {
@@ -97,7 +99,8 @@ class DailyCalendarCell: UICollectionViewCell {
         }
     }
     
-    func fill(day: String, state: MonthStateOfDay, weekDay: WeekDay, todoList: [Todo]?) {
+    func fill(delegate: DailyCalendarCellDelegate, day: String, state: MonthStateOfDay, weekDay: WeekDay, todoList: [Todo]?) {
+        self.delegate = delegate
         numberLabel.text = day
         
         var alpha: Double
@@ -124,7 +127,8 @@ class DailyCalendarCell: UICollectionViewCell {
     
     func fill(todoList: [Todo]?) {
         todoList?.forEach {
-            let todoView = SmallTodoView(text: $0.title, category: $0.category)
+            guard let color = self.delegate?.dailyCalendarCell(self, colorOfCategoryId: $0.categoryId) else { return }
+            let todoView = SmallTodoView(text: $0.title, categoryColor: color)
             todoView.snp.makeConstraints {
                 $0.height.equalTo(16)
             }
@@ -132,5 +136,8 @@ class DailyCalendarCell: UICollectionViewCell {
             views.append(todoView)
         }
     }
+}
 
+protocol DailyCalendarCellDelegate: AnyClass {
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor?
 }

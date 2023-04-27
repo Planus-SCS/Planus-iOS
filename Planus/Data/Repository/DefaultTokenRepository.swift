@@ -13,29 +13,32 @@ class DefaultTokenRepository: TokenRepository {
     let apiProvider: APIProvider
     let keyChainManager: KeyChainManager
     
-    init(keyChainManager: KeyChainManager) {
+    init(
+        apiProvider: APIProvider,
+        keyChainManager: KeyChainManager
+    ) {
         self.keyChainManager = keyChainManager
+        self.apiProvider = apiProvider
     }
     
     func refresh() -> Single<Void>? {
-        guard let refreshToken = keyChainManager.get(key: "refreshToken") as? String else {
-            return nil
-        }
-        
+        guard let token = get() else { return nil }
+                
         let endPoint = APIEndPoint(
             url: "localhost:8080/app/auth/token-reissue",
             requestType: .post,
-            body: nil,
+            body: token.toDTO(),
             query: nil,
-            header: ["Authorization": refreshToken]
+            header: nil
         )
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: Token.self
+            type: ResponseDTO<TokenResponseDataDTO>.self
         )
-        .map { [weak self] in
-            self?.set(token: $0)
+        .map { [weak self] dto in
+            let token = dto.data.toDomain()
+            self?.set(token: token)
             return ()
         }
     }

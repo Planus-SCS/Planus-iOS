@@ -21,7 +21,10 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
             requestType: .get,
             body: nil,
             query: nil,
-            header: ["Authorization": token]
+            header: [
+                "Authorization": "Bearer \(token)",
+                "Content-Type": "application/json"
+            ]
         )
         
         return apiProvider.requestCodable(
@@ -36,7 +39,10 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
             requestType: .post,
             body: category,
             query: nil,
-            header: ["Authorization": token]
+            header: [
+                "Authorization": "Bearer \(token)",
+                "Content-Type": "application/json"
+            ]
         )
         
         return apiProvider.requestCodable(
@@ -51,7 +57,10 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
             requestType: .patch,
             body: category,
             query: nil,
-            header: ["Authorization": token]
+            header: [
+                "Authorization": "Bearer \(token)",
+                "Content-Type": "application/json"
+            ]
         )
         
         return apiProvider.requestCodable(
@@ -66,7 +75,10 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
             requestType: .delete,
             body: nil,
             query: nil,
-            header: ["Authorization": token]
+            header: [
+                "Authorization": "Bearer \(token)",
+                "Content-Type": "application/json"
+            ]
         )
         
         return apiProvider.requestCodable(

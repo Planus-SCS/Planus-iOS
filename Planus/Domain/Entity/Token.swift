@@ -7,7 +7,16 @@
 
 import Foundation
 
-struct Token: Codable {
+struct Token {
     var accessToken: String
     var refreshToken: String
+}
+
+extension Token {
+    func toDTO() -> TokenRequestDTO {
+        return TokenRequestDTO(
+            accessToken: accessToken,
+            refreshToken: refreshToken
+        )
+    }
 }

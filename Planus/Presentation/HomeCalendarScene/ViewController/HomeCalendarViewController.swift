@@ -375,5 +375,8 @@ extension HomeCalendarViewController: MonthlyCalendarCellDelegate {
         return self.view.frame.size
     }
     
+    func colorOf(_ monthlyCalendarCell: MonthlyCalendarCell, colorOfCategoryId id: Int) -> CategoryColor? {
+        return viewModel?.categoryDict[id]?.color
+    }
     
 }

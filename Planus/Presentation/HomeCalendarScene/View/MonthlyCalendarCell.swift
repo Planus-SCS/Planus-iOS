@@ -111,7 +111,13 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             return UICollectionViewCell()
         }
         
-        cell.fill(day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!, todoList: dayViewModel.todoList)
+        cell.fill(
+            delegate: self,
+            day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
+            state: dayViewModel.state,
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
+            todoList: dayViewModel.todoList
+        ) //카테고리색을 어케하지??? 싱글턴 딕셔너리 개마렵다 ㅋㅋㅋ,,,,,,,,........
 
         return cell
     }
@@ -148,22 +154,6 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         }
         return false
     }
-    
-//    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-//        if let cell = collectionView.cellForItem(at: indexPath) as? DailyCalendarCell {
-//            print("hilight!")
-//            let pressedDownTransform = CGAffineTransform(scaleX: 0.98, y: 0.98)
-//            UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 3, options: [.curveEaseInOut], animations: { cell.transform = pressedDownTransform })
-//        }
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-//        if let cell = collectionView.cellForItem(at: indexPath) as? DailyCalendarCell {
-//            print("unhilight")
-//            let originalTransform = CGAffineTransform(scaleX: 1, y: 1)
-//            UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 3, options: [.curveEaseInOut], animations: { cell.transform = originalTransform })
-//        }
-//    }
     
 }
 
@@ -288,5 +278,11 @@ extension MonthlyCalendarCell {
 extension MonthlyCalendarCell: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+}
+
+extension MonthlyCalendarCell: DailyCalendarCellDelegate {
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId id: Int) -> CategoryColor? {
+        delegate?.colorOf(self, colorOfCategoryId: id)
     }
 }

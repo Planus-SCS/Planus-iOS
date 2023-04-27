@@ -26,8 +26,8 @@ class TodoCoordinator: Coordinator {
     }
     
     lazy var showTodoPage: () -> Void = { [weak self] in
-        let todoRepo = TestTodoDetailRepository()
-        let fetchTodoUseCase = DefaultReadTodoSummaryListUseCase(todoRepository: todoRepo)
+        let todoRepo = TestTodoDetailRepository(apiProvider: NetworkManager())
+        let fetchTodoUseCase = DefaultReadTodoListUseCase(todoRepository: todoRepo)
         let createDailyCalendarUseCase = DefaultCreateDailyCalendarUseCase()
         let vm = TodoMainViewModel(fetchTodoListUseCase: fetchTodoUseCase, createDailyCalendarUseCase: createDailyCalendarUseCase)
         let vc = TodoMainViewController(viewModel: vm)

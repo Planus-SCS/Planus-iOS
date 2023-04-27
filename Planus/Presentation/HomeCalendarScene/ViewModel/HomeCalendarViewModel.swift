@@ -28,6 +28,20 @@ class HomeCalendarViewModel {
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
     var mainDayList = [[DayViewModel]]()
+    
+    var groupDict = [Int: Group]()
+    var categoryDict = [Int: Category]()
+    //그럼 투두는 왜 이렇게 안하고?...왜 굳이 데이뷰모델 안에 넣어뒀어???...왜드라..??????
+    // 이거 일단 받아오는순서
+    /*
+     1. 그룹, 카테고리 받아오기
+     2. 달력 그리기(이건 1이랑 같이 그려도 되고 투두 다받아오면 그때 보여줘도 상관없을듯
+     3. 투두받아오는건 무적권 그룹, 카테고리 받아오는게 끝나있어야한다!
+     근데 그룹, 카테고리를 subject로 할까 그냥할까? behavior로 일단 하자...!!!
+     그럼 두개 받아오는거의 combinelatest써서 첫 1회만 투두 받아오는걸 시작하자..!!!
+     그다음부터는.... 카테고리가 업댓될때마다 리로드
+     그리고 그룹이 업데이트(가입하거나 탈퇴하거나)할때마다,,, 그룹 탈퇴는 아에 투두목록에서 싹다 해당 그룹을 지워야함... 그룹가입도 비슷함,,,
+     */
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
@@ -36,6 +50,9 @@ class HomeCalendarViewModel {
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
     var needReloadSectionSet = PublishSubject<IndexSet>() //리로드 섹션을 해야함 왜?
+    var needReloadData = PublishSubject<Void>()
+    var categoryChanged = PublishSubject<Void?>()
+    var groupChanged = PublishSubject<Void?>()
     
     var currentIndex = Int()
     var cachedCellHeightForTodoCount = [Int: Double]()
@@ -61,29 +78,38 @@ class HomeCalendarViewModel {
         var needReloadSectionSet: Observable<IndexSet>
     }
     
+    let getTokenUseCase: GetTokenUseCase
+    let refreshTokenUseCase: RefreshTokenUseCase
+    
     let createTodoUseCase: CreateTodoUseCase
     let readTodoListUseCase: ReadTodoListUseCase
     let updateTodoUseCase: UpdateTodoUseCase
     let deleteTodoUseCase: DeleteTodoUseCase
     
-    let readCategoryListUseCase: 
+    let readCategoryListUseCase: ReadCategoryListUseCase
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     
     init(
-        createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        readTodoListUseCase: ReadTodoListUseCase,
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase,
         createTodoUseCase: CreateTodoUseCase,
+        readTodoListUseCase: ReadTodoListUseCase,
         updateTodoUseCase: UpdateTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
+        readCategoryListUseCase: ReadCategoryListUseCase,
+        createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     ) {
-        self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
-        self.readTodoListUseCase = readTodoListUseCase
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
         self.createTodoUseCase = createTodoUseCase
+        self.readTodoListUseCase = readTodoListUseCase
         self.updateTodoUseCase = updateTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
+        self.readCategoryListUseCase = readCategoryListUseCase
+        self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
         
         bind()
@@ -95,6 +121,15 @@ class HomeCalendarViewModel {
             .subscribe { [weak self] date in
                 self?.updateTitle(date: date)
             }
+            .disposed(by: bag)
+        
+        categoryChanged
+            .compactMap { $0 }
+            .skip(1)
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in // 처음엔 리로드 아직, 투두까지 완료되고 리로드
+                vm.needReloadData.onNext(())
+            })
             .disposed(by: bag)
     }
     
@@ -109,9 +144,20 @@ class HomeCalendarViewModel {
                 )
                 
                 let currentDate = vm.calendar.date(from: components) ?? Date()
+                // 이걸 싹다 하기전에 카테고리를 먼저 받아와야한다...!!!
                 vm.currentDate.onNext(currentDate)
                 vm.initCalendar(date: currentDate)
-                vm.initTodoList(date: currentDate)
+                
+                //이때까지는 로딩 인디케이터를 보여줘야하나??? 음,,,
+                vm.fetchCategory()
+                vm.categoryChanged //카테고리 받고, 그다음에 투두 받는 방향으로 진행
+                    .take(1)
+                    .subscribe(onNext: { _ in
+                        vm.initTodoList(date: currentDate)
+                    })
+                    .disposed(by: vm.bag)
+                // 아니면 투두랑 카테고리를 같이 받아올까???
+                
             }
             .disposed(by: bag)
         
@@ -367,11 +413,35 @@ class HomeCalendarViewModel {
                         dayViewModel.todoList = todoDict[$0.date]
                         return dayViewModel
                     }
-                    
                 }
                 self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
             })
             .disposed(by: bag)
+    }
+    
+    // 카테고리 때문에 리로드해야하는 상황은,,, 카테고리 생성, 색변경 둘만있음..! 그럼 카테고리를 레포쪽에 캐싱해둬야하는가?
+    // 그리고 울릴때마다 레포쪽 캐싱해놓은거를 다시 뷰모델로 받아오도록 할까???
+    func fetchCategory() {
+        guard let token = getTokenUseCase.execute() else {
+            // 로그아웃해야함다시... 근데 이런상황이 있긴 할까?
+            return
+        }
+
+        readCategoryListUseCase
+            .execute(token: token)
+            .subscribe(onSuccess: { [weak self] list in
+                list.forEach {
+                    guard let id = $0.id else { return }
+                    self?.categoryDict[id] = $0
+                }
+                self?.categoryChanged.onNext(())
+            })
+            .disposed(by: bag)
+        //토큰따라 리트라이 로직 필요
+    }
+    
+    func fetchGroup() {
+        
     }
 }
 

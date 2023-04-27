@@ -11,6 +11,7 @@ import Foundation
 struct TodoRequestDTO: Codable {
     var title: String
     var categoryId: Int
+    var groupId: Int?
     var startDate: String
     var endDate: String
     var startTime: String?
@@ -19,6 +20,7 @@ struct TodoRequestDTO: Codable {
     init(
         title: String,
         categoryId: Int,
+        groupId: Int?,
         startDate: String,
         endDate: String,
         startTime: String?,
@@ -26,6 +28,7 @@ struct TodoRequestDTO: Codable {
     ) {
         self.title = title
         self.categoryId = categoryId
+        self.groupId = groupId
         self.startDate = startDate
         self.endDate = endDate
         self.startTime = startTime
@@ -34,32 +37,36 @@ struct TodoRequestDTO: Codable {
 }
 
 struct TodoEntityResponseDTO: Codable {
-    var id: Int
+    var todoId: Int
     var title: String
+    var categoryId: Int
+    var groupId: Int?
     var startDate: Date?
     var endDate: Date?
-    var memo: String?
-    var group: GroupResponseDTO?
-    var category: CategoryEntityResponseDTO?
     var startTime: String?
+    var description: String?
     
     init(
-        id: Int,
+        todoId: Int,
         title: String,
-        startDate: Date,
+        categoryId: Int,
+        groupId: Int?,
+        startDate: Date?,
         endDate: Date?,
-        memo: String?,
-        group: GroupResponseDTO?,
-        category: CategoryEntityResponseDTO?,
-        startTime: String?
+        startTime: String?,
+        description: String?
     ) {
-        self.id = id
+        self.todoId = todoId
         self.title = title
+        self.categoryId = categoryId
+        self.groupId = groupId
         self.startDate = startDate
         self.endDate = endDate
-        self.memo = memo
-        self.group = group
-        self.category = category
         self.startTime = startTime
+        self.description = description
     }
+}
+
+struct TodoResponseDataDTO: Codable {
+    var todoId: Int
 }
