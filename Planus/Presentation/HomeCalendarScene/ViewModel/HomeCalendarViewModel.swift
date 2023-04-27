@@ -62,16 +62,18 @@ class HomeCalendarViewModel {
     }
     
     let createTodoUseCase: CreateTodoUseCase
-    let readTodoListUseCase: ReadTodoSummaryListUseCase
+    let readTodoListUseCase: ReadTodoListUseCase
     let updateTodoUseCase: UpdateTodoUseCase
     let deleteTodoUseCase: DeleteTodoUseCase
+    
+    let readCategoryListUseCase: 
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     
     init(
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        readTodoListUseCase: ReadTodoSummaryListUseCase,
+        readTodoListUseCase: ReadTodoListUseCase,
         createTodoUseCase: CreateTodoUseCase,
         updateTodoUseCase: UpdateTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,

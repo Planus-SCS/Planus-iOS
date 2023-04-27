@@ -14,7 +14,7 @@ struct Todo {
     var endDate: Date
     var memo: String?
     var group: Group?
-    var category: TodoCategory?
+    var category: Category?
     var startTime: String?
     
     init(
@@ -24,7 +24,7 @@ struct Todo {
         endDate: Date,
         memo: String?,
         group: Group?,
-        category: TodoCategory?,
+        category: Category?,
         startTime: String?
     ) {
         self.id = id

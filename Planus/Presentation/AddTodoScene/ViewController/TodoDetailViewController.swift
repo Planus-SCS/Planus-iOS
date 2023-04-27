@@ -16,7 +16,7 @@ class TodoDetailViewController: UIViewController {
     var didSelectedStartDate = PublishSubject<Date?>()
     var didSelectedEndDate = PublishSubject<Date?>()
     var didSelectedGroupAt = PublishSubject<Int?>()
-    var didChangednewCategoryColor = PublishSubject<TodoCategoryColor?>()
+    var didChangednewCategoryColor = PublishSubject<CategoryColor?>()
     
     var pageType: AddTodoViewControllerPageType = .addTodo
 

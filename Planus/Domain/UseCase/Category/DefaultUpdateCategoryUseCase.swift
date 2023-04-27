@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultUpdateTodoCategoryUseCase {
+class DefaultUpdateCategoryUseCase: UpdateCategoryUseCase {
     let categoryRepository: CategoryRepository
     
     init(
@@ -17,7 +17,7 @@ class DefaultUpdateTodoCategoryUseCase {
         self.categoryRepository = categoryRepository
     }
     
-    func execute(token: Token, category: TodoCategory) -> Single<Int> {
+    func execute(token: Token, category: Category) -> Single<Int> {
         return categoryRepository.create(
             token: token.accessToken,
             category: category.toDTO()

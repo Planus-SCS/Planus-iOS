@@ -40,7 +40,7 @@ struct TodoEntityResponseDTO: Codable {
     var endDate: Date?
     var memo: String?
     var group: GroupResponseDTO?
-    var category: TodoCategoryEntityResponseDTO?
+    var category: CategoryEntityResponseDTO?
     var startTime: String?
     
     init(
@@ -50,7 +50,7 @@ struct TodoEntityResponseDTO: Codable {
         endDate: Date?,
         memo: String?,
         group: GroupResponseDTO?,
-        category: TodoCategoryEntityResponseDTO?,
+        category: CategoryEntityResponseDTO?,
         startTime: String?
     ) {
         self.id = id

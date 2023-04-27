@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultDeleteTodoCategoryUseCase {
+class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
     let categoryRepository: CategoryRepository
     
     init(categoryRepository: CategoryRepository) {
@@ -19,6 +19,6 @@ class DefaultDeleteTodoCategoryUseCase {
         let accessToken = token.accessToken
         return categoryRepository
             .delete(token: accessToken, id: id)
-            .map { return () }
+            .map { _ in return () }
     }
 }

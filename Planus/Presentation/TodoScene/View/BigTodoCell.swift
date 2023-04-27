@@ -127,7 +127,7 @@ class BigTodoCell: UICollectionViewCell {
         self.buttonClosure = closure
     }
 
-    func fill(title: String, time: String?, category: TodoCategoryColor) {
+    func fill(title: String, time: String?, category: CategoryColor) {
 
         if let time = time {
             timeLabel.isHidden = false

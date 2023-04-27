@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum TodoCategoryColor: String, CaseIterable {
+enum CategoryColor: String, CaseIterable {
     case blue = "BLUE"
     case gold = "GOLD"
     case pink = "PINK"

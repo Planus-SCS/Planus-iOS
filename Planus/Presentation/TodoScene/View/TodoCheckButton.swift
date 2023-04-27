@@ -58,7 +58,7 @@ class TodoCheckButton: UIButton {
         self.isOn = !isOn
     }
     
-    func setColor(color: TodoCategoryColor) {
+    func setColor(color: CategoryColor) {
         self.tintColor = color.todoThickColor
         self.checkImageView.tintColor = color.todoCheckColor
     }

@@ -8,14 +8,14 @@
 import Foundation
 import RxSwift
 
-class DefaultReadTodoCategoryListUseCase {
+class DefaultReadCategoryListUseCase: ReadCategoryListUseCase {
     let categoryRepository: CategoryRepository
     
     init(categoryRepository: CategoryRepository) {
         self.categoryRepository = categoryRepository
     }
     
-    func execute(token: Token) -> Single<[TodoCategory]> {
+    func execute(token: Token) -> Single<[Category]> {
         let accessToken = token.accessToken
         return categoryRepository
             .read(token: accessToken)

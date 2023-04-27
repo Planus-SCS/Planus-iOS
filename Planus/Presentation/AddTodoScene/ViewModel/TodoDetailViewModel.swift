@@ -18,15 +18,15 @@ final class TodoDetailViewModel {
     
     var completionHandler: ((Todo) -> Void)?
     
-    var categoryColorList: [TodoCategoryColor] = Array(TodoCategoryColor.allCases[0..<TodoCategoryColor.allCases.count-1])
+    var categoryColorList: [CategoryColor] = Array(CategoryColor.allCases[0..<CategoryColor.allCases.count-1])
     
-    var categorys: [TodoCategory] = [
-        TodoCategory(title: "카테고리1", color: .blue),
-        TodoCategory(title: "카테고리2", color: .gold),
-        TodoCategory(title: "카테고리3", color: .green),
-        TodoCategory(title: "카테고리4", color: .navy),
-        TodoCategory(title: "카테고리5", color: .pink),
-        TodoCategory(title: "카테고리6", color: .yello)
+    var categorys: [Category] = [
+        Category(title: "카테고리1", color: .blue),
+        Category(title: "카테고리2", color: .gold),
+        Category(title: "카테고리3", color: .green),
+        Category(title: "카테고리4", color: .navy),
+        Category(title: "카테고리5", color: .pink),
+        Category(title: "카테고리6", color: .yello)
     ]
     
     var categoryCreatingState: CategoryCreateState = .new
@@ -37,7 +37,7 @@ final class TodoDetailViewModel {
     
     
     var todoTitle = BehaviorSubject<String?>(value: nil)
-    var todoCategory = BehaviorSubject<TodoCategory?>(value: nil)
+    var todoCategory = BehaviorSubject<Category?>(value: nil)
     var todoStartDay = BehaviorSubject<Date?>(value: nil)
     var todoEndDay: Date?
     var todoGroup: String?
@@ -46,7 +46,7 @@ final class TodoDetailViewModel {
     var needDismiss = PublishSubject<Void>()
     
     var newCategoryName = BehaviorSubject<String?>(value: nil)
-    var newCategoryColor = BehaviorSubject<TodoCategoryColor?>(value: nil)
+    var newCategoryColor = BehaviorSubject<CategoryColor?>(value: nil)
     
     struct Input {
         // MARK: Control Value
@@ -57,7 +57,7 @@ final class TodoDetailViewModel {
         var groupSelected: Observable<Int?>
         var memoChanged: Observable<String?>
         var newCategoryNameChanged: Observable<String?>
-        var newCategoryColorChanged: Observable<TodoCategoryColor?>
+        var newCategoryColorChanged: Observable<CategoryColor?>
         
         // MARK: Control Event
         var categoryEditRequested: Observable<Int>
@@ -72,7 +72,7 @@ final class TodoDetailViewModel {
     }
     
     struct Output {
-        var categoryChanged: Observable<TodoCategory?>
+        var categoryChanged: Observable<Category?>
         var todoSaveBtnEnabled: Observable<Bool>
         var newCategorySaveBtnEnabled: Observable<Bool>
         var newCategorySaved: Observable<Void>
@@ -201,9 +201,9 @@ final class TodoDetailViewModel {
                       let color = try? vm.newCategoryColor.value() else { return }
                 switch vm.categoryCreatingState {
                 case .new:
-                    vm.categorys.append(TodoCategory(title: title, color: color))
+                    vm.categorys.append(Category(title: title, color: color))
                 case .edit(let index):
-                    vm.categorys[index] = TodoCategory(title: title, color: color)
+                    vm.categorys[index] = Category(title: title, color: color)
                 }
                 // 이제 뒤로 가게해야함. 근데 리로드를 곁들인
                 newCategorySaved.onNext(())

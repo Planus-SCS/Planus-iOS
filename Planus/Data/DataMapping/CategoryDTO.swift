@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: CREATE, UPDATE
-struct TodoCategoryRequestDTO: Codable {
+struct CategoryRequestDTO: Codable {
     var title: String
     var color: String
     
@@ -18,26 +18,12 @@ struct TodoCategoryRequestDTO: Codable {
     }
 }
 
-// MARK: CREATE, UPDATE, DELETE
-struct TodoCategoryResponseDTO: Codable {
-    var isSuccess: Bool
-    var code: Int
-    var data: TodoCategoryResponseDataDTO
-}
-
-struct TodoCategoryResponseDataDTO: Codable {
+struct CategoryResponseDataDTO: Codable {
     var id: Int
 }
 
-struct TodoCategoryListResponseDTO: Codable {
-    var isSuccess: Bool
-    var code: Int
-    var message: String
-    var data: [TodoCategoryEntityResponseDTO]
-}
-
 // MARK: READ
-struct TodoCategoryEntityResponseDTO: Codable {
+struct CategoryEntityResponseDTO: Codable {
     var id: Int
     var title: String
     var color: String
@@ -48,11 +34,11 @@ struct TodoCategoryEntityResponseDTO: Codable {
         self.color = color
     }
     
-    func toDomain() -> TodoCategory {
-        return TodoCategory(
+    func toDomain() -> Category {
+        return Category(
             id: self.id,
             title: self.title,
-            color: TodoCategoryColor(rawValue: self.color) ?? .none
+            color: CategoryColor(rawValue: self.color) ?? .none
         )
     }
 }

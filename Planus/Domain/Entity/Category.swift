@@ -1,5 +1,5 @@
 //
-//  TodoCategory.swift
+//  Category.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/04/26.
@@ -7,21 +7,21 @@
 
 import Foundation
 
-struct TodoCategory {
+struct Category {
     var id: Int?
     var title: String
-    var color: TodoCategoryColor
+    var color: CategoryColor
     
-    init(id: Int, title: String, color: TodoCategoryColor) {
+    init(id: Int, title: String, color: CategoryColor) {
         self.id = id
         self.title = title
         self.color = color
     }
 }
 
-extension TodoCategory {
-    func toDTO() -> TodoCategoryRequestDTO {
-        return TodoCategoryRequestDTO(
+extension Category {
+    func toDTO() -> CategoryRequestDTO {
+        return CategoryRequestDTO(
             title: self.title,
             color: self.color.rawValue
         )

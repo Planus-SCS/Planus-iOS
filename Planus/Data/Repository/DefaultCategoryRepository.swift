@@ -15,7 +15,7 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
         self.apiProvider = apiProvider
     }
     
-    func read(token: String) -> Single<TodoCategoryListResponseDTO> {
+    func read(token: String) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>> {
         let endPoint = APIEndPoint(
             url: "localhost:8080/app/categories",
             requestType: .get,
@@ -26,11 +26,11 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: TodoCategoryListResponseDTO.self
+            type: ResponseDTO<[CategoryEntityResponseDTO]>.self
         )
     }
     
-    func create(token: String, category: TodoCategoryRequestDTO) -> Single<TodoCategoryResponseDTO> {
+    func create(token: String, category: CategoryRequestDTO) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
         let endPoint = APIEndPoint(
             url: "localhost:8080/app/categories",
             requestType: .post,
@@ -41,11 +41,11 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: TodoCategoryResponseDTO.self
+            type: ResponseDTO<CategoryResponseDataDTO>.self
         )
     }
     
-    func update(token: String, id: Int, category: TodoCategoryRequestDTO) -> Single<TodoCategoryResponseDTO> {
+    func update(token: String, id: Int, category: CategoryRequestDTO) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
         let endPoint = APIEndPoint(
             url: "localhost:8080/app/categories" + "/\(id)",
             requestType: .patch,
@@ -56,11 +56,11 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: TodoCategoryResponseDTO.self
+            type: ResponseDTO<CategoryResponseDataDTO>.self
         )
     }
     
-    func delete(token: String, id: Int) -> Single<TodoCategoryResponseDTO> {
+    func delete(token: String, id: Int) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
         let endPoint = APIEndPoint(
             url: "localhost:8080/app/categories" + "/\(id)",
             requestType: .delete,
@@ -71,7 +71,7 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: TodoCategoryResponseDTO.self
+            type: ResponseDTO<CategoryResponseDataDTO>.self
         )
     }
 }
