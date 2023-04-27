@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-protocol TodoDetailRepository {
+protocol TodoRepository {
     func createTodo(todo: Todo) -> Single<Void>
     func readTodo(from: Date, to: Date) -> Single<[Todo]>
     func updateTodo(todo: Todo) -> Single<Void>

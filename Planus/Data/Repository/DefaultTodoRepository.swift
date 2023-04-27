@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class TestTodoDetailRepository: TodoDetailRepository {
+class TestTodoDetailRepository: TodoRepository {
     
     let apiProvider: APIProvider
     
@@ -16,7 +16,7 @@ class TestTodoDetailRepository: TodoDetailRepository {
         self.apiProvider = apiProvider
     }
     
-    func createTodo(token: String, todo: TodoDetailRequestDTO) -> Single<Void> {
+    func createTodo(token: String, todo: TodoRequestDTO) -> Single<Void> {
         let endPoint = APIEndPoint(
             url: <#T##String#>,
             requestType: .post,
@@ -31,7 +31,7 @@ class TestTodoDetailRepository: TodoDetailRepository {
         )
     }
     
-    func readTodo(token: String, date: Date) -> Single<TodoDetailResponseDTO> {
+    func readTodo(token: String, date: Date) -> Single<> { //어케올지 모름!
         let endPoint = APIEndPoint(
             url: <#T##String#>,
             requestType: .get,
@@ -46,7 +46,7 @@ class TestTodoDetailRepository: TodoDetailRepository {
         )
     }
     
-    func updateTodo(token: String, todo: TodoDetailRequestDTO) -> Single<Void> {
+    func updateTodo(token: String, todo: TodoRequestDTO) -> Single<> { //어케올지모름!
         let endPoint = APIEndPoint(
             url: <#T##String#>,
             requestType: .patch,
@@ -61,7 +61,7 @@ class TestTodoDetailRepository: TodoDetailRepository {
         )
     }
     
-    func deleteTodo(token: String, todoId: Int) -> Single<Void> {
+    func deleteTodo(token: String, todoId: Int) -> Single<> {
         let endPoint = APIEndPoint(
             url: <#T##String#>,
             requestType: .delete,

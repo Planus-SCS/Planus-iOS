@@ -9,9 +9,9 @@ import Foundation
 import RxSwift
 
 protocol CategoryRepository {
-    func read(token: String) -> Single<TodoCategoryReadResponseDTO>
-    func create(token: String, category: TodoCategoryCreateRequestDTO) -> Single<TodoCategoryCreateResponseDTO>
-    func update(token: String, id: Int, category: TodoCategoryUpdateRequestDTO) -> Single<TodoCategoryUpdateResponseDTO>
-    func delete(token: String, id: Int) -> Single<TodoCategoryDeleteResponseDTO>
+    func read(token: String) -> Single<TodoCategoryListResponseDTO>
+    func create(token: String, category: TodoCategoryRequestDTO) -> Single<TodoCategoryResponseDTO>
+    func update(token: String, id: Int, category: TodoCategoryRequestDTO) -> Single<TodoCategoryResponseDTO>
+    func delete(token: String, id: Int) -> Single<TodoCategoryResponseDTO>
 }
 

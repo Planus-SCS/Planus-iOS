@@ -9,13 +9,11 @@ import Foundation
 import RxSwift
 
 class DefaultCreateTodoUseCase: CreateTodoUseCase {
-    let todoRepository: TodoDetailRepository
-    
-    static let shared = DefaultCreateTodoUseCase(todoRepository: TestTodoDetailRepository())
-    
+    let todoRepository: TodoRepository
+        
     var didCreateTodo = PublishSubject<Todo>()
     
-    init(todoRepository: TodoDetailRepository) {
+    init(todoRepository: TodoRepository) {
         self.todoRepository = todoRepository
     }
     

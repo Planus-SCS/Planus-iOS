@@ -8,6 +8,6 @@
 import Foundation
 import RxSwift
 
-protocol ReadTodoSummaryListUseCase {
+protocol ReadTodoListUseCase {
     func execute(from: Date, to: Date) -> Single<[Date: [Todo]]>
 }

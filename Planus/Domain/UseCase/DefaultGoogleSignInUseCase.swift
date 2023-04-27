@@ -11,8 +11,12 @@ import RxSwift
 class DefaultGoogleSignInUseCase: GoogleSignInUseCase {
     
     let socialAuthRepository: SocialAuthRepository
+    let tokenRepository: TokenRepository
     
-    init(socialAuthRepository: SocialAuthRepository) {
+    init(
+        socialAuthRepository: SocialAuthRepository,
+        tokenRepository: TokenRepository
+    ) {
         self.socialAuthRepository = socialAuthRepository
     }
     

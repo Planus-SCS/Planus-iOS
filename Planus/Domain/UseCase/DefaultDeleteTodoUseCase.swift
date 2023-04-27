@@ -9,13 +9,11 @@ import Foundation
 import RxSwift
 
 class DefaultDeleteTodoUseCase: DeleteTodoUseCase {
-    let todoRepository: TodoDetailRepository
-    
-    static let shared = DefaultDeleteTodoUseCase(todoRepository: TestTodoDetailRepository())
-    
+    let todoRepository: TodoRepository
+
     var didDeleteTodo = PublishSubject<Todo>()
     
-    init(todoRepository: TodoDetailRepository) {
+    init(todoRepository: TodoRepository) {
         self.todoRepository = todoRepository
     }
     
