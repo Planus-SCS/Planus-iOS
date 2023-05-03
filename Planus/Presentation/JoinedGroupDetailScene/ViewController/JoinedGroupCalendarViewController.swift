@@ -148,7 +148,7 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
-        cell.fill(day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!, todoList: dayViewModel.todoList)
+        cell.fill(delegate: self, day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!, todoList: dayViewModel.todoList)
 
         return cell
     }
@@ -158,3 +158,13 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
         return view
     }
 }
+
+extension JoinedGroupCalendarViewController: DailyCalendarCellDelegate {
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor? {
+        return CategoryColor.blue
+    }
+}
+
+/*
+ 업데이트를 어떻게 해야하지???
+ */

@@ -10,5 +10,5 @@ import RxSwift
 
 protocol DeleteTodoUseCase {
     var didDeleteTodo: PublishSubject<Todo> { get }
-    func execute(todo: Todo) -> Single<Void>
+    func execute(token: Token, todo: Todo) -> Single<Void>
 }

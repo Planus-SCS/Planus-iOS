@@ -27,7 +27,8 @@ class HomeCalendarCoordinator: Coordinator {
     
     lazy var showHomeCalendarPage: () -> Void = { [weak self] in
         
-        let todoRepository = TestTodoDetailRepository()
+        let apiProvider = NetworkManager()
+        let todoRepository = TestTodoDetailRepository(apiProvider: apiProvider)
         
         let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
         let readTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: todoRepository)

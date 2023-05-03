@@ -192,7 +192,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             return UICollectionViewCell()
         }
         guard let todoItem else { return UICollectionViewCell() }
-        cell.fill(title: todoItem.title, time: nil, category: todoItem.category)
+        cell.fill(title: todoItem.title, time: nil, category: .blue)
         return cell
     }
     

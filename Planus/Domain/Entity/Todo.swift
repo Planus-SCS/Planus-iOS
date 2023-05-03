@@ -18,7 +18,7 @@ struct Todo {
     var startTime: String?
     
     init(
-        id: Int,
+        id: Int?,
         title: String,
         startDate: Date,
         endDate: Date,

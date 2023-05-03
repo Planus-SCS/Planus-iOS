@@ -138,6 +138,6 @@ class DailyCalendarCell: UICollectionViewCell {
     }
 }
 
-protocol DailyCalendarCellDelegate: AnyClass {
+protocol DailyCalendarCellDelegate: NSObject {
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor?
 }

@@ -8,11 +8,13 @@
 import Foundation
 
 struct TokenRequestDTO: Codable {
+    var memberId: Int
     var accessToken: String
     var refreshToken: String
 }
 
 struct TokenResponseDataDTO: Codable {
+    var memberId: Int
     var accessToken: String
     var refreshToken: String
 }
@@ -20,6 +22,7 @@ struct TokenResponseDataDTO: Codable {
 extension TokenResponseDataDTO {
     func toDomain() -> Token {
         return Token(
+            memberId: memberId,
             accessToken: accessToken,
             refreshToken: refreshToken
         )

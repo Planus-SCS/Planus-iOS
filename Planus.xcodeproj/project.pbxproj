@@ -330,6 +330,8 @@
 		6A9AAB3D29FA5E07002A6DAF /* CreateCategoryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB3C29FA5E07002A6DAF /* CreateCategoryUseCase.swift */; };
 		6A9AAB3F29FA5F87002A6DAF /* BaseResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB3E29FA5F87002A6DAF /* BaseResponseDTO.swift */; };
 		6A9AAB4129FA98A3002A6DAF /* TokenDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB4029FA98A3002A6DAF /* TokenDTO.swift */; };
+		6A9AAB4329FAC180002A6DAF /* DefaultSetTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB4229FAC180002A6DAF /* DefaultSetTokenUseCase.swift */; };
+		6A9AAB4529FAC1AD002A6DAF /* SetTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB4429FAC1AD002A6DAF /* SetTokenUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -659,6 +661,8 @@
 		6A9AAB3C29FA5E07002A6DAF /* CreateCategoryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCategoryUseCase.swift; sourceTree = "<group>"; };
 		6A9AAB3E29FA5F87002A6DAF /* BaseResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseResponseDTO.swift; sourceTree = "<group>"; };
 		6A9AAB4029FA98A3002A6DAF /* TokenDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenDTO.swift; sourceTree = "<group>"; };
+		6A9AAB4229FAC180002A6DAF /* DefaultSetTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSetTokenUseCase.swift; sourceTree = "<group>"; };
+		6A9AAB4429FAC1AD002A6DAF /* SetTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetTokenUseCase.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1810,6 +1814,7 @@
 			children = (
 				6A9AAB1C29FA534F002A6DAF /* DefaultGetTokenUseCase.swift */,
 				6A9AAB1E29FA5390002A6DAF /* DefaultRefreshTokenUseCase.swift */,
+				6A9AAB4229FAC180002A6DAF /* DefaultSetTokenUseCase.swift */,
 			);
 			path = Token;
 			sourceTree = "<group>";
@@ -1860,6 +1865,7 @@
 			children = (
 				6A9AAB2029FA5775002A6DAF /* GetTokenRepository.swift */,
 				6A9AAB2229FA57E0002A6DAF /* RefreshTokenUseCase.swift */,
+				6A9AAB4429FAC1AD002A6DAF /* SetTokenUseCase.swift */,
 			);
 			path = Token;
 			sourceTree = "<group>";
@@ -2242,6 +2248,7 @@
 				6A9AAB4129FA98A3002A6DAF /* TokenDTO.swift in Sources */,
 				6A987A2129DCFC2500C27D09 /* JoinedGroupNoticeViewController.swift in Sources */,
 				6A987A3E29DDA88800C27D09 /* MyGroupMemberEditCell.swift in Sources */,
+				6A9AAB4329FAC180002A6DAF /* DefaultSetTokenUseCase.swift in Sources */,
 				6A24F90C29D223960000FD64 /* DetailDayViewModel.swift in Sources */,
 				6A9A07FD29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift in Sources */,
 				6A9AAB3929FA5DB8002A6DAF /* UpdateCategoryUseCase.swift in Sources */,
@@ -2284,6 +2291,7 @@
 				6A9AAB0D29F906A3002A6DAF /* DefaultCreateCategoryUseCase.swift in Sources */,
 				6A24F8EE29D1D5510000FD64 /* MonthPickerViewController.swift in Sources */,
 				6A9AAB0929F8FFD6002A6DAF /* Category.swift in Sources */,
+				6A9AAB4529FAC1AD002A6DAF /* SetTokenUseCase.swift in Sources */,
 				6A95DFD529D50913009017D8 /* SearchGroupResultViewModel.swift in Sources */,
 				6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */,
 				6A987A7429DEED1600C27D09 /* TodoDailyViewController.swift in Sources */,

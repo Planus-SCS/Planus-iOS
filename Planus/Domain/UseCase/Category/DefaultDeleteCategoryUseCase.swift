@@ -11,6 +11,8 @@ import RxSwift
 class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
     let categoryRepository: CategoryRepository
     
+    var didDeleteCategory = PublishSubject<Int>()
+    
     init(categoryRepository: CategoryRepository) {
         self.categoryRepository = categoryRepository
     }
@@ -19,6 +21,9 @@ class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
         let accessToken = token.accessToken
         return categoryRepository
             .delete(token: accessToken, id: id)
-            .map { _ in return () }
+            .map { [weak self] _ in
+                self?.didDeleteCategory.onNext(id)
+                return ()
+            }
     }
 }

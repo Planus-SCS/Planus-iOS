@@ -21,12 +21,12 @@ final class TodoDetailViewModel {
     var categoryColorList: [CategoryColor] = Array(CategoryColor.allCases[0..<CategoryColor.allCases.count-1])
     
     var categorys: [Category] = [
-        Category(title: "카테고리1", color: .blue),
-        Category(title: "카테고리2", color: .gold),
-        Category(title: "카테고리3", color: .green),
-        Category(title: "카테고리4", color: .navy),
-        Category(title: "카테고리5", color: .pink),
-        Category(title: "카테고리6", color: .yello)
+        Category(id: 1, title: "카테고리1", color: .blue),
+        Category(id: 2, title: "카테고리2", color: .gold),
+        Category(id: 3, title: "카테고리3", color: .green),
+        Category(id: 4, title: "카테고리4", color: .navy),
+        Category(id: 5, title: "카테고리5", color: .pink),
+        Category(id: 6, title: "카테고리6", color: .yello)
     ]
     
     var categoryCreatingState: CategoryCreateState = .new
@@ -84,7 +84,31 @@ final class TodoDetailViewModel {
         var needDismiss: Observable<Void>
     }
     
-    init() {}
+    var getTokenUseCase: GetTokenUseCase
+    var refreshTokenUseCase: RefreshTokenUseCase
+    var createTodoUseCase: CreateTodoUseCase
+    var createCategoryUseCase: CreateCategoryUseCase
+    var updateCategoryUseCase: UpdateCategoryUseCase
+    var deleteCategoryUseCase: DeleteCategoryUseCase
+    var readCategoryUseCase: ReadCategoryListUseCase
+    
+    init(
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase,
+        createTodoUseCase: CreateTodoUseCase,
+        createCategoryUseCase: CreateCategoryUseCase,
+        updateCategoryUseCase: UpdateCategoryUseCase,
+        deleteCategoryUseCase: DeleteCategoryUseCase,
+        readCategoryUseCase: ReadCategoryListUseCase
+    ) {
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
+        self.createTodoUseCase = createTodoUseCase
+        self.createCategoryUseCase = createCategoryUseCase
+        self.updateCategoryUseCase = updateCategoryUseCase
+        self.deleteCategoryUseCase = deleteCategoryUseCase
+        self.readCategoryUseCase = readCategoryUseCase
+    }
     
     public func transform(input: Input) -> Output {
         
@@ -172,14 +196,11 @@ final class TodoDetailViewModel {
             .todoSaveBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                print("1")
                 guard let title = try? vm.todoTitle.value(),
-                      let date = try? vm.todoStartDay.value(),
+                      let startDate = try? vm.todoStartDay.value(),
                       let category = try? vm.todoCategory.value() else { return }
-                print("2")
-                let todo = Todo(title: title, startDate: date, category: category.color, type: .normal)
-                vm.completionHandler?(todo)
-                vm.needDismiss.onNext(())
+                let todo = Todo(id: nil, title: title, startDate: startDate, endDate: vm.todoEndDay ?? startDate, memo: vm.todoMemo, groupId: nil, categoryId: category.id ?? 0, startTime: nil)
+                vm.createTodo(todo: todo)
             })
             .disposed(by: bag)
         
@@ -277,10 +298,35 @@ final class TodoDetailViewModel {
             needDismiss: needDismiss.asObservable()
         )
     }
+    
+    func createTodo(todo: Todo) {
+        guard let token = getTokenUseCase.execute() else { return }
+        
+        createTodoUseCase
+            .execute(token: token, todo: todo)
+            .subscribe(onSuccess: { [weak self] id in
+                var todoWithId = todo
+                todoWithId.id = id
+                self?.completionHandler?(todoWithId)
+                self?.needDismiss.onNext(())
+            })
+            .disposed(by: bag)
+    }
 
-    func saveNewCategory() {
+    func saveNewCategory(category: Category) {
         /*
          네트워크로 보낼 useCase 만들기
          */
+        guard let token = getTokenUseCase.execute() else { return }
+        
+        createCategoryUseCase
+            .execute(token: token, category: category)
+            .subscribe(onSuccess: { id in
+                var categoryWithId = category
+                categoryWithId.id = id
+                // 카테고리 id를 받아옴,,, 그다음엔..?
+                
+            })
+            .disposed(by: bag)
     }
 }

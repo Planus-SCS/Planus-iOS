@@ -11,7 +11,7 @@ enum CategoryColor: String, CaseIterable {
     case blue = "BLUE"
     case gold = "GOLD"
     case pink = "PINK"
-    case purple = "PURPLe"
+    case purple = "PURPLE"
     case green = "GREEN"
     case navy = "NAVY"
     case red = "RED"

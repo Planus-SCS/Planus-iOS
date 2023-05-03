@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol KakaoSignInUseCase {
-    func execute(code: String) -> Single<Data>
+    func execute(code: String) -> Single<Token>
 }

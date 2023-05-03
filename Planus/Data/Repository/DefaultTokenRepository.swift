@@ -44,14 +44,23 @@ class DefaultTokenRepository: TokenRepository {
     }
     
     func get() -> Token? { //네트워킹 할때마다 사용됨
-        guard let accessToken = keyChainManager.get(key: "accessToken") as? String,
+        guard let memberId = keyChainManager.get(key: "memberId") as? Int,
+              let accessToken = keyChainManager.get(key: "accessToken") as? String,
               let refreshToken = keyChainManager.get(key: "refreshToken") as? String else {
             return nil
         }
-        return Token(accessToken: accessToken, refreshToken: refreshToken)
+        return Token(
+            memberId: memberId,
+            accessToken: accessToken,
+            refreshToken: refreshToken
+        )
     }
     
     func set(token: Token) { //최초, refreshToken 만료 시에만 사용됨
+        keyChainManager.set(
+            key: "memberId",
+            value: token.memberId
+        )
         keyChainManager.set(
             key: "accessToken",
             value: token.accessToken.data(using: .utf8, allowLossyConversion: false) as Any
@@ -63,6 +72,7 @@ class DefaultTokenRepository: TokenRepository {
     }
     
     func delete() {
+        keyChainManager.delete(key: "memberId")
         keyChainManager.delete(key: "accessToken")
         keyChainManager.delete(key: "refreshToken")
     }

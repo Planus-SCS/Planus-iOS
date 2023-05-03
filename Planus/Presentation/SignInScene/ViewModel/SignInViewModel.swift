@@ -21,6 +21,8 @@ class SignInViewModel {
     let kakaoSignInUseCase: KakaoSignInUseCase
     let googleSignInUseCase: GoogleSignInUseCase
     
+    let setTokenUseCase: SetTokenUseCase
+        
     struct Input {
         var kakaoSignInTapped: Observable<Void>
         var googleSignInTapped: Observable<Void>
@@ -34,10 +36,12 @@ class SignInViewModel {
     
     init(
         kakaoSignInUseCase: KakaoSignInUseCase,
-        googleSignInUseCase: GoogleSignInUseCase
+        googleSignInUseCase: GoogleSignInUseCase,
+        setTokenUseCase: SetTokenUseCase
     ) {
         self.kakaoSignInUseCase = kakaoSignInUseCase
         self.googleSignInUseCase = googleSignInUseCase
+        self.setTokenUseCase = setTokenUseCase
     }
     
     func setActions(actions: SignInViewModelActions) {
@@ -88,9 +92,8 @@ class SignInViewModel {
         actions?.showWebViewSignInPage?(.kakao) { [weak self] code in
             guard let self else { return }
             self.kakaoSignInUseCase.execute(code: code)
-                .subscribe(onSuccess: { data in
-                    // api 확정 되면 여기서 이제 다음 action으로 나아가면 된다!
-                    
+                .subscribe(onSuccess: { token in
+                    self.setTokenUseCase.execute(token: token)
                     self.actions?.showMainTabFlow?()
                 }, onFailure: { error in
 
@@ -103,7 +106,8 @@ class SignInViewModel {
         actions?.showWebViewSignInPage?(.google) { [weak self] code in
             guard let self else { return }
             self.googleSignInUseCase.execute(code: code)
-                .subscribe(onSuccess: { data in
+                .subscribe(onSuccess: { token in
+                    self.setTokenUseCase.execute(token: token)
                     self.actions?.showMainTabFlow?()
                 }, onFailure: { error in
                     

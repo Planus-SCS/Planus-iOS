@@ -9,20 +9,20 @@ import Foundation
 import RxSwift
 
 class DefaultUpdateTodoUseCase: UpdateTodoUseCase {
-    let todoRepository: TodoDetailRepository
+    let todoRepository: TodoRepository
         
     var didUpdateTodo = PublishSubject<Todo>()
     
-    init(todoRepository: TodoDetailRepository) {
+    init(todoRepository: TodoRepository) {
         self.todoRepository = todoRepository
     }
     
-    func execute(todo: Todo) -> Single<Void> {
+    func execute(token: Token, todo: Todo) -> Single<Void> {
         return todoRepository
-            .updateTodo(todo: todo)
-            .map { [weak self] in
+            .updateTodo(token: token.accessToken, id: todo.id ?? Int(), todo: todo.toDTO())
+            .map { [weak self] _ in
                 self?.didUpdateTodo.onNext(todo)
-                return $0
+                return ()
             }
     }
 }

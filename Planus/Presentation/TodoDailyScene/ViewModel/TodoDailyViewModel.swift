@@ -43,15 +43,22 @@ class TodoDailyViewModel {
     var needReloadItem = PublishSubject<IndexPath>()
     var needDeleteItem = PublishSubject<IndexPath>()
     
+    var getTokenUseCase: GetTokenUseCase
+    var refreshTokenUseCase: RefreshTokenUseCase
+    
     var createTodoUseCase: CreateTodoUseCase
     var updateTodoUseCase: UpdateTodoUseCase
     var deleteTodoUseCase: DeleteTodoUseCase
     
     init(
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase,
         createTodoUseCase: CreateTodoUseCase,
         updateTodoUseCase: UpdateTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase
     ) {
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
         self.createTodoUseCase = createTodoUseCase
         self.updateTodoUseCase = updateTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
@@ -64,7 +71,6 @@ class TodoDailyViewModel {
     func setDate(currentDate: Date) {
         self.currentDate = currentDate
         self.currentDateText = dateFormatter.string(from: currentDate)
-        print(self.currentDateText)
     }
     
     func setTodoList(todoList: [Todo]) {
@@ -84,7 +90,14 @@ class TodoDailyViewModel {
     }
     
     func addTodo(todo: Todo) {
-        createTodoUseCase.execute(todo: todo)
+        guard let token = getTokenUseCase.execute() else { return }
+        
+        createTodoUseCase
+            .execute(token: token, todo: todo)
+            .subscribe(onSuccess: {
+                print($0)
+            })
+            .disposed(by: bag)
     }
     
     func bindAfterSetTodoList() {

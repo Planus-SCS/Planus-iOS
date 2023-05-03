@@ -545,7 +545,7 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
         
         let edit = UIContextualAction(style: .normal, title: "Edit") { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
             self.categoryCreateView.nameField.text = self.viewModel?.categorys[indexPath.row].title
-            self.categoryCreateView.collectionView.selectItem(at: IndexPath(item: self.viewModel!.categorys[indexPath.row].color.rawValue, section: 0), animated: false, scrollPosition: .top)
+//            self.categoryCreateView.collectionView.selectItem(at: IndexPath(item: self.viewModel!.categorys[indexPath.row].color.rawValue, section: 0), animated: false, scrollPosition: .top)
             self.didRequestEditCategoryAt.onNext(indexPath.row)
             success(true)
         }

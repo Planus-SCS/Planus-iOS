@@ -57,15 +57,21 @@ class MemberProfileViewModel {
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let fetchTodoListUseCase: ReadTodoListUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
+    let getTokenUseCase: GetTokenUseCase
+    let refreshTokenUseCase: RefreshTokenUseCase
     
     init(
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
         fetchTodoListUseCase: ReadTodoListUseCase,
-        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
+        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase
     ) {
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.fetchTodoListUseCase = fetchTodoListUseCase
         self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
         bind()
     }
     
@@ -214,7 +220,8 @@ class MemberProfileViewModel {
     }
     
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
-        
+        guard let token = getTokenUseCase.execute() else { return }
+
         guard let currentDate = try? self.currentDate.value() else { return }
         let fromMonth = calendar.date(byAdding: DateComponents(month: fromIndex - currentIndex), to: currentDate) ?? Date()
         let toMonth = calendar.date(byAdding: DateComponents(month: toIndex - currentIndex), to: currentDate) ?? Date()
@@ -222,7 +229,7 @@ class MemberProfileViewModel {
         let fromMonthStart = calendar.date(byAdding: DateComponents(day: -7), to: calendar.startOfDay(for: fromMonth)) ?? Date()
         let toMonthStart = calendar.date(byAdding: DateComponents(day: 7), to: calendar.startOfDay(for: toMonth)) ?? Date()
 
-        fetchTodoListUseCase.execute(from: fromMonthStart, to: toMonthStart)
+        fetchTodoListUseCase.execute(token: token, from: fromMonthStart, to: toMonthStart)
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 (fromIndex..<toIndex).forEach { index in

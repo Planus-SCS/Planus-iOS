@@ -86,7 +86,10 @@ class HomeCalendarViewModel {
     let updateTodoUseCase: UpdateTodoUseCase
     let deleteTodoUseCase: DeleteTodoUseCase
     
-    let readCategoryListUseCase: ReadCategoryListUseCase
+//    let createCategoryUseCase: CreateCategoryUseCase
+//    let readCategoryListUseCase: ReadCategoryListUseCase
+//    let updateCategoryUseCase: UpdateCategoryUseCase
+//    let deleteCategoryUseCase: DeleteCategoryUseCase
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
@@ -403,8 +406,12 @@ class HomeCalendarViewModel {
         
         let fromMonthStart = calendar.date(byAdding: DateComponents(day: -7), to: calendar.startOfDay(for: fromMonth)) ?? Date()
         let toMonthStart = calendar.date(byAdding: DateComponents(day: 7), to: calendar.startOfDay(for: toMonth)) ?? Date()
-
-        readTodoListUseCase.execute(from: fromMonthStart, to: toMonthStart)
+        
+        guard let token = getTokenUseCase.execute() else {
+            return
+        }
+        
+        readTodoListUseCase.execute(token: token, from: fromMonthStart, to: toMonthStart)
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 (fromIndex..<toIndex).forEach { index in

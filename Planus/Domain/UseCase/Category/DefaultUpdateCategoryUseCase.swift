@@ -11,6 +11,8 @@ import RxSwift
 class DefaultUpdateCategoryUseCase: UpdateCategoryUseCase {
     let categoryRepository: CategoryRepository
     
+    var didUpdateCategory = PublishSubject<Category>()
+    
     init(
         categoryRepository: CategoryRepository
     ) {
@@ -22,8 +24,9 @@ class DefaultUpdateCategoryUseCase: UpdateCategoryUseCase {
             token: token.accessToken,
             category: category.toDTO()
         )
-        .map {
-            $0.data.id
+        .map { [weak self] dto in
+            self?.didUpdateCategory.onNext(category)
+            return dto.data.id
         }
     }
 }

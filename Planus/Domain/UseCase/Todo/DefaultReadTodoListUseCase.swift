@@ -16,12 +16,14 @@ class DefaultReadTodoListUseCase: ReadTodoListUseCase {
         self.todoRepository = todoRepository
     }
     
-    func execute(from: Date, to: Date) -> Single<[Date: [Todo]]> {
+    func execute(token: Token, from: Date, to: Date) -> Single<[Date: [Todo]]> {
         return todoRepository
-            .readTodo(from: from, to: to)
+            .readTodo(token: token.accessToken, from: from, to: to)
+            .map { return $0.data }
             .map { list in
                 var dict = [Date: [Todo]]()
-                list.forEach { todo in
+                list.forEach { dto in
+                    let todo = dto.toDomain()
                     if dict[todo.startDate] == nil {
                         dict[todo.startDate] = []
                     }

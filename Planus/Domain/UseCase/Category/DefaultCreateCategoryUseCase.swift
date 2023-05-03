@@ -11,6 +11,8 @@ import RxSwift
 class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
     let categoryRepository: CategoryRepository
     
+    var didCreateCategory = PublishSubject<Category>()
+    
     init(
         categoryRepository: CategoryRepository
     ) {
@@ -22,8 +24,11 @@ class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
             token: token.accessToken,
             category: category.toDTO()
         )
-        .map {
-            $0.data.id
+        .map { [weak self] dto in
+            var categoryWithId = category
+            categoryWithId.id = dto.data.id
+            self?.didCreateCategory.onNext(categoryWithId)
+            return dto.data.id
         }
     }
 }

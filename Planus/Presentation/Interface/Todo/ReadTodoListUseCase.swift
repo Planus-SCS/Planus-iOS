@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol ReadTodoListUseCase {
-    func execute(from: Date, to: Date) -> Single<[Date: [Todo]]>
+    func execute(token: Token, from: Date, to: Date) -> Single<[Date: [Todo]]>
 }

@@ -27,12 +27,16 @@ class SignInCoordinator: Coordinator {
     
     lazy var showLoginPage: () -> Void = { [weak self] in
         let api = NetworkManager()
+        let keyChain = KeyChainManager()
         let repo = DefaultSocialAuthRepository(apiProvider: api)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
         let kakaoSignInUseCase = DefaultKakaoSignInUseCase(socialAuthRepository: repo)
         let googleSignInUseCase = DefaultGoogleSignInUseCase(socialAuthRepository: repo)
+        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
         let vm = SignInViewModel(
             kakaoSignInUseCase: kakaoSignInUseCase,
-            googleSignInUseCase: googleSignInUseCase
+            googleSignInUseCase: googleSignInUseCase,
+            setTokenUseCase: setTokenUseCase
         )
         
         vm.setActions(actions:SignInViewModelActions(

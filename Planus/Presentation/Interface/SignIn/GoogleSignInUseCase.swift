@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol GoogleSignInUseCase {
-    func execute(code: String) -> Single<Data>
+    func execute(code: String) -> Single<Token>
 }

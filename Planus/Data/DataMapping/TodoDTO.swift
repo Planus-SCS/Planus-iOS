@@ -41,8 +41,8 @@ struct TodoEntityResponseDTO: Codable {
     var title: String
     var categoryId: Int
     var groupId: Int?
-    var startDate: Date?
-    var endDate: Date?
+    var startDate: String
+    var endDate: String
     var startTime: String?
     var description: String?
     
@@ -51,8 +51,8 @@ struct TodoEntityResponseDTO: Codable {
         title: String,
         categoryId: Int,
         groupId: Int?,
-        startDate: Date?,
-        endDate: Date?,
+        startDate: String,
+        endDate: String,
         startTime: String?,
         description: String?
     ) {
@@ -64,6 +64,21 @@ struct TodoEntityResponseDTO: Codable {
         self.endDate = endDate
         self.startTime = startTime
         self.description = description
+    }
+}
+
+extension TodoEntityResponseDTO {
+    func toDomain() -> Todo {
+        return Todo(
+            id: todoId,
+            title: title,
+            startDate: startDate.toDate() ?? Date(),
+            endDate: endDate.toDate() ?? Date(),
+            memo: description,
+            groupId: groupId,
+            categoryId: categoryId,
+            startTime: startTime
+        )
     }
 }
 

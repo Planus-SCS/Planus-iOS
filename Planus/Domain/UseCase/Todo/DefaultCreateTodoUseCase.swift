@@ -17,12 +17,14 @@ class DefaultCreateTodoUseCase: CreateTodoUseCase {
         self.todoRepository = todoRepository
     }
     
-    func execute(todo: Todo) -> Single<Void> {
+    func execute(token: Token, todo: Todo) -> Single<Int> {
         return todoRepository
-            .createTodo(todo: todo)
-            .map { [weak self] in
-                self?.didCreateTodo.onNext(todo)
-                return $0
+            .createTodo(token: token.accessToken, todo: todo.toDTO())
+            .map { [weak self] id in
+                var todoWithId = todo
+                todoWithId.id = id
+                self?.didCreateTodo.onNext(todoWithId)
+                return id
             }
     }
 }

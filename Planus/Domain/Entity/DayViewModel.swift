@@ -12,7 +12,7 @@ struct DayViewModel {
     var dayString: String //셀 위에 표시 용
     var weekDay: WeekDay
     var state: MonthStateOfDay //흐리게 or 진하게 표시용
-    var todoList: [TodoSummary]?
+    var todoList: [Todo]?
 }
 
 /*
