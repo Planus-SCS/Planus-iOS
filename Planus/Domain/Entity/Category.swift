@@ -12,7 +12,7 @@ struct Category {
     var title: String
     var color: CategoryColor
     
-    init(id: Int, title: String, color: CategoryColor) {
+    init(id: Int?, title: String, color: CategoryColor) {
         self.id = id
         self.title = title
         self.color = color

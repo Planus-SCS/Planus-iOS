@@ -9,6 +9,7 @@ import Foundation
 import RxSwift
 
 class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
+    static let shared: DefaultCreateCategoryUseCase = .init(categoryRepository: DefaultCategoryRepository(apiProvider: NetworkManager()))
     let categoryRepository: CategoryRepository
     
     var didCreateCategory = PublishSubject<Category>()

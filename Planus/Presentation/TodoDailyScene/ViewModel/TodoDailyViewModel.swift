@@ -10,6 +10,7 @@ import RxSwift
 
 // 초기화할때 minDate, maxDate 정의 필요함, 왜? 스몰캘린더 때문에..!
 
+// 애는 말그대로 보여주는 용도(진짜 그냥 창문느낌) 생각하자..! 카테고리를 굳이 또 로컬에서 가져와서 보여줄 필요는 없다! 그리고 남꺼 보는용으로 재활용하기 힘들다 그러면!
 class TodoDailyViewModel {
     var bag = DisposeBag()
 
@@ -17,10 +18,11 @@ class TodoDailyViewModel {
     
     var scheduledTodoList: [Todo]?
     var unscheduledTodoList: [Todo]?
+    var categoryDict: [Int: Category] = [:]
 
     var currentDate: Date?
     var currentDateText: String?
-        
+    
     lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy년 MM월 dd일"
@@ -50,18 +52,31 @@ class TodoDailyViewModel {
     var updateTodoUseCase: UpdateTodoUseCase
     var deleteTodoUseCase: DeleteTodoUseCase
     
+    var createCategoryUseCase: CreateCategoryUseCase
+    var updateCategoryUseCase: UpdateCategoryUseCase
+    var deleteCategoryUseCase: DeleteCategoryUseCase
+    var readCategoryUseCase: ReadCategoryListUseCase
+    
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         createTodoUseCase: CreateTodoUseCase,
         updateTodoUseCase: UpdateTodoUseCase,
-        deleteTodoUseCase: DeleteTodoUseCase
+        deleteTodoUseCase: DeleteTodoUseCase,
+        createCategoryUseCase: CreateCategoryUseCase,
+        updateCategoryUseCase: UpdateCategoryUseCase,
+        deleteCategoryUseCase: DeleteCategoryUseCase,
+        readCategoryUseCase: ReadCategoryListUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.createTodoUseCase = createTodoUseCase
         self.updateTodoUseCase = updateTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
+        self.createCategoryUseCase = createCategoryUseCase
+        self.updateCategoryUseCase = updateCategoryUseCase
+        self.deleteCategoryUseCase = deleteCategoryUseCase
+        self.readCategoryUseCase = readCategoryUseCase
     }
     
     func setOwnership(isOwner: Bool) {
@@ -73,14 +88,14 @@ class TodoDailyViewModel {
         self.currentDateText = dateFormatter.string(from: currentDate)
     }
     
-    func setTodoList(todoList: [Todo]) {
+    func setTodoList(todoList: [Todo], categoryDict: [Int: Category], groupDict: [Int: Group]) {
         var scheduled = [Todo]()
         var unscheduled = [Todo]()
-        todoList.forEach {
-            if let _ = $0.startTime {
-                scheduled.append($0)
+        todoList.forEach { todo in
+            if let _ = todo.startTime {
+                scheduled.append(todo)
             } else {
-                unscheduled.append($0)
+                unscheduled.append(todo)
             }
         }
         self.scheduledTodoList = scheduled
@@ -100,6 +115,7 @@ class TodoDailyViewModel {
             .disposed(by: bag)
     }
     
+    // 내 투두 볼때만 불릴예정
     func bindAfterSetTodoList() {
         createTodoUseCase
             .didCreateTodo

@@ -23,7 +23,6 @@ class HomeCalendarViewController: UIViewController {
     
     lazy var yearMonthButton: UIButton = {
         let button = UIButton(frame: .zero)
-        button.setTitle("2020년 0월", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
         button.setImage(UIImage(named: "downButton"), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
@@ -139,19 +138,40 @@ class HomeCalendarViewController: UIViewController {
         output.showDailyTodoPage
             .withUnretained(self)
             .subscribe(onNext: { vc, dayViewModel in
+                let api = NetworkManager()
+                let keyChain = KeyChainManager()
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+                let categoryRepo = DefaultCategoryRepository(apiProvider: api)
 
+                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
                 let createTodoUseCase = DefaultCreateTodoUseCase.shared
                 let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
                 let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
+                let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
+                let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
+                let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
+                let readCategoryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
+                
                 
                 let viewModel = TodoDailyViewModel(
+                    getTokenUseCase: getTokenUseCase,
+                    refreshTokenUseCase: refreshTokenUseCase,
                     createTodoUseCase: createTodoUseCase,
                     updateTodoUseCase: updateTodoUseCase,
-                    deleteTodoUseCase: deleteTodoUseCase
+                    deleteTodoUseCase: deleteTodoUseCase,
+                    createCategoryUseCase: createCategoryUseCase,
+                    updateCategoryUseCase: updateCategoryUseCase,
+                    deleteCategoryUseCase: deleteCategoryUseCase,
+                    readCategoryUseCase: readCategoryUseCase
                 )
                 
                 viewModel.setDate(currentDate: dayViewModel.date)
-                viewModel.setTodoList(todoList: dayViewModel.todoList ?? [])
+                viewModel.setTodoList(
+                    todoList: dayViewModel.todoList ?? [],
+                    categoryDict: vc.viewModel?.categoryDict ?? [:],
+                    groupDict: vc.viewModel?.groupDict ?? [:]
+                )
 
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)
@@ -245,7 +265,7 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
         
         cell.fill(
             section: indexPath.section,
-            delegate: self
+            viewModel: viewModel
         )
 
         cell.fill(
@@ -338,45 +358,6 @@ extension HomeCalendarViewController {
         let layout = UICollectionViewCompositionalLayout(section: section, configuration: configuration)
         
         return layout
-    }
-    
-}
-
-extension HomeCalendarViewController: MonthlyCalendarCellDelegate {
-
-    func monthlyCalendarCell(_ monthlyCalendarCell: MonthlyCalendarCell, at indexPath: IndexPath) -> DayViewModel? {
-        guard let viewModel else { return nil }
-        return viewModel.mainDayList[indexPath.section][indexPath.item]
-    }
-    
-    func monthlyCalendarCell(_ monthlyCalendarCell: MonthlyCalendarCell, maxCountOfTodoInWeek indexPath: IndexPath) -> DayViewModel? {
-        guard let viewModel else { return nil }
-        let item = indexPath.item
-        let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-            viewModel.mainDayList[indexPath.section][a].todoList?.count ?? 0 < viewModel.mainDayList[indexPath.section][b].todoList?.count ?? 0
-        }) ?? Int()
-            
-        return viewModel.mainDayList[indexPath.section][maxItem]
-    }
-    
-    func numberOfItems(_ monthlyCalendarCell: MonthlyCalendarCell, in section: Int) -> Int? {
-        return viewModel?.mainDayList[section].count
-    }
-    
-    func findCachedHeight(_ monthlyCalendarCell: MonthlyCalendarCell, todoCount: Int) -> Double? {
-        return viewModel?.cachedCellHeightForTodoCount[todoCount]
-    }
-    
-    func cacheHeight(_ monthlyCalendarCell: MonthlyCalendarCell, count: Int, height: Double) {
-        viewModel?.cachedCellHeightForTodoCount[count] = height
-    }
-    
-    func frameWidth(_ monthlyCalendarCell: MonthlyCalendarCell) -> CGSize {
-        return self.view.frame.size
-    }
-    
-    func colorOf(_ monthlyCalendarCell: MonthlyCalendarCell, colorOfCategoryId id: Int) -> CategoryColor? {
-        return viewModel?.categoryDict[id]?.color
     }
     
 }

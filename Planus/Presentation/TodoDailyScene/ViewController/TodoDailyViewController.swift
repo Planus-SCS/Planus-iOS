@@ -125,7 +125,31 @@ class TodoDailyViewController: UIViewController {
     }
     
     @objc func addTodoTapped(_ sender: UIButton) {
-        let vm = TodoDetailViewModel()
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let todoRepo = TestTodoDetailRepository(apiProvider: api)
+        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
+        
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let createTodoUseCase = DefaultCreateTodoUseCase.shared
+        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
+        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
+        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
+        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
+        
+        let vm = TodoDetailViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            createTodoUseCase: createTodoUseCase,
+            createCategoryUseCase: createCategoryUseCase,
+            updateCategoryUseCase: updateCategoryUseCase,
+            deleteCategoryUseCase: deleteCategoryUseCase,
+            readCategoryUseCase: readCateogryUseCase
+        )
+        
         vm.completionHandler = { [weak self] todo in
             self?.viewModel?.addTodo(todo: todo)
         }
@@ -191,8 +215,10 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         default:
             return UICollectionViewCell()
         }
-        guard let todoItem else { return UICollectionViewCell() }
-        cell.fill(title: todoItem.title, time: nil, category: .blue)
+        guard let todoItem,
+              let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
+        
+        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil)
         return cell
     }
     

@@ -29,9 +29,11 @@ class HomeCalendarViewModel {
 
     var mainDayList = [[DayViewModel]]()
     
-    var groupDict = [Int: Group]()
+    var groupDict = [Int: Group]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
     var categoryDict = [Int: Category]()
-    //그럼 투두는 왜 이렇게 안하고?...왜 굳이 데이뷰모델 안에 넣어뒀어???...왜드라..??????
+    
+    
+    //투두는 왜 투두용 뷰모델을 쓰지 않았는가?? -> 카테고리를 채워넣기엔 이거 업댓할때 카테고리까지 싹다 업뎃되면 머리아프니까.. 일단 하던대로 하자
     // 이거 일단 받아오는순서
     /*
      1. 그룹, 카테고리 받아오기
@@ -51,8 +53,9 @@ class HomeCalendarViewModel {
     var didSelectMonth = PublishSubject<Int>()
     var needReloadSectionSet = PublishSubject<IndexSet>() //리로드 섹션을 해야함 왜?
     var needReloadData = PublishSubject<Void>()
-    var categoryChanged = PublishSubject<Void?>()
-    var groupChanged = PublishSubject<Void?>()
+    
+    var initialReadCategory = BehaviorSubject<Void?>(value: nil)
+    var initialReadGroup = BehaviorSubject<Void?>(value: nil)
     
     var currentIndex = Int()
     var cachedCellHeightForTodoCount = [Int: Double]()
@@ -86,10 +89,10 @@ class HomeCalendarViewModel {
     let updateTodoUseCase: UpdateTodoUseCase
     let deleteTodoUseCase: DeleteTodoUseCase
     
-//    let createCategoryUseCase: CreateCategoryUseCase
-//    let readCategoryListUseCase: ReadCategoryListUseCase
-//    let updateCategoryUseCase: UpdateCategoryUseCase
-//    let deleteCategoryUseCase: DeleteCategoryUseCase
+    let createCategoryUseCase: CreateCategoryUseCase
+    let readCategoryListUseCase: ReadCategoryListUseCase
+    let updateCategoryUseCase: UpdateCategoryUseCase
+    let deleteCategoryUseCase: DeleteCategoryUseCase
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
@@ -101,7 +104,10 @@ class HomeCalendarViewModel {
         readTodoListUseCase: ReadTodoListUseCase,
         updateTodoUseCase: UpdateTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
+        createCategoryUseCase: CreateCategoryUseCase,
         readCategoryListUseCase: ReadCategoryListUseCase,
+        updateCategoryUseCase: UpdateCategoryUseCase,
+        deleteCategoryUseCase: DeleteCategoryUseCase,
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     ) {
@@ -111,11 +117,12 @@ class HomeCalendarViewModel {
         self.readTodoListUseCase = readTodoListUseCase
         self.updateTodoUseCase = updateTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
+        self.createCategoryUseCase = createCategoryUseCase
         self.readCategoryListUseCase = readCategoryListUseCase
+        self.updateCategoryUseCase = updateCategoryUseCase
+        self.deleteCategoryUseCase = deleteCategoryUseCase
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
-        self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
-        
-        bind()
+        self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase        
     }
     
     func bind() {
@@ -126,17 +133,32 @@ class HomeCalendarViewModel {
             }
             .disposed(by: bag)
         
-        categoryChanged
+        // init
+        currentDate
             .compactMap { $0 }
-            .skip(1)
+            .take(1)
             .withUnretained(self)
-            .subscribe(onNext: { vm, _ in // 처음엔 리로드 아직, 투두까지 완료되고 리로드
-                vm.needReloadData.onNext(())
+            .subscribe(onNext: { vm, date in
+                vm.fetchCategoryAndGroup()
+                vm.bindCategoryUseCase()
+                vm.bindTodoUseCase(initialDate: date)
+                vm.initCalendar(date: date)
+                
+                Observable.combineLatest(
+                    vm.initialReadGroup.compactMap { $0 },
+                    vm.initialReadCategory.compactMap { $0 }
+                )
+                .subscribe(onNext: { _ in
+                    vm.initTodoList(date: date)
+                })
+                .disposed(by: vm.bag)
             })
             .disposed(by: bag)
     }
     
     func transform(input: Input) -> Output {
+        
+        bind()
         
         input.viewDidLoaded
             .withUnretained(self)
@@ -147,20 +169,7 @@ class HomeCalendarViewModel {
                 )
                 
                 let currentDate = vm.calendar.date(from: components) ?? Date()
-                // 이걸 싹다 하기전에 카테고리를 먼저 받아와야한다...!!!
                 vm.currentDate.onNext(currentDate)
-                vm.initCalendar(date: currentDate)
-                
-                //이때까지는 로딩 인디케이터를 보여줘야하나??? 음,,,
-                vm.fetchCategory()
-                vm.categoryChanged //카테고리 받고, 그다음에 투두 받는 방향으로 진행
-                    .take(1)
-                    .subscribe(onNext: { _ in
-                        vm.initTodoList(date: currentDate)
-                    })
-                    .disposed(by: vm.bag)
-                // 아니면 투두랑 카테고리를 같이 받아올까???
-                
             }
             .disposed(by: bag)
         
@@ -243,37 +252,50 @@ class HomeCalendarViewModel {
         latestFollowingCacheRequestedIndex = currentIndex
         
         initialDayListFetchedInCenterIndex.onNext(currentIndex)
-        bindAfterCalendarCreated()
         // 여기서 바인딩 할것인가?
     }
     
-    func bindAfterCalendarCreated() {
+    func bindCategoryUseCase() {
+        createCategoryUseCase
+            .didCreateCategory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                guard let id = category.id else { return }
+                vm.categoryDict[id] = category
+            })
+            .disposed(by: bag)
+        
+        updateCategoryUseCase
+            .didUpdateCategory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                guard let id = category.id else { return }
+                vm.categoryDict[id] = category
+
+                vm.needReloadData.onNext(())
+            })
+            .disposed(by: bag)
+        
+        deleteCategoryUseCase
+            .didDeleteCategory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, id in
+                // 현재는 삭제해도 그냥 유지하기 때문에 여기엔 그대로 두자..!
+            })
+            .disposed(by: bag)
+    }
+    
+    func bindTodoUseCase(initialDate: Date) {
+        guard let firstDate = calendar.date(
+            byAdding: DateComponents(month: endOfFirstIndex),
+            to: initialDate
+        ) else { return }
+        
         createTodoUseCase
             .didCreateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
-                let date = todo.startDate
-                let start = vm.mainDayList[0][7].date
-                let monthIndex = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
-                
-                var sectionSet = IndexSet()
-
-                if monthIndex > 0,
-                   let prevDayIndex = vm.mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }) {
-                    vm.mainDayList[monthIndex][prevDayIndex].todoList?.append(todo)
-                    sectionSet.insert(monthIndex - 1)
-                }
-                if let dayIndex = vm.mainDayList[monthIndex].firstIndex(where: { $0.date == date }) {
-                    vm.mainDayList[monthIndex][dayIndex].todoList?.append(todo)
-                    sectionSet.insert(monthIndex)
-                }
-                if monthIndex < vm.mainDayList.count - 1,
-                   let followingDayIndex = vm.mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}) {
-                    vm.mainDayList[monthIndex][followingDayIndex].todoList?.append(todo)
-                    sectionSet.insert(monthIndex + 1)
-                }
-                
-                vm.needReloadSectionSet.onNext(sectionSet)
+                vm.createTodo(firstDate: firstDate, todo: todo)
             })
             .disposed(by: bag)
         
@@ -281,33 +303,7 @@ class HomeCalendarViewModel {
             .didUpdateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
-                let date = todo.startDate
-                let start = vm.mainDayList[0][7].date
-                let monthIndex = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
-                
-                var sectionSet = IndexSet()
-
-                if monthIndex > 0,
-                   let prevDayIndex = vm.mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }),
-                   let todoIndex = vm.mainDayList[monthIndex - 1][prevDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-                    vm.mainDayList[monthIndex - 1][prevDayIndex].todoList?[todoIndex] = todo
-                    sectionSet.insert(monthIndex - 1)
-                }
-                
-                if let dayIndex = vm.mainDayList[monthIndex].firstIndex(where: { $0.date == date }),
-                   let todoIndex = vm.mainDayList[monthIndex][dayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-                    vm.mainDayList[monthIndex][dayIndex].todoList?[todoIndex] = todo
-                    sectionSet.insert(monthIndex)
-                }
-                
-                if monthIndex < vm.mainDayList.count - 1,
-                   let followingDayIndex = vm.mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}),
-                   let todoIndex = vm.mainDayList[monthIndex + 1][followingDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-                    vm.mainDayList[monthIndex + 1][followingDayIndex].todoList?[todoIndex] = todo
-                    sectionSet.insert(monthIndex + 1)
-                }
-                
-                vm.needReloadSectionSet.onNext(sectionSet)
+                vm.updateTodo(firstDate: firstDate, todo: todo)
             })
             .disposed(by: bag)
         
@@ -315,33 +311,7 @@ class HomeCalendarViewModel {
             .didDeleteTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
-                let date = todo.startDate
-                let start = vm.mainDayList[0][7].date
-                let monthIndex = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
-                
-                var sectionSet = IndexSet()
-
-                if monthIndex > 0,
-                   let prevDayIndex = vm.mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }),
-                   let todoIndex = vm.mainDayList[monthIndex - 1][prevDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-                    vm.mainDayList[monthIndex - 1][prevDayIndex].todoList?.remove(at: todoIndex)
-                    sectionSet.insert(monthIndex - 1)
-                }
-                
-                if let dayIndex = vm.mainDayList[monthIndex].firstIndex(where: { $0.date == date }),
-                   let todoIndex = vm.mainDayList[monthIndex][dayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-                    vm.mainDayList[monthIndex][dayIndex].todoList?.remove(at: todoIndex)
-                    sectionSet.insert(monthIndex)
-                }
-                
-                if monthIndex < vm.mainDayList.count - 1,
-                   let followingDayIndex = vm.mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}),
-                   let todoIndex = vm.mainDayList[monthIndex + 1][followingDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-                    vm.mainDayList[monthIndex + 1][followingDayIndex].todoList?.remove(at: todoIndex)
-                    sectionSet.insert(monthIndex + 1)
-                }
-                
-                vm.needReloadSectionSet.onNext(sectionSet)
+                vm.deleteTodo(firstDate: firstDate, todo: todo)
             })
             .disposed(by: bag)
     }
@@ -426,11 +396,8 @@ class HomeCalendarViewModel {
             .disposed(by: bag)
     }
     
-    // 카테고리 때문에 리로드해야하는 상황은,,, 카테고리 생성, 색변경 둘만있음..! 그럼 카테고리를 레포쪽에 캐싱해둬야하는가?
-    // 그리고 울릴때마다 레포쪽 캐싱해놓은거를 다시 뷰모델로 받아오도록 할까???
-    func fetchCategory() {
+    func fetchCategoryAndGroup() {
         guard let token = getTokenUseCase.execute() else {
-            // 로그아웃해야함다시... 근데 이런상황이 있긴 할까?
             return
         }
 
@@ -441,14 +408,105 @@ class HomeCalendarViewModel {
                     guard let id = $0.id else { return }
                     self?.categoryDict[id] = $0
                 }
-                self?.categoryChanged.onNext(())
+                self?.initialReadCategory.onNext(())
+                self?.initialReadGroup.onNext(())
             })
             .disposed(by: bag)
         //토큰따라 리트라이 로직 필요
     }
     
-    func fetchGroup() {
+    func createTodo(firstDate: Date, todo: Todo) {
+        let date = todo.startDate
+        let monthIndex = calendar.dateComponents([.month], from: firstDate, to: date).month ?? 0
         
+        var sectionSet = IndexSet()
+
+        if monthIndex > 0,
+           let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }) {
+            mainDayList[monthIndex][prevDayIndex].todoList?.append(todo)
+            sectionSet.insert(monthIndex - 1)
+        }
+        if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }) {
+            mainDayList[monthIndex][dayIndex].todoList?.append(todo)
+            sectionSet.insert(monthIndex)
+        }
+        if monthIndex < mainDayList.count - 1,
+           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}) {
+            mainDayList[monthIndex][followingDayIndex].todoList?.append(todo)
+            sectionSet.insert(monthIndex + 1)
+        }
+        
+        needReloadSectionSet.onNext(sectionSet)
     }
+    
+    func updateTodo(firstDate: Date, todo: Todo) {
+        let date = todo.startDate
+        let monthIndex = calendar.dateComponents([.month], from: firstDate, to: date).month ?? 0
+        
+        var sectionSet = IndexSet()
+
+        if monthIndex > 0,
+           let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }),
+           let todoIndex = mainDayList[monthIndex - 1][prevDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex - 1][prevDayIndex].todoList?[todoIndex] = todo
+            sectionSet.insert(monthIndex - 1)
+        }
+        
+        if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }),
+           let todoIndex = mainDayList[monthIndex][dayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex][dayIndex].todoList?[todoIndex] = todo
+            sectionSet.insert(monthIndex)
+        }
+        
+        if monthIndex < mainDayList.count - 1,
+           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}),
+           let todoIndex = mainDayList[monthIndex + 1][followingDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex + 1][followingDayIndex].todoList?[todoIndex] = todo
+            sectionSet.insert(monthIndex + 1)
+        }
+        
+        needReloadSectionSet.onNext(sectionSet)
+    }
+    
+    func deleteTodo(firstDate: Date, todo: Todo) {
+        let date = todo.startDate
+        let monthIndex = calendar.dateComponents([.month], from: firstDate, to: date).month ?? 0
+        
+        var sectionSet = IndexSet()
+
+        if monthIndex > 0,
+           let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }),
+           let todoIndex = mainDayList[monthIndex - 1][prevDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex - 1][prevDayIndex].todoList?.remove(at: todoIndex)
+            sectionSet.insert(monthIndex - 1)
+        }
+        
+        if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }),
+           let todoIndex = mainDayList[monthIndex][dayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex][dayIndex].todoList?.remove(at: todoIndex)
+            sectionSet.insert(monthIndex)
+        }
+        
+        if monthIndex < mainDayList.count - 1,
+           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}),
+           let todoIndex = mainDayList[monthIndex + 1][followingDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex + 1][followingDayIndex].todoList?.remove(at: todoIndex)
+            sectionSet.insert(monthIndex + 1)
+        }
+        
+        needReloadSectionSet.onNext(sectionSet)
+    }
+    
+    func getMaxInWeek(indexPath: IndexPath) -> DayViewModel {
+        let item = indexPath.item
+        let section = indexPath.section
+        
+        let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
+            mainDayList[section][a].todoList?.count ?? 0 < mainDayList[section][b].todoList?.count ?? 0
+        }) ?? Int()
+        
+        return mainDayList[indexPath.section][maxItem]
+    }
+
 }
 

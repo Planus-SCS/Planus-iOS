@@ -9,5 +9,6 @@ import Foundation
 import RxSwift
 
 protocol DeleteCategoryUseCase {
+    var didDeleteCategory: PublishSubject<Int> { get }
     func execute(token: Token, id: Int) -> Single<Void>
 }

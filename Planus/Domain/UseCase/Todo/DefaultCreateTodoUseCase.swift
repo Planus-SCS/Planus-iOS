@@ -9,6 +9,7 @@ import Foundation
 import RxSwift
 
 class DefaultCreateTodoUseCase: CreateTodoUseCase {
+    static let shared: DefaultCreateTodoUseCase = .init(todoRepository: TestTodoDetailRepository(apiProvider: NetworkManager()))
     let todoRepository: TodoRepository
         
     var didCreateTodo = PublishSubject<Todo>()

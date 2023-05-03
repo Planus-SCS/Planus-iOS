@@ -9,6 +9,7 @@ import Foundation
 import RxSwift
 
 class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
+    static let shared: DefaultDeleteCategoryUseCase = .init(categoryRepository: DefaultCategoryRepository(apiProvider: NetworkManager()))
     let categoryRepository: CategoryRepository
     
     var didDeleteCategory = PublishSubject<Int>()

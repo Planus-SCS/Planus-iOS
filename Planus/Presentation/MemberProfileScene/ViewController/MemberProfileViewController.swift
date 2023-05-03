@@ -118,14 +118,40 @@ class MemberProfileViewController: UIViewController {
         output.showDailyTodoPage
             .withUnretained(self)
             .subscribe(onNext: { vc, dayViewModel in
+                let api = NetworkManager()
+                let keyChain = KeyChainManager()
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+                let categoryRepo = DefaultCategoryRepository(apiProvider: api)
 
+                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+                let createTodoUseCase = DefaultCreateTodoUseCase.shared
+                let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
+                let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
+                let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
+                let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
+                let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
+                let readCategoryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
+                
+                
                 let viewModel = TodoDailyViewModel(
-                    createTodoUseCase: DefaultCreateTodoUseCase.shared,
-                    updateTodoUseCase: DefaultUpdateTodoUseCase.shared,
-                    deleteTodoUseCase: DefaultDeleteTodoUseCase.shared
+                    getTokenUseCase: getTokenUseCase,
+                    refreshTokenUseCase: refreshTokenUseCase,
+                    createTodoUseCase: createTodoUseCase,
+                    updateTodoUseCase: updateTodoUseCase,
+                    deleteTodoUseCase: deleteTodoUseCase,
+                    createCategoryUseCase: createCategoryUseCase,
+                    updateCategoryUseCase: updateCategoryUseCase,
+                    deleteCategoryUseCase: deleteCategoryUseCase,
+                    readCategoryUseCase: readCategoryUseCase
                 )
+                
                 viewModel.setDate(currentDate: dayViewModel.date)
-                viewModel.setTodoList(todoList: dayViewModel.todoList ?? [])
+//                viewModel.setTodoList(
+//                    todoList: dayViewModel.todoList ?? [],
+//                    categoryDict: vc.viewModel?.categoryDict ?? [:],
+//                    groupDict: vc.viewModel?.groupDict ?? [:]
+//                )
 
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)

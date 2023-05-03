@@ -9,6 +9,8 @@ import Foundation
 import RxSwift
 
 class DefaultUpdateTodoUseCase: UpdateTodoUseCase {
+    static let shared: DefaultUpdateTodoUseCase = .init(todoRepository: TestTodoDetailRepository(apiProvider: NetworkManager()))
+
     let todoRepository: TodoRepository
         
     var didUpdateTodo = PublishSubject<Todo>()

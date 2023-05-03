@@ -503,6 +503,10 @@ extension TodoDetailViewController {
     }
 }
 
+// 달력에서 데일리 여는건 의존성이 약간 있을수밖에없음. 근데 투두 생성은 걍 개씹 별개로 가져가는게 맞음. 즉 내가 가입한 그룹이나, 내 카테고리 등을 유즈케이스로 가져와야함
+// 달력 -> 데일리 : date, todoList, categoryDict, groupDict를 전부 전달(이것도 맞는건지는 모르겠네,,,)
+// 투두 생성 : 카테고리 유즈케이스나 그룹 유즈케이스에서 읽어와야한다..!
+
 extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         1

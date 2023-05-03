@@ -85,6 +85,10 @@ class BigTodoCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         checkButton.isOn = false
+        
+        groupSymbol.isHidden = true
+        periodSymbol.isHidden = true
+        memoSymbol.isHidden = true
     }
     
     func configureView() {
@@ -127,7 +131,7 @@ class BigTodoCell: UICollectionViewCell {
         self.buttonClosure = closure
     }
 
-    func fill(title: String, time: String?, category: CategoryColor) {
+    func fill(title: String, time: String?, category: CategoryColor, isGroup: Bool, isScheduled: Bool, isMemo: Bool) {
 
         if let time = time {
             timeLabel.isHidden = false
@@ -140,9 +144,15 @@ class BigTodoCell: UICollectionViewCell {
         self.backgroundColor = category.todoForCalendarColor
         self.titleLabel.textColor = category.todoThickColor
         self.timeLabel.textColor = category.todoThickColor
+        
+        groupSymbol.isHidden = !isGroup
+        periodSymbol.isHidden = !isScheduled
+        memoSymbol.isHidden = !isMemo
+        
         groupSymbol.tintColor = category.todoThickColor
         periodSymbol.tintColor = category.todoThickColor
         memoSymbol.tintColor = category.todoThickColor
+        
         checkButton.setColor(color: category)
     }
 
