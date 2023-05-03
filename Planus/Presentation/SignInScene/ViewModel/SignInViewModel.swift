@@ -96,7 +96,7 @@ class SignInViewModel {
                     self.setTokenUseCase.execute(token: token)
                     self.actions?.showMainTabFlow?()
                 }, onFailure: { error in
-
+                    print(error)
                 })
                 .disposed(by: self.bag)
         }
@@ -108,6 +108,7 @@ class SignInViewModel {
             self.googleSignInUseCase.execute(code: code)
                 .subscribe(onSuccess: { token in
                     self.setTokenUseCase.execute(token: token)
+                    print(token)
                     self.actions?.showMainTabFlow?()
                 }, onFailure: { error in
                     

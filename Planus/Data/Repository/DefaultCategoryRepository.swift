@@ -17,7 +17,7 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
     
     func read(token: String) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>> {
         let endPoint = APIEndPoint(
-            url: "localhost:8080/app/categories",
+            url: "https://5180-121-167-200-122.ngrok-free.app/app/categories",
             requestType: .get,
             body: nil,
             query: nil,
@@ -35,7 +35,7 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
     
     func create(token: String, category: CategoryRequestDTO) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: "localhost:8080/app/categories",
+            url: "https://5180-121-167-200-122.ngrok-free.app/app/categories",
             requestType: .post,
             body: category,
             query: nil,
@@ -53,7 +53,7 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
     
     func update(token: String, id: Int, category: CategoryRequestDTO) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: "localhost:8080/app/categories" + "/\(id)",
+            url: "https://5180-121-167-200-122.ngrok-free.app/app/categories" + "/\(id)",
             requestType: .patch,
             body: category,
             query: nil,
@@ -71,7 +71,7 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
     
     func delete(token: String, id: Int) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: "localhost:8080/app/categories" + "/\(id)",
+            url: "https://5180-121-167-200-122.ngrok-free.app/app/categories" + "/\(id)",
             requestType: .delete,
             body: nil,
             query: nil,

@@ -143,7 +143,7 @@ class HomeCalendarViewModel {
                 vm.bindCategoryUseCase()
                 vm.bindTodoUseCase(initialDate: date)
                 vm.initCalendar(date: date)
-                
+                print("here i get with token")
                 Observable.combineLatest(
                     vm.initialReadGroup.compactMap { $0 },
                     vm.initialReadCategory.compactMap { $0 }
@@ -398,6 +398,7 @@ class HomeCalendarViewModel {
     
     func fetchCategoryAndGroup() {
         guard let token = getTokenUseCase.execute() else {
+            print("token이 저장되지 않음")
             return
         }
 

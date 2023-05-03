@@ -22,7 +22,7 @@ struct Category {
 extension Category {
     func toDTO() -> CategoryRequestDTO {
         return CategoryRequestDTO(
-            title: self.title,
+            name: self.title,
             color: self.color.rawValue
         )
     }

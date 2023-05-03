@@ -37,14 +37,13 @@ final class TodoDetailViewModel {
     var newCategoryName = BehaviorSubject<String?>(value: nil)
     var newCategoryColor = BehaviorSubject<CategoryColor?>(value: nil)
     
-    var categoryListChanged = PublishSubject<Void>()
     var groupListChanged = PublishSubject<Void>()
     
     let moveFromAddToSelect = PublishSubject<Void>()
     let moveFromSelectToCreate = PublishSubject<Void>()
     let moveFromCreateToSelect = PublishSubject<Void>()
     let moveFromSelectToAdd = PublishSubject<Void>()
-    let newCategorySaved = PublishSubject<Void>()
+    let needReloadCategoryList = PublishSubject<Void>()
     let removeKeyboard = PublishSubject<Void>()
     
     struct Input {
@@ -110,6 +109,9 @@ final class TodoDetailViewModel {
     }
     
     public func transform(input: Input) -> Output {
+        
+        fetchCategoryList()
+        fetchGroupList()
         
         input
             .todoTitleChanged
@@ -290,7 +292,7 @@ final class TodoDetailViewModel {
             categoryChanged: todoCategory.asObservable(),
             todoSaveBtnEnabled: todoSaveBtnEnabled.asObservable(),
             newCategorySaveBtnEnabled: newCategorySaveBtnEnabled.asObservable(),
-            newCategorySaved: newCategorySaved.asObservable(),
+            newCategorySaved: needReloadCategoryList.asObservable(),
             moveFromAddToSelect: moveFromAddToSelect.asObservable(),
             moveFromSelectToCreate: moveFromSelectToCreate.asObservable(),
             moveFromCreateToSelect: moveFromCreateToSelect.asObservable(),
@@ -298,6 +300,23 @@ final class TodoDetailViewModel {
             removeKeyboard: removeKeyboard.asObservable(),
             needDismiss: needDismiss.asObservable()
         )
+    }
+    
+    func fetchCategoryList() {
+        guard let token = getTokenUseCase.execute() else { return }
+        readCategoryUseCase
+            .execute(token: token)
+            .subscribe(onSuccess: { [weak self] list in
+                self?.categorys = list
+                self?.needReloadCategoryList.onNext(())
+                print(self?.categorys)
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchGroupList() {
+        guard let token = getTokenUseCase.execute() else { return }
+        
     }
     
     func createTodo(todo: Todo) {
@@ -316,15 +335,14 @@ final class TodoDetailViewModel {
 
     func saveNewCategory(category: Category) {
         guard let token = getTokenUseCase.execute() else { return }
-        
         createCategoryUseCase
             .execute(token: token, category: category)
             .subscribe(onSuccess: { [weak self] id in
                 var categoryWithId = category
                 categoryWithId.id = id
-                
+
                 self?.categorys.append(categoryWithId)
-                self?.categoryListChanged.onNext(())
+                self?.needReloadCategoryList.onNext(())
                 self?.moveFromCreateToSelect.onNext(())
             })
             .disposed(by: bag)
@@ -338,7 +356,7 @@ final class TodoDetailViewModel {
             .subscribe(onSuccess: { [weak self] id in
                 guard let index = self?.categorys.firstIndex(where: { $0.id == id }) else { return }
                 self?.categorys[index] = category
-                self?.categoryListChanged.onNext(())
+                self?.needReloadCategoryList.onNext(())
                 self?.moveFromCreateToSelect.onNext(())
             })
             .disposed(by: bag)

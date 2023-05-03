@@ -9,11 +9,11 @@ import Foundation
 
 // MARK: CREATE, UPDATE
 struct CategoryRequestDTO: Codable {
-    var title: String
+    var name: String
     var color: String
     
-    init(title: String, color: String) {
-        self.title = title
+    init(name: String, color: String) {
+        self.name = name
         self.color = color
     }
 }
@@ -25,19 +25,19 @@ struct CategoryResponseDataDTO: Codable {
 // MARK: READ
 struct CategoryEntityResponseDTO: Codable {
     var id: Int
-    var title: String
+    var name: String
     var color: String
     
-    init(id: Int, title: String, color: String) {
+    init(id: Int, name: String, color: String) {
         self.id = id
-        self.title = title
+        self.name = name
         self.color = color
     }
     
     func toDomain() -> Category {
         return Category(
             id: self.id,
-            title: self.title,
+            title: self.name,
             color: CategoryColor(rawValue: self.color) ?? .none
         )
     }

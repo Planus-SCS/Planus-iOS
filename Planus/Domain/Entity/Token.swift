@@ -8,7 +8,6 @@
 import Foundation
 
 struct Token {
-    var memberId: Int
     var accessToken: String
     var refreshToken: String
 }
@@ -16,7 +15,6 @@ struct Token {
 extension Token {
     func toDTO() -> TokenRequestDTO {
         return TokenRequestDTO(
-            memberId: memberId,
             accessToken: accessToken,
             refreshToken: refreshToken
         )

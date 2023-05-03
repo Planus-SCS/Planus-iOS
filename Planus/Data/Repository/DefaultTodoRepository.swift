@@ -18,7 +18,7 @@ class TestTodoDetailRepository: TodoRepository {
     
     func createTodo(token: String, todo: TodoRequestDTO) -> Single<Int> {
         let endPoint = APIEndPoint(
-            url: "localhost:8080/app/todos",
+            url: "https://5180-121-167-200-122.ngrok-free.app/app/todos",
             requestType: .post,
             body: todo,
             query: nil,
@@ -43,7 +43,7 @@ class TestTodoDetailRepository: TodoRepository {
         dateFormatter.timeZone = .current
         
         let endPoint = APIEndPoint(
-            url: "localhost:8080/app/todos",
+            url: "https://5180-121-167-200-122.ngrok-free.app/app/todos/calendar",
             requestType: .get,
             body: nil,
             query: [
@@ -51,8 +51,7 @@ class TestTodoDetailRepository: TodoRepository {
                 "to": dateFormatter.string(from: to)
             ],
             header: [
-                "Authorization": "Bearer \(token)",
-                "Content-Type": "application/json"
+                "Authorization": "Bearer \(token)"
             ]
         )
         
@@ -64,7 +63,7 @@ class TestTodoDetailRepository: TodoRepository {
     
     func updateTodo(token: String, id: Int, todo: TodoRequestDTO) -> Single<Int> {
         let endPoint = APIEndPoint(
-            url: "localhost:8080/app/todos/\(id)",
+            url: "https://5180-121-167-200-122.ngrok-free.app/app/todos/\(id)",
             requestType: .patch,
             body: todo,
             query: nil,
@@ -85,7 +84,7 @@ class TestTodoDetailRepository: TodoRepository {
     
     func deleteTodo(token: String, id: Int) -> Single<Void> {
         let endPoint = APIEndPoint(
-            url: "localhost:8080/app/todos/\(id)",
+            url: "https://5180-121-167-200-122.ngrok-free.app/app/todos/\(id)",
             requestType: .delete,
             body: nil,
             query: nil,

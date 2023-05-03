@@ -25,42 +25,43 @@ class DefaultTokenRepository: TokenRepository {
         guard let token = get() else { return nil }
                 
         let endPoint = APIEndPoint(
-            url: "localhost:8080/app/auth/token-reissue",
+            url: "https://5180-121-167-200-122.ngrok-free.app/app/auth/token-reissue",
             requestType: .post,
             body: token.toDTO(),
             query: nil,
-            header: nil
+            header: ["Content-Type": "application/json"]
         )
         
+        print("now refreshing")
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: ResponseDTO<TokenResponseDataDTO>.self
+            type: ResponseDTO<TokenRefreshResponseDataDTO>.self
         )
         .map { [weak self] dto in
             let token = dto.data.toDomain()
+            print(self)
             self?.set(token: token)
+            print("refreshed")
+            print(token)
             return ()
         }
     }
     
     func get() -> Token? { //네트워킹 할때마다 사용됨
-        guard let memberId = keyChainManager.get(key: "memberId") as? Int,
-              let accessToken = keyChainManager.get(key: "accessToken") as? String,
-              let refreshToken = keyChainManager.get(key: "refreshToken") as? String else {
+        guard let accessToken = keyChainManager.get(key: "accessToken"),
+              let refreshToken = keyChainManager.get(key: "refreshToken") else {
             return nil
         }
+
         return Token(
-            memberId: memberId,
-            accessToken: accessToken,
-            refreshToken: refreshToken
+            accessToken: String(decoding: accessToken as! Data, as: UTF8.self),
+            refreshToken: String(decoding: refreshToken as! Data, as: UTF8.self)
         )
     }
     
     func set(token: Token) { //최초, refreshToken 만료 시에만 사용됨
-        keyChainManager.set(
-            key: "memberId",
-            value: token.memberId
-        )
+        print("setsetset")
+
         keyChainManager.set(
             key: "accessToken",
             value: token.accessToken.data(using: .utf8, allowLossyConversion: false) as Any
@@ -69,10 +70,10 @@ class DefaultTokenRepository: TokenRepository {
             key: "refreshToken",
             value: token.refreshToken.data(using: .utf8, allowLossyConversion: false) as Any
         )
+        
     }
     
     func delete() {
-        keyChainManager.delete(key: "memberId")
         keyChainManager.delete(key: "accessToken")
         keyChainManager.delete(key: "refreshToken")
     }

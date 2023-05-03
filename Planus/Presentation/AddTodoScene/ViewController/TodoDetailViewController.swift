@@ -248,6 +248,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .moveFromAddToSelect
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.moveFromAddToSelect()
@@ -256,6 +257,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .moveFromSelectToCreate
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.moveFromSelectToCreate()
@@ -264,6 +266,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .moveFromCreateToSelect
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.moveFromCreateToSelect()
@@ -275,6 +278,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .moveFromSelectToAdd
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.moveFromSelectToAdd()
@@ -283,6 +287,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .removeKeyboard
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.view.endEditing(true)
@@ -291,6 +296,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .needDismiss
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.dismiss(animated: true)
@@ -517,13 +523,14 @@ extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        viewModel?.groups[row]
+//        viewModel?.groups[row]
+        return "dd"
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        addTodoView.groupSelectionField.text = viewModel?.groups[row]
-        addTodoView.groupSelectionField.textColor = .black
-        didSelectedGroupAt.onNext(row)
+//        addTodoView.groupSelectionField.text = viewModel?.groups[row]
+//        addTodoView.groupSelectionField.textColor = .black
+//        didSelectedGroupAt.onNext(row)
     }
 }
 
@@ -532,7 +539,8 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
         1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel?.categorys.count ?? 0
+        print(viewModel?.categorys.count)
+        return viewModel?.categorys.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
