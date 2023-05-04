@@ -96,7 +96,7 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
         
         let frameSize = delegate.frameWidth(self)
         
-        var todoCount = maxTodoViewModel.todoList?.count ?? 0
+        var todoCount = maxTodoViewModel.todoList.count
         
         if let height = delegate.findCachedHeight(self, todoCount: todoCount) {
             return CGSize(width: Double(1)/Double(7) * Double(frameSize.width), height: Double(height))

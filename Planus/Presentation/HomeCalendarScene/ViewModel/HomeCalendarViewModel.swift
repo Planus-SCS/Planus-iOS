@@ -386,8 +386,11 @@ class HomeCalendarViewModel {
                 guard let self else { return }
                 (fromIndex..<toIndex).forEach { index in
                     self.mainDayList[index] = self.mainDayList[index].map {
+                        guard let todoList = todoDict[$0.date] else {
+                            return $0
+                        }
                         var dayViewModel = $0
-                        dayViewModel.todoList = todoDict[$0.date]
+                        dayViewModel.todoList = todoList
                         return dayViewModel
                     }
                 }
@@ -421,20 +424,25 @@ class HomeCalendarViewModel {
         let monthIndex = calendar.dateComponents([.month], from: firstDate, to: date).month ?? 0
         
         var sectionSet = IndexSet()
-
+        
+        print(monthIndex)
         if monthIndex > 0,
            let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }) {
-            mainDayList[monthIndex][prevDayIndex].todoList?.append(todo)
+            mainDayList[monthIndex][prevDayIndex].todoList.append(todo)
             sectionSet.insert(monthIndex - 1)
+            print("prev", prevDayIndex)
         }
         if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }) {
-            mainDayList[monthIndex][dayIndex].todoList?.append(todo)
+            mainDayList[monthIndex][dayIndex].todoList.append(todo)
             sectionSet.insert(monthIndex)
+            print("now", dayIndex)
+            print(mainDayList[monthIndex][dayIndex].todoList)
         }
         if monthIndex < mainDayList.count - 1,
            let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}) {
-            mainDayList[monthIndex][followingDayIndex].todoList?.append(todo)
+            mainDayList[monthIndex][followingDayIndex].todoList.append(todo)
             sectionSet.insert(monthIndex + 1)
+            print("fol", followingDayIndex)
         }
         
         needReloadSectionSet.onNext(sectionSet)
@@ -448,21 +456,21 @@ class HomeCalendarViewModel {
 
         if monthIndex > 0,
            let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }),
-           let todoIndex = mainDayList[monthIndex - 1][prevDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex - 1][prevDayIndex].todoList?[todoIndex] = todo
+           let todoIndex = mainDayList[monthIndex - 1][prevDayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex - 1][prevDayIndex].todoList[todoIndex] = todo
             sectionSet.insert(monthIndex - 1)
         }
         
         if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }),
-           let todoIndex = mainDayList[monthIndex][dayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex][dayIndex].todoList?[todoIndex] = todo
+           let todoIndex = mainDayList[monthIndex][dayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex][dayIndex].todoList[todoIndex] = todo
             sectionSet.insert(monthIndex)
         }
         
         if monthIndex < mainDayList.count - 1,
            let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}),
-           let todoIndex = mainDayList[monthIndex + 1][followingDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex + 1][followingDayIndex].todoList?[todoIndex] = todo
+           let todoIndex = mainDayList[monthIndex + 1][followingDayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex + 1][followingDayIndex].todoList[todoIndex] = todo
             sectionSet.insert(monthIndex + 1)
         }
         
@@ -477,21 +485,21 @@ class HomeCalendarViewModel {
 
         if monthIndex > 0,
            let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }),
-           let todoIndex = mainDayList[monthIndex - 1][prevDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex - 1][prevDayIndex].todoList?.remove(at: todoIndex)
+           let todoIndex = mainDayList[monthIndex - 1][prevDayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex - 1][prevDayIndex].todoList.remove(at: todoIndex)
             sectionSet.insert(monthIndex - 1)
         }
         
         if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }),
-           let todoIndex = mainDayList[monthIndex][dayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex][dayIndex].todoList?.remove(at: todoIndex)
+           let todoIndex = mainDayList[monthIndex][dayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex][dayIndex].todoList.remove(at: todoIndex)
             sectionSet.insert(monthIndex)
         }
         
         if monthIndex < mainDayList.count - 1,
            let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}),
-           let todoIndex = mainDayList[monthIndex + 1][followingDayIndex].todoList?.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex + 1][followingDayIndex].todoList?.remove(at: todoIndex)
+           let todoIndex = mainDayList[monthIndex + 1][followingDayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex + 1][followingDayIndex].todoList.remove(at: todoIndex)
             sectionSet.insert(monthIndex + 1)
         }
         
@@ -503,7 +511,7 @@ class HomeCalendarViewModel {
         let section = indexPath.section
         
         let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-            mainDayList[section][a].todoList?.count ?? 0 < mainDayList[section][b].todoList?.count ?? 0
+            mainDayList[section][a].todoList.count ?? 0 < mainDayList[section][b].todoList.count ?? 0
         }) ?? Int()
         
         return mainDayList[indexPath.section][maxItem]

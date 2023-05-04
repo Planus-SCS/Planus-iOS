@@ -556,8 +556,13 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let edit = UIContextualAction(style: .normal, title: "Edit") { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
-            self.categoryCreateView.nameField.text = self.viewModel?.categorys[indexPath.row].title
-//            self.categoryCreateView.collectionView.selectItem(at: IndexPath(item: self.viewModel!.categorys[indexPath.row].color.rawValue, section: 0), animated: false, scrollPosition: .top)
+            guard let viewModel = self.viewModel else { return }
+            
+            let item = viewModel.categorys[indexPath.row]
+            
+            self.categoryCreateView.nameField.text = item.title
+            self.categoryCreateView.collectionView.selectItem(at: IndexPath(item: viewModel.categoryColorList.firstIndex(where: { $0 == item.color})!, section: 0), animated: false, scrollPosition: .top)
+            
             self.didRequestEditCategoryAt.onNext(indexPath.row)
             success(true)
         }

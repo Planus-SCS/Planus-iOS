@@ -234,8 +234,11 @@ class MemberProfileViewModel {
                 guard let self else { return }
                 (fromIndex..<toIndex).forEach { index in
                     self.mainDayList[index] = self.mainDayList[index].map {
+                        guard let todoList = todoDict[$0.date] else {
+                            return $0
+                        }
                         var dayViewModel = $0
-                        dayViewModel.todoList = todoDict[$0.date]
+                        dayViewModel.todoList = todoList
                         return dayViewModel
                     }
                     

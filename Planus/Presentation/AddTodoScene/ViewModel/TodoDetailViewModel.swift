@@ -202,6 +202,7 @@ final class TodoDetailViewModel {
                     categoryId: categoryId,
                     startTime: nil
                 )
+
                 vm.createTodo(todo: todo)
             })
             .disposed(by: bag)

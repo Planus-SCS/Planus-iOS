@@ -75,9 +75,9 @@ enum SocialRedirectionType {
     var redirectionURI: String {
         switch self {
         case .kakao:
-            return KakaoAuthURL.kakaoAuthCodeRedirectURI
+            return KakaoAuthURL.redirectURI
         case .google:
-            return GoogleAuthURL.googleAuthCodeRedirectURI
+            return GoogleAuthURL.redirectURI
         }
     }
 }

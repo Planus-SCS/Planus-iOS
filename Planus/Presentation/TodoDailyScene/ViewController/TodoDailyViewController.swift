@@ -201,7 +201,12 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
+            print("여긴가2?")
+
+            return UICollectionViewCell()
+            
+        }
         
         var todoItem: Todo?
         switch indexPath.section {
@@ -210,10 +215,14 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         case 1:
             todoItem = viewModel?.unscheduledTodoList?[indexPath.item]
         default:
+            print("여긴가3?")
             return UICollectionViewCell()
         }
         guard let todoItem,
-              let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
+              let category = viewModel?.categoryDict[todoItem.categoryId] else {
+            print("여긴가4?")
+            return UICollectionViewCell()
+        }
         
         cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil)
         return cell

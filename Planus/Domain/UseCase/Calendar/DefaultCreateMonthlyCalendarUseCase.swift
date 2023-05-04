@@ -44,7 +44,8 @@ class DefaultCreateMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase {
                 date: date,
                 dayString: "\(calendar.component(.day, from: date))",
                 weekDay: WeekDay(rawValue: day%7)!,
-                state: state
+                state: state,
+                todoList: []
             ))
         }
         

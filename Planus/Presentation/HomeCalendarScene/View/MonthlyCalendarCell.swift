@@ -110,6 +110,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         guard let section,
               let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell,
               let dayViewModel = viewModel?.mainDayList[section][indexPath.item] else {
+            print("여긴가1?")
             return UICollectionViewCell()
         }
         
@@ -130,7 +131,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         
         let screenWidth = UIScreen.main.bounds.width
                 
-        var todoCount = maxTodoViewModel.todoList?.count ?? 0
+        var todoCount = maxTodoViewModel.todoList.count
         
         if let height = viewModel?.cachedCellHeightForTodoCount[todoCount] {
             return CGSize(width: Double(1)/Double(7) * Double(screenWidth), height: Double(height))

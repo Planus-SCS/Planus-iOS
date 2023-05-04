@@ -339,7 +339,7 @@ extension MemberProfileViewController: NestedScrollableMonthlyCalendarCellDelega
         guard let viewModel else { return nil }
         let item = indexPath.item
         let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-            viewModel.mainDayList[indexPath.section][a].todoList?.count ?? 0 < viewModel.mainDayList[indexPath.section][b].todoList?.count ?? 0
+            viewModel.mainDayList[indexPath.section][a].todoList.count ?? 0 < viewModel.mainDayList[indexPath.section][b].todoList.count ?? 0
         }) ?? Int()
             
         return viewModel.mainDayList[indexPath.section][maxItem]

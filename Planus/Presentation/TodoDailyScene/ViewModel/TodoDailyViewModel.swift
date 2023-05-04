@@ -15,7 +15,9 @@ class TodoDailyViewModel {
     
     var scheduledTodoList: [Todo]?
     var unscheduledTodoList: [Todo]?
+    
     var categoryDict: [Int: Category] = [:]
+    var groupDict: [Int: Group] = [:]
 
     var currentDate: Date?
     var currentDateText: String?
@@ -86,6 +88,8 @@ class TodoDailyViewModel {
     }
     
     func setTodoList(todoList: [Todo], categoryDict: [Int: Category], groupDict: [Int: Group]) {
+        self.categoryDict = categoryDict
+        
         var scheduled = [Todo]()
         var unscheduled = [Todo]()
         todoList.forEach { todo in
@@ -98,11 +102,41 @@ class TodoDailyViewModel {
         self.scheduledTodoList = scheduled
         self.unscheduledTodoList = unscheduled
         
-        bindAfterSetTodoList()
+    }
+    
+    func bindCategoryUseCase() {
+        createCategoryUseCase
+            .didCreateCategory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                print(category)
+                guard let id = category.id else { return }
+                
+                vm.categoryDict[id] = category
+                print(vm.categoryDict[id])
+            })
+            .disposed(by: bag)
+        
+        updateCategoryUseCase
+            .didUpdateCategory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                guard let id = category.id else { return }
+                vm.categoryDict[id] = category
+            })
+            .disposed(by: bag)
+        
+        deleteCategoryUseCase
+            .didDeleteCategory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, id in
+                vm.categoryDict[id] = nil
+            })
+            .disposed(by: bag)
     }
     
     // 내 투두 볼때만 불릴예정
-    func bindAfterSetTodoList() {
+    func bindTodoUseCase() {
         createTodoUseCase
             .didCreateTodo
             .withUnretained(self)
@@ -163,6 +197,8 @@ class TodoDailyViewModel {
     }
     
     func transform(input: Input) -> Output {
+        bindTodoUseCase()
+        bindCategoryUseCase()
         
         return Output(
             currentDateText: currentDateText,
