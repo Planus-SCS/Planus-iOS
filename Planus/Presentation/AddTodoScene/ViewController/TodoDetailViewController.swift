@@ -17,6 +17,7 @@ class TodoDetailViewController: UIViewController {
     var didSelectedEndDate = PublishSubject<Date?>()
     var didSelectedGroupAt = PublishSubject<Int?>()
     var didChangednewCategoryColor = PublishSubject<CategoryColor?>()
+    var didDeleteCategoryId = PublishSubject<Int>()
     
     var pageType: AddTodoViewControllerPageType = .addTodo
 
@@ -573,9 +574,10 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let remove = UIContextualAction(style: .normal, title: "Remove") { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
-            print("remove 클릭 됨")
+            guard let categoryId = self.viewModel?.categorys[indexPath.row].id else { return }
             self.viewModel?.categorys.remove(at: indexPath.row)
             self.categoryView.tableView.deleteRows(at: [indexPath], with: .fade)
+            self.didDeleteCategoryId.onNext(categoryId)
             success(true)
         }
         remove.backgroundColor = .systemPink

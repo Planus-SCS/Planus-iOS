@@ -105,6 +105,15 @@ class TodoDailyViewController: UIViewController {
                 vm.collectionView.deleteItems(at: [indexPath])
             })
             .disposed(by: bag)
+        
+        output
+            .needReloadData
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.collectionView.reloadData()
+            })
+            .disposed(by: bag)
 
     }
     

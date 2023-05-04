@@ -230,6 +230,14 @@ class HomeCalendarViewController: UIViewController {
                 vc.collectionView.reloadSections(indexSet)
             })
             .disposed(by: bag)
+        
+        output.needReloadData
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.collectionView.reloadData()
+            })
+            .disposed(by: bag)
     }
     
 

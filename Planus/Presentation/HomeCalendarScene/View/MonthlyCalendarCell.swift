@@ -134,17 +134,26 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         var todoCount = maxTodoViewModel.todoList.count
         
         if let height = viewModel?.cachedCellHeightForTodoCount[todoCount] {
-            return CGSize(width: Double(1)/Double(7) * Double(screenWidth), height: Double(height))
+            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: Double(height))
             
         } else {
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
             mockCell.fill(todoList: maxTodoViewModel.todoList)
-
             mockCell.layoutIfNeeded()
             
-            let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(width: Double(1)/Double(7) * screenWidth, height: 116))
-            viewModel?.cachedCellHeightForTodoCount[todoCount] = estimatedSize.height
-            return CGSize(width: Double(1)/Double(7) * screenWidth, height: estimatedSize.height)
+            let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
+                width: Double(1)/Double(7) * screenWidth,
+                height: UIView.layoutFittingCompressedSize.height
+            ))
+
+            if estimatedSize.height <= 116 {
+                viewModel?.cachedCellHeightForTodoCount[todoCount] = 116
+                return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: 116)
+            } else {
+                viewModel?.cachedCellHeightForTodoCount[todoCount] = estimatedSize.height
+            
+                return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: estimatedSize.height)
+            }
             
         }
     }

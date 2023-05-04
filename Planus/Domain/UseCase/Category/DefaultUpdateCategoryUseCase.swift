@@ -20,9 +20,10 @@ class DefaultUpdateCategoryUseCase: UpdateCategoryUseCase {
         self.categoryRepository = categoryRepository
     }
     
-    func execute(token: Token, category: Category) -> Single<Int> {
-        return categoryRepository.create(
+    func execute(token: Token, id: Int, category: Category) -> Single<Int> {
+        return categoryRepository.update(
             token: token.accessToken,
+            id: id,
             category: category.toDTO()
         )
         .map { [weak self] dto in

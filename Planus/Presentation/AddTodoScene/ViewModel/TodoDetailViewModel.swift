@@ -227,6 +227,7 @@ final class TodoDetailViewModel {
                 case .new:
                     vm.saveNewCategory(category: Category(id: nil, title: title, color: color))
                 case .edit(let id):
+                    print("update!")
                     vm.updateCategory(category: Category(id: id, title: title, color: color))
                 }
             })
@@ -350,15 +351,18 @@ final class TodoDetailViewModel {
     }
     
     func updateCategory(category: Category) {
-        guard let token = getTokenUseCase.execute() else { return }
+        guard let token = getTokenUseCase.execute(),
+              let id = category.id else { return }
         
         updateCategoryUseCase
-            .execute(token: token, category: category)
+            .execute(token: token, id: id, category: category)
             .subscribe(onSuccess: { [weak self] id in
                 guard let index = self?.categorys.firstIndex(where: { $0.id == id }) else { return }
                 self?.categorys[index] = category
                 self?.needReloadCategoryList.onNext(())
                 self?.moveFromCreateToSelect.onNext(())
+            }, onFailure: { error in
+                print(error)
             })
             .disposed(by: bag)
     }

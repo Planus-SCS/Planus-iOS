@@ -38,11 +38,13 @@ class TodoDailyViewModel {
         var needInsertItem: Observable<IndexPath>
         var needReloadItem: Observable<IndexPath>
         var needDeleteItem: Observable<IndexPath>
+        var needReloadData: Observable<Void>
     }
     
     var needInsertItem = PublishSubject<IndexPath>()
     var needReloadItem = PublishSubject<IndexPath>()
     var needDeleteItem = PublishSubject<IndexPath>()
+    var needReloadData = PublishSubject<Void>()
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
@@ -113,7 +115,6 @@ class TodoDailyViewModel {
                 guard let id = category.id else { return }
                 
                 vm.categoryDict[id] = category
-                print(vm.categoryDict[id])
             })
             .disposed(by: bag)
         
@@ -123,6 +124,7 @@ class TodoDailyViewModel {
             .subscribe(onNext: { vm, category in
                 guard let id = category.id else { return }
                 vm.categoryDict[id] = category
+                vm.needReloadData.onNext(())
             })
             .disposed(by: bag)
         
@@ -130,7 +132,7 @@ class TodoDailyViewModel {
             .didDeleteCategory
             .withUnretained(self)
             .subscribe(onNext: { vm, id in
-                vm.categoryDict[id] = nil
+                
             })
             .disposed(by: bag)
     }
@@ -205,7 +207,8 @@ class TodoDailyViewModel {
             isOwner: true,
             needInsertItem: needInsertItem.asObservable(),
             needReloadItem: needReloadItem.asObservable(),
-            needDeleteItem: needDeleteItem.asObservable()
+            needDeleteItem: needDeleteItem.asObservable(),
+            needReloadData: needReloadData.asObservable()
         )
     }
 

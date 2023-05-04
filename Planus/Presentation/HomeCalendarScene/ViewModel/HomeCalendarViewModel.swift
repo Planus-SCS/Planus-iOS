@@ -79,6 +79,7 @@ class HomeCalendarViewModel {
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var needReloadSectionSet: Observable<IndexSet>
+        var needReloadData: Observable<Void>
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -234,7 +235,8 @@ class HomeCalendarViewModel {
             showDailyTodoPage: showDailyTodoPage.asObservable(),
             showMonthPicker: showMonthPicker.asObservable(),
             monthChangedByPicker: didSelectMonth.asObservable(),
-            needReloadSectionSet: needReloadSectionSet.asObservable()
+            needReloadSectionSet: needReloadSectionSet.asObservable(),
+            needReloadData: needReloadData.asObservable()
         )
     }
     
@@ -271,7 +273,7 @@ class HomeCalendarViewModel {
             .subscribe(onNext: { vm, category in
                 guard let id = category.id else { return }
                 vm.categoryDict[id] = category
-
+                print(vm.categoryDict)
                 vm.needReloadData.onNext(())
             })
             .disposed(by: bag)

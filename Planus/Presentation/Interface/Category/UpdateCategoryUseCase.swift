@@ -10,5 +10,5 @@ import RxSwift
 
 protocol UpdateCategoryUseCase {
     var didUpdateCategory: PublishSubject<Category> { get }
-    func execute(token: Token, category: Category) -> Single<Int>
+    func execute(token: Token, id: Int, category: Category) -> Single<Int>
 }
