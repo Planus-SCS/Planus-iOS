@@ -129,6 +129,7 @@ class DailyCalendarCell: UICollectionViewCell {
         todoList.forEach {
             var todoView: SmallTodoView
             if let color = self.delegate?.dailyCalendarCell(self, colorOfCategoryId: $0.categoryId) {
+                print($0.categoryId, color)
                 todoView = SmallTodoView(text: $0.title, categoryColor: color)
             } else {
                 todoView = SmallTodoView(text: $0.title, categoryColor: .none)

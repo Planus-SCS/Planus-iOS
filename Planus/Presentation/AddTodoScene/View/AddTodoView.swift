@@ -16,6 +16,8 @@ class AddTodoView: UIView {
         return titleField
     }()
     
+    var isMemoFilled: Bool = false
+    
     lazy var memoTextView: UITextView = {
         let textView = UITextView(frame: .zero)
         textView.isScrollEnabled = false

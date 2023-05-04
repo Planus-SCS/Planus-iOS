@@ -113,6 +113,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             print("여긴가1?")
             return UICollectionViewCell()
         }
+        print("데일리 리로드까지 진입")
         
         cell.fill(
             delegate: self,

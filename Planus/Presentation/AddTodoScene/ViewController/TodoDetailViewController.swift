@@ -188,13 +188,24 @@ class TodoDetailViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
 
+        let memoViewObservable = addTodoView
+            .memoTextView.rx.text
+            .asObservable()
+            .map { [weak self] (text) -> String? in
+            guard let isMemoFilled = self?.addTodoView.isMemoFilled else { return nil }
+            if isMemoFilled {
+                return text
+            } else {
+                return nil
+            }
+        }
         let input = TodoDetailViewModel.Input(
             todoTitleChanged: addTodoView.titleField.rx.text.asObservable(),
             categorySelected: didSelectCategoryAt.asObservable(),
             startDayChanged: didSelectedStartDate.asObservable(),
             endDayChanged: didSelectedEndDate.asObservable(),
             groupSelected: didSelectedGroupAt.asObservable(),
-            memoChanged: addTodoView.memoTextView.rx.text.asObservable(),
+            memoChanged: memoViewObservable,
             newCategoryNameChanged: categoryCreateView.nameField.rx.text.asObservable(),
             newCategoryColorChanged: didChangednewCategoryColor.asObservable(),
             categoryEditRequested: didRequestEditCategoryAt.asObservable(),
@@ -540,7 +551,6 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
         1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(viewModel?.categorys.count)
         return viewModel?.categorys.count ?? 0
     }
     
@@ -558,13 +568,13 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
         
         let edit = UIContextualAction(style: .normal, title: "Edit") { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
             guard let viewModel = self.viewModel else { return }
-            
             let item = viewModel.categorys[indexPath.row]
+            guard let id = item.id else { return }
             
             self.categoryCreateView.nameField.text = item.title
             self.categoryCreateView.collectionView.selectItem(at: IndexPath(item: viewModel.categoryColorList.firstIndex(where: { $0 == item.color})!, section: 0), animated: false, scrollPosition: .top)
             
-            self.didRequestEditCategoryAt.onNext(indexPath.row)
+            self.didRequestEditCategoryAt.onNext(id)
             success(true)
         }
         edit.backgroundColor = .systemTeal
@@ -608,6 +618,7 @@ extension TodoDetailViewController: UITextViewDelegate {
         if textView.text.isEmpty {
             textView.text = "메모를 입력하세요"
             textView.textColor = UIColor(hex: 0xBFC7D7)
+            addTodoView.isMemoFilled = false
         }
     }
     
@@ -615,6 +626,7 @@ extension TodoDetailViewController: UITextViewDelegate {
         if textView.textColor == UIColor(hex: 0xBFC7D7) {
             textView.text = nil
             textView.textColor = .black
+            addTodoView.isMemoFilled = true
         }
     }
 }

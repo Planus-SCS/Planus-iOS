@@ -144,7 +144,6 @@ class HomeCalendarViewModel {
                 vm.bindCategoryUseCase()
                 vm.bindTodoUseCase(initialDate: date)
                 vm.initCalendar(date: date)
-                print("here i get with token")
                 Observable.combineLatest(
                     vm.initialReadGroup.compactMap { $0 },
                     vm.initialReadCategory.compactMap { $0 }
@@ -218,12 +217,10 @@ class HomeCalendarViewModel {
             .subscribe(onNext: { vm, date in
                 let start = vm.mainDayList[0][7].date
                 let index = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
-                print(index)
                 vm.currentIndex = index
                 vm.currentDate.onNext(date)
                 vm.didSelectMonth.onNext(index)
                 vm.initTodoList(date: date)
-                print(date)
             })
             .disposed(by: bag)
         
@@ -427,24 +424,19 @@ class HomeCalendarViewModel {
         
         var sectionSet = IndexSet()
         
-        print(monthIndex)
         if monthIndex > 0,
            let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }) {
             mainDayList[monthIndex][prevDayIndex].todoList.append(todo)
             sectionSet.insert(monthIndex - 1)
-            print("prev", prevDayIndex)
         }
         if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }) {
             mainDayList[monthIndex][dayIndex].todoList.append(todo)
             sectionSet.insert(monthIndex)
-            print("now", dayIndex)
-            print(mainDayList[monthIndex][dayIndex].todoList)
         }
         if monthIndex < mainDayList.count - 1,
            let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}) {
             mainDayList[monthIndex][followingDayIndex].todoList.append(todo)
             sectionSet.insert(monthIndex + 1)
-            print("fol", followingDayIndex)
         }
         
         needReloadSectionSet.onNext(sectionSet)

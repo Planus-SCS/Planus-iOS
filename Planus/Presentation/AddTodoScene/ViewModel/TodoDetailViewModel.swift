@@ -168,10 +168,12 @@ final class TodoDetailViewModel {
         input
             .categoryEditRequested
             .withUnretained(self)
-            .subscribe(onNext: { vm, index in
-                vm.categoryCreatingState = .edit(index)
-                vm.newCategoryName.onNext(vm.categorys[index].title)
-                vm.newCategoryColor.onNext(vm.categorys[index].color)
+            .subscribe(onNext: { vm, id in
+                guard let category = vm.categorys.first(where: { $0.id == id }) else { return }
+                vm.categoryCreatingState = .edit(id)
+
+                vm.newCategoryName.onNext(category.title)
+                vm.newCategoryColor.onNext(category.color)
                 vm.moveFromSelectToCreate.onNext(())
             })
             .disposed(by: bag)
@@ -190,8 +192,8 @@ final class TodoDetailViewModel {
             .subscribe(onNext: { vm, _ in
                 guard let title = try? vm.todoTitle.value(),
                       let startDate = try? vm.todoStartDay.value(),
-                      let categoryId = (try? vm.todoCategory.value())?.id,
-                      let memo = try? vm.todoMemo.value()  else { return }
+                      let categoryId = (try? vm.todoCategory.value())?.id else { return }
+                let memo = try? vm.todoMemo.value()
                 let todo = Todo(
                     id: nil,
                     title: title,
@@ -202,7 +204,6 @@ final class TodoDetailViewModel {
                     categoryId: categoryId,
                     startTime: nil
                 )
-
                 vm.createTodo(todo: todo)
             })
             .disposed(by: bag)
@@ -227,7 +228,6 @@ final class TodoDetailViewModel {
                 case .new:
                     vm.saveNewCategory(category: Category(id: nil, title: title, color: color))
                 case .edit(let id):
-                    print("update!")
                     vm.updateCategory(category: Category(id: id, title: title, color: color))
                 }
             })
