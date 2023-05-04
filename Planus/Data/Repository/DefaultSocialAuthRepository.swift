@@ -18,7 +18,7 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
     
     func kakaoSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: KakaoAuthURL.kakaoSignInURL,
+            url: URLPool.oauthKakao,
             requestType: .get,
             body: nil,
             query: ["code": code],
@@ -33,7 +33,7 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
     
     func googleSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: GoogleAuthURL.googleSignInURL,
+            url: URLPool.oauthGoogle,
             requestType: .get,
             body: nil,
             query: ["code": code],

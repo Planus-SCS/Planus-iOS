@@ -25,7 +25,7 @@ class DefaultTokenRepository: TokenRepository {
         guard let token = get() else { return nil }
                 
         let endPoint = APIEndPoint(
-            url: "https://5180-121-167-200-122.ngrok-free.app/app/auth/token-reissue",
+            url: URLPool.refreshToken,
             requestType: .post,
             body: token.toDTO(),
             query: nil,
