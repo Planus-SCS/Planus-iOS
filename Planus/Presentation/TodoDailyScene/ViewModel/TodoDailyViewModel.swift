@@ -8,9 +8,6 @@
 import Foundation
 import RxSwift
 
-// 초기화할때 minDate, maxDate 정의 필요함, 왜? 스몰캘린더 때문에..!
-
-// 애는 말그대로 보여주는 용도(진짜 그냥 창문느낌) 생각하자..! 카테고리를 굳이 또 로컬에서 가져와서 보여줄 필요는 없다! 그리고 남꺼 보는용으로 재활용하기 힘들다 그러면!
 class TodoDailyViewModel {
     var bag = DisposeBag()
 
@@ -104,23 +101,13 @@ class TodoDailyViewModel {
         bindAfterSetTodoList()
     }
     
-    func addTodo(todo: Todo) {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        createTodoUseCase
-            .execute(token: token, todo: todo)
-            .subscribe(onSuccess: {
-                print($0)
-            })
-            .disposed(by: bag)
-    }
-    
     // 내 투두 볼때만 불릴예정
     func bindAfterSetTodoList() {
         createTodoUseCase
             .didCreateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
+                guard todo.startDate == vm.currentDate else { return }
                 var section: Int
                 var item: Int
                 if let _ = todo.startTime {

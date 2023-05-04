@@ -150,9 +150,6 @@ class TodoDailyViewController: UIViewController {
             readCategoryUseCase: readCateogryUseCase
         )
         
-        vm.completionHandler = { [weak self] todo in
-            self?.viewModel?.addTodo(todo: todo)
-        }
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)
