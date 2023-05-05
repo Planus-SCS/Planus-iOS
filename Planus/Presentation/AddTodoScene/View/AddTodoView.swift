@@ -59,8 +59,6 @@ class AddTodoView: UIView {
         return stack
     }()
     
-    
-    
     var headerBarView: UIView = {
         let view = UIView(frame: .zero)
         return view
@@ -130,6 +128,25 @@ class AddTodoView: UIView {
         return stackView
     }()
     
+    lazy var dateTimeStackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .equalSpacing
+        stackView.addArrangedSubview(dateStackView)
+        stackView.addArrangedSubview(timeField)
+        return stackView
+    }()
+    
+    let timeField: UITextField = {
+        let textField = UITextField(frame: .zero)
+        textField.placeholder = "00:00"
+        textField.font = UIFont(name: "Pretendard-Light", size: 16)
+        textField.textColor = .black
+        textField.sizeToFit()
+        return textField
+    }()
+    
     lazy var groupSelectionField: UITextField = {
         let field = UITextField(frame: .zero)
         field.text = "그룹 선택"
@@ -182,7 +199,7 @@ class AddTodoView: UIView {
          separatorView[0],
          categoryStackView,
          separatorView[1],
-         dateStackView,
+         dateTimeStackView,
          separatorView[2],
          groupSelectionField,
          separatorView[3],
@@ -205,8 +222,8 @@ class AddTodoView: UIView {
             $0.height.equalTo(30)
         }
 
-        dateStackView.snp.makeConstraints {
-            $0.height.equalTo(30)
+        dateTimeStackView.snp.makeConstraints {
+            $0.width.equalToSuperview()
         }
 
         

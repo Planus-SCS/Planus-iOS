@@ -131,7 +131,7 @@ class BigTodoCell: UICollectionViewCell {
         self.buttonClosure = closure
     }
 
-    func fill(title: String, time: String?, category: CategoryColor, isGroup: Bool, isScheduled: Bool, isMemo: Bool) {
+    func fill(title: String, time: String?, category: CategoryColor, isGroup: Bool, isScheduled: Bool, isMemo: Bool, completion: Bool) {
 
         if let time = time {
             timeLabel.isHidden = false
@@ -146,7 +146,7 @@ class BigTodoCell: UICollectionViewCell {
         self.timeLabel.textColor = category.todoThickColor
         
         groupSymbol.isHidden = !isGroup
-        periodSymbol.isHidden = !isScheduled
+        periodSymbol.isHidden = !isScheduled // FIXME: 이거 기간투두임 이름 period로 바꾸자
         memoSymbol.isHidden = !isMemo
         
         groupSymbol.tintColor = category.todoThickColor

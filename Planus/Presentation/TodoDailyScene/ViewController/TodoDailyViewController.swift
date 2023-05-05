@@ -232,7 +232,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             return UICollectionViewCell()
         }
         
-        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil)
+        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
         return cell
     }
     

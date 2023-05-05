@@ -204,6 +204,7 @@ class TodoDetailViewController: UIViewController {
             categorySelected: didSelectCategoryAt.asObservable(),
             startDayChanged: didSelectedStartDate.asObservable(),
             endDayChanged: didSelectedEndDate.asObservable(),
+            timeChanged: addTodoView.timeField.rx.text.asObservable(),
             groupSelected: didSelectedGroupAt.asObservable(),
             memoChanged: memoViewObservable,
             newCategoryNameChanged: categoryCreateView.nameField.rx.text.asObservable(),
@@ -337,9 +338,10 @@ class TodoDetailViewController: UIViewController {
         addTodoView.memoTextView.text = try? viewModel.todoMemo.value()
         addTodoView.isMemoFilled = (try? viewModel.todoMemo.value()) != nil
         addTodoView.memoTextView.textColor = ((try? viewModel.todoMemo.value()) != nil) ? .black : UIColor(hex: 0xBFC7D7)
+        addTodoView.timeField.text = try? viewModel.todoTime.value()
         
         switch viewModel.todoCreateState {
-        case .edit(let _):
+        case .edit(_):
             addTodoView.removeButton.isHidden = false
         case .new:
             addTodoView.removeButton.isHidden = true

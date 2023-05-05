@@ -35,6 +35,7 @@ final class TodoDetailViewModel {
     var todoCategory = BehaviorSubject<Category?>(value: nil)
     var todoStartDay = BehaviorSubject<Date?>(value: nil)
     var todoEndDay: Date?
+    var todoTime = BehaviorSubject<String?>(value: nil)
     var todoGroup = BehaviorSubject<Group?>(value: nil)
     var todoMemo = BehaviorSubject<String?>(value: nil)
     
@@ -58,6 +59,7 @@ final class TodoDetailViewModel {
         var categorySelected: Observable<Int?>
         var startDayChanged: Observable<Date?>
         var endDayChanged: Observable<Date?>
+        var timeChanged: Observable<String?>
         var groupSelected: Observable<Int?>
         var memoChanged: Observable<String?>
         var newCategoryNameChanged: Observable<String?>
@@ -159,6 +161,12 @@ final class TodoDetailViewModel {
             .disposed(by: bag)
         
         input
+            .timeChanged
+            .skip(1)
+            .bind(to: todoTime)
+            .disposed(by: bag)
+        
+        input
             .groupSelected
             .compactMap { $0 }
             .withUnretained(self)
@@ -212,6 +220,7 @@ final class TodoDetailViewModel {
                       let startDate = try? vm.todoStartDay.value(),
                       let categoryId = (try? vm.todoCategory.value())?.id else { return }
                 let memo = try? vm.todoMemo.value()
+                let time = try? vm.todoTime.value()
                 var todo = Todo(
                     id: nil,
                     title: title,
@@ -220,7 +229,7 @@ final class TodoDetailViewModel {
                     memo: memo,
                     groupId: nil,
                     categoryId: categoryId,
-                    startTime: nil
+                    startTime: time
                 )
                 
                 switch vm.todoCreateState {
@@ -349,9 +358,10 @@ final class TodoDetailViewModel {
         dateFormatter.timeZone = .current
         dateFormatter.dateFormat = "yyyy.MM.dd"
         self.todoTitle.onNext(todo.title)
-        print(todo.title)
         self.todoCategory.onNext(category)
         self.todoStartDay.onNext(todo.startDate)
+        // FIXME: endDate는 설정 안함 아직
+        self.todoTime.onNext(todo.startTime)
         self.todoMemo.onNext(todo.memo)
         self.todoCreateState = .edit(todo)
     }

@@ -18,4 +18,21 @@ extension String {
             return nil
         }
     }
+    
+    func toAPM() -> String? {
+        let components = self.components(separatedBy: ":")
+        guard components.count == 2 else { return nil }
+        let strHour = components[0]
+        let strMinute = components[1]
+        guard var hour = Int(strHour) else { return nil }
+        var apm: String
+        if hour > 12 {
+            apm = "오후"
+            hour = hour - 12
+        } else {
+            apm = "오전"
+        }
+        
+        return "\(apm) \(hour):\(strMinute)"
+    }
 }
