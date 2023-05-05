@@ -66,6 +66,15 @@ class AddTodoView: UIView {
         return view
     }()
     
+    var removeButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setTitle("삭제", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 16)
+        button.setTitleColor(UIColor(hex: 0xEB6955), for: .normal)
+        button.sizeToFit()
+        return button
+    }()
+    
     var saveButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setTitle("저장", for: .normal)
@@ -167,6 +176,7 @@ class AddTodoView: UIView {
         self.addSubview(headerBarView)
         headerBarView.addSubview(titleLabel)
         headerBarView.addSubview(saveButton)
+        headerBarView.addSubview(removeButton)
 
         [titleField,
          separatorView[0],
@@ -223,6 +233,11 @@ class AddTodoView: UIView {
         
         saveButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(20)
+            $0.centerY.equalToSuperview()
+        }
+        
+        removeButton.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(20)
             $0.centerY.equalToSuperview()
         }
         

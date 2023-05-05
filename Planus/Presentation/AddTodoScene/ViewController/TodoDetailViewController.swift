@@ -213,6 +213,7 @@ class TodoDetailViewController: UIViewController {
             endDayButtonTapped: addTodoView.endDateButton.rx.tap.asObservable(),
             categorySelectBtnTapped: addTodoView.categoryButton.rx.tap.asObservable(),
             todoSaveBtnTapped: addTodoView.saveButton.rx.tap.asObservable(),
+            todoRemoveBtnTapped: addTodoView.removeButton.rx.tap.asObservable(),
             newCategoryAddBtnTapped: categoryView.addNewItemButton.rx.tap.asObservable(),
             newCategorySaveBtnTapped: categoryCreateView.saveButton.rx.tap.asObservable(),
             categorySelectPageBackBtnTapped: categoryView.backButton.rx.tap.asObservable(),
@@ -241,12 +242,22 @@ class TodoDetailViewController: UIViewController {
         
         output
             .todoSaveBtnEnabled
-            .bind(to: addTodoView.saveButton.rx.isEnabled)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, isEnabled in
+                vc.addTodoView.saveButton.isEnabled = isEnabled
+                vc.addTodoView.saveButton.alpha = isEnabled ? 1.0 : 0.5
+            })
             .disposed(by: bag)
         
         output
             .newCategorySaveBtnEnabled
-            .bind(to: categoryCreateView.saveButton.rx.isEnabled)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, isEnabled in
+                vc.categoryCreateView.saveButton.isEnabled = isEnabled
+                vc.categoryCreateView.saveButton.alpha = isEnabled ? 1.0 : 0.5
+            })
             .disposed(by: bag)
         
         output
@@ -314,6 +325,28 @@ class TodoDetailViewController: UIViewController {
                 vc.dismiss(animated: true)
             })
             .disposed(by: bag)
+        
+        
+        // FIXME: 초기셋팅 하드코딩
+        guard let startDate = try? viewModel.todoStartDay.value() else {
+            return
+        }
+        addTodoView.titleField.text = try? viewModel.todoTitle.value()
+        dayPickerViewController.setDate(date: startDate)
+//        addTodoView.groupSelectionField.text = (try? viewModel.todoGroup.value())?.title
+        addTodoView.memoTextView.text = try? viewModel.todoMemo.value()
+        addTodoView.isMemoFilled = (try? viewModel.todoMemo.value()) != nil
+        addTodoView.memoTextView.textColor = ((try? viewModel.todoMemo.value()) != nil) ? .black : UIColor(hex: 0xBFC7D7)
+        
+        switch viewModel.todoCreateState {
+        case .edit(let _):
+            addTodoView.removeButton.isHidden = false
+        case .new:
+            addTodoView.removeButton.isHidden = true
+        }
+        
+        self.textViewDidBeginEditing(addTodoView.memoTextView)
+        self.textViewDidEndEditing(addTodoView.memoTextView)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -535,14 +568,13 @@ extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-//        viewModel?.groups[row]
-        return "dd"
+        viewModel?.groups[row].title
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-//        addTodoView.groupSelectionField.text = viewModel?.groups[row]
-//        addTodoView.groupSelectionField.textColor = .black
-//        didSelectedGroupAt.onNext(row)
+        addTodoView.groupSelectionField.text = viewModel?.groups[row].title
+        addTodoView.groupSelectionField.textColor = .black
+        didSelectedGroupAt.onNext(row)
     }
 }
 
@@ -623,7 +655,7 @@ extension TodoDetailViewController: UITextViewDelegate {
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == UIColor(hex: 0xBFC7D7) {
+        if !(addTodoView.isMemoFilled) {
             textView.text = nil
             textView.textColor = .black
             addTodoView.isMemoFilled = true

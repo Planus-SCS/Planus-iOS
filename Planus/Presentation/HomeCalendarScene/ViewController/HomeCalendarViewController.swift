@@ -227,7 +227,9 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, indexSet in
-                vc.collectionView.reloadSections(indexSet)
+                UIView.performWithoutAnimation({
+                    vc.collectionView.reloadSections(indexSet)
+                })
             })
             .disposed(by: bag)
         
@@ -235,8 +237,9 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("리로드한다!!")
-                vc.collectionView.reloadData()
+                UIView.performWithoutAnimation({
+                    vc.collectionView.reloadData()
+                })
             })
             .disposed(by: bag)
     }
@@ -276,7 +279,6 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
             section: indexPath.section,
             viewModel: viewModel
         )
-        print("먼슬리 필까지 진입")
         cell.fill(
             isMultipleSelecting: isMultipleSelecting,
             isMultipleSelected: isMultipleSelected,

@@ -144,6 +144,8 @@ class TodoDailyViewController: UIViewController {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let createTodoUseCase = DefaultCreateTodoUseCase.shared
+        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
+        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
         let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
         let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
         let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
@@ -153,12 +155,14 @@ class TodoDailyViewController: UIViewController {
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             createTodoUseCase: createTodoUseCase,
+            updateTodoUseCase: updateTodoUseCase,
+            deleteTodoUseCase: deleteTodoUseCase,
             createCategoryUseCase: createCategoryUseCase,
             updateCategoryUseCase: updateCategoryUseCase,
             deleteCategoryUseCase: deleteCategoryUseCase,
             readCategoryUseCase: readCateogryUseCase
         )
-        
+        vm.todoStartDay.onNext(viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)
@@ -211,10 +215,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
-            print("여긴가2?")
-
             return UICollectionViewCell()
-            
         }
         
         var todoItem: Todo?
@@ -224,12 +225,10 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         case 1:
             todoItem = viewModel?.unscheduledTodoList?[indexPath.item]
         default:
-            print("여긴가3?")
             return UICollectionViewCell()
         }
         guard let todoItem,
               let category = viewModel?.categoryDict[todoItem.categoryId] else {
-            print("여긴가4?")
             return UICollectionViewCell()
         }
         
@@ -257,6 +256,56 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         headerview.fill(title: title)
      
         return headerview
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        var item: Todo?
+        switch indexPath.section {
+        case 0:
+            item = viewModel?.scheduledTodoList?[indexPath.item]
+        case 1:
+            item = viewModel?.unscheduledTodoList?[indexPath.item]
+        default:
+            return false
+        }
+        guard let item else { return false }
+        
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let todoRepo = TestTodoDetailRepository(apiProvider: api)
+        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
+        
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let createTodoUseCase = DefaultCreateTodoUseCase.shared
+        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
+        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
+        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
+        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
+        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
+        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
+        
+        let vm = TodoDetailViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            createTodoUseCase: createTodoUseCase,
+            updateTodoUseCase: updateTodoUseCase,
+            deleteTodoUseCase: deleteTodoUseCase,
+            createCategoryUseCase: createCategoryUseCase,
+            updateCategoryUseCase: updateCategoryUseCase,
+            deleteCategoryUseCase: deleteCategoryUseCase,
+            readCategoryUseCase: readCateogryUseCase
+        )
+        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+        vm.setForEdit(todo: item, category: category)
+        vm.todoStartDay.onNext(viewModel?.currentDate)
+        let vc = TodoDetailViewController(viewModel: vm)
+        vc.modalPresentationStyle = .overFullScreen
+        self.present(vc, animated: false, completion: nil)
+        
+        return false
     }
 }
 
