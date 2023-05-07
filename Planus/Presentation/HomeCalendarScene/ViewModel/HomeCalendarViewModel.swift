@@ -302,8 +302,7 @@ class HomeCalendarViewModel {
             .didUpdateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todoUpdate in
-                let todo = todoUpdate.after
-                vm.updateTodo(firstDate: firstDate, todo: todo)
+                vm.updateTodo(firstDate: firstDate, todoUpdate: todoUpdate)
             })
             .disposed(by: bag)
         
@@ -427,7 +426,7 @@ class HomeCalendarViewModel {
         
         if monthIndex > 0,
            let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }) {
-            mainDayList[monthIndex][prevDayIndex].todoList.append(todo)
+            mainDayList[monthIndex - 1][prevDayIndex].todoList.append(todo)
             sectionSet.insert(monthIndex - 1)
         }
         if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }) {
@@ -436,37 +435,83 @@ class HomeCalendarViewModel {
         }
         if monthIndex < mainDayList.count - 1,
            let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}) {
-            mainDayList[monthIndex][followingDayIndex].todoList.append(todo)
+            mainDayList[monthIndex + 1][followingDayIndex].todoList.append(todo)
             sectionSet.insert(monthIndex + 1)
         }
         
         needReloadSectionSet.onNext(sectionSet)
     }
     
-    func updateTodo(firstDate: Date, todo: Todo) {
-        let date = todo.startDate
-        let monthIndex = calendar.dateComponents([.month], from: firstDate, to: date).month ?? 0
+    // 만약 날짜가 바뀐다면...???
+    func updateTodo(firstDate: Date, todoUpdate: TodoUpdateComparator) {
+        
+        let todoBeforeUpdate = todoUpdate.before
+        let todoAfterUpdate = todoUpdate.after
+                
+        let befMonthIndex = calendar.dateComponents([.month], from: firstDate, to: todoBeforeUpdate.startDate).month ?? 0
+        let afterMonthIndex = calendar.dateComponents([.month], from: firstDate, to: todoAfterUpdate.startDate).month ?? 0
         
         var sectionSet = IndexSet()
-
-        if monthIndex > 0,
-           let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }),
-           let todoIndex = mainDayList[monthIndex - 1][prevDayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex - 1][prevDayIndex].todoList[todoIndex] = todo
-            sectionSet.insert(monthIndex - 1)
-        }
         
-        if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }),
-           let todoIndex = mainDayList[monthIndex][dayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex][dayIndex].todoList[todoIndex] = todo
-            sectionSet.insert(monthIndex)
-        }
-        
-        if monthIndex < mainDayList.count - 1,
-           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}),
-           let todoIndex = mainDayList[monthIndex + 1][followingDayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex + 1][followingDayIndex].todoList[todoIndex] = todo
-            sectionSet.insert(monthIndex + 1)
+        if befMonthIndex == afterMonthIndex {
+            if afterMonthIndex > 0,
+               let prevDayIndex = mainDayList[afterMonthIndex - 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate }),
+               let todoIndex = mainDayList[afterMonthIndex - 1][prevDayIndex].todoList.firstIndex(where: { $0.id == todoAfterUpdate.id }) {
+                mainDayList[afterMonthIndex - 1][prevDayIndex].todoList[todoIndex] = todoAfterUpdate
+                sectionSet.insert(afterMonthIndex - 1)
+            }
+            
+            if let dayIndex = mainDayList[afterMonthIndex].firstIndex(where: { $0.date == todoAfterUpdate.startDate }),
+               let todoIndex = mainDayList[afterMonthIndex][dayIndex].todoList.firstIndex(where: { $0.id == todoAfterUpdate.id }) {
+                mainDayList[afterMonthIndex][dayIndex].todoList[todoIndex] = todoAfterUpdate
+                sectionSet.insert(afterMonthIndex)
+            }
+            
+            if afterMonthIndex < mainDayList.count - 1,
+               let followingDayIndex = mainDayList[afterMonthIndex + 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate}),
+               let todoIndex = mainDayList[afterMonthIndex + 1][followingDayIndex].todoList.firstIndex(where: { $0.id == todoAfterUpdate.id }) {
+                mainDayList[afterMonthIndex + 1][followingDayIndex].todoList[todoIndex] = todoAfterUpdate
+                sectionSet.insert(afterMonthIndex + 1)
+            }
+        } else {
+            // MARK: Remove Todo
+            if befMonthIndex > 0,
+               let prevDayIndex = mainDayList[befMonthIndex - 1].firstIndex(where: { $0.date == todoBeforeUpdate.startDate }),
+               let todoIndex = mainDayList[befMonthIndex - 1][prevDayIndex].todoList.firstIndex(where: { $0.id == todoBeforeUpdate.id }) {
+                mainDayList[befMonthIndex - 1][prevDayIndex].todoList.remove(at: todoIndex)
+                sectionSet.insert(befMonthIndex - 1)
+            }
+            
+            if let dayIndex = mainDayList[befMonthIndex].firstIndex(where: { $0.date == todoBeforeUpdate.startDate }),
+               let todoIndex = mainDayList[befMonthIndex][dayIndex].todoList.firstIndex(where: { $0.id == todoBeforeUpdate.id }) {
+                mainDayList[befMonthIndex][dayIndex].todoList.remove(at: todoIndex)
+                sectionSet.insert(befMonthIndex)
+            }
+            
+            if befMonthIndex < mainDayList.count - 1,
+               let followingDayIndex = mainDayList[befMonthIndex + 1].firstIndex(where: { $0.date == todoBeforeUpdate.startDate}),
+               let todoIndex = mainDayList[befMonthIndex + 1][followingDayIndex].todoList.firstIndex(where: { $0.id == todoBeforeUpdate.id }) {
+                mainDayList[befMonthIndex + 1][followingDayIndex].todoList.remove(at: todoIndex)
+                sectionSet.insert(befMonthIndex + 1)
+            }
+            
+            // MARK: Create Todo
+            if afterMonthIndex > 0,
+               let prevDayIndex = mainDayList[afterMonthIndex - 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate }) {
+                mainDayList[afterMonthIndex - 1][prevDayIndex].todoList.append(todoAfterUpdate)
+                sectionSet.insert(afterMonthIndex - 1)
+            }
+            
+            if let dayIndex = mainDayList[afterMonthIndex].firstIndex(where: { $0.date == todoAfterUpdate.startDate }) {
+                mainDayList[afterMonthIndex][dayIndex].todoList.append(todoAfterUpdate)
+                sectionSet.insert(afterMonthIndex)
+            }
+            
+            if afterMonthIndex < mainDayList.count - 1,
+               let followingDayIndex = mainDayList[afterMonthIndex + 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate}) {
+                mainDayList[afterMonthIndex + 1][followingDayIndex].todoList.append(todoAfterUpdate)
+                sectionSet.insert(afterMonthIndex + 1)
+            }
         }
         
         needReloadSectionSet.onNext(sectionSet)
