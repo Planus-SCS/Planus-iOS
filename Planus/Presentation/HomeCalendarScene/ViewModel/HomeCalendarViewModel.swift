@@ -449,11 +449,13 @@ class HomeCalendarViewModel {
         let todoAfterUpdate = todoUpdate.after
                 
         let befMonthIndex = calendar.dateComponents([.month], from: firstDate, to: todoBeforeUpdate.startDate).month ?? 0
+        let befDayIndex = mainDayList[befMonthIndex].firstIndex(where: { $0.date == todoBeforeUpdate.startDate }) ?? 0
         let afterMonthIndex = calendar.dateComponents([.month], from: firstDate, to: todoAfterUpdate.startDate).month ?? 0
-        
+        let afterDayIndex = mainDayList[afterMonthIndex].firstIndex(where: { $0.date == todoAfterUpdate.startDate }) ?? 0
         var sectionSet = IndexSet()
         
-        if befMonthIndex == afterMonthIndex {
+        if befMonthIndex == afterMonthIndex,
+           befDayIndex == afterDayIndex {
             if afterMonthIndex > 0,
                let prevDayIndex = mainDayList[afterMonthIndex - 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate }),
                let todoIndex = mainDayList[afterMonthIndex - 1][prevDayIndex].todoList.firstIndex(where: { $0.id == todoAfterUpdate.id }) {
@@ -482,9 +484,8 @@ class HomeCalendarViewModel {
                 sectionSet.insert(befMonthIndex - 1)
             }
             
-            if let dayIndex = mainDayList[befMonthIndex].firstIndex(where: { $0.date == todoBeforeUpdate.startDate }),
-               let todoIndex = mainDayList[befMonthIndex][dayIndex].todoList.firstIndex(where: { $0.id == todoBeforeUpdate.id }) {
-                mainDayList[befMonthIndex][dayIndex].todoList.remove(at: todoIndex)
+            if let todoIndex = mainDayList[befMonthIndex][befDayIndex].todoList.firstIndex(where: { $0.id == todoBeforeUpdate.id }) {
+                mainDayList[befMonthIndex][befDayIndex].todoList.remove(at: todoIndex)
                 sectionSet.insert(befMonthIndex)
             }
             
@@ -506,13 +507,12 @@ class HomeCalendarViewModel {
                 sectionSet.insert(afterMonthIndex - 1)
             }
             
-            if let dayIndex = mainDayList[afterMonthIndex].firstIndex(where: { $0.date == todoAfterUpdate.startDate }) {
-                let todoIndex = mainDayList[afterMonthIndex - 1][dayIndex].todoList.insertionIndexOf(todoAfterUpdate) {
-                    $0.id ?? Int() < $1.id ?? Int()
-                }
-                mainDayList[afterMonthIndex][dayIndex].todoList.insert(todoAfterUpdate, at: todoIndex)
-                sectionSet.insert(afterMonthIndex)
+            let todoIndex = mainDayList[afterMonthIndex][afterDayIndex].todoList.insertionIndexOf(todoAfterUpdate) {
+                $0.id ?? Int() < $1.id ?? Int()
             }
+            print(mainDayList[afterMonthIndex][afterDayIndex].todoList.count, todoIndex)
+            mainDayList[afterMonthIndex][afterDayIndex].todoList.insert(todoAfterUpdate, at: todoIndex)
+            sectionSet.insert(afterMonthIndex)
             
             if afterMonthIndex < mainDayList.count - 1,
                let followingDayIndex = mainDayList[afterMonthIndex + 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate}) {

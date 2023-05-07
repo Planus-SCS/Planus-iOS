@@ -191,7 +191,6 @@ class GroupIntroduceViewController: UIViewController {
     }
     
     @objc func shareBtnAction() {
-        print("share!")
     }
 }
 

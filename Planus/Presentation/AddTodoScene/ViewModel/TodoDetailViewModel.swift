@@ -229,7 +229,7 @@ final class TodoDetailViewModel {
                     memo: memo,
                     groupId: nil,
                     categoryId: categoryId,
-                    startTime: time
+                    startTime: ((time?.isEmpty) ?? true) ? nil : time
                 )
                 
                 switch vm.todoCreateState {
@@ -373,7 +373,6 @@ final class TodoDetailViewModel {
             .subscribe(onSuccess: { [weak self] list in
                 self?.categorys = list
                 self?.needReloadCategoryList.onNext(())
-                print(self?.categorys)
             })
             .disposed(by: bag)
     }

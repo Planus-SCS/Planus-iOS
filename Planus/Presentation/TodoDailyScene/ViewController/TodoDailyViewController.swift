@@ -93,7 +93,9 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.insertItems(at: [indexPath])
+                vm.collectionView.performBatchUpdates {
+                    vm.collectionView.insertItems(at: [indexPath])
+                }
             })
             .disposed(by: bag)
             
@@ -102,7 +104,9 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.deleteItems(at: [indexPath])
+                vm.collectionView.performBatchUpdates {
+                    vm.collectionView.deleteItems(at: [indexPath])
+                }
             })
             .disposed(by: bag)
         

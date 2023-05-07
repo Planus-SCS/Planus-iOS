@@ -47,7 +47,6 @@ class DefaultTokenRepository: TokenRepository {
             accessToken: String(decoding: accessToken as! Data, as: UTF8.self),
             refreshToken: String(decoding: refreshToken as! Data, as: UTF8.self)
         )
-        print("get: ", token)
         return token
     }
     
