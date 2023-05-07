@@ -39,13 +39,15 @@ final class AppCoordinator: Coordinator {
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
         
         if let observable = refreshTokenUseCase.execute() {
             observable
                 .observe(on: MainScheduler.asyncInstance)
-                .subscribe(onSuccess: { [weak self] in //토큰 리프레시 성공한거임. 메인탭으로
+                .subscribe(onSuccess: { [weak self] token in //토큰 리프레시 성공한거임. 메인탭으로
+                    setTokenUseCase.execute(token: token)
                     self?.showMainTabFlow()
-                }, onFailure: { [weak self] error in //에러가 가능한 상황이 뭐있을까??? 토큰이 잘못됬거나? 뭐 네트워크가 안되거나? 이것저것 있을텐데,, 싸그리 로그인창으로 보내?
+                }, onFailure: { [weak self] error in
                     print(error)
                     self?.showSignInFlow()
                 })

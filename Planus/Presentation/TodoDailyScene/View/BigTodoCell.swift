@@ -135,7 +135,7 @@ class BigTodoCell: UICollectionViewCell {
 
         if let time = time {
             timeLabel.isHidden = false
-            timeLabel.text = time
+            timeLabel.text = time.toAPM()
         } else {
             timeLabel.isHidden = true
         }

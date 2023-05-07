@@ -9,6 +9,6 @@ import Foundation
 import RxSwift
 
 protocol UpdateTodoUseCase {
-    var didUpdateTodo: PublishSubject<Todo> { get }
-    func execute(token: Token, todo: Todo) -> Single<Void>
+    var didUpdateTodo: PublishSubject<TodoUpdateComparator> { get }
+    func execute(token: Token, todoUpdate: TodoUpdateComparator) -> Single<Void>
 }

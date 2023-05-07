@@ -21,7 +21,7 @@ class DefaultTokenRepository: TokenRepository {
         self.apiProvider = apiProvider
     }
     
-    func refresh() -> Single<Void>? {
+    func refresh() -> Single<ResponseDTO<TokenRefreshResponseDataDTO>>? {
         guard let token = get() else { return nil }
                 
         let endPoint = APIEndPoint(
@@ -32,19 +32,10 @@ class DefaultTokenRepository: TokenRepository {
             header: ["Content-Type": "application/json"]
         )
         
-        print("now refreshing")
         return apiProvider.requestCodable(
             endPoint: endPoint,
             type: ResponseDTO<TokenRefreshResponseDataDTO>.self
         )
-        .map { [weak self] dto in
-            let token = dto.data.toDomain()
-            print(self)
-            self?.set(token: token)
-            print("refreshed")
-            print(token)
-            return ()
-        }
     }
     
     func get() -> Token? { //네트워킹 할때마다 사용됨
@@ -52,16 +43,15 @@ class DefaultTokenRepository: TokenRepository {
               let refreshToken = keyChainManager.get(key: "refreshToken") else {
             return nil
         }
-
-        return Token(
+        let token = Token(
             accessToken: String(decoding: accessToken as! Data, as: UTF8.self),
             refreshToken: String(decoding: refreshToken as! Data, as: UTF8.self)
         )
+        print("get: ", token)
+        return token
     }
     
     func set(token: Token) { //최초, refreshToken 만료 시에만 사용됨
-        print("setsetset")
-
         keyChainManager.set(
             key: "accessToken",
             value: token.accessToken.data(using: .utf8, allowLossyConversion: false) as Any
@@ -70,7 +60,6 @@ class DefaultTokenRepository: TokenRepository {
             key: "refreshToken",
             value: token.refreshToken.data(using: .utf8, allowLossyConversion: false) as Any
         )
-        
     }
     
     func delete() {

@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol RefreshTokenUseCase {
-    func execute() -> Single<Void>?
+    func execute() -> Single<Token>?
 }
