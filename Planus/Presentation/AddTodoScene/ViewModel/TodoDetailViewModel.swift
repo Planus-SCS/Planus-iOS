@@ -237,7 +237,7 @@ final class TodoDetailViewModel {
                     vm.createTodo(todo: todo)
                 case .edit(let exTodo):
                     todo.id = exTodo.id
-                    vm.updateTodo(todo: todo)
+                    vm.updateTodo(todoUpdate: TodoUpdateComparator(before: exTodo, after: todo))
                 }
                 
             })
@@ -396,11 +396,11 @@ final class TodoDetailViewModel {
             .disposed(by: bag)
     }
     
-    func updateTodo(todo: Todo) {
+    func updateTodo(todoUpdate: TodoUpdateComparator) {
         guard let token = getTokenUseCase.execute() else { return }
         
         updateTodoUseCase
-            .execute(token: token, todo: todo)
+            .execute(token: token, todoUpdate: todoUpdate)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.needDismiss.onNext(())
             })

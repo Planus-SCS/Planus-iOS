@@ -162,7 +162,8 @@ class TodoDailyViewModel {
         updateTodoUseCase
             .didUpdateTodo
             .withUnretained(self)
-            .subscribe(onNext: { vm, todo in
+            .subscribe(onNext: { vm, todoUpdate in
+                let todo = todoUpdate.after
                 var section: Int
                 var item: Int
                 if let _ = todo.startTime {

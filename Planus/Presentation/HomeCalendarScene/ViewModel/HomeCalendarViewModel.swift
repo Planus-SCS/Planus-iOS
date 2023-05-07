@@ -301,7 +301,8 @@ class HomeCalendarViewModel {
         updateTodoUseCase
             .didUpdateTodo
             .withUnretained(self)
-            .subscribe(onNext: { vm, todo in
+            .subscribe(onNext: { vm, todoUpdate in
+                let todo = todoUpdate.after
                 vm.updateTodo(firstDate: firstDate, todo: todo)
             })
             .disposed(by: bag)
