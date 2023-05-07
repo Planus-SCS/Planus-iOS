@@ -498,18 +498,28 @@ class HomeCalendarViewModel {
             // MARK: Create Todo
             if afterMonthIndex > 0,
                let prevDayIndex = mainDayList[afterMonthIndex - 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate }) {
-                mainDayList[afterMonthIndex - 1][prevDayIndex].todoList.append(todoAfterUpdate)
+                // 그냥 append 하면 안됨! index 찾아서 사이에 끼워넣어야함..!
+                let todoIndex = mainDayList[afterMonthIndex - 1][prevDayIndex].todoList.insertionIndexOf(todoAfterUpdate) {
+                    $0.id ?? Int() < $1.id ?? Int()
+                }
+                mainDayList[afterMonthIndex - 1][prevDayIndex].todoList.insert(todoAfterUpdate, at: todoIndex)
                 sectionSet.insert(afterMonthIndex - 1)
             }
             
             if let dayIndex = mainDayList[afterMonthIndex].firstIndex(where: { $0.date == todoAfterUpdate.startDate }) {
-                mainDayList[afterMonthIndex][dayIndex].todoList.append(todoAfterUpdate)
+                let todoIndex = mainDayList[afterMonthIndex - 1][dayIndex].todoList.insertionIndexOf(todoAfterUpdate) {
+                    $0.id ?? Int() < $1.id ?? Int()
+                }
+                mainDayList[afterMonthIndex][dayIndex].todoList.insert(todoAfterUpdate, at: todoIndex)
                 sectionSet.insert(afterMonthIndex)
             }
             
             if afterMonthIndex < mainDayList.count - 1,
                let followingDayIndex = mainDayList[afterMonthIndex + 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate}) {
-                mainDayList[afterMonthIndex + 1][followingDayIndex].todoList.append(todoAfterUpdate)
+                let todoIndex = mainDayList[afterMonthIndex - 1][followingDayIndex].todoList.insertionIndexOf(todoAfterUpdate) {
+                    $0.id ?? Int() < $1.id ?? Int()
+                }
+                mainDayList[afterMonthIndex + 1][followingDayIndex].todoList.insert(todoAfterUpdate, at: todoIndex)
                 sectionSet.insert(afterMonthIndex + 1)
             }
         }
