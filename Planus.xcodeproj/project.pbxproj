@@ -347,6 +347,10 @@
 		6AC0790D2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0790C2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift */; };
 		6AC0790F2A08C9C9007ACDB8 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0790E2A08C9C9007ACDB8 /* Profile.swift */; };
 		6AC079122A08CCF9007ACDB8 /* ReadProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079112A08CCF9007ACDB8 /* ReadProfileUseCase.swift */; };
+		6AC079152A08D770007ACDB8 /* DefaultFetchImageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079142A08D770007ACDB8 /* DefaultFetchImageUseCase.swift */; };
+		6AC079172A08D788007ACDB8 /* DefaultImageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079162A08D788007ACDB8 /* DefaultImageRepository.swift */; };
+		6AC079192A08D9DB007ACDB8 /* ImageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079182A08D9DB007ACDB8 /* ImageRepository.swift */; };
+		6AC0791C2A08DA42007ACDB8 /* FetchImageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0791B2A08DA42007ACDB8 /* FetchImageUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -693,6 +697,10 @@
 		6AC0790C2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultReadProfileUseCase.swift; sourceTree = "<group>"; };
 		6AC0790E2A08C9C9007ACDB8 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		6AC079112A08CCF9007ACDB8 /* ReadProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadProfileUseCase.swift; sourceTree = "<group>"; };
+		6AC079142A08D770007ACDB8 /* DefaultFetchImageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchImageUseCase.swift; sourceTree = "<group>"; };
+		6AC079162A08D788007ACDB8 /* DefaultImageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultImageRepository.swift; sourceTree = "<group>"; };
+		6AC079182A08D9DB007ACDB8 /* ImageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRepository.swift; sourceTree = "<group>"; };
+		6AC0791B2A08DA42007ACDB8 /* FetchImageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchImageUseCase.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1122,6 +1130,7 @@
 				6A9AAB0129F8E442002A6DAF /* DefaultCategoryRepository.swift */,
 				6A9AAB0E29F9071F002A6DAF /* DefaultTokenRepository.swift */,
 				6AC079052A08C28B007ACDB8 /* DefaultProfileRepository.swift */,
+				6AC079162A08D788007ACDB8 /* DefaultImageRepository.swift */,
 			);
 			path = Repository;
 			sourceTree = "<group>";
@@ -1129,6 +1138,7 @@
 		6A08ADDA29C8D5A9005947D2 /* UseCase */ = {
 			isa = PBXGroup;
 			children = (
+				6AC079132A08D75F007ACDB8 /* Image */,
 				6AC0790B2A08C97F007ACDB8 /* Profile */,
 				6A9AAB2A29FA5CBC002A6DAF /* SignIn */,
 				6A9AAB2B29FA5CC6002A6DAF /* Calendar */,
@@ -1147,6 +1157,7 @@
 				6A9AAB0329F8FE48002A6DAF /* CategoryRepository.swift */,
 				6A9AAB1529F90AD5002A6DAF /* TokenRepository.swift */,
 				6AC079072A08C74A007ACDB8 /* ProfileRepository.swift */,
+				6AC079182A08D9DB007ACDB8 /* ImageRepository.swift */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -1154,6 +1165,7 @@
 		6A08ADDE29C8D6B6005947D2 /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				6AC0791A2A08DA31007ACDB8 /* Image */,
 				6AC079102A08CCE2007ACDB8 /* Profile */,
 				6A9AAB2F29FA5D19002A6DAF /* SignIn */,
 				6A9AAB3029FA5D22002A6DAF /* Calendar */,
@@ -1947,6 +1959,22 @@
 			path = Profile;
 			sourceTree = "<group>";
 		};
+		6AC079132A08D75F007ACDB8 /* Image */ = {
+			isa = PBXGroup;
+			children = (
+				6AC079142A08D770007ACDB8 /* DefaultFetchImageUseCase.swift */,
+			);
+			path = Image;
+			sourceTree = "<group>";
+		};
+		6AC0791A2A08DA31007ACDB8 /* Image */ = {
+			isa = PBXGroup;
+			children = (
+				6AC0791B2A08DA42007ACDB8 /* FetchImageUseCase.swift */,
+			);
+			path = Image;
+			sourceTree = "<group>";
+		};
 		974AE7300BB25B96DF1DF093 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -2228,6 +2256,7 @@
 				6AC0790F2A08C9C9007ACDB8 /* Profile.swift in Sources */,
 				6A9AAB0429F8FE48002A6DAF /* CategoryRepository.swift in Sources */,
 				6A9AAB2729FA595B002A6DAF /* DefaultReadCategoryListUseCase.swift in Sources */,
+				6AC079172A08D788007ACDB8 /* DefaultImageRepository.swift in Sources */,
 				6A9AAB2129FA5775002A6DAF /* GetTokenRepository.swift in Sources */,
 				6A9AAAC629F808FB002A6DAF /* TodoCheckButton.swift in Sources */,
 				6A2BB1CB29E55EBE0053C5CA /* UpdateTodoUseCase.swift in Sources */,
@@ -2244,6 +2273,7 @@
 				6A9AAB3B29FA5DE2002A6DAF /* ReadCategoryListUseCase.swift in Sources */,
 				6A987A2929DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift in Sources */,
 				6A24F84629CB4AED0000FD64 /* MonthStateOfDay.swift in Sources */,
+				6AC0791C2A08DA42007ACDB8 /* FetchImageUseCase.swift in Sources */,
 				6AC078E22A0373F3007ACDB8 /* BaseURL.swift in Sources */,
 				6AC0790A2A08C799007ACDB8 /* ProfileDTO.swift in Sources */,
 				6A2BB1BD29E431740053C5CA /* MyPageEnquireViewController.swift in Sources */,
@@ -2302,6 +2332,7 @@
 				6A9AAB2329FA57E0002A6DAF /* RefreshTokenUseCase.swift in Sources */,
 				6A24F8BC29CE50DC0000FD64 /* ScrollDirection.swift in Sources */,
 				6AC079062A08C28B007ACDB8 /* DefaultProfileRepository.swift in Sources */,
+				6AC079152A08D770007ACDB8 /* DefaultFetchImageUseCase.swift in Sources */,
 				6A08AD7029C889D6005947D2 /* AppCoordinator.swift in Sources */,
 				6A24F83A29CB49BD0000FD64 /* DayViewModel.swift in Sources */,
 				6A24F8F029D1D5F80000FD64 /* MonthPickerViewCell.swift in Sources */,
@@ -2358,6 +2389,7 @@
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,
 				6A987A8E29DF119300C27D09 /* SmallCalendarCollectionView.swift in Sources */,
 				6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */,
+				6AC079192A08D9DB007ACDB8 /* ImageRepository.swift in Sources */,
 				6A987A8829DF118000C27D09 /* SmallCalendarViewModel.swift in Sources */,
 				6A9A07F929D40B970051AD43 /* DayPickerViewControllerDelegate.swift in Sources */,
 				6A95DFB529D4DD33009017D8 /* SearchViewController.swift in Sources */,

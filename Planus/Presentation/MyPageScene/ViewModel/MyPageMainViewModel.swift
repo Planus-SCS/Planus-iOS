@@ -43,16 +43,18 @@ class MyPageMainViewModel {
     var readProfileUseCase: ReadProfileUseCase
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
-    
+    var fetchImageUseCase: FetchImageUseCase
     
     init(
         readProfileUseCase: ReadProfileUseCase,
         getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase
+        refreshTokenUseCase: RefreshTokenUseCase,
+        fetchImageUseCase: FetchImageUseCase
     ) {
         self.readProfileUseCase = readProfileUseCase
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
+        self.fetchImageUseCase = fetchImageUseCase
     }
     
     func transform(input: Input) -> Output {
@@ -89,8 +91,8 @@ class MyPageMainViewModel {
             .disposed(by: bag)
     }
     
-    func fetchImage(key: String) {
-        
+    func fetchImage(key: String) -> Single<Data> {
+        return fetchImageUseCase.execute(key: key)
     }
 
 }

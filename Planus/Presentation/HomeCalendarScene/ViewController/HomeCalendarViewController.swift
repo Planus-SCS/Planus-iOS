@@ -250,10 +250,12 @@ class HomeCalendarViewController: UIViewController {
         let keyChain = KeyChainManager()
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
         let profileRepo = DefaultProfileRepository(apiProvider: api)
+        let imageRepo = DefaultImageRepository(apiProvider: api)
         let readProfileUseCase = DefaultReadProfileUseCase(profileRepository: profileRepo)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let vm = MyPageMainViewModel(readProfileUseCase: readProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase)
+        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
+        let vm = MyPageMainViewModel(readProfileUseCase: readProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, fetchImageUseCase: fetchImageUseCase)
         let vc = MyPageMainViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(vc, animated: true)
