@@ -14,6 +14,7 @@ class MyPageEditViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: MyPageEditViewModel?
     var didChangedImage = PublishSubject<ImageFile?>()
+    var descEditing = false
     
     var contentView: UIView = {
         let view = UIView(frame: .zero)
@@ -140,7 +141,20 @@ class MyPageEditViewController: UIViewController {
     }
     
     @objc func editBtnTapped() {
-        presentPhotoPicker()
+        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        //블로그 방문하기 버튼 - 스타일(default)
+        actionSheet.addAction(UIAlertAction(title: "변경하기", style: .default, handler: {(ACTION:UIAlertAction) in
+            self.presentPhotoPicker()
+        }))
+        
+        //이웃 끊기 버튼 - 스타일(destructive)
+        actionSheet.addAction(UIAlertAction(title: "제거", style: .destructive, handler: {(ACTION:UIAlertAction) in
+            self.didChangedImage.onNext(nil)
+        }))
+        
+        actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+
+        self.present(actionSheet, animated: true, completion: nil)
     }
     
     func bind() {
@@ -170,11 +184,14 @@ class MyPageEditViewController: UIViewController {
         
         output
             .didFetchImage
-            .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, data in
-                vc.profileImageView.image = UIImage(data: data)
+                if let data = data {
+                    vc.profileImageView.image = UIImage(data: data)
+                } else {
+                    vc.profileImageView.image = UIImage(named: "DefaultProfileMedium")
+                }
             })
             .disposed(by: bag)
         
