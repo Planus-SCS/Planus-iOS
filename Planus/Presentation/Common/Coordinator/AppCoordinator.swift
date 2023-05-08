@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import RxSwift
 
 final class AppCoordinator: Coordinator {
+    
+    var bag = DisposeBag()
         
     weak var finishDelegate: CoordinatorFinishDelegate?
     
@@ -25,11 +28,33 @@ final class AppCoordinator: Coordinator {
         /*
          자동 로그인 여부에 따라 로그인 로직 or 메인화면 로직 실행
          */
-        showMainTabFlow()
+        checkAutoSignIn()
     }
     
-    private func checkAutoSignIn() -> Bool {
-        return true
+    private func checkAutoSignIn() {
+        // 우선 여기서 자동로그인이 되있는지를 봐야한다..!
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
+        
+        if let observable = refreshTokenUseCase.execute() {
+            observable
+                .observe(on: MainScheduler.asyncInstance)
+                .subscribe(onSuccess: { [weak self] token in //토큰 리프레시 성공한거임. 메인탭으로
+                    setTokenUseCase.execute(token: token)
+                    self?.showMainTabFlow()
+                }, onFailure: { [weak self] error in
+                    print(error)
+                    self?.showSignInFlow()
+                })
+                .disposed(by: bag)
+        } else { //아에 존재조차 안함. signin 창으로 보내야함
+            showSignInFlow()
+        }
     }
     
     func showSignInFlow() {

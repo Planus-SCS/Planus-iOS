@@ -105,14 +105,14 @@ extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout 
         let item = indexPath.item
         
         let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-            viewModel.mainDayList[a].todoList?.count ?? 0 < viewModel.mainDayList[b].todoList?.count ?? 0
+            viewModel.mainDayList[a].todoList.count ?? 0 < viewModel.mainDayList[b].todoList.count ?? 0
         }) ?? Int()
         
         let maxTodoViewModel = viewModel.mainDayList[maxItem]
         
         let frameSize = self.view.frame
         
-        var todoCount = maxTodoViewModel.todoList?.count ?? 0
+        var todoCount = maxTodoViewModel.todoList.count
         
         if let height = viewModel.cachedCellHeightForTodoCount[todoCount] {
             return CGSize(width: Double(1)/Double(7) * Double(frameSize.width), height: Double(height))
@@ -148,7 +148,7 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
-        cell.fill(day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!, todoList: dayViewModel.todoList)
+        cell.fill(delegate: self, day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!, todoList: dayViewModel.todoList)
 
         return cell
     }
@@ -158,3 +158,13 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
         return view
     }
 }
+
+extension JoinedGroupCalendarViewController: DailyCalendarCellDelegate {
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor? {
+        return CategoryColor.blue
+    }
+}
+
+/*
+ 업데이트를 어떻게 해야하지???
+ */

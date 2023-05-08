@@ -155,14 +155,22 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        let networkManager = NetworkManager()
         let useCase1 = DefaultCreateMonthlyCalendarUseCase()
-        let useCase2 = DefaultReadTodoListUseCase(todoRepository: TestTodoRepository())
+        let useCase2 = DefaultReadTodoListUseCase(todoRepository: TestTodoDetailRepository(apiProvider: networkManager))
         let useCase3 = DefaultDateFormatYYYYMMUseCase()
+        let keyChainManager = KeyChainManager()
+        
+        let tokenRepo = DefaultTokenRepository(apiProvider: networkManager, keyChainManager: keyChainManager)
+        let useCase4 = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let useCase5 = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         
         let vm = MemberProfileViewModel(
             createMonthlyCalendarUseCase: useCase1,
             fetchTodoListUseCase: useCase2,
-            dateFormatYYYYMMUseCase: useCase3
+            dateFormatYYYYMMUseCase: useCase3,
+            getTokenUseCase: useCase4,
+            refreshTokenUseCase: useCase5
         )
         let vc = MemberProfileViewController(viewModel: vm)
         self.navigationController?.pushViewController(vc, animated: true)

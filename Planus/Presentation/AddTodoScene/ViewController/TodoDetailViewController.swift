@@ -16,7 +16,8 @@ class TodoDetailViewController: UIViewController {
     var didSelectedStartDate = PublishSubject<Date?>()
     var didSelectedEndDate = PublishSubject<Date?>()
     var didSelectedGroupAt = PublishSubject<Int?>()
-    var didChangednewCategoryColor = PublishSubject<TodoCategoryColor?>()
+    var didChangednewCategoryColor = PublishSubject<CategoryColor?>()
+    var didDeleteCategoryId = PublishSubject<Int>()
     
     var pageType: AddTodoViewControllerPageType = .addTodo
 
@@ -187,13 +188,25 @@ class TodoDetailViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
 
+        let memoViewObservable = addTodoView
+            .memoTextView.rx.text
+            .asObservable()
+            .map { [weak self] (text) -> String? in
+            guard let isMemoFilled = self?.addTodoView.isMemoFilled else { return nil }
+            if isMemoFilled {
+                return text
+            } else {
+                return nil
+            }
+        }
         let input = TodoDetailViewModel.Input(
             todoTitleChanged: addTodoView.titleField.rx.text.asObservable(),
             categorySelected: didSelectCategoryAt.asObservable(),
             startDayChanged: didSelectedStartDate.asObservable(),
             endDayChanged: didSelectedEndDate.asObservable(),
+            timeChanged: addTodoView.timeField.rx.text.asObservable(),
             groupSelected: didSelectedGroupAt.asObservable(),
-            memoChanged: addTodoView.memoTextView.rx.text.asObservable(),
+            memoChanged: memoViewObservable,
             newCategoryNameChanged: categoryCreateView.nameField.rx.text.asObservable(),
             newCategoryColorChanged: didChangednewCategoryColor.asObservable(),
             categoryEditRequested: didRequestEditCategoryAt.asObservable(),
@@ -201,6 +214,7 @@ class TodoDetailViewController: UIViewController {
             endDayButtonTapped: addTodoView.endDateButton.rx.tap.asObservable(),
             categorySelectBtnTapped: addTodoView.categoryButton.rx.tap.asObservable(),
             todoSaveBtnTapped: addTodoView.saveButton.rx.tap.asObservable(),
+            todoRemoveBtnTapped: addTodoView.removeButton.rx.tap.asObservable(),
             newCategoryAddBtnTapped: categoryView.addNewItemButton.rx.tap.asObservable(),
             newCategorySaveBtnTapped: categoryCreateView.saveButton.rx.tap.asObservable(),
             categorySelectPageBackBtnTapped: categoryView.backButton.rx.tap.asObservable(),
@@ -229,12 +243,22 @@ class TodoDetailViewController: UIViewController {
         
         output
             .todoSaveBtnEnabled
-            .bind(to: addTodoView.saveButton.rx.isEnabled)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, isEnabled in
+                vc.addTodoView.saveButton.isEnabled = isEnabled
+                vc.addTodoView.saveButton.alpha = isEnabled ? 1.0 : 0.5
+            })
             .disposed(by: bag)
         
         output
             .newCategorySaveBtnEnabled
-            .bind(to: categoryCreateView.saveButton.rx.isEnabled)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, isEnabled in
+                vc.categoryCreateView.saveButton.isEnabled = isEnabled
+                vc.categoryCreateView.saveButton.alpha = isEnabled ? 1.0 : 0.5
+            })
             .disposed(by: bag)
         
         output
@@ -248,6 +272,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .moveFromAddToSelect
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.moveFromAddToSelect()
@@ -256,6 +281,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .moveFromSelectToCreate
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.moveFromSelectToCreate()
@@ -264,6 +290,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .moveFromCreateToSelect
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.moveFromCreateToSelect()
@@ -275,6 +302,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .moveFromSelectToAdd
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.moveFromSelectToAdd()
@@ -283,6 +311,7 @@ class TodoDetailViewController: UIViewController {
         
         output
             .removeKeyboard
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.view.endEditing(true)
@@ -291,11 +320,35 @@ class TodoDetailViewController: UIViewController {
         
         output
             .needDismiss
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.dismiss(animated: true)
             })
             .disposed(by: bag)
+        
+        
+        // FIXME: 초기셋팅 하드코딩
+        guard let startDate = try? viewModel.todoStartDay.value() else {
+            return
+        }
+        addTodoView.titleField.text = try? viewModel.todoTitle.value()
+        dayPickerViewController.setDate(date: startDate)
+//        addTodoView.groupSelectionField.text = (try? viewModel.todoGroup.value())?.title
+        addTodoView.memoTextView.text = try? viewModel.todoMemo.value()
+        addTodoView.isMemoFilled = (try? viewModel.todoMemo.value()) != nil
+        addTodoView.memoTextView.textColor = ((try? viewModel.todoMemo.value()) != nil) ? .black : UIColor(hex: 0xBFC7D7)
+        addTodoView.timeField.text = try? viewModel.todoTime.value()
+        
+        switch viewModel.todoCreateState {
+        case .edit(_):
+            addTodoView.removeButton.isHidden = false
+        case .new:
+            addTodoView.removeButton.isHidden = true
+        }
+        
+        self.textViewDidBeginEditing(addTodoView.memoTextView)
+        self.textViewDidEndEditing(addTodoView.memoTextView)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -363,7 +416,8 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_white")
         addTodoView.endDateButton.setTitle("2000.00.00", for: .normal)
         addTodoView.endDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
-        print(didSelectDate)
+        didSelectedStartDate.onNext(didSelectDate)
+        didSelectedEndDate.onNext(nil)
     }
     
     func unHighlightAllItem(_ dayPickerViewController: DayPickerViewController) {
@@ -372,6 +426,8 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_white")
         addTodoView.endDateButton.setTitle("2000.00.00", for: .normal)
         addTodoView.endDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
+        didSelectedStartDate.onNext(nil)
+        didSelectedEndDate.onNext(nil)
     }
     
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDateInRange: (Date, Date)) {
@@ -386,6 +442,9 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_dark")
         addTodoView.endDateButton.setTitle("\(dayPickerViewController.dateFormatter2.string(from: max))", for: .normal)
         addTodoView.endDateButton.setTitleColor(.black, for: .normal)
+        
+        didSelectedStartDate.onNext(min)
+        didSelectedEndDate.onNext(max)
     }
 }
 
@@ -497,6 +556,10 @@ extension TodoDetailViewController {
     }
 }
 
+// 달력에서 데일리 여는건 의존성이 약간 있을수밖에없음. 근데 투두 생성은 걍 개씹 별개로 가져가는게 맞음. 즉 내가 가입한 그룹이나, 내 카테고리 등을 유즈케이스로 가져와야함
+// 달력 -> 데일리 : date, todoList, categoryDict, groupDict를 전부 전달(이것도 맞는건지는 모르겠네,,,)
+// 투두 생성 : 카테고리 유즈케이스나 그룹 유즈케이스에서 읽어와야한다..!
+
 extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         1
@@ -507,11 +570,11 @@ extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        viewModel?.groups[row]
+        viewModel?.groups[row].title
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        addTodoView.groupSelectionField.text = viewModel?.groups[row]
+        addTodoView.groupSelectionField.text = viewModel?.groups[row].title
         addTodoView.groupSelectionField.textColor = .black
         didSelectedGroupAt.onNext(row)
     }
@@ -522,7 +585,7 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
         1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel?.categorys.count ?? 0
+        return viewModel?.categorys.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -538,9 +601,14 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let edit = UIContextualAction(style: .normal, title: "Edit") { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
-            self.categoryCreateView.nameField.text = self.viewModel?.categorys[indexPath.row].title
-            self.categoryCreateView.collectionView.selectItem(at: IndexPath(item: self.viewModel!.categorys[indexPath.row].color.rawValue, section: 0), animated: false, scrollPosition: .top)
-            self.didRequestEditCategoryAt.onNext(indexPath.row)
+            guard let viewModel = self.viewModel else { return }
+            let item = viewModel.categorys[indexPath.row]
+            guard let id = item.id else { return }
+            
+            self.categoryCreateView.nameField.text = item.title
+            self.categoryCreateView.collectionView.selectItem(at: IndexPath(item: viewModel.categoryColorList.firstIndex(where: { $0 == item.color})!, section: 0), animated: false, scrollPosition: .top)
+            
+            self.didRequestEditCategoryAt.onNext(id)
             success(true)
         }
         edit.backgroundColor = .systemTeal
@@ -550,9 +618,10 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let remove = UIContextualAction(style: .normal, title: "Remove") { (UIContextualAction, UIView, success: @escaping (Bool) -> Void) in
-            print("remove 클릭 됨")
+            guard let categoryId = self.viewModel?.categorys[indexPath.row].id else { return }
             self.viewModel?.categorys.remove(at: indexPath.row)
             self.categoryView.tableView.deleteRows(at: [indexPath], with: .fade)
+            self.didDeleteCategoryId.onNext(categoryId)
             success(true)
         }
         remove.backgroundColor = .systemPink
@@ -583,13 +652,15 @@ extension TodoDetailViewController: UITextViewDelegate {
         if textView.text.isEmpty {
             textView.text = "메모를 입력하세요"
             textView.textColor = UIColor(hex: 0xBFC7D7)
+            addTodoView.isMemoFilled = false
         }
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == UIColor(hex: 0xBFC7D7) {
+        if !(addTodoView.isMemoFilled) {
             textView.text = nil
             textView.textColor = .black
+            addTodoView.isMemoFilled = true
         }
     }
 }

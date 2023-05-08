@@ -26,7 +26,7 @@ class JoinedGroupDetailCoordinator: Coordinator {
     }
     
     lazy var showGroupDetailPage: (String) -> Void = { [weak self] id in
-        let repo = TestTodoRepository()
+        let repo = TestTodoDetailRepository(apiProvider: NetworkManager())
         let c = DefaultCreateMonthlyCalendarUseCase()
         let f = DefaultReadTodoListUseCase(todoRepository: repo)
         let vm = JoinedGroupDetailViewModel()

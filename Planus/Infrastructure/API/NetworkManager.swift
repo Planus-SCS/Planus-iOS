@@ -43,12 +43,13 @@ class NetworkManager: APIProvider {
                 }
                 
                 guard let httpResponse = response as? HTTPURLResponse else { return }
-                
                 switch httpResponse.statusCode {
                 case (200..<300):
                     emitter(.success(data))
                 case (300..<400):
                     emitter(.failure(NetworkError.unKnownError(String("300~400"))))
+                case 401:
+                    emitter(.failure(TokenError.tokenExpired))
                 case (400..<500):
                     emitter(.failure(NetworkError.unKnownError(String("400~500"))))
                 default:

@@ -13,40 +13,45 @@ enum CategoryCreateState {
     case edit(Int)
 }
 
+enum TodoCreateState {
+    case new
+    case edit(Todo)
+}
+
 final class TodoDetailViewModel {
     var bag = DisposeBag()
     
     var completionHandler: ((Todo) -> Void)?
     
-    var categoryColorList: [TodoCategoryColor] = Array(TodoCategoryColor.allCases[0..<TodoCategoryColor.allCases.count-1])
+    var categoryColorList: [CategoryColor] = Array(CategoryColor.allCases[0..<CategoryColor.allCases.count-1])
     
-    var categorys: [TodoCategory] = [
-        TodoCategory(title: "카테고리1", color: .blue),
-        TodoCategory(title: "카테고리2", color: .gold),
-        TodoCategory(title: "카테고리3", color: .green),
-        TodoCategory(title: "카테고리4", color: .navy),
-        TodoCategory(title: "카테고리5", color: .pink),
-        TodoCategory(title: "카테고리6", color: .yello)
-    ]
+    var categorys: [Category] = []
+    var groups: [Group] = []
     
+    var todoCreateState: TodoCreateState = .new
     var categoryCreatingState: CategoryCreateState = .new
     
-    var groups: [String] = [
-        "group1", "group2"
-    ]
-    
-    
     var todoTitle = BehaviorSubject<String?>(value: nil)
-    var todoCategory = BehaviorSubject<TodoCategory?>(value: nil)
+    var todoCategory = BehaviorSubject<Category?>(value: nil)
     var todoStartDay = BehaviorSubject<Date?>(value: nil)
     var todoEndDay: Date?
-    var todoGroup: String?
-    var todoMemo: String?
+    var todoTime = BehaviorSubject<String?>(value: nil)
+    var todoGroup = BehaviorSubject<Group?>(value: nil)
+    var todoMemo = BehaviorSubject<String?>(value: nil)
     
     var needDismiss = PublishSubject<Void>()
     
     var newCategoryName = BehaviorSubject<String?>(value: nil)
-    var newCategoryColor = BehaviorSubject<TodoCategoryColor?>(value: nil)
+    var newCategoryColor = BehaviorSubject<CategoryColor?>(value: nil)
+    
+    var groupListChanged = PublishSubject<Void>()
+    
+    let moveFromAddToSelect = PublishSubject<Void>()
+    let moveFromSelectToCreate = PublishSubject<Void>()
+    let moveFromCreateToSelect = PublishSubject<Void>()
+    let moveFromSelectToAdd = PublishSubject<Void>()
+    let needReloadCategoryList = PublishSubject<Void>()
+    let removeKeyboard = PublishSubject<Void>()
     
     struct Input {
         // MARK: Control Value
@@ -54,10 +59,11 @@ final class TodoDetailViewModel {
         var categorySelected: Observable<Int?>
         var startDayChanged: Observable<Date?>
         var endDayChanged: Observable<Date?>
+        var timeChanged: Observable<String?>
         var groupSelected: Observable<Int?>
         var memoChanged: Observable<String?>
         var newCategoryNameChanged: Observable<String?>
-        var newCategoryColorChanged: Observable<TodoCategoryColor?>
+        var newCategoryColorChanged: Observable<CategoryColor?>
         
         // MARK: Control Event
         var categoryEditRequested: Observable<Int>
@@ -65,6 +71,7 @@ final class TodoDetailViewModel {
         var endDayButtonTapped: Observable<Void>
         var categorySelectBtnTapped: Observable<Void>
         var todoSaveBtnTapped: Observable<Void>
+        var todoRemoveBtnTapped: Observable<Void>
         var newCategoryAddBtnTapped: Observable<Void>
         var newCategorySaveBtnTapped: Observable<Void>
         var categorySelectPageBackBtnTapped: Observable<Void>
@@ -72,7 +79,7 @@ final class TodoDetailViewModel {
     }
     
     struct Output {
-        var categoryChanged: Observable<TodoCategory?>
+        var categoryChanged: Observable<Category?>
         var todoSaveBtnEnabled: Observable<Bool>
         var newCategorySaveBtnEnabled: Observable<Bool>
         var newCategorySaved: Observable<Void>
@@ -84,19 +91,48 @@ final class TodoDetailViewModel {
         var needDismiss: Observable<Void>
     }
     
-    init() {}
+    var getTokenUseCase: GetTokenUseCase
+    var refreshTokenUseCase: RefreshTokenUseCase
+    
+    var createTodoUseCase: CreateTodoUseCase
+    var updateTodoUseCase: UpdateTodoUseCase
+    var deleteTodoUseCase: DeleteTodoUseCase
+    
+    var createCategoryUseCase: CreateCategoryUseCase
+    var updateCategoryUseCase: UpdateCategoryUseCase
+    var deleteCategoryUseCase: DeleteCategoryUseCase
+    var readCategoryUseCase: ReadCategoryListUseCase
+    
+    init(
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase,
+        createTodoUseCase: CreateTodoUseCase,
+        updateTodoUseCase: UpdateTodoUseCase,
+        deleteTodoUseCase: DeleteTodoUseCase,
+        createCategoryUseCase: CreateCategoryUseCase,
+        updateCategoryUseCase: UpdateCategoryUseCase,
+        deleteCategoryUseCase: DeleteCategoryUseCase,
+        readCategoryUseCase: ReadCategoryListUseCase
+    ) {
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
+        self.createTodoUseCase = createTodoUseCase
+        self.updateTodoUseCase = updateTodoUseCase
+        self.deleteTodoUseCase = deleteTodoUseCase
+        self.createCategoryUseCase = createCategoryUseCase
+        self.updateCategoryUseCase = updateCategoryUseCase
+        self.deleteCategoryUseCase = deleteCategoryUseCase
+        self.readCategoryUseCase = readCategoryUseCase
+    }
     
     public func transform(input: Input) -> Output {
         
-        let moveFromAddToSelect = PublishSubject<Void>()
-        let moveFromSelectToCreate = PublishSubject<Void>()
-        let moveFromCreateToSelect = PublishSubject<Void>()
-        let moveFromSelectToAdd = PublishSubject<Void>()
-        let newCategorySaved = PublishSubject<Void>()
-        let removeKeyboard = PublishSubject<Void>()
+        fetchCategoryList()
+        fetchGroupList()
         
         input
             .todoTitleChanged
+            .skip(1)
             .bind(to: todoTitle)
             .disposed(by: bag)
         
@@ -112,6 +148,7 @@ final class TodoDetailViewModel {
         
         input
             .startDayChanged
+            .distinctUntilChanged()
             .bind(to: todoStartDay)
             .disposed(by: bag)
         
@@ -124,20 +161,24 @@ final class TodoDetailViewModel {
             .disposed(by: bag)
         
         input
+            .timeChanged
+            .skip(1)
+            .bind(to: todoTime)
+            .disposed(by: bag)
+        
+        input
             .groupSelected
             .compactMap { $0 }
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                vm.todoGroup = vm.groups[index]
+                vm.todoGroup.onNext(vm.groups[index])
             })
             .disposed(by: bag)
         
         input
             .memoChanged
-            .withUnretained(self)
-            .subscribe(onNext: { vm, memo in
-                vm.todoMemo = memo
-            })
+            .skip(1)
+            .bind(to: todoMemo)
             .disposed(by: bag)
         
         input
@@ -153,18 +194,21 @@ final class TodoDetailViewModel {
         input
             .categoryEditRequested
             .withUnretained(self)
-            .subscribe(onNext: { vm, index in
-                vm.categoryCreatingState = .edit(index)
-                vm.newCategoryName.onNext(vm.categorys[index].title)
-                vm.newCategoryColor.onNext(vm.categorys[index].color)
-                moveFromSelectToCreate.onNext(())
+            .subscribe(onNext: { vm, id in
+                guard let category = vm.categorys.first(where: { $0.id == id }) else { return }
+                vm.categoryCreatingState = .edit(id)
+
+                vm.newCategoryName.onNext(category.title)
+                vm.newCategoryColor.onNext(category.color)
+                vm.moveFromSelectToCreate.onNext(())
             })
             .disposed(by: bag)
         
         input
             .categorySelectBtnTapped
-            .subscribe(onNext: {
-                moveFromAddToSelect.onNext(())
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.moveFromAddToSelect.onNext(())
             })
             .disposed(by: bag)
         
@@ -173,11 +217,42 @@ final class TodoDetailViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 guard let title = try? vm.todoTitle.value(),
-                      let date = try? vm.todoStartDay.value(),
-                      let category = try? vm.todoCategory.value() else { return }
-                let todo = Todo(title: title, date: date, category: category.color, type: .normal)
-                vm.completionHandler?(todo)
-                vm.needDismiss.onNext(())
+                      let startDate = try? vm.todoStartDay.value(),
+                      let categoryId = (try? vm.todoCategory.value())?.id else { return }
+                let memo = try? vm.todoMemo.value()
+                let time = try? vm.todoTime.value()
+                var todo = Todo(
+                    id: nil,
+                    title: title,
+                    startDate: startDate,
+                    endDate: vm.todoEndDay ?? startDate,
+                    memo: memo,
+                    groupId: nil,
+                    categoryId: categoryId,
+                    startTime: ((time?.isEmpty) ?? true) ? nil : time
+                )
+                
+                switch vm.todoCreateState {
+                case .new:
+                    vm.createTodo(todo: todo)
+                case .edit(let exTodo):
+                    todo.id = exTodo.id
+                    vm.updateTodo(todoUpdate: TodoUpdateComparator(before: exTodo, after: todo))
+                }
+                
+            })
+            .disposed(by: bag)
+        
+        input
+            .todoRemoveBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                switch vm.todoCreateState {
+                case .edit(let exTodo):
+                    vm.deleteTodo(todo: exTodo)
+                default:
+                    return
+                }
             })
             .disposed(by: bag)
         
@@ -186,7 +261,7 @@ final class TodoDetailViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.categoryCreatingState = .new
-                moveFromSelectToCreate.onNext(())
+                vm.moveFromSelectToCreate.onNext(())
             })
             .disposed(by: bag)
         
@@ -199,41 +274,42 @@ final class TodoDetailViewModel {
                       let color = try? vm.newCategoryColor.value() else { return }
                 switch vm.categoryCreatingState {
                 case .new:
-                    vm.categorys.append(TodoCategory(title: title, color: color))
-                case .edit(let index):
-                    vm.categorys[index] = TodoCategory(title: title, color: color)
+                    vm.saveNewCategory(category: Category(id: nil, title: title, color: color))
+                case .edit(let id):
+                    vm.updateCategory(category: Category(id: id, title: title, color: color))
                 }
-                // 이제 뒤로 가게해야함. 근데 리로드를 곁들인
-                newCategorySaved.onNext(())
-                moveFromCreateToSelect.onNext(())
             })
             .disposed(by: bag)
         
         input
             .categorySelectPageBackBtnTapped
-            .subscribe(onNext: {
-                moveFromSelectToAdd.onNext(())
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.moveFromSelectToAdd.onNext(())
             })
             .disposed(by: bag)
         
         input
             .categoryCreatePageBackBtnTapped
-            .subscribe(onNext: {
-                moveFromCreateToSelect.onNext(())
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.moveFromCreateToSelect.onNext(())
             })
             .disposed(by: bag)
         
         input
             .startDayButtonTapped
-            .subscribe(onNext: {
-                removeKeyboard.onNext(())
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.removeKeyboard.onNext(())
             })
             .disposed(by: bag)
         
         input
             .endDayButtonTapped
-            .subscribe(onNext: {
-                removeKeyboard.onNext(())
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.removeKeyboard.onNext(())
             })
             .disposed(by: bag)
         
@@ -266,7 +342,7 @@ final class TodoDetailViewModel {
             categoryChanged: todoCategory.asObservable(),
             todoSaveBtnEnabled: todoSaveBtnEnabled.asObservable(),
             newCategorySaveBtnEnabled: newCategorySaveBtnEnabled.asObservable(),
-            newCategorySaved: newCategorySaved.asObservable(),
+            newCategorySaved: needReloadCategoryList.asObservable(),
             moveFromAddToSelect: moveFromAddToSelect.asObservable(),
             moveFromSelectToCreate: moveFromSelectToCreate.asObservable(),
             moveFromCreateToSelect: moveFromCreateToSelect.asObservable(),
@@ -275,10 +351,113 @@ final class TodoDetailViewModel {
             needDismiss: needDismiss.asObservable()
         )
     }
+    
+    func setForEdit(todo: Todo, category: Category) {
+        guard let id = todo.id else { return }
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = .current
+        dateFormatter.dateFormat = "yyyy.MM.dd"
+        self.todoTitle.onNext(todo.title)
+        self.todoCategory.onNext(category)
+        self.todoStartDay.onNext(todo.startDate)
+        // FIXME: endDate는 설정 안함 아직
+        self.todoTime.onNext(todo.startTime)
+        self.todoMemo.onNext(todo.memo)
+        self.todoCreateState = .edit(todo)
+    }
+    
+    func fetchCategoryList() {
+        guard let token = getTokenUseCase.execute() else { return }
+        readCategoryUseCase
+            .execute(token: token)
+            .subscribe(onSuccess: { [weak self] list in
+                self?.categorys = list
+                self?.needReloadCategoryList.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchGroupList() {
+        guard let token = getTokenUseCase.execute() else { return }
+        
+    }
+    
+    func createTodo(todo: Todo) {
+        guard let token = getTokenUseCase.execute() else { return }
+        
+        createTodoUseCase
+            .execute(token: token, todo: todo)
+            .subscribe(onSuccess: { [weak self] id in
+                var todoWithId = todo
+                todoWithId.id = id
+                self?.needDismiss.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
+    func updateTodo(todoUpdate: TodoUpdateComparator) {
+        guard let token = getTokenUseCase.execute() else { return }
+        
+        updateTodoUseCase
+            .execute(token: token, todoUpdate: todoUpdate)
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.needDismiss.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
+    func deleteTodo(todo: Todo) {
+        guard let token = getTokenUseCase.execute() else { return }
+        
+        deleteTodoUseCase
+            .execute(token: token, todo: todo)
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.needDismiss.onNext(())
+            })
+            .disposed(by: bag)
+    }
 
-    func saveNewCategory() {
-        /*
-         네트워크로 보낼 useCase 만들기
-         */
+    func saveNewCategory(category: Category) {
+        guard let token = getTokenUseCase.execute() else { return }
+        createCategoryUseCase
+            .execute(token: token, category: category)
+            .subscribe(onSuccess: { [weak self] id in
+                var categoryWithId = category
+                categoryWithId.id = id
+
+                self?.categorys.append(categoryWithId)
+                self?.needReloadCategoryList.onNext(())
+                self?.moveFromCreateToSelect.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
+    func updateCategory(category: Category) {
+        guard let token = getTokenUseCase.execute(),
+              let id = category.id else { return }
+        
+        updateCategoryUseCase
+            .execute(token: token, id: id, category: category)
+            .subscribe(onSuccess: { [weak self] id in
+                guard let index = self?.categorys.firstIndex(where: { $0.id == id }) else { return }
+                self?.categorys[index] = category
+                self?.needReloadCategoryList.onNext(())
+                self?.moveFromCreateToSelect.onNext(())
+            }, onFailure: { error in
+                print(error)
+            })
+            .disposed(by: bag)
+    }
+    
+    func deleteCategory(category: Category) {
+        guard let id = category.id,
+              let token = getTokenUseCase.execute() else { return }
+        
+        deleteCategoryUseCase
+            .execute(token: token, id: id)
+            .subscribe(onSuccess: { [weak self] in
+                
+            })
+            .disposed(by: bag)
     }
 }

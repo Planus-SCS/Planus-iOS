@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 protocol SocialAuthRepository {
-    func kakaoSignIn(code: String) -> Single<Data>
-    func googleSignIn(code: String) -> Single<Data>
+    func kakaoSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>>
+    func googleSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>>
     func appleSignIn()
 }

@@ -8,19 +8,50 @@
 import Foundation
 
 struct Todo {
-    var id: String
+    var id: Int?
     var title: String
-    var date: Date
-    var category: TodoCategoryColor
-    var type: TodoType
-    var time: String?
+    var startDate: Date
+    var endDate: Date
+    var memo: String?
+    var groupId: Int?
+    var categoryId: Int
+    var startTime: String?
     
-    init(title: String, date: Date, category: TodoCategoryColor, type: TodoType, time: String? = nil) {
-        self.id = UUID().uuidString
+    init(
+        id: Int?,
+        title: String,
+        startDate: Date,
+        endDate: Date,
+        memo: String?,
+        groupId: Int?,
+        categoryId: Int,
+        startTime: String?
+    ) {
+        self.id = id
         self.title = title
-        self.date = date
-        self.category = category
-        self.type = type
-        self.time = time
+        self.startDate = startDate
+        self.endDate = endDate
+        self.memo = memo
+        self.groupId = groupId
+        self.categoryId = categoryId
+        self.startTime = startTime
+    }
+}
+
+extension Todo {
+    func toDTO() -> TodoRequestDTO {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = .current
+        
+        return TodoRequestDTO(
+            title: title,
+            categoryId: categoryId,
+            groupId: groupId,
+            startDate: dateFormatter.string(from: startDate),
+            endDate: dateFormatter.string(from: endDate),
+            startTime: startTime,
+            description: memo
+        )
     }
 }

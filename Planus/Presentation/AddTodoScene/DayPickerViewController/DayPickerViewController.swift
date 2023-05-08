@@ -9,7 +9,7 @@ import UIKit
 
 class DayPickerViewController: UIViewController {
     
-    var delegate: DayPickerViewControllerDelegate?
+    weak var delegate: DayPickerViewControllerDelegate?
     
     let calendar = Calendar.current
     
@@ -73,14 +73,12 @@ class DayPickerViewController: UIViewController {
         
         dayPickerView?.dayPickerCollectionView.dataSource = self
         dayPickerView?.dayPickerCollectionView.delegate = self
-        
-        configureDate(date: Date())
-        
+                
         dayPickerView?.prevButton.addTarget(self, action: #selector(prevBtnTapped), for: .touchUpInside)
         dayPickerView?.nextButton.addTarget(self, action: #selector(nextBtnTapped), for: .touchUpInside)
     }
     
-    public func configureDate(date: Date) {
+    public func setDate(date: Date) {
         let components = self.calendar.dateComponents(
             [.year, .month],
             from: date
@@ -92,8 +90,23 @@ class DayPickerViewController: UIViewController {
         initCalendar(date: currentMonth)
         updateTitle(date: currentMonth)
         
-        let frameWidth = self.view.frame.width - 20
-        self.reloadAndMove(to: CGPoint(x: frameWidth * CGFloat(self.days.count/2), y: 0))
+        let frameWidth = UIScreen.main.bounds.width - 20
+        self.reloadAndMove(to: CGPoint(x: frameWidth * CGFloat(halfOfInitAmount), y: 0))
+        
+        guard let dateIndex = days[halfOfInitAmount].firstIndex(where: { $0.date == date }) else { return }
+        
+        self.collectionView(dayPickerView?.dayPickerCollectionView ?? UICollectionView(), didSelectItemAt: IndexPath(item: dateIndex, section: halfOfInitAmount))
+
+    }
+    
+    public func selectDate(date: Date) {
+        days.enumerated().forEach { monthIndex, daysPerMonth in
+            daysPerMonth.enumerated().forEach { dayIndex, day in
+                if day.date == date {
+                    self.dayPickerView?.dayPickerCollectionView.selectItem(at: IndexPath(item: dayIndex, section: monthIndex), animated: false, scrollPosition: .top)
+                }
+            }
+        }
     }
     
     private func updateTitle(date: Date) {

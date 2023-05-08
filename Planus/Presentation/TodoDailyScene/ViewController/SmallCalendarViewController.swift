@@ -210,7 +210,6 @@ extension SmallCalendarViewController: UICollectionViewDataSource, UICollectionV
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        print("end")
         DispatchQueue.main.async { [weak self] in
             scrollView.isUserInteractionEnabled = true
         }

@@ -16,6 +16,8 @@ class AddTodoView: UIView {
         return titleField
     }()
     
+    var isMemoFilled: Bool = false
+    
     lazy var memoTextView: UITextView = {
         let textView = UITextView(frame: .zero)
         textView.isScrollEnabled = false
@@ -57,11 +59,18 @@ class AddTodoView: UIView {
         return stack
     }()
     
-    
-    
     var headerBarView: UIView = {
         let view = UIView(frame: .zero)
         return view
+    }()
+    
+    var removeButton: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.setTitle("삭제", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 16)
+        button.setTitleColor(UIColor(hex: 0xEB6955), for: .normal)
+        button.sizeToFit()
+        return button
     }()
     
     var saveButton: UIButton = {
@@ -119,6 +128,25 @@ class AddTodoView: UIView {
         return stackView
     }()
     
+    lazy var dateTimeStackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .equalSpacing
+        stackView.addArrangedSubview(dateStackView)
+        stackView.addArrangedSubview(timeField)
+        return stackView
+    }()
+    
+    let timeField: UITextField = {
+        let textField = UITextField(frame: .zero)
+        textField.placeholder = "00:00"
+        textField.font = UIFont(name: "Pretendard-Light", size: 16)
+        textField.textColor = .black
+        textField.sizeToFit()
+        return textField
+    }()
+    
     lazy var groupSelectionField: UITextField = {
         let field = UITextField(frame: .zero)
         field.text = "그룹 선택"
@@ -165,12 +193,13 @@ class AddTodoView: UIView {
         self.addSubview(headerBarView)
         headerBarView.addSubview(titleLabel)
         headerBarView.addSubview(saveButton)
+        headerBarView.addSubview(removeButton)
 
         [titleField,
          separatorView[0],
          categoryStackView,
          separatorView[1],
-         dateStackView,
+         dateTimeStackView,
          separatorView[2],
          groupSelectionField,
          separatorView[3],
@@ -193,8 +222,8 @@ class AddTodoView: UIView {
             $0.height.equalTo(30)
         }
 
-        dateStackView.snp.makeConstraints {
-            $0.height.equalTo(30)
+        dateTimeStackView.snp.makeConstraints {
+            $0.width.equalToSuperview()
         }
 
         
@@ -221,6 +250,11 @@ class AddTodoView: UIView {
         
         saveButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(20)
+            $0.centerY.equalToSuperview()
+        }
+        
+        removeButton.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(20)
             $0.centerY.equalToSuperview()
         }
         

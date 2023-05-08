@@ -16,28 +16,34 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
         self.apiProvider = apiProvider
     }
     
-    func kakaoSignIn(code: String) -> Single<Data> {
+    func kakaoSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: KakaoAuthURL.kakaoSignInURL,
+            url: URLPool.oauthKakao,
             requestType: .get,
             body: nil,
             query: ["code": code],
-            header: nil
+            header: ["Content-Type": "application/json"]
         )
         
-        return apiProvider.requestData(endPoint: endPoint)
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<TokenResponseDataDTO>.self
+        )
     }
     
-    func googleSignIn(code: String) -> Single<Data> {
+    func googleSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: GoogleAuthURL.googleSignInURL,
+            url: URLPool.oauthGoogle,
             requestType: .get,
             body: nil,
             query: ["code": code],
             header: nil
         )
         
-        return apiProvider.requestData(endPoint: endPoint)
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<TokenResponseDataDTO>.self
+        )
     }
     
     func appleSignIn() {

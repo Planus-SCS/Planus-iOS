@@ -11,6 +11,8 @@ class DailyCalendarCell: UICollectionViewCell {
     
     static let identifier = "daily-calendar-cell"
     
+    weak var delegate: DailyCalendarCellDelegate?
+    
     override var isSelected: Bool {
       didSet {
         if isSelected {
@@ -37,7 +39,7 @@ class DailyCalendarCell: UICollectionViewCell {
     lazy var stackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .vertical
-        stackView.distribution = .equalSpacing
+//        stackView.distribution = .
         stackView.spacing = 2
         stackView.alignment = .fill
         return stackView
@@ -62,7 +64,7 @@ class DailyCalendarCell: UICollectionViewCell {
     
     convenience init(mockFrame frame: CGRect) {
         self.init(frame: frame)
-        
+
         stackView.snp.remakeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
             $0.leading.trailing.equalToSuperview()
@@ -93,11 +95,12 @@ class DailyCalendarCell: UICollectionViewCell {
         stackView.snp.makeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
             $0.leading.trailing.equalToSuperview()
-            $0.bottom.lessThanOrEqualToSuperview().inset(3)
+//            $0.bottom.lessThanOrEqualToSuperview().inset(3)
         }
     }
     
-    func fill(day: String, state: MonthStateOfDay, weekDay: WeekDay, todoList: [Todo]?) {
+    func fill(delegate: DailyCalendarCellDelegate, day: String, state: MonthStateOfDay, weekDay: WeekDay, todoList: [Todo]) {
+        self.delegate = delegate
         numberLabel.text = day
         
         var alpha: Double
@@ -122,9 +125,15 @@ class DailyCalendarCell: UICollectionViewCell {
         fill(todoList: todoList)
     }
     
-    func fill(todoList: [Todo]?) {
-        todoList?.forEach {
-            let todoView = SmallTodoView(text: $0.title, category: $0.category)
+    func fill(todoList: [Todo]) {
+        todoList.forEach {
+            var todoView: SmallTodoView
+            if let color = self.delegate?.dailyCalendarCell(self, colorOfCategoryId: $0.categoryId) {
+                todoView = SmallTodoView(text: $0.title, categoryColor: color)
+            } else {
+                todoView = SmallTodoView(text: $0.title, categoryColor: .none)
+            }
+            
             todoView.snp.makeConstraints {
                 $0.height.equalTo(16)
             }
@@ -132,5 +141,8 @@ class DailyCalendarCell: UICollectionViewCell {
             views.append(todoView)
         }
     }
+}
 
+protocol DailyCalendarCellDelegate: NSObject {
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor?
 }

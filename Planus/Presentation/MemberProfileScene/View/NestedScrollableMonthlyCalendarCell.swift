@@ -84,7 +84,7 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
             return UICollectionViewCell()
         }
         
-        cell.fill(day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!, todoList: dayViewModel.todoList)
+        cell.fill(delegate: self, day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!, todoList: dayViewModel.todoList)
 
         return cell
     }
@@ -96,7 +96,7 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
         
         let frameSize = delegate.frameWidth(self)
         
-        var todoCount = maxTodoViewModel.todoList?.count ?? 0
+        var todoCount = maxTodoViewModel.todoList.count
         
         if let height = delegate.findCachedHeight(self, todoCount: todoCount) {
             return CGSize(width: Double(1)/Double(7) * Double(frameSize.width), height: Double(height))
@@ -132,4 +132,10 @@ protocol NestedScrollableMonthlyCalendarCellDelegate: NSObject {
     func findCachedHeight(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, todoCount: Int) -> Double?
     func cacheHeight(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, count: Int, height: Double)
     func frameWidth(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell) -> CGSize
+}
+
+extension NestedScrollableMonthlyCalendarCell: DailyCalendarCellDelegate {
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor? {
+        return CategoryColor.blue
+    }
 }

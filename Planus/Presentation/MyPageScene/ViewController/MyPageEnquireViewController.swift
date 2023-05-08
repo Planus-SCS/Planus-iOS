@@ -120,8 +120,6 @@ class MyPageEnquireViewController: UIViewController {
 
 extension MyPageEnquireViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
-        print("here")
-        print(textView.text)
         if textView.text.isEmpty {
             textView.text = "문의 사항을 입력 후 저장하세요. 가입 메일을 통해 답변을 보내드립니다."
             textView.textColor = UIColor(hex: 0xBFC7D7)

@@ -30,7 +30,7 @@ class MemberProfileViewModel {
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
-    var showDailyTodoPage = PublishSubject<Date>()
+    var showDailyTodoPage = PublishSubject<DayViewModel>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
     
@@ -49,7 +49,7 @@ class MemberProfileViewModel {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var todoListFetchedInIndexRange: Observable<(Int, Int)?> // a부터 b까지 리로드 해라!
-        var showDailyTodoPage: Observable<Date>
+        var showDailyTodoPage: Observable<DayViewModel>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
     }
@@ -57,15 +57,21 @@ class MemberProfileViewModel {
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let fetchTodoListUseCase: ReadTodoListUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
+    let getTokenUseCase: GetTokenUseCase
+    let refreshTokenUseCase: RefreshTokenUseCase
     
     init(
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
         fetchTodoListUseCase: ReadTodoListUseCase,
-        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
+        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase
     ) {
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.fetchTodoListUseCase = fetchTodoListUseCase
         self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
         bind()
     }
     
@@ -107,7 +113,7 @@ class MemberProfileViewModel {
             .didSelectItem
             .withUnretained(self)
             .subscribe { vm, indexPath in
-                vm.showDailyTodoPage.onNext(vm.mainDayList[indexPath.section][indexPath.item].date)
+                vm.showDailyTodoPage.onNext(vm.mainDayList[indexPath.section][indexPath.item])
             }
             .disposed(by: bag)
         
@@ -214,7 +220,8 @@ class MemberProfileViewModel {
     }
     
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
-        
+        guard let token = getTokenUseCase.execute() else { return }
+
         guard let currentDate = try? self.currentDate.value() else { return }
         let fromMonth = calendar.date(byAdding: DateComponents(month: fromIndex - currentIndex), to: currentDate) ?? Date()
         let toMonth = calendar.date(byAdding: DateComponents(month: toIndex - currentIndex), to: currentDate) ?? Date()
@@ -222,13 +229,16 @@ class MemberProfileViewModel {
         let fromMonthStart = calendar.date(byAdding: DateComponents(day: -7), to: calendar.startOfDay(for: fromMonth)) ?? Date()
         let toMonthStart = calendar.date(byAdding: DateComponents(day: 7), to: calendar.startOfDay(for: toMonth)) ?? Date()
 
-        fetchTodoListUseCase.execute(from: fromMonthStart, to: toMonthStart)
+        fetchTodoListUseCase.execute(token: token, from: fromMonthStart, to: toMonthStart)
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 (fromIndex..<toIndex).forEach { index in
                     self.mainDayList[index] = self.mainDayList[index].map {
+                        guard let todoList = todoDict[$0.date] else {
+                            return $0
+                        }
                         var dayViewModel = $0
-                        dayViewModel.todoList = todoDict[$0.date]
+                        dayViewModel.todoList = todoList
                         return dayViewModel
                     }
                     

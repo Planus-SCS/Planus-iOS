@@ -15,4 +15,5 @@ protocol MonthlyCalendarCellDelegate: NSObject {
     func findCachedHeight(_ monthlyCalendarCell: MonthlyCalendarCell, todoCount: Int) -> Double?
     func cacheHeight(_ monthlyCalendarCell: MonthlyCalendarCell, count: Int, height: Double)
     func frameWidth(_ monthlyCalendarCell: MonthlyCalendarCell) -> CGSize
+    func colorOf(_ monthlyCalendarCell: MonthlyCalendarCell, colorOfCategoryId: Int) -> CategoryColor?
 }

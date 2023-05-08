@@ -238,24 +238,24 @@ class TodoMainViewModel {
     }
     
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
-        
-        guard let currentDate = try? self.currentDate.value() else { return }
-        let fromDay = calendar.date(byAdding: DateComponents(day: fromIndex - currentIndex), to: currentDate) ?? Date()
-        let toDay = calendar.date(byAdding: DateComponents(day: toIndex - currentIndex), to: currentDate) ?? Date()
-        
-        fetchTodoListUseCase.execute(from: fromDay, to: toDay)
-            .subscribe(onSuccess: { [weak self] todoDict in
-                guard let self else { return }
-                (fromIndex..<toIndex).forEach { index in
-                    var detailDayViewModel = self.mainDayList[index]
-                    if let list = todoDict[detailDayViewModel.date] {
-                        detailDayViewModel.scheduledTodoList = list.filter { $0.time != nil }
-                        detailDayViewModel.unSchedultedTodoList = list.filter { $0.time == nil }
-                    }
-                    self.mainDayList[index] = detailDayViewModel
-                }
-                self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
-            })
-            .disposed(by: bag)
+//
+//        guard let currentDate = try? self.currentDate.value() else { return }
+//        let fromDay = calendar.date(byAdding: DateComponents(day: fromIndex - currentIndex), to: currentDate) ?? Date()
+//        let toDay = calendar.date(byAdding: DateComponents(day: toIndex - currentIndex), to: currentDate) ?? Date()
+//
+//        fetchTodoListUseCase.execute(from: fromDay, to: toDay)
+//            .subscribe(onSuccess: { [weak self] todoDict in
+//                guard let self else { return }
+//                (fromIndex..<toIndex).forEach { index in
+//                    var detailDayViewModel = self.mainDayList[index]
+//                    if let list = todoDict[detailDayViewModel.date] {
+//                        detailDayViewModel.scheduledTodoList = list.filter { $0.startTime != nil }
+//                        detailDayViewModel.unSchedultedTodoList = list.filter { $0.startTime == nil }
+//                    }
+//                    self.mainDayList[index] = detailDayViewModel
+//                }
+//                self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
+//            })
+//            .disposed(by: bag)
     }
 }

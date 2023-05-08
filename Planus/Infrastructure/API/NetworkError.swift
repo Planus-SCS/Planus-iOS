@@ -16,3 +16,7 @@ public enum NetworkError: Error, Equatable {
     case httpBodyEncodingError
     case nilDataError
 }
+
+enum TokenError: Error, Equatable {
+    case tokenExpired
+}

@@ -85,14 +85,14 @@ class DayPickerCollectionViewCell: UICollectionViewCell {
         case .start:
             self.highlightView.backgroundColor = UIColor(hex: 0x6495F4)
             self.leftHalfView.backgroundColor = nil
-            self.rightHalfView.backgroundColor = .gray
+            self.rightHalfView.backgroundColor = UIColor(hex: 0xADC5F8)
         case .end:
             self.highlightView.backgroundColor = UIColor(hex: 0x6495F4)
-            self.leftHalfView.backgroundColor = .gray
+            self.leftHalfView.backgroundColor = UIColor(hex: 0xADC5F8)
             self.rightHalfView.backgroundColor = nil
         case .inRange:
-            self.leftHalfView.backgroundColor = .gray
-            self.rightHalfView.backgroundColor = .gray
+            self.leftHalfView.backgroundColor = UIColor(hex: 0xADC5F8)
+            self.rightHalfView.backgroundColor = UIColor(hex: 0xADC5F8)
             self.highlightView.backgroundColor = nil
         case .none:
             self.highlightView.backgroundColor = nil

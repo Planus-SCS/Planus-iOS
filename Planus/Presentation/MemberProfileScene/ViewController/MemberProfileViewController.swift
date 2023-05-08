@@ -117,14 +117,41 @@ class MemberProfileViewController: UIViewController {
         
         output.showDailyTodoPage
             .withUnretained(self)
-            .subscribe(onNext: { vc, date in
-                guard let minDate = vc.viewModel?.mainDayList.first?.first?.date,
-                      let maxDate = vc.viewModel?.mainDayList.last?.last?.date else {
-                    return
-                }
-                let fetchTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: TestTodoRepository())
-                let viewModel = TodoDailyViewModel(fetchTodoListUseCase: fetchTodoListUseCase)
-                viewModel.setDate(currentDate: date, min: minDate, max: maxDate)
+            .subscribe(onNext: { vc, dayViewModel in
+                let api = NetworkManager()
+                let keyChain = KeyChainManager()
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+                let categoryRepo = DefaultCategoryRepository(apiProvider: api)
+
+                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+                let createTodoUseCase = DefaultCreateTodoUseCase.shared
+                let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
+                let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
+                let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
+                let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
+                let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
+                let readCategoryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
+                
+                
+                let viewModel = TodoDailyViewModel(
+                    getTokenUseCase: getTokenUseCase,
+                    refreshTokenUseCase: refreshTokenUseCase,
+                    createTodoUseCase: createTodoUseCase,
+                    updateTodoUseCase: updateTodoUseCase,
+                    deleteTodoUseCase: deleteTodoUseCase,
+                    createCategoryUseCase: createCategoryUseCase,
+                    updateCategoryUseCase: updateCategoryUseCase,
+                    deleteCategoryUseCase: deleteCategoryUseCase,
+                    readCategoryUseCase: readCategoryUseCase
+                )
+                
+                viewModel.setDate(currentDate: dayViewModel.date)
+//                viewModel.setTodoList(
+//                    todoList: dayViewModel.todoList ?? [],
+//                    categoryDict: vc.viewModel?.categoryDict ?? [:],
+//                    groupDict: vc.viewModel?.groupDict ?? [:]
+//                )
 
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)
@@ -312,7 +339,7 @@ extension MemberProfileViewController: NestedScrollableMonthlyCalendarCellDelega
         guard let viewModel else { return nil }
         let item = indexPath.item
         let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-            viewModel.mainDayList[indexPath.section][a].todoList?.count ?? 0 < viewModel.mainDayList[indexPath.section][b].todoList?.count ?? 0
+            viewModel.mainDayList[indexPath.section][a].todoList.count ?? 0 < viewModel.mainDayList[indexPath.section][b].todoList.count ?? 0
         }) ?? Int()
             
         return viewModel.mainDayList[indexPath.section][maxItem]

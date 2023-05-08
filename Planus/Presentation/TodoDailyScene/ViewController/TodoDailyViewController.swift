@@ -58,26 +58,25 @@ class TodoDailyViewController: UIViewController {
         
         bind()
         
-        navigationItem.setRightBarButton(addTodoButton, animated: false)
         collectionView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationItem.titleView = dateTitleButton
+        navigationItem.setRightBarButton(addTodoButton, animated: false)
     }
     
     func bind() {
         guard let viewModel else { return }
         
         let input = TodoDailyViewModel.Input(
-            addTodoBtnTapped: addTodoButton.rx.tap.asObservable(),
             deleteTodoAt: didDeleteTodoAt.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
-        addTodoButton.isHidden = output.isOwner ?? false
+        addTodoButton.isHidden = !(output.isOwner ?? true)
         dateTitleButton.setTitle(output.currentDateText, for: .normal)
         
         output
@@ -94,7 +93,9 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.insertItems(at: [indexPath])
+                vm.collectionView.performBatchUpdates {
+                    vm.collectionView.insertItems(at: [indexPath])
+                }
             })
             .disposed(by: bag)
             
@@ -103,7 +104,18 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.deleteItems(at: [indexPath])
+                vm.collectionView.performBatchUpdates {
+                    vm.collectionView.deleteItems(at: [indexPath])
+                }
+            })
+            .disposed(by: bag)
+        
+        output
+            .needReloadData
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.collectionView.reloadData()
             })
             .disposed(by: bag)
 
@@ -126,10 +138,35 @@ class TodoDailyViewController: UIViewController {
     }
     
     @objc func addTodoTapped(_ sender: UIButton) {
-        let vm = TodoDetailViewModel()
-        vm.completionHandler = { [weak self] todo in
-            self?.viewModel?.addTodo(todo: todo)
-        }
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let todoRepo = TestTodoDetailRepository(apiProvider: api)
+        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
+        
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let createTodoUseCase = DefaultCreateTodoUseCase.shared
+        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
+        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
+        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
+        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
+        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
+        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
+        
+        let vm = TodoDetailViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            createTodoUseCase: createTodoUseCase,
+            updateTodoUseCase: updateTodoUseCase,
+            deleteTodoUseCase: deleteTodoUseCase,
+            createCategoryUseCase: createCategoryUseCase,
+            updateCategoryUseCase: updateCategoryUseCase,
+            deleteCategoryUseCase: deleteCategoryUseCase,
+            readCategoryUseCase: readCateogryUseCase
+        )
+        vm.todoStartDay.onNext(viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)
@@ -181,7 +218,9 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
+            return UICollectionViewCell()
+        }
         
         var todoItem: Todo?
         switch indexPath.section {
@@ -192,8 +231,12 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         default:
             return UICollectionViewCell()
         }
-        guard let todoItem else { return UICollectionViewCell() }
-        cell.fill(title: todoItem.title, time: nil, category: todoItem.category)
+        guard let todoItem,
+              let category = viewModel?.categoryDict[todoItem.categoryId] else {
+            return UICollectionViewCell()
+        }
+        
+        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
         return cell
     }
     
@@ -217,6 +260,56 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         headerview.fill(title: title)
      
         return headerview
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        var item: Todo?
+        switch indexPath.section {
+        case 0:
+            item = viewModel?.scheduledTodoList?[indexPath.item]
+        case 1:
+            item = viewModel?.unscheduledTodoList?[indexPath.item]
+        default:
+            return false
+        }
+        guard let item else { return false }
+        
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let todoRepo = TestTodoDetailRepository(apiProvider: api)
+        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
+        
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let createTodoUseCase = DefaultCreateTodoUseCase.shared
+        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
+        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
+        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
+        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
+        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
+        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
+        
+        let vm = TodoDetailViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            createTodoUseCase: createTodoUseCase,
+            updateTodoUseCase: updateTodoUseCase,
+            deleteTodoUseCase: deleteTodoUseCase,
+            createCategoryUseCase: createCategoryUseCase,
+            updateCategoryUseCase: updateCategoryUseCase,
+            deleteCategoryUseCase: deleteCategoryUseCase,
+            readCategoryUseCase: readCateogryUseCase
+        )
+        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+        vm.setForEdit(todo: item, category: category)
+        vm.todoStartDay.onNext(viewModel?.currentDate)
+        let vc = TodoDetailViewController(viewModel: vm)
+        vc.modalPresentationStyle = .overFullScreen
+        self.present(vc, animated: false, completion: nil)
+        
+        return false
     }
 }
 
