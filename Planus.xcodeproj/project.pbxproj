@@ -356,6 +356,9 @@
 		6AC079222A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079212A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift */; };
 		6AC079242A08EC4A007ACDB8 /* UpdateProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079232A08EC4A007ACDB8 /* UpdateProfileUseCase.swift */; };
 		6AC079262A092C4E007ACDB8 /* ProfileButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079252A092C4E007ACDB8 /* ProfileButton.swift */; };
+		6AC0792A2A093AD2007ACDB8 /* cloud@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079272A093AD2007ACDB8 /* cloud@2x.png */; };
+		6AC0792B2A093AD2007ACDB8 /* cloud@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079282A093AD2007ACDB8 /* cloud@3x.png */; };
+		6AC0792C2A093AD2007ACDB8 /* cloud.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079292A093AD2007ACDB8 /* cloud.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -711,6 +714,9 @@
 		6AC079212A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultUpdateProfileUseCase.swift; sourceTree = "<group>"; };
 		6AC079232A08EC4A007ACDB8 /* UpdateProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileUseCase.swift; sourceTree = "<group>"; };
 		6AC079252A092C4E007ACDB8 /* ProfileButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileButton.swift; sourceTree = "<group>"; };
+		6AC079272A093AD2007ACDB8 /* cloud@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cloud@2x.png"; sourceTree = "<group>"; };
+		6AC079282A093AD2007ACDB8 /* cloud@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cloud@3x.png"; sourceTree = "<group>"; };
+		6AC079292A093AD2007ACDB8 /* cloud.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cloud.png; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -866,6 +872,9 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6AC079292A093AD2007ACDB8 /* cloud.png */,
+				6AC079272A093AD2007ACDB8 /* cloud@2x.png */,
+				6AC079282A093AD2007ACDB8 /* cloud@3x.png */,
 				6A9AAAF129F8151A002A6DAF /* todoCheck.png */,
 				6A9AAAF229F8151A002A6DAF /* todoCheck@2x.png */,
 				6A9AAAF329F8151A002A6DAF /* todoCheck@3x.png */,
@@ -2059,6 +2068,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6AC0792A2A093AD2007ACDB8 /* cloud@2x.png in Resources */,
 				6A1B3F0E29D7192A00BFB3A6 /* onlineIcon@3x.png in Resources */,
 				6A08AD8C29C892E0005947D2 /* search-sm.png in Resources */,
 				6A987A6C29DEE44D00C27D09 /* DefaultProfileMedium2@2x.png in Resources */,
@@ -2121,6 +2131,7 @@
 				6A9AAAD129F809EF002A6DAF /* todoCalendar@3x.png in Resources */,
 				6A9AAACA29F809CC002A6DAF /* todoGroup@2x.png in Resources */,
 				6A95DFBD29D4E2E6009017D8 /* searchBarIcon.png in Resources */,
+				6AC0792C2A093AD2007ACDB8 /* cloud.png in Resources */,
 				6A0BF76529D35D2C006F2604 /* edit_swipe@2x.png in Resources */,
 				6A95E00429D5B756009017D8 /* GroupAddBtn@3x.png in Resources */,
 				6A1B3F1029D7192A00BFB3A6 /* onlineIcon.png in Resources */,
@@ -2147,6 +2158,7 @@
 				6A95E00029D5B5A9009017D8 /* PlanusGroup@3x.png in Resources */,
 				6A1B3F0829D7192100BFB3A6 /* messageIcon.png in Resources */,
 				6A1B3F0929D7192100BFB3A6 /* messageIcon@2x.png in Resources */,
+				6AC0792B2A093AD2007ACDB8 /* cloud@3x.png in Resources */,
 				6A08AD5D29C87C63005947D2 /* LaunchScreen.storyboard in Resources */,
 				6A9AAAD229F809EF002A6DAF /* todoCalendar.png in Resources */,
 				6A95DFCB29D4EC8D009017D8 /* captinSmall@3x.png in Resources */,
