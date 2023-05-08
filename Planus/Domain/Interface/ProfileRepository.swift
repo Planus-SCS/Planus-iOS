@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol ProfileRepository {
-    func readProfile(token: Token) -> Single<ResponseDTO<ProfileResponseDataDTO>>
+    func readProfile(token: String) -> Single<ResponseDTO<ProfileResponseDataDTO>>
 }

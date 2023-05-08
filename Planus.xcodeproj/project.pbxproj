@@ -343,7 +343,10 @@
 		6AC079042A07DC45007ACDB8 /* Array+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079032A07DC45007ACDB8 /* Array+Ext.swift */; };
 		6AC079062A08C28B007ACDB8 /* DefaultProfileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079052A08C28B007ACDB8 /* DefaultProfileRepository.swift */; };
 		6AC079082A08C74A007ACDB8 /* ProfileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079072A08C74A007ACDB8 /* ProfileRepository.swift */; };
-		6AC0790A2A08C799007ACDB8 /* ProfileResponseDataDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079092A08C799007ACDB8 /* ProfileResponseDataDTO.swift */; };
+		6AC0790A2A08C799007ACDB8 /* ProfileDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079092A08C799007ACDB8 /* ProfileDTO.swift */; };
+		6AC0790D2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0790C2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift */; };
+		6AC0790F2A08C9C9007ACDB8 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0790E2A08C9C9007ACDB8 /* Profile.swift */; };
+		6AC079122A08CCF9007ACDB8 /* ReadProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079112A08CCF9007ACDB8 /* ReadProfileUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -686,7 +689,10 @@
 		6AC079032A07DC45007ACDB8 /* Array+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ext.swift"; sourceTree = "<group>"; };
 		6AC079052A08C28B007ACDB8 /* DefaultProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultProfileRepository.swift; sourceTree = "<group>"; };
 		6AC079072A08C74A007ACDB8 /* ProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileRepository.swift; sourceTree = "<group>"; };
-		6AC079092A08C799007ACDB8 /* ProfileResponseDataDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileResponseDataDTO.swift; sourceTree = "<group>"; };
+		6AC079092A08C799007ACDB8 /* ProfileDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDTO.swift; sourceTree = "<group>"; };
+		6AC0790C2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultReadProfileUseCase.swift; sourceTree = "<group>"; };
+		6AC0790E2A08C9C9007ACDB8 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		6AC079112A08CCF9007ACDB8 /* ReadProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadProfileUseCase.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1123,6 +1129,7 @@
 		6A08ADDA29C8D5A9005947D2 /* UseCase */ = {
 			isa = PBXGroup;
 			children = (
+				6AC0790B2A08C97F007ACDB8 /* Profile */,
 				6A9AAB2A29FA5CBC002A6DAF /* SignIn */,
 				6A9AAB2B29FA5CC6002A6DAF /* Calendar */,
 				6A9AAB2C29FA5CE1002A6DAF /* Todo */,
@@ -1147,6 +1154,7 @@
 		6A08ADDE29C8D6B6005947D2 /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				6AC079102A08CCE2007ACDB8 /* Profile */,
 				6A9AAB2F29FA5D19002A6DAF /* SignIn */,
 				6A9AAB3029FA5D22002A6DAF /* Calendar */,
 				6A9AAB3129FA5D29002A6DAF /* Todo */,
@@ -1412,7 +1420,7 @@
 				6A9AAB1329F90A1F002A6DAF /* Token.swift */,
 				6AC078DD2A0287FF007ACDB8 /* TodoViewModel.swift */,
 				6AC079012A07D464007ACDB8 /* TodoUpdateComparator.swift */,
-				6AC079092A08C799007ACDB8 /* ProfileResponseDataDTO.swift */,
+				6AC0790E2A08C9C9007ACDB8 /* Profile.swift */,
 			);
 			path = Entity;
 			sourceTree = "<group>";
@@ -1789,6 +1797,7 @@
 				6A9AAB0A29F901CF002A6DAF /* TodoDTO.swift */,
 				6A9AAB3E29FA5F87002A6DAF /* BaseResponseDTO.swift */,
 				6A9AAB4029FA98A3002A6DAF /* TokenDTO.swift */,
+				6AC079092A08C799007ACDB8 /* ProfileDTO.swift */,
 			);
 			path = DataMapping;
 			sourceTree = "<group>";
@@ -1920,6 +1929,22 @@
 				6AC078E72A0387FD007ACDB8 /* TowWayBinding.swift */,
 			);
 			path = RxSwift;
+			sourceTree = "<group>";
+		};
+		6AC0790B2A08C97F007ACDB8 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				6AC0790C2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		6AC079102A08CCE2007ACDB8 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				6AC079112A08CCF9007ACDB8 /* ReadProfileUseCase.swift */,
+			);
+			path = Profile;
 			sourceTree = "<group>";
 		};
 		974AE7300BB25B96DF1DF093 /* Pods */ = {
@@ -2200,6 +2225,7 @@
 				6A24F85629CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift in Sources */,
 				6A987A1F29DC268E00C27D09 /* GroupListViewModel.swift in Sources */,
 				6A987A2D29DCFDEF00C27D09 /* NestedScrollableViewController.swift in Sources */,
+				6AC0790F2A08C9C9007ACDB8 /* Profile.swift in Sources */,
 				6A9AAB0429F8FE48002A6DAF /* CategoryRepository.swift in Sources */,
 				6A9AAB2729FA595B002A6DAF /* DefaultReadCategoryListUseCase.swift in Sources */,
 				6A9AAB2129FA5775002A6DAF /* GetTokenRepository.swift in Sources */,
@@ -2219,7 +2245,7 @@
 				6A987A2929DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift in Sources */,
 				6A24F84629CB4AED0000FD64 /* MonthStateOfDay.swift in Sources */,
 				6AC078E22A0373F3007ACDB8 /* BaseURL.swift in Sources */,
-				6AC0790A2A08C799007ACDB8 /* ProfileResponseDataDTO.swift in Sources */,
+				6AC0790A2A08C799007ACDB8 /* ProfileDTO.swift in Sources */,
 				6A2BB1BD29E431740053C5CA /* MyPageEnquireViewController.swift in Sources */,
 				6A95DFE229D53BA1009017D8 /* GroupIntroduceDefaultHeaderView.swift in Sources */,
 				6A987A8F29DF119300C27D09 /* SmallCalendarView.swift in Sources */,
@@ -2348,6 +2374,7 @@
 				6A9AAB3F29FA5F87002A6DAF /* BaseResponseDTO.swift in Sources */,
 				6A24F86429CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift in Sources */,
 				6A24F91929D22D080000FD64 /* TodoDailyCollectionView.swift in Sources */,
+				6AC079122A08CCF9007ACDB8 /* ReadProfileUseCase.swift in Sources */,
 				6A24F83C29CB49F10000FD64 /* WeekDay.swift in Sources */,
 				6A9A07FB29D40BA90051AD43 /* DayPickerViewController+DataSource.swift in Sources */,
 				6A9AAB0D29F906A3002A6DAF /* DefaultCreateCategoryUseCase.swift in Sources */,
@@ -2357,6 +2384,7 @@
 				6A9AAB4529FAC1AD002A6DAF /* SetTokenUseCase.swift in Sources */,
 				6A95DFD529D50913009017D8 /* SearchGroupResultViewModel.swift in Sources */,
 				6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */,
+				6AC0790D2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift in Sources */,
 				6A987A7429DEED1600C27D09 /* TodoDailyViewController.swift in Sources */,
 				6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */,
 				6A1B3F1829D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift in Sources */,

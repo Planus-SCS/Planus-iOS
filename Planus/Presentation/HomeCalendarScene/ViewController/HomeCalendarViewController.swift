@@ -246,7 +246,14 @@ class HomeCalendarViewController: UIViewController {
     
 
     @objc func profileButtonTapped() {
-        let vm = MyPageMainViewModel()
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let profileRepo = DefaultProfileRepository(apiProvider: api)
+        let readProfileUseCase = DefaultReadProfileUseCase(profileRepository: profileRepo)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let vm = MyPageMainViewModel(readProfileUseCase: readProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase)
         let vc = MyPageMainViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(vc, animated: true)

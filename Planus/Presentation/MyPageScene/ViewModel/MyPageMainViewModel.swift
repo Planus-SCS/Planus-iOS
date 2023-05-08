@@ -12,8 +12,8 @@ class MyPageMainViewModel {
     var bag = DisposeBag()
     
     var imageURL: String?
-    var name: String? = "오수"
-    var introduce: String? = "오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!!"
+    var name: String?
+    var introduce: String?
     lazy var isPushOn: BehaviorSubject<Bool> = {
         // 원래는 유즈케이스에서 바로 가져오자
         return BehaviorSubject<Bool>(value: false)
@@ -32,6 +32,7 @@ class MyPageMainViewModel {
     ]
     
     struct Input {
+        var viewDidLoad: Observable<Void>
         var didSelectedAt: Observable<Int>
     }
     
@@ -39,15 +40,31 @@ class MyPageMainViewModel {
         var didFetchUserProfile: Observable<Void?>
     }
     
-    init() {
-        /*
-         멤버 프로필만 가져오는 유즈케이스,
-         푸시에 대한 정보 가져올 유즈케이스 필요함
-         */
-
+    var readProfileUseCase: ReadProfileUseCase
+    var getTokenUseCase: GetTokenUseCase
+    var refreshTokenUseCase: RefreshTokenUseCase
+    
+    
+    init(
+        readProfileUseCase: ReadProfileUseCase,
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase
+    ) {
+        self.readProfileUseCase = readProfileUseCase
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
     }
     
     func transform(input: Input) -> Output {
+        
+        input
+            .viewDidLoad
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchUserProfile()
+            })
+            .disposed(by: bag)
+        
         input
             .didSelectedAt
             .subscribe(onNext: { index in
@@ -59,6 +76,20 @@ class MyPageMainViewModel {
     }
     
     func fetchUserProfile() {
+        guard let token = getTokenUseCase.execute() else { return }
+        
+        readProfileUseCase
+            .execute(token: token)
+            .subscribe(onSuccess: { [weak self] profile in
+                self?.name = profile.nickName
+                self?.introduce = profile.description
+                self?.imageURL = profile.imageUrl
+                self?.didFetchUserProfile.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchImage(key: String) {
         
     }
 

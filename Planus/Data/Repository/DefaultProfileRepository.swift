@@ -15,7 +15,7 @@ class DefaultProfileRepository: ProfileRepository {
         self.apiProvider = apiProvider
     }
     
-    func readProfile(token: Token) -> Single<ResponseDTO<ProfileResponseDataDTO>> {
+    func readProfile(token: String) -> Single<ResponseDTO<ProfileResponseDataDTO>> {
         let endPoint = APIEndPoint(
             url: URLPool.members,
             requestType: .get,

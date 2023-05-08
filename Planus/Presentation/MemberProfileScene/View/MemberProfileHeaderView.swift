@@ -68,6 +68,16 @@ class MemberProfileHeaderView: UIView {
         return view
     }()
     
+    convenience init(mockFrame: CGRect) {
+        self.init(frame: mockFrame)
+        
+        introduceLabel.snp.remakeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(48)
+            $0.top.equalTo(nameLabel.snp.bottom).offset(16)
+            $0.bottom.equalTo(separateView.snp.top).inset(-22)
+        }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
