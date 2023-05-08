@@ -18,6 +18,7 @@ class CacheWrapper<T>: NSObject {
 
 class DefaultImageRepository: ImageRepository {
     // 필요한거: 메모리 캐싱, 로컬 캐싱, api
+    static let shared = DefaultImageRepository(apiProvider: NetworkManager())
     
     let memoryCache = NSCache<NSString, CacheWrapper<Data>>()
     let apiProvider: APIProvider
@@ -29,7 +30,7 @@ class DefaultImageRepository: ImageRepository {
     func fetch(key: String) -> Single<Data> {
         if let wrappedCache = memoryCache.object(forKey: NSString(string: key)) {
             let data = wrappedCache.value
-            print("캐시된거!!")
+            print("캐시된거씀")
             return Single.just(data)
         }
         
@@ -40,7 +41,6 @@ class DefaultImageRepository: ImageRepository {
             query: nil,
             header: nil
         )
-        print("받아옴!")
         return apiProvider
             .requestData(endPoint: endPoint)
             .map { [weak self] data in

@@ -8,7 +8,7 @@
 import Foundation
 
 struct Profile {
-    var id: Int
+    var id: Int?
     var nickName: String
     var description: String?
     var imageUrl: String?

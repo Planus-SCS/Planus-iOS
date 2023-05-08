@@ -41,17 +41,20 @@ class MyPageMainViewModel {
     }
     
     var readProfileUseCase: ReadProfileUseCase
+    var updateProfileUseCase: UpdateProfileUseCase
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
     var fetchImageUseCase: FetchImageUseCase
     
     init(
         readProfileUseCase: ReadProfileUseCase,
+        updateProfileUseCase: UpdateProfileUseCase,
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         fetchImageUseCase: FetchImageUseCase
     ) {
         self.readProfileUseCase = readProfileUseCase
+        self.updateProfileUseCase = DefaultUpdateProfileUseCase.shared
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.fetchImageUseCase = fetchImageUseCase
@@ -63,6 +66,7 @@ class MyPageMainViewModel {
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
+                vm.bindUseCase()
                 vm.fetchUserProfile()
             })
             .disposed(by: bag)
@@ -75,6 +79,19 @@ class MyPageMainViewModel {
             .disposed(by: bag)
         
         return Output(didFetchUserProfile: didFetchUserProfile.asObservable())
+    }
+    
+    func bindUseCase() {
+        updateProfileUseCase
+            .didUpdateProfile
+            .withUnretained(self)
+            .subscribe(onNext: { vm, profile in
+                vm.name = profile.nickName
+                vm.introduce = profile.description
+                vm.imageURL = profile.imageUrl
+                vm.didFetchUserProfile.onNext(())
+            })
+            .disposed(by: bag)
     }
     
     func fetchUserProfile() {

@@ -46,11 +46,15 @@ class HomeCalendarViewController: UIViewController {
         return item
     }()
     
-    lazy var profileButton: UIBarButtonItem = {
-        let image = UIImage(named: "userDefaultIconSmall")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(profileButtonTapped))
-        
-        item.tintColor = UIColor(hex: 0x000000)
+//    var profileButton
+    lazy var profileButton: ProfileButton = {
+        let button = ProfileButton(frame: .zero)
+        button.addTarget(self, action: #selector(profileButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    lazy var profileBarButton: UIBarButtonItem = {
+        let item = UIBarButtonItem(customView: profileButton)
         return item
     }()
     
@@ -242,6 +246,14 @@ class HomeCalendarViewController: UIViewController {
                 })
             })
             .disposed(by: bag)
+        
+        output.profileImageFetched
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, data in
+                
+            })
+            .disposed(by: bag)
     }
     
 
@@ -252,10 +264,11 @@ class HomeCalendarViewController: UIViewController {
         let profileRepo = DefaultProfileRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let readProfileUseCase = DefaultReadProfileUseCase(profileRepository: profileRepo)
+        let updateProfileUseCase = DefaultUpdateProfileUseCase(profileRepository: profileRepo)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        let vm = MyPageMainViewModel(readProfileUseCase: readProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, fetchImageUseCase: fetchImageUseCase)
+        let vm = MyPageMainViewModel(readProfileUseCase: readProfileUseCase, updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, fetchImageUseCase: fetchImageUseCase)
         let vc = MyPageMainViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(vc, animated: true)
@@ -333,7 +346,7 @@ extension HomeCalendarViewController {
 
     func configureView() {
         self.navigationItem.setLeftBarButton(groupListButton, animated: false)
-        self.navigationItem.setRightBarButton(profileButton, animated: false)
+        self.navigationItem.setRightBarButton(profileBarButton, animated: false)
 
         self.view.addSubview(weekStackView)
         weekStackView.distribution = .fillEqually

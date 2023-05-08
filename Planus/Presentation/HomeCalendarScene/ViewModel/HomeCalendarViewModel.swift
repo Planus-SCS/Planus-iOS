@@ -54,6 +54,8 @@ class HomeCalendarViewModel {
     var needReloadSectionSet = PublishSubject<IndexSet>() //리로드 섹션을 해야함 왜?
     var needReloadData = PublishSubject<Void>()
     
+    var fetchedProfileImage = PublishSubject<Data?>()
+    
     var initialReadCategory = BehaviorSubject<Void?>(value: nil)
     var initialReadGroup = BehaviorSubject<Void?>(value: nil)
     
@@ -80,6 +82,7 @@ class HomeCalendarViewModel {
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var needReloadSectionSet: Observable<IndexSet>
         var needReloadData: Observable<Void>
+        var profileImageFetched: Observable<Data?>
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -98,6 +101,10 @@ class HomeCalendarViewModel {
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     
+    let readProfileUseCase: ReadProfileUseCase
+    let updateProfileUseCase: UpdateProfileUseCase
+    let fetchImageUseCase: FetchImageUseCase
+    
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
@@ -110,7 +117,10 @@ class HomeCalendarViewModel {
         updateCategoryUseCase: UpdateCategoryUseCase,
         deleteCategoryUseCase: DeleteCategoryUseCase,
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
+        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
+        readProfileUseCase: ReadProfileUseCase,
+        updateProfileUseCase: UpdateProfileUseCase,
+        fetchImageUseCase: FetchImageUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -123,7 +133,10 @@ class HomeCalendarViewModel {
         self.updateCategoryUseCase = updateCategoryUseCase
         self.deleteCategoryUseCase = deleteCategoryUseCase
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
-        self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase        
+        self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
+        self.readProfileUseCase = readProfileUseCase
+        self.updateProfileUseCase = updateProfileUseCase
+        self.fetchImageUseCase = fetchImageUseCase
     }
     
     func bind() {
@@ -141,9 +154,11 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, date in
                 vm.fetchCategoryAndGroup()
+                vm.fetchProfile()
                 vm.bindCategoryUseCase()
                 vm.bindTodoUseCase(initialDate: date)
                 vm.initCalendar(date: date)
+                vm.bindProfileUseCase()
                 Observable.combineLatest(
                     vm.initialReadGroup.compactMap { $0 },
                     vm.initialReadCategory.compactMap { $0 }
@@ -233,7 +248,8 @@ class HomeCalendarViewModel {
             showMonthPicker: showMonthPicker.asObservable(),
             monthChangedByPicker: didSelectMonth.asObservable(),
             needReloadSectionSet: needReloadSectionSet.asObservable(),
-            needReloadData: needReloadData.asObservable()
+            needReloadData: needReloadData.asObservable(),
+            profileImageFetched: fetchedProfileImage.asObservable()
         )
     }
     
@@ -252,6 +268,23 @@ class HomeCalendarViewModel {
         
         initialDayListFetchedInCenterIndex.onNext(currentIndex)
         // 여기서 바인딩 할것인가?
+    }
+    
+    func bindProfileUseCase() {
+        updateProfileUseCase.didUpdateProfile.subscribe(onNext: { [weak self] profile in
+            guard let self else { return }
+            
+            guard let imageUrl = profile.imageUrl else {
+                self.fetchedProfileImage.onNext(nil)
+                return
+            }
+            self.fetchImageUseCase.execute(key: imageUrl)
+                .subscribe(onSuccess: { data in
+                    self.fetchedProfileImage.onNext(data)
+                })
+                .disposed(by: self.bag)
+        })
+        .disposed(by: bag)
     }
     
     func bindCategoryUseCase() {
@@ -416,6 +449,26 @@ class HomeCalendarViewModel {
             })
             .disposed(by: bag)
         //토큰따라 리트라이 로직 필요
+    }
+    
+    func fetchProfile() {
+        guard let token = getTokenUseCase.execute() else { return }
+        
+        readProfileUseCase
+            .execute(token: token)
+            .subscribe(onSuccess: { [weak self] profile in
+                guard let self else { return }
+                guard let imageUrl = profile.imageUrl else {
+                    self.fetchedProfileImage.onNext(nil)
+                    return
+                }
+                self.fetchImageUseCase.execute(key: imageUrl)
+                    .subscribe(onSuccess: { data in
+                        self.fetchedProfileImage.onNext(data)
+                    })
+                    .disposed(by: self.bag)
+            })
+            .disposed(by: bag)
     }
     
     func createTodo(firstDate: Date, todo: Todo) {
