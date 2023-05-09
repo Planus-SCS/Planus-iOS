@@ -27,4 +27,19 @@ class DefaultMyGroupRepository: MyGroupRepository {
         
         return apiProvider.requestMultipartCodable(endPoint: endPoint, type: ResponseDTO<GroupCreateResponseDTO>.self)
     }
+    
+    func fetchJoinApplyList(token: String) -> Single<ResponseDTO<[GroupJoinApplyResponseDTO]>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.groupJoin,
+            requestType: .get,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<[GroupJoinApplyResponseDTO]>.self
+        )
+    }
 }

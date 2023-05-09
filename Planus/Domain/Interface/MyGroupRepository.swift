@@ -10,4 +10,5 @@ import RxSwift
 
 protocol MyGroupRepository {
     func create(token: String, groupCreateRequestDTO: GroupCreateRequestDTO, image: ImageFile) -> Single<ResponseDTO<GroupCreateResponseDTO>>
+    func fetchJoinApplyList(token: String) -> Single<ResponseDTO<[GroupJoinApplyResponseDTO]>>
 }
