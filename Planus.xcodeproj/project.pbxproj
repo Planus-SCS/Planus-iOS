@@ -360,6 +360,7 @@
 		6AC0792B2A093AD2007ACDB8 /* cloud@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079282A093AD2007ACDB8 /* cloud@3x.png */; };
 		6AC0792C2A093AD2007ACDB8 /* cloud.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079292A093AD2007ACDB8 /* cloud.png */; };
 		6AC079302A0A1272007ACDB8 /* GroupCreateInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0792F2A0A1272007ACDB8 /* GroupCreateInfoView.swift */; };
+		6AC079342A0A13D6007ACDB8 /* GroupCreateTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079332A0A13D6007ACDB8 /* GroupCreateTagView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -719,6 +720,7 @@
 		6AC079282A093AD2007ACDB8 /* cloud@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cloud@3x.png"; sourceTree = "<group>"; };
 		6AC079292A093AD2007ACDB8 /* cloud.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cloud.png; sourceTree = "<group>"; };
 		6AC0792F2A0A1272007ACDB8 /* GroupCreateInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreateInfoView.swift; sourceTree = "<group>"; };
+		6AC079332A0A13D6007ACDB8 /* GroupCreateTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreateTagView.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1522,6 +1524,7 @@
 			isa = PBXGroup;
 			children = (
 				6AC0792F2A0A1272007ACDB8 /* GroupCreateInfoView.swift */,
+				6AC079332A0A13D6007ACDB8 /* GroupCreateTagView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2290,6 +2293,7 @@
 				6A9AAB2129FA5775002A6DAF /* GetTokenRepository.swift in Sources */,
 				6A9AAAC629F808FB002A6DAF /* TodoCheckButton.swift in Sources */,
 				6A2BB1CB29E55EBE0053C5CA /* UpdateTodoUseCase.swift in Sources */,
+				6AC079342A0A13D6007ACDB8 /* GroupCreateTagView.swift in Sources */,
 				6A987A4829DDB97A00C27D09 /* MyGroupNoticeEditCoordinator.swift in Sources */,
 				6A95DFD929D51C23009017D8 /* GroupIntroduceViewController.swift in Sources */,
 				6A24F90829D210450000FD64 /* TodoMainViewModel.swift in Sources */,
