@@ -359,6 +359,7 @@
 		6AC0792A2A093AD2007ACDB8 /* cloud@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079272A093AD2007ACDB8 /* cloud@2x.png */; };
 		6AC0792B2A093AD2007ACDB8 /* cloud@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079282A093AD2007ACDB8 /* cloud@3x.png */; };
 		6AC0792C2A093AD2007ACDB8 /* cloud.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079292A093AD2007ACDB8 /* cloud.png */; };
+		6AC079302A0A1272007ACDB8 /* GroupCreateInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0792F2A0A1272007ACDB8 /* GroupCreateInfoView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -717,6 +718,7 @@
 		6AC079272A093AD2007ACDB8 /* cloud@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cloud@2x.png"; sourceTree = "<group>"; };
 		6AC079282A093AD2007ACDB8 /* cloud@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cloud@3x.png"; sourceTree = "<group>"; };
 		6AC079292A093AD2007ACDB8 /* cloud.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cloud.png; sourceTree = "<group>"; };
+		6AC0792F2A0A1272007ACDB8 /* GroupCreateInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreateInfoView.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1519,6 +1521,7 @@
 		6A95E00829D5BC6C009017D8 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				6AC0792F2A0A1272007ACDB8 /* GroupCreateInfoView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2464,6 +2467,7 @@
 				6A24F90A29D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift in Sources */,
 				6A2BB1B729E41EC40053C5CA /* MyPageMainTitleViewModel.swift in Sources */,
 				6A9AAB3D29FA5E07002A6DAF /* CreateCategoryUseCase.swift in Sources */,
+				6AC079302A0A1272007ACDB8 /* GroupCreateInfoView.swift in Sources */,
 				6A9A07F329D40B5D0051AD43 /* DayPickerView.swift in Sources */,
 				6A987A1B29DBFF3300C27D09 /* JoinedGroupDetailViewModel.swift in Sources */,
 				6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */,
