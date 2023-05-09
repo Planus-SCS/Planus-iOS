@@ -18,18 +18,7 @@ struct GroupJoinRequest {
 
 class NotificationViewController: UIViewController {
     
-    var source: [GroupJoinRequest] = [
-        GroupJoinRequest(imageURL: "JoinNotificationProfile", group: "가보자네카라쿠베베", name: "이름름", desc: "자기소개자기소개자기소개자기소개"),
-        GroupJoinRequest(imageURL: "JoinNotificationProfile", group: "가보자네카라쿠베베", name: "이름름", desc: "자기소개자기소개자기소개자기소개"),
-        GroupJoinRequest(imageURL: "JoinNotificationProfile", group: "가보자네카라쿠베베", name: "이름름", desc: "자기소개자기소개자기소개자기소개"),
-        GroupJoinRequest(imageURL: "JoinNotificationProfile", group: "가보자네카라쿠베베", name: "이름름", desc: "자기소개자기소개자기소개자기소개"),
-        GroupJoinRequest(imageURL: "JoinNotificationProfile", group: "가보자네카라쿠베베", name: "이름름", desc: "자기소개자기소개자기소개자기소개"),
-        GroupJoinRequest(imageURL: "JoinNotificationProfile", group: "가보자네카라쿠베베", name: "이름름", desc: "자기소개자기소개자기소개자기소개"),
-        GroupJoinRequest(imageURL: "JoinNotificationProfile", group: "가보자네카라쿠베베", name: "이름름", desc: "자기소개자기소개자기소개자기소개"),
-        GroupJoinRequest(imageURL: "JoinNotificationProfile", group: "가보자네카라쿠베베", name: "이름름", desc: "자기소개자기소개자기소개자기소개"),
-        GroupJoinRequest(imageURL: "JoinNotificationProfile", group: "가보자네카라쿠베베", name: "이름름", desc: "자기소개자기소개자기소개자기소개"),
-        GroupJoinRequest(imageURL: "JoinNotificationProfile", group: "가보자네카라쿠베베", name: "이름름", desc: "자기소개자기소개자기소개자기소개")
-    ]
+    var viewModel: NotificationViewModel?
     
     // 필요한거 화면에 뿌려줄 컬렉션 뷰, 근데 검색 결과를 보여줄 땐 한 뎁스를 타고 들어가야 한다!
     var bag = DisposeBag()

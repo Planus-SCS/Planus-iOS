@@ -8,7 +8,6 @@
 import Foundation
 
 struct Token {
-    var memberId: Int
     var accessToken: String
     var refreshToken: String
 }

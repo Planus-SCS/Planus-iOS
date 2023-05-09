@@ -121,6 +121,7 @@ class GroupIntroduceViewModel {
                 self?.notice = groupDetail.notice
                 self?.groupImageUrl = groupDetail.groupImageUrl
                 self?.didGroupInfoFetched.onNext(())
+                self?.isJoinableGroup.onNext(groupDetail.isJoined)
             })
             .disposed(by: bag)
         
@@ -129,13 +130,6 @@ class GroupIntroduceViewModel {
             .subscribe(onSuccess: { [weak self] list in
                 self?.memberList = list
                 self?.didGroupMemberFetched.onNext(())
-                
-                guard let token = self?.getTokenUseCase.execute() else { return }
-                if let _ = list.first(where: { $0.id == token.memberId }) {
-                    self?.isJoinableGroup.onNext(true)
-                } else {
-                    self?.isJoinableGroup.onNext(false)
-                }
             })
             .disposed(by: bag)
     }
