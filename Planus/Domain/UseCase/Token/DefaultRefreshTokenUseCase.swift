@@ -17,9 +17,6 @@ class DefaultRefreshTokenUseCase: RefreshTokenUseCase {
     
     func execute() -> Single<Token>? {
         return tokenRepository
-            .refresh()?
-            .map {
-                return $0.data.toDomain()
-            }
+            .refresh()
     }
 }

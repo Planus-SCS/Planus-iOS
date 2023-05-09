@@ -40,7 +40,7 @@ final class AppCoordinator: Coordinator {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
-        
+        tokenRepo.delete()
         if let observable = refreshTokenUseCase.execute() {
             observable
                 .observe(on: MainScheduler.asyncInstance)

@@ -29,6 +29,7 @@ class GroupIntroduceViewModel {
     
     var didGroupInfoFetched = BehaviorSubject<Void?>(value: nil)
     var didGroupMemberFetched = BehaviorSubject<Void?>(value: nil)
+    var isJoinableGroup = BehaviorSubject<Bool?>(value: nil)
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -39,6 +40,7 @@ class GroupIntroduceViewModel {
     struct Output {
         var didGroupInfoFetched: Observable<Void?>
         var didGroupMemberFetched: Observable<Void?>
+        var isJoinableGroup: Observable<Bool?>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -101,7 +103,8 @@ class GroupIntroduceViewModel {
         
         return Output(
             didGroupInfoFetched: didGroupInfoFetched.asObservable(),
-            didGroupMemberFetched: didGroupMemberFetched.asObservable()
+            didGroupMemberFetched: didGroupMemberFetched.asObservable(),
+            isJoinableGroup: isJoinableGroup.asObservable()
         )
     }
     
@@ -126,6 +129,13 @@ class GroupIntroduceViewModel {
             .subscribe(onSuccess: { [weak self] list in
                 self?.memberList = list
                 self?.didGroupMemberFetched.onNext(())
+                
+                guard let token = self?.getTokenUseCase.execute() else { return }
+                if let _ = list.first(where: { $0.id == token.memberId }) {
+                    self?.isJoinableGroup.onNext(true)
+                } else {
+                    self?.isJoinableGroup.onNext(false)
+                }
             })
             .disposed(by: bag)
     }

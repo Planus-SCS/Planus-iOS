@@ -91,7 +91,7 @@ class GroupIntroduceViewController: UIViewController {
     
     var joinButton: UIButton = {
         let button = UIButton(frame: .zero)
-        button.setTitle("그룹 참여 신청하기", for: .normal)
+        button.setTitle("로딩중", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = UIColor(hex: 0x6495F4)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
@@ -102,6 +102,8 @@ class GroupIntroduceViewController: UIViewController {
         button.layer.shadowOpacity = 1
         button.layer.shadowOffset = CGSize(width: 0, height: 2)
         button.layer.shadowRadius = 4
+        button.isEnabled = false
+        button.alpha = 0.5
         return button
     }()
     
@@ -172,6 +174,22 @@ class GroupIntroduceViewController: UIViewController {
             .subscribe(onNext: { vc, _ in
                 UIView.performWithoutAnimation {
                     vc.collectionView.reloadSections(IndexSet(2...2))
+                }
+            })
+            .disposed(by: bag)
+        
+        output
+            .isJoinableGroup
+            .compactMap { $0 }
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, isJoined in
+                vc.joinButton.isEnabled = !isJoined
+                vc.joinButton.alpha = isJoined ? 0.5 : 1.0
+                if isJoined {
+                    vc.joinButton.setTitle("이미 가입된 그룹입니다", for: .normal)
+                } else {
+                    vc.joinButton.setTitle("그룹가입 신청하기", for: .normal)
                 }
             })
             .disposed(by: bag)

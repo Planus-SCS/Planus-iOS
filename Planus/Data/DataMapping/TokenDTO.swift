@@ -26,6 +26,7 @@ struct TokenRefreshResponseDataDTO: Codable {
 extension TokenResponseDataDTO {
     func toDomain() -> Token {
         return Token(
+            memberId: memberId,
             accessToken: accessToken,
             refreshToken: refreshToken
         )
@@ -35,6 +36,7 @@ extension TokenResponseDataDTO {
 extension TokenRefreshResponseDataDTO {
     func toDomain() -> Token {
         return Token(
+            memberId: 0,
             accessToken: accessToken,
             refreshToken: refreshToken
         )
