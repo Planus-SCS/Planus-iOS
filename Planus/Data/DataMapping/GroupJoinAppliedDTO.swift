@@ -31,3 +31,12 @@ extension GroupJoinAppliedResponseDTO {
         )
     }
 }
+
+struct GroupJoinAcceptResponseDTO: Codable {
+    var groupMemberId: Int
+}
+
+struct GroupJoinRejectResponseDTO: Codable {
+    var groupJoinId: Int
+}
+

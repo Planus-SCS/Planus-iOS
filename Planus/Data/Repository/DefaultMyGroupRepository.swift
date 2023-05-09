@@ -42,4 +42,34 @@ class DefaultMyGroupRepository: MyGroupRepository {
             type: ResponseDTO<[GroupJoinAppliedResponseDTO]>.self
         )
     }
+    
+    func acceptApply(token: String, applyId: Int) -> Single<ResponseDTO<GroupJoinAcceptResponseDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.groupJoin + "/\(applyId)/accept",
+            requestType: .post,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<GroupJoinAcceptResponseDTO>.self
+        )
+    }
+    
+    func denyApply(token: String, applyId: Int) -> Single<ResponseDTO<GroupJoinRejectResponseDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.groupJoin + "/\(applyId)/reject",
+            requestType: .post,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<GroupJoinRejectResponseDTO>.self
+        )
+    }
 }
