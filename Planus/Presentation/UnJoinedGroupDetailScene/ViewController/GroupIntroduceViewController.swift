@@ -133,14 +133,14 @@ class GroupIntroduceViewController: UIViewController {
         configureLayout()
         
         bind()
-        self.navigationItem.setLeftBarButton(backButton, animated: false)
-        self.navigationItem.setRightBarButton(shareButton, animated: false)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-
+        self.navigationItem.setLeftBarButton(backButton, animated: false)
+        self.navigationItem.setRightBarButton(shareButton, animated: false)
     }
     
     func bind() {

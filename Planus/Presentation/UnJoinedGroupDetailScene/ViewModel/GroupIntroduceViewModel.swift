@@ -30,6 +30,7 @@ class GroupIntroduceViewModel {
     var didGroupInfoFetched = BehaviorSubject<Void?>(value: nil)
     var didGroupMemberFetched = BehaviorSubject<Void?>(value: nil)
     var isJoinableGroup = BehaviorSubject<Bool?>(value: nil)
+    var applyCompleted = PublishSubject<Void>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -41,6 +42,7 @@ class GroupIntroduceViewModel {
         var didGroupInfoFetched: Observable<Void?>
         var didGroupMemberFetched: Observable<Void?>
         var isJoinableGroup: Observable<Bool?>
+        var didCompleteApply: Observable<Void>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -49,6 +51,7 @@ class GroupIntroduceViewModel {
     var fetchUnJoinedGroupUseCase: FetchUnJoinedGroupUseCase
     var fetchMemberListUseCase: FetchMemberListUseCase
     var fetchImageUseCase: FetchImageUseCase
+    var applyGroupJoinUseCase: ApplyGroupJoinUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
@@ -56,7 +59,8 @@ class GroupIntroduceViewModel {
         setTokenUseCase: SetTokenUseCase,
         fetchUnjoinedGroupUseCase: FetchUnJoinedGroupUseCase,
         fetchMemberListUseCase: FetchMemberListUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        fetchImageUseCase: FetchImageUseCase,
+        applyGroupJoinUseCase: ApplyGroupJoinUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -64,6 +68,7 @@ class GroupIntroduceViewModel {
         self.fetchUnJoinedGroupUseCase = fetchUnjoinedGroupUseCase
         self.fetchMemberListUseCase = fetchMemberListUseCase
         self.fetchImageUseCase = fetchImageUseCase
+        self.applyGroupJoinUseCase = applyGroupJoinUseCase
     }
     
     func setGroupId(id: Int) {
@@ -89,7 +94,7 @@ class GroupIntroduceViewModel {
             .didTappedJoinBtn
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.requestJoinGroup(id: "abc")
+                vm.requestJoinGroup()
             })
             .disposed(by: bag)
         
@@ -104,7 +109,8 @@ class GroupIntroduceViewModel {
         return Output(
             didGroupInfoFetched: didGroupInfoFetched.asObservable(),
             didGroupMemberFetched: didGroupMemberFetched.asObservable(),
-            isJoinableGroup: isJoinableGroup.asObservable()
+            isJoinableGroup: isJoinableGroup.asObservable(),
+            didCompleteApply: applyCompleted.asObservable()
         )
     }
     
@@ -134,8 +140,16 @@ class GroupIntroduceViewModel {
             .disposed(by: bag)
     }
     
-    func requestJoinGroup(id: String) {
+    func requestJoinGroup() {
+        guard let token = getTokenUseCase.execute(),
+              let groupId = groupId else { return }
         
+        applyGroupJoinUseCase
+            .execute(token: token, groupId: groupId)
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.actions?.popCurrentPage?()
+            })
+            .disposed(by: bag)
     }
     
     func fetchImage(key: String) -> Single<Data> {

@@ -39,13 +39,15 @@ class GroupIntroduceCoordinator: Coordinator {
         let fetchUnjoinedGroupUseCase = DefaultFetchUnJoinedGroupUseCase(groupRepository: groupRepo)
         let fetchMemberListUseCase = DefaultFetchMemberListUseCase(groupRepository: groupRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
+        let applyGroupJoinUseCase = DefaultApplyGroupJoinUseCase(groupRepository: groupRepo)
         let vm = GroupIntroduceViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             setTokenUseCase: setTokenUseCase,
             fetchUnjoinedGroupUseCase: fetchUnjoinedGroupUseCase,
             fetchMemberListUseCase: fetchMemberListUseCase,
-            fetchImageUseCase: fetchImageUseCase
+            fetchImageUseCase: fetchImageUseCase,
+            applyGroupJoinUseCase: applyGroupJoinUseCase
         )
         vm.setActions(actions: GroupIntroduceViewModelActions(
             popCurrentPage: self?.popCurrentPage,
