@@ -6,9 +6,15 @@
 //
 
 import UIKit
+import RxSwift
 
 class GroupCreateViewController: UIViewController {
-        
+
+    var bag = DisposeBag()
+    var viewModel: GroupCreateViewModel?
+    
+    var titleImageChanged = PublishSubject<ImageFile?>()
+    
     var scrollView = UIScrollView(frame: .zero)
     
     var contentStackView: UIStackView = {
@@ -36,6 +42,12 @@ class GroupCreateViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    convenience init(viewModel: GroupCreateViewModel) {
+        self.init(nibName: nil, bundle: nil)
+        
+        self.viewModel = viewModel
+    }
+    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
@@ -49,9 +61,70 @@ class GroupCreateViewController: UIViewController {
         
         configureView()
         configureLayout()
+    
+        bind()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
         self.navigationItem.setLeftBarButton(backButton, animated: false)
         self.navigationItem.title = "그룹 생성"
+    }
+    
+    func bind() {
+        guard let viewModel else { return }
+        
+        let tagObservableList = [
+            tagView.tagField1.rx.text.asObservable(),
+            tagView.tagField2.rx.text.asObservable(),
+            tagView.tagField3.rx.text.asObservable(),
+            tagView.tagField4.rx.text.asObservable(),
+            tagView.tagField5.rx.text.asObservable()
+        ].map { str in
+            return str.map {
+                return (($0?.isEmpty) ?? true) ? nil : $0
+            }
+        }
+        
+        let tagListChanged = Observable.combineLatest(tagObservableList)
+    
+        
+        let input = GroupCreateViewModel.Input(
+            titleChanged: infoView.groupNameField.rx.text.asObservable(),
+            noticeChanged: infoView.groupNoticeTextView.rx.text.asObservable(),
+            titleImageChanged: titleImageChanged.asObservable(),
+            tagListChanged: tagListChanged,
+            maxMemberChanged: limitView.limitField.rx.text.asObservable()
+        )
+        let output = viewModel.transform(input: input)
+        
+        output
+            .tagCountValidState
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, validation in
+                print("count", validation)
+            })
+            .disposed(by: bag)
+        
+        output
+            .tagCharCountValidState
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, validation in
+                print("charCount", validation)
+            })
+            .disposed(by: bag)
+        
+        output
+            .tagSpecialCharValidState
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, validation in
+                print("special", validation)
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {

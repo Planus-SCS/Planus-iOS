@@ -34,8 +34,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //
 //        window.makeKeyAndVisible()
 //
-
-        let mv = GroupCreateViewController(nibName: nil, bundle: nil)
+        let vm = GroupCreateViewModel()
+        let mv = GroupCreateViewController(viewModel: vm)
         window.rootViewController = mv
         window.makeKeyAndVisible()
 //        self.appCoordinator = AppCoordinator(window: window)
