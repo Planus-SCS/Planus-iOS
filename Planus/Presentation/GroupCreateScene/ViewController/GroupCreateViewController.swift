@@ -99,7 +99,8 @@ class GroupCreateViewController: UIViewController {
             noticeChanged: noticeChanged,
             titleImageChanged: titleImageChanged.asObservable(),
             tagListChanged: tagListChanged,
-            maxMemberChanged: limitView.limitField.rx.text.asObservable()
+            maxMemberChanged: limitView.limitField.rx.text.asObservable(),
+            saveBtnTapped: createButtonView.wideButton.rx.tap.asObservable()
         )
         let output = viewModel.transform(input: input)
         
@@ -190,12 +191,20 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, data in
-                print(data)
                 guard let data = data else {
                     vc.infoView.groupImageView.image = UIImage(named: "GroupCreateDefaultImage")
                     return
                 }
                 vc.infoView.groupImageView.image = UIImage(data: data)
+            })
+            .disposed(by: bag)
+        
+        output
+            .groupCreateCompleted
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.navigationController?.popViewController(animated: true)
             })
             .disposed(by: bag)
     }

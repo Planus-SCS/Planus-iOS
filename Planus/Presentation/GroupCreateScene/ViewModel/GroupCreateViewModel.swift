@@ -25,6 +25,7 @@ class GroupCreateViewModel {
         var titleImageChanged: Observable<ImageFile?>
         var tagListChanged: Observable<[String?]>
         var maxMemberChanged: Observable<String?>
+        var saveBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -37,6 +38,24 @@ class GroupCreateViewModel {
         var tagCharCountValidState: Observable<Bool>
         var tagSpecialCharValidState: Observable<Bool>
         var isCreateButtonEnabled: Observable<Bool>
+        var groupCreateCompleted: Observable<Void>
+    }
+    
+    var getTokenUseCase: GetTokenUseCase
+    var refreshTokenUseCase: RefreshTokenUseCase
+    var setTokenUseCase: SetTokenUseCase
+    var groupCreateUseCase: GroupCreateUseCase
+    
+    init(
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase,
+        setTokenUseCase: SetTokenUseCase,
+        groupCreateUseCase: GroupCreateUseCase
+    ) {
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
+        self.setTokenUseCase = setTokenUseCase
+        self.groupCreateUseCase = groupCreateUseCase
     }
     
     func transform(input: Input) -> Output {
@@ -100,6 +119,14 @@ class GroupCreateViewModel {
             .bind(to: maxMember)
             .disposed(by: bag)
         
+        input
+            .saveBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.createGroup()
+            })
+            .disposed(by: bag)
+        
         let titleFilled = title.map{ !(($0?.isEmpty) ?? true) }.asObservable()
         let noticeFilled = notice.map { !(($0?.isEmpty) ?? true) }.asObservable()
         let imageFilled = titleImage.map { $0 != nil }.asObservable()
@@ -135,4 +162,30 @@ class GroupCreateViewModel {
         )
     }
     
+    func createGroup() {
+        guard let token = getTokenUseCase.execute() else { return }
+        
+        guard let name = try? title.value(),
+              let notice = try? notice.value(),
+              let strTagList = try? tagList.value(),
+              let limitCount = try? maxMember.value(),
+              let image = try? titleImage.value() else { return }
+
+        let tagList = strTagList
+            .compactMap { $0 }
+            .map { GroupTag(name: $0)}
+        
+        let groupCreate = GroupCreate(name: name, notice: notice, tagList: tagList, limitCount: limitCount)
+        
+        groupCreateUseCase
+            .execute(
+                token: token,
+                groupCreate: groupCreate,
+                image: image
+            )
+            .subscribe(onSuccess: { _ in
+                print("개별조회 창으로 넘어가야한다..!")
+            })
+            .disposed(by: bag)
+    }
 }
