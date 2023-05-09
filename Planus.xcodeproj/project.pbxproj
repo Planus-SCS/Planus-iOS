@@ -381,6 +381,8 @@
 		6AC079632A0A5746007ACDB8 /* UnJoinedGroupDetailDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079622A0A5746007ACDB8 /* UnJoinedGroupDetailDTO.swift */; };
 		6AC079652A0A57BB007ACDB8 /* GroupTagDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079642A0A57BB007ACDB8 /* GroupTagDTO.swift */; };
 		6AC079672A0A5815007ACDB8 /* UnJoinedGroupDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079662A0A5815007ACDB8 /* UnJoinedGroupDetail.swift */; };
+		6AC0796B2A0A5945007ACDB8 /* DefaultGroupRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0796A2A0A5945007ACDB8 /* DefaultGroupRepository.swift */; };
+		6AC0796D2A0A59FA007ACDB8 /* GroupRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0796C2A0A59FA007ACDB8 /* GroupRepository.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -761,6 +763,8 @@
 		6AC079622A0A5746007ACDB8 /* UnJoinedGroupDetailDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnJoinedGroupDetailDTO.swift; sourceTree = "<group>"; };
 		6AC079642A0A57BB007ACDB8 /* GroupTagDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTagDTO.swift; sourceTree = "<group>"; };
 		6AC079662A0A5815007ACDB8 /* UnJoinedGroupDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnJoinedGroupDetail.swift; sourceTree = "<group>"; };
+		6AC0796A2A0A5945007ACDB8 /* DefaultGroupRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultGroupRepository.swift; sourceTree = "<group>"; };
+		6AC0796C2A0A59FA007ACDB8 /* GroupRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRepository.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1203,6 +1207,7 @@
 				6AC079052A08C28B007ACDB8 /* DefaultProfileRepository.swift */,
 				6AC079162A08D788007ACDB8 /* DefaultImageRepository.swift */,
 				6AC079522A0A4D1C007ACDB8 /* DefaultMyGroupRepository.swift */,
+				6AC0796A2A0A5945007ACDB8 /* DefaultGroupRepository.swift */,
 			);
 			path = Repository;
 			sourceTree = "<group>";
@@ -1210,6 +1215,7 @@
 		6A08ADDA29C8D5A9005947D2 /* UseCase */ = {
 			isa = PBXGroup;
 			children = (
+				6AC079682A0A5928007ACDB8 /* Group */,
 				6AC079582A0A5092007ACDB8 /* MyGroup */,
 				6AC079132A08D75F007ACDB8 /* Image */,
 				6AC0790B2A08C97F007ACDB8 /* Profile */,
@@ -1232,6 +1238,7 @@
 				6AC079072A08C74A007ACDB8 /* ProfileRepository.swift */,
 				6AC079182A08D9DB007ACDB8 /* ImageRepository.swift */,
 				6AC079542A0A5061007ACDB8 /* MyGroupRepository.swift */,
+				6AC0796C2A0A59FA007ACDB8 /* GroupRepository.swift */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -2089,6 +2096,13 @@
 			path = MyGroup;
 			sourceTree = "<group>";
 		};
+		6AC079682A0A5928007ACDB8 /* Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Group;
+			sourceTree = "<group>";
+		};
 		974AE7300BB25B96DF1DF093 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -2377,6 +2391,7 @@
 				6A987A1F29DC268E00C27D09 /* GroupListViewModel.swift in Sources */,
 				6A987A2D29DCFDEF00C27D09 /* NestedScrollableViewController.swift in Sources */,
 				6AC0790F2A08C9C9007ACDB8 /* Profile.swift in Sources */,
+				6AC0796B2A0A5945007ACDB8 /* DefaultGroupRepository.swift in Sources */,
 				6A9AAB0429F8FE48002A6DAF /* CategoryRepository.swift in Sources */,
 				6A9AAB2729FA595B002A6DAF /* DefaultReadCategoryListUseCase.swift in Sources */,
 				6AC079172A08D788007ACDB8 /* DefaultImageRepository.swift in Sources */,
@@ -2440,6 +2455,7 @@
 				6A24F86229CC5C400000FD64 /* TodoRepository.swift in Sources */,
 				6A9AAAF829F8D324002A6DAF /* String+Ext.swift in Sources */,
 				6A95DFDC29D53B7C009017D8 /* GroupIntroduceInfoHeaderView.swift in Sources */,
+				6AC0796D2A0A59FA007ACDB8 /* GroupRepository.swift in Sources */,
 				6AC079512A0A4D08007ACDB8 /* GroupCreateDTO.swift in Sources */,
 				6A987A5C29DECB0300C27D09 /* MemberProfileViewModel.swift in Sources */,
 				6A987A2B29DCFC7700C27D09 /* JoinedGroupChattingViewModel.swift in Sources */,
