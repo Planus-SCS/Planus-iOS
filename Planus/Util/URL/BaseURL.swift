@@ -8,5 +8,5 @@
 import Foundation
 
 struct BaseURL {
-    static let main = "https://34d3-124-51-205-60.jp.ngrok.io"
+    static let main = "https://64ce-121-167-200-122.ngrok-free.app"
 }

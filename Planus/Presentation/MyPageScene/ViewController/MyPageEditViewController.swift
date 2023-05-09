@@ -163,7 +163,7 @@ class MyPageEditViewController: UIViewController {
         let input = MyPageEditViewModel.Input(
             viewDidLoad: Observable.just(()),
             didChangeName: nameField.rx.text.asObservable(),
-            didChangeIntroduce: introduceField.rx.text.asObservable(),
+            didChangeIntroduce: introduceField.rx.text.asObservable().map { (self.descEditing) ? $0 : nil},
             didChangeImage: didChangedImage.asObservable(),
             saveBtnTapped: saveButton.rx.tap.asObservable()
         )
@@ -178,8 +178,19 @@ class MyPageEditViewController: UIViewController {
         
         output
             .didFetchIntroduce
+            .map {
+                guard let str = $0 else { return nil }
+                guard !str.isEmpty else { return nil }
+                return str
+            }
+            .compactMap { $0 }
             .distinctUntilChanged()
-            .bind(to: introduceField.rx.text)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] text in
+                self?.introduceField.text = text
+                self?.introduceField.textColor = .black
+                self?.descEditing = true
+            })
             .disposed(by: bag)
         
         output
@@ -298,13 +309,15 @@ extension MyPageEditViewController: UITextViewDelegate {
         if textView.text.isEmpty {
             textView.text = "자기소개를 입력하세요."
             textView.textColor = UIColor(hex: 0xBFC7D7)
+            descEditing = false
         }
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == UIColor(hex: 0xBFC7D7) {
+        if !descEditing {
             textView.text = nil
             textView.textColor = .black
+            descEditing = true
         }
     }
 }

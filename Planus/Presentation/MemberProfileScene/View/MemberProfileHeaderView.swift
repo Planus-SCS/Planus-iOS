@@ -43,7 +43,6 @@ class MemberProfileHeaderView: UIView {
         label.textColor = .black
         label.font = UIFont(name: "Pretendard-Bold", size: 16)
         label.textAlignment = .center
-        label.text = "이름름"
         return label
     }()
     
@@ -52,8 +51,7 @@ class MemberProfileHeaderView: UIView {
         label.textColor = UIColor(hex: 0x6F81A9)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
         label.numberOfLines = 3
-        label.textAlignment = .left
-        label.text = "자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개..."
+        label.textAlignment = .center
         return label
     }()
     

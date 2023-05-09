@@ -381,39 +381,7 @@ class GroupCreateViewController: UIViewController {
         contentView.snp.makeConstraints {
             $0.edges.width.equalToSuperview()
         }
-        groupIntroduceTitleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
-            $0.leading.equalToSuperview().offset(24)
-        }
-        
-        groupIntroduceDescLabel.snp.makeConstraints {
-            $0.top.equalTo(groupIntroduceTitleLabel.snp.bottom).offset(6)
-            $0.leading.equalToSuperview().offset(24)
-        }
-        
-        groupImageView.snp.makeConstraints {
-            $0.top.equalTo(groupIntroduceDescLabel.snp.bottom).offset(20)
-            $0.width.height.equalTo(120)
-            $0.centerX.equalToSuperview()
-        }
-        
-        groupImageButton.snp.makeConstraints {
-            $0.width.height.equalTo(34)
-            $0.trailing.equalTo(groupImageView.snp.trailing).offset(10)
-            $0.bottom.equalTo(groupImageView.snp.bottom).offset(10)
-        }
-        
-        groupNameField.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.top.equalTo(groupImageView.snp.bottom).offset(20)
-            $0.height.equalTo(45)
-        }
-        
-        groupNoticeTextView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.top.equalTo(groupNameField.snp.bottom).offset(10)
-            $0.height.equalTo(110)
-        }
+
         
         keyWordTitleLabel.snp.makeConstraints {
             $0.top.equalTo(groupNoticeTextView.snp.bottom).offset(50)
