@@ -71,6 +71,9 @@ class GroupCreateLimitView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        configureView()
+        configureLayout()
     }
     
     required init?(coder: NSCoder) {

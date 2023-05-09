@@ -23,22 +23,7 @@ class GroupCreateViewController: UIViewController {
     var infoView: GroupCreateInfoView = .init(frame: .zero)
     var tagView: GroupCreateTagView = .init(frame: .zero)
     var limitView: GroupCreateLimitView = .init(frame: .zero)
-    
-    var createButton: UIButton = {
-        let button = UIButton(frame: .zero)
-        button.setTitle("그룹 생성하기", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(hex: 0x6495F4)
-        button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
-        button.layer.cornerRadius = 10
-        button.layer.cornerCurve = .continuous
-        button.layer.masksToBounds = false
-        button.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
-        button.layer.shadowOpacity = 1
-        button.layer.shadowOffset = CGSize(width: 0, height: 2)
-        button.layer.shadowRadius = 4
-        return button
-    }()
+    var createButtonView: WideButtonView = .init(frame: .zero)
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
@@ -76,23 +61,17 @@ class GroupCreateViewController: UIViewController {
         contentStackView.addArrangedSubview(infoView)
         contentStackView.addArrangedSubview(tagView)
         contentStackView.addArrangedSubview(limitView)
-        contentStackView.addArrangedSubview(createButton)
+        contentStackView.addArrangedSubview(createButtonView)
     }
     
     func configureLayout() {
         scrollView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
         contentStackView.snp.makeConstraints {
             $0.edges.width.equalToSuperview()
         }
 
-        createButton.snp.makeConstraints {
-            $0.top.equalTo(maxLabel.snp.bottom).offset(15)
-            $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(50)
-            $0.bottom.equalToSuperview().inset(22)
-        }
     }
     
     

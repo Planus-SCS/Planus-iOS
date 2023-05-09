@@ -35,9 +35,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        window.makeKeyAndVisible()
 //
 
-        self.appCoordinator = AppCoordinator(window: window)
-        self.appCoordinator?.start()
-        
+        let mv = GroupCreateViewController(nibName: nil, bundle: nil)
+        window.rootViewController = mv
+        window.makeKeyAndVisible()
+//        self.appCoordinator = AppCoordinator(window: window)
+//        self.appCoordinator?.start()
+//
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
