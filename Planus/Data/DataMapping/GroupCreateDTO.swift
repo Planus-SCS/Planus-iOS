@@ -14,16 +14,6 @@ struct GroupCreateRequestDTO: Codable {
     var limitCount: Int
 }
 
-struct GroupTagRequestDTO: Codable {
-    var name: String
-}
-
 struct GroupCreateResponseDTO: Codable {
     var groupId: Int
-}
-
-extension GroupTag {
-    func toDTO() -> GroupTagRequestDTO {
-        return GroupTagRequestDTO(name: name)
-    }
 }
