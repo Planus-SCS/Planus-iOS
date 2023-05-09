@@ -27,18 +27,21 @@ struct CategoryEntityResponseDTO: Codable {
     var id: Int
     var name: String
     var color: String
+    var status: String
     
-    init(id: Int, name: String, color: String) {
+    init(id: Int, name: String, color: String, status: String) {
         self.id = id
         self.name = name
         self.color = color
+        self.status = status
     }
     
     func toDomain() -> Category {
         return Category(
             id: self.id,
             title: self.name,
-            color: CategoryColor(rawValue: self.color) ?? .none
+            color: CategoryColor(rawValue: self.color) ?? .none,
+            status: CategoryStatus(rawValue: status)
         )
     }
 }

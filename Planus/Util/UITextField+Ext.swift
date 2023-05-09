@@ -26,6 +26,18 @@ extension UITextField {
         self.leftViewMode = .always
     }
     
+    func addLeftPadding(padding: CGFloat) {
+        let leftView = UIView(frame: .zero)
+        
+        leftView.snp.makeConstraints {
+            $0.width.equalTo(padding)
+            $0.height.equalTo(1)
+        }
+
+        self.leftView = leftView
+        self.leftViewMode = .always
+    }
+    
     func addSidePadding(padding: CGFloat) {
         let leftView = UIView(frame: .zero)
         let rightView = UIView(frame: .zero)

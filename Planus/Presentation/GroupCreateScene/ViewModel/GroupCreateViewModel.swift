@@ -18,6 +18,7 @@ class GroupCreateViewModel {
     var tagList = BehaviorSubject<[String?]>(value: [])
     var maxMember = BehaviorSubject<Int?>(value: nil)
 
+    var groupCreateCompleted = PublishSubject<Void>()
     
     struct Input {
         var titleChanged: Observable<String?>
@@ -158,7 +159,8 @@ class GroupCreateViewModel {
             tagCountValidState: tagCountValidState.asObservable(),
             tagCharCountValidState: tagCharCountValidState.asObservable(),
             tagSpecialCharValidState: tagSpecialCharValidState.asObservable(),
-            isCreateButtonEnabled: isCreateButtonEnabled
+            isCreateButtonEnabled: isCreateButtonEnabled,
+            groupCreateCompleted: groupCreateCompleted.asObservable()
         )
     }
     
@@ -183,7 +185,8 @@ class GroupCreateViewModel {
                 groupCreate: groupCreate,
                 image: image
             )
-            .subscribe(onSuccess: { _ in
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.groupCreateCompleted.onNext(())
                 print("개별조회 창으로 넘어가야한다..!")
             })
             .disposed(by: bag)

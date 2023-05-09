@@ -308,13 +308,15 @@ class HomeCalendarViewModel {
             })
             .disposed(by: bag)
         
-        deleteCategoryUseCase
-            .didDeleteCategory
-            .withUnretained(self)
-            .subscribe(onNext: { vm, id in
-                // 현재는 삭제해도 그냥 유지하기 때문에 여기엔 그대로 두자..!
-            })
-            .disposed(by: bag)
+//        deleteCategoryUseCase
+//            .didDeleteCategory
+//            .withUnretained(self)
+//            .subscribe(onNext: { vm, id in
+//                guard var category = vm.categoryDict[id] else { return }
+//                category.status = .inactive
+//                vm.categoryDict[id] = category
+//            })
+//            .disposed(by: bag)
     }
     
     func bindTodoUseCase(initialDate: Date) {

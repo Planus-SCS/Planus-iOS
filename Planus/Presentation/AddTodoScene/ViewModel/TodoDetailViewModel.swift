@@ -64,6 +64,7 @@ final class TodoDetailViewModel {
         var memoChanged: Observable<String?>
         var newCategoryNameChanged: Observable<String?>
         var newCategoryColorChanged: Observable<CategoryColor?>
+        var didRemoveCategory: Observable<Int>
         
         // MARK: Control Event
         var categoryEditRequested: Observable<Int>
@@ -189,6 +190,14 @@ final class TodoDetailViewModel {
         input
             .newCategoryColorChanged
             .bind(to: newCategoryColor)
+            .disposed(by: bag)
+        
+        input
+            .didRemoveCategory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, id in
+                vm.deleteCategory(id: id)
+            })
             .disposed(by: bag)
         
         input
@@ -371,7 +380,7 @@ final class TodoDetailViewModel {
         readCategoryUseCase
             .execute(token: token)
             .subscribe(onSuccess: { [weak self] list in
-                self?.categorys = list
+                self?.categorys = list.filter { $0.status == .active }
                 self?.needReloadCategoryList.onNext(())
             })
             .disposed(by: bag)
@@ -449,14 +458,13 @@ final class TodoDetailViewModel {
             .disposed(by: bag)
     }
     
-    func deleteCategory(category: Category) {
-        guard let id = category.id,
-              let token = getTokenUseCase.execute() else { return }
+    func deleteCategory(id: Int) {
+        guard let token = getTokenUseCase.execute() else { return }
         
         deleteCategoryUseCase
             .execute(token: token, id: id)
             .subscribe(onSuccess: { [weak self] in
-                
+                print("removed!!")
             })
             .disposed(by: bag)
     }

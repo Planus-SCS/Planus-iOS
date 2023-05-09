@@ -209,6 +209,7 @@ class TodoDetailViewController: UIViewController {
             memoChanged: memoViewObservable,
             newCategoryNameChanged: categoryCreateView.nameField.rx.text.asObservable(),
             newCategoryColorChanged: didChangednewCategoryColor.asObservable(),
+            didRemoveCategory: didDeleteCategoryId.asObservable(),
             categoryEditRequested: didRequestEditCategoryAt.asObservable(),
             startDayButtonTapped: addTodoView.startDateButton.rx.tap.asObservable(),
             endDayButtonTapped: addTodoView.endDateButton.rx.tap.asObservable(),

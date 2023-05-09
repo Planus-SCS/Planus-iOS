@@ -144,6 +144,7 @@ class GroupIntroduceViewController: UIViewController {
         guard let viewModel else { return }
         
         let input = GroupIntroduceViewModel.Input(
+            viewDidLoad: Observable.just(()),
             didTappedJoinBtn: joinButton.rx.tap.asObservable(),
             didTappedBackBtn: backButtonTapped.asObservable()
         )
@@ -156,7 +157,17 @@ class GroupIntroduceViewController: UIViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vc, _ in
-                vc.collectionView.reloadData()
+                vc.collectionView.reloadSections(IndexSet(0...1))
+            })
+            .disposed(by: bag)
+        
+        output
+            .didGroupMemberFetched
+            .compactMap { $0 }
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, _ in
+                vc.collectionView.reloadSections(IndexSet(2...2))
             })
             .disposed(by: bag)
     }
@@ -241,8 +252,20 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
         case .info:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceInfoHeaderView else { return UICollectionReusableView() }
             // 이부분 아무래도 셀로 만들어야할거같다.. 네트워크 받아오면 업댓해야되서 그전까지 비워놔야한다,,, 그냥 빈화면으로 보여줄까? 것도 낫베드긴한디
-            view.fill(title: viewModel?.groupTitle ?? "", tag: viewModel?.tag ?? "", memCount: viewModel?.memberCount ?? "", captin: viewModel?.captin ?? "")
-            view.fill(image: UIImage(named: "groupTest1")!)
+            view.fill(
+                title: viewModel?.groupTitle ?? "",
+                tag: viewModel?.tag ?? "",
+                memCount: viewModel?.memberCount ?? "",
+                captin: viewModel?.captin ?? ""
+            )
+            
+            if let url = viewModel?.groupImageUrl {
+                viewModel?.fetchImage(key: url)
+                    .subscribe(onSuccess: { data in
+                        view.fill(image: UIImage(data: data))
+                    })
+                    .disposed(by: bag)
+            }
             return view
         case .notice, .member:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }

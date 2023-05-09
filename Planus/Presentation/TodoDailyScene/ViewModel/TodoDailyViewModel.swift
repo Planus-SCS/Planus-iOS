@@ -130,13 +130,13 @@ class TodoDailyViewModel {
             })
             .disposed(by: bag)
         
-        deleteCategoryUseCase
-            .didDeleteCategory
-            .withUnretained(self)
-            .subscribe(onNext: { vm, id in
-                
-            })
-            .disposed(by: bag)
+//        deleteCategoryUseCase
+//            .didDeleteCategory
+//            .withUnretained(self)
+//            .subscribe(onNext: { vm, id in
+//
+//            })
+//            .disposed(by: bag)
     }
     
     // 내 투두 볼때만 불릴예정

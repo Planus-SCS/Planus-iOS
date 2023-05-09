@@ -21,11 +21,11 @@ class GroupIntroduceCoordinator: Coordinator {
         self.navigationController = navigationController
     }
     
-    func start() {
-        showGroupIntroducePage()
+    func start(id: Int) {
+        showGroupIntroducePage(id)
     }
     
-    lazy var showGroupIntroducePage: () -> Void = { [weak self] in
+    lazy var showGroupIntroducePage: (Int) -> Void = { [weak self] id in
         let vm = GroupIntroduceViewModel()
         vm.setActions(actions: GroupIntroduceViewModelActions(
             popCurrentPage: self?.popCurrentPage,

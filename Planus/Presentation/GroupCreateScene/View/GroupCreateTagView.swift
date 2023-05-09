@@ -94,6 +94,7 @@ class GroupCreateTagView: UIView {
             $0.top.equalTo(keyWordDescLabel.snp.bottom).offset(20)
             $0.leading.equalToSuperview().inset(20)
             $0.height.equalTo(40)
+            $0.width.greaterThanOrEqualTo(100)
             $0.width.lessThanOrEqualToSuperview().offset(-40)
         }
         
@@ -105,10 +106,12 @@ class GroupCreateTagView: UIView {
         }
         
         tagField2.snp.makeConstraints {
+            $0.width.greaterThanOrEqualTo(100)
             $0.width.lessThanOrEqualTo(tagFirstStack.snp.width).offset(-50)
         }
 
         tagField3.snp.makeConstraints {
+            $0.width.greaterThanOrEqualTo(100)
             $0.width.lessThanOrEqualTo(tagFirstStack.snp.width).offset(-50)
         }
         tagSecondStack.snp.makeConstraints {
@@ -119,10 +122,12 @@ class GroupCreateTagView: UIView {
         }
         
         tagField4.snp.makeConstraints {
+            $0.width.greaterThanOrEqualTo(100)
             $0.width.lessThanOrEqualTo(tagSecondStack.snp.width).offset(-50)
         }
 
         tagField5.snp.makeConstraints {
+            $0.width.greaterThanOrEqualTo(100)
             $0.width.lessThanOrEqualTo(tagSecondStack.snp.width).offset(-50)
         }
         
@@ -167,8 +172,8 @@ class GroupCreateTagView: UIView {
         textField.layer.borderWidth = 1
         textField.layer.cornerRadius = 10
         textField.clipsToBounds = true
-        textField.addSidePadding(padding: 10)
-        textField.clearButtonMode = .whileEditing
+        textField.addLeftPadding(padding: 10)
+        textField.clearButtonMode = .always
         
         if isMustField {
             textField.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
@@ -191,7 +196,7 @@ class GroupCreateTagView: UIView {
                 attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0xBFC7D7)]
             )
         }
-        
+//
         return textField
     }
     
