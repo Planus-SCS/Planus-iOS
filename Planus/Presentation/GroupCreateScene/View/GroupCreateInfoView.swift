@@ -25,6 +25,8 @@ class GroupCreateInfoView: UIView {
         return label
     }()
     
+    var isDescEditing = false
+    
     var groupImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.layer.borderWidth = 1
@@ -60,7 +62,7 @@ class GroupCreateInfoView: UIView {
         return textField
     }()
     
-    var groupNoticeTextView: UITextView = {
+    lazy var groupNoticeTextView: UITextView = {
         let textView = UITextView(frame: .zero)
         textView.isScrollEnabled = false
         textView.text = "간단한 그룹소개 및 공지사항을 입력해주세요"
@@ -73,6 +75,7 @@ class GroupCreateInfoView: UIView {
         textView.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
         textView.layer.cornerRadius = 10
         textView.clipsToBounds = true
+        textView.delegate = self
         return textView
     }()
     
@@ -130,6 +133,24 @@ class GroupCreateInfoView: UIView {
             $0.top.equalTo(groupNameField.snp.bottom).offset(10)
             $0.height.equalTo(110)
             $0.bottom.equalToSuperview().inset(20)
+        }
+    }
+}
+
+extension GroupCreateInfoView: UITextViewDelegate {
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "간단한 그룹소개 및 공지사항을 입력해주세요"
+            textView.textColor = UIColor(hex: 0x7A7A7A)
+            isDescEditing = false
+        }
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if !(isDescEditing) {
+            textView.text = nil
+            textView.textColor = .black
+            isDescEditing = true
         }
     }
 }

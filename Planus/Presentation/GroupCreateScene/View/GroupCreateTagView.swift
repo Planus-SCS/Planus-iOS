@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import RxSwift
 
 class GroupCreateTagView: UIView {
+    var bag = DisposeBag()
     var keyWordTitleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "그룹과 관련된 키워드를 입력하세요"
@@ -24,143 +26,30 @@ class GroupCreateTagView: UIView {
         return label
     }()
     
-    var tagField1: UITextField = {
-        let textField = UITextField(frame: .zero)
-        textField.textColor = .black
-        textField.font = UIFont(name: "Pretendard-Regular", size: 16)
-        
-        textField.backgroundColor = .white
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
-        textField.layer.cornerRadius = 10
-        textField.clipsToBounds = true
-        textField.addSidePadding(padding: 10)
+    lazy var tagField1: UITextField = self.textFieldGenerator(isMustField: true)
+    lazy var tagField2: UITextField = self.textFieldGenerator(isMustField: false)
+    lazy var tagField3: UITextField = self.textFieldGenerator(isMustField: false)
+    lazy var tagField4: UITextField = self.textFieldGenerator(isMustField: false)
+    lazy var tagField5: UITextField = self.textFieldGenerator(isMustField: false)
 
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "필수태그입력칸",
-            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
-        )
-        return textField
-    }()
+    lazy var tagFirstStack: UIStackView = self.horizontalStackGenerator()
+    lazy var tagSecondStack: UIStackView = self.horizontalStackGenerator()
     
-    var tagField2: UITextField = {
-        let textField = UITextField(frame: .zero)
-        textField.textColor = .black
-        textField.font = UIFont(name: "Pretendard-Regular", size: 16)
-        
-        textField.backgroundColor = .white
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor(hex: 0xBFC7D7).cgColor
-        textField.layer.cornerRadius = 10
-        textField.clipsToBounds = true
-        textField.addSidePadding(padding: 10)
+    lazy var tagCountValidateLabel: UILabel = self.validationLabelGenerator(text: "태그는 최대 5개까지 입력할 수 있어요")
+    var tagCountCheckView: ValidationCheckImageView = .init()
 
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "선택태그입력칸",
-            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0xBFC7D7)]
-        )
-        return textField
-    }()
+    lazy var stringCountValidateLabel: UILabel = self.validationLabelGenerator(text: "한번에 최대 7자 이하만 적을 수 있어요")
+    var stringCountCheckView: ValidationCheckImageView = .init()
     
-    var tagField3: UITextField = {
-        let textField = UITextField(frame: .zero)
-        textField.textColor = .black
-        textField.font = UIFont(name: "Pretendard-Regular", size: 16)
-        
-        textField.backgroundColor = .white
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor(hex: 0xBFC7D7).cgColor
-        textField.layer.cornerRadius = 10
-        textField.clipsToBounds = true
-        textField.addSidePadding(padding: 10)
+    lazy var charcaterValidateLabel: UILabel = self.validationLabelGenerator(text: "띄어쓰기, 특수 문자는 빼주세요")
+    var charValidateCheckView: ValidationCheckImageView = .init()
 
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "선택태그입력칸",
-            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0xBFC7D7)]
-        )
-        return textField
-    }()
-    var tagFirstStack: UIStackView = {
-        let stackView = UIStackView(frame: .zero)
-        stackView.axis = .horizontal
-        stackView.alignment = .fill
-        stackView.spacing = 8
-        return stackView
-    }()
-    
-    var tagField4: UITextField = {
-        let textField = UITextField(frame: .zero)
-        textField.textColor = .black
-        textField.font = UIFont(name: "Pretendard-Regular", size: 16)
-        
-        textField.backgroundColor = .white
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor(hex: 0xBFC7D7).cgColor
-        textField.layer.cornerRadius = 10
-        textField.clipsToBounds = true
-        textField.addSidePadding(padding: 10)
-
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "선택태그입력칸",
-            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0xBFC7D7)]
-        )
-        return textField
-    }()
-    var tagField5: UITextField = {
-        let textField = UITextField(frame: .zero)
-        textField.textColor = .black
-        textField.font = UIFont(name: "Pretendard-Regular", size: 16)
-        
-        textField.backgroundColor = .white
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor(hex: 0xBFC7D7).cgColor
-        textField.layer.cornerRadius = 10
-        textField.clipsToBounds = true
-        textField.addSidePadding(padding: 10)
-
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "선택태그입력칸",
-            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0xBFC7D7)]
-        )
-        return textField
-    }()
-    var tagSecondStack: UIStackView = {
-        let stackView = UIStackView(frame: .zero)
-        stackView.axis = .horizontal
-        stackView.alignment = .fill
-        stackView.spacing = 8
-        return stackView
-    }()
-    
-    var tagCountValidateLabel: UILabel = {
-        let label = UILabel(frame: .zero)
-        label.text = "태그는 최대 5개까지 입력할 수 있어요"
-        label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = UIColor(hex: 0x6F81A9)
-        return label
-    }()
-    
-    var stringCountValidateLabel: UILabel = {
-        let label = UILabel(frame: .zero)
-        label.text = "한번에 최대 7자 이하만 적을 수 있어요"
-        label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = UIColor(hex: 0x6F81A9)
-        return label
-    }()
-    
-    var charcaterValidateLabel: UILabel = {
-        let label = UILabel(frame: .zero)
-        label.text = "띄어쓰기, 특수 문자는 빼주세요"
-        label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = UIColor(hex: 0x6F81A9)
-        return label
-    }()
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         configureView()
         configureLayout()
+        
     }
     
     required init?(coder: NSCoder) {
@@ -171,6 +60,7 @@ class GroupCreateTagView: UIView {
         self.addSubview(keyWordTitleLabel)
         self.addSubview(keyWordDescLabel)
         self.addSubview(tagField1)
+        tagField1.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
         
         self.addSubview(tagFirstStack)
         tagFirstStack.addArrangedSubview(tagField2)
@@ -183,6 +73,10 @@ class GroupCreateTagView: UIView {
         self.addSubview(tagCountValidateLabel)
         self.addSubview(stringCountValidateLabel)
         self.addSubview(charcaterValidateLabel)
+        
+        self.addSubview(tagCountCheckView)
+        self.addSubview(stringCountCheckView)
+        self.addSubview(charValidateCheckView)
     }
     
     func configureLayout() {
@@ -237,9 +131,19 @@ class GroupCreateTagView: UIView {
             $0.leading.equalToSuperview().offset(20)
         }
         
+        tagCountCheckView.snp.makeConstraints {
+            $0.centerY.equalTo(tagCountValidateLabel)
+            $0.trailing.equalToSuperview().inset(20)
+        }
+        
         stringCountValidateLabel.snp.makeConstraints {
             $0.top.equalTo(tagCountValidateLabel.snp.bottom).offset(10)
             $0.leading.equalToSuperview().offset(20)
+        }
+        
+        stringCountCheckView.snp.makeConstraints {
+            $0.centerY.equalTo(stringCountValidateLabel)
+            $0.trailing.equalToSuperview().inset(20)
         }
         
         charcaterValidateLabel.snp.makeConstraints {
@@ -247,5 +151,64 @@ class GroupCreateTagView: UIView {
             $0.leading.equalToSuperview().offset(20)
             $0.bottom.equalToSuperview().inset(30)
         }
+        
+        charValidateCheckView.snp.makeConstraints {
+            $0.centerY.equalTo(charcaterValidateLabel)
+            $0.trailing.equalToSuperview().inset(20)
+        }
+    }
+    
+    func textFieldGenerator(isMustField: Bool) -> UITextField {
+        let textField = UITextField(frame: .zero)
+        textField.textColor = .black
+        textField.font = UIFont(name: "Pretendard-Regular", size: 16)
+        
+        textField.backgroundColor = .white
+        textField.layer.borderWidth = 1
+        textField.layer.cornerRadius = 10
+        textField.clipsToBounds = true
+        textField.addSidePadding(padding: 10)
+        textField.clearButtonMode = .whileEditing
+        
+        if isMustField {
+            textField.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
+            textField.attributedPlaceholder = NSAttributedString(
+                string: "필수태그",
+                attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x6F81A9)]
+            )
+        } else {
+            textField.rx.text.asObservable()
+                .subscribe(onNext: { text in
+                    if text?.isEmpty ?? true {
+                        textField.layer.borderColor = UIColor(hex: 0xBFC7D7).cgColor
+                    } else {
+                        textField.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
+                    }
+                })
+                .disposed(by: bag)
+            textField.attributedPlaceholder = NSAttributedString(
+                string: "선택태그",
+                attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0xBFC7D7)]
+            )
+        }
+        
+        return textField
+    }
+    
+    func horizontalStackGenerator() -> UIStackView {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.alignment = .fill
+        stackView.spacing = 8
+        return stackView
+    }
+    
+    func validationLabelGenerator(text: String) -> UILabel {
+        let label = UILabel(frame: .zero)
+        label.text = text
+        label.font = UIFont(name: "Pretendard-Regular", size: 12)
+        label.textColor = UIColor(hex: 0x6F81A9)
+        return label
     }
 }
+

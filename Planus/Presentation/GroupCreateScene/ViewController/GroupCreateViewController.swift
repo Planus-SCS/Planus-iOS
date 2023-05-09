@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import PhotosUI
 
 class GroupCreateViewController: UIViewController {
 
@@ -88,11 +89,14 @@ class GroupCreateViewController: UIViewController {
         }
         
         let tagListChanged = Observable.combineLatest(tagObservableList)
-    
+        let noticeChanged = infoView.groupNoticeTextView.rx.text.asObservable().map { [weak self] text -> String? in
+            guard let self else { return nil }
+            return self.infoView.isDescEditing ? text : nil
+        }
         
         let input = GroupCreateViewModel.Input(
             titleChanged: infoView.groupNameField.rx.text.asObservable(),
-            noticeChanged: infoView.groupNoticeTextView.rx.text.asObservable(),
+            noticeChanged: noticeChanged,
             titleImageChanged: titleImageChanged.asObservable(),
             tagListChanged: tagListChanged,
             maxMemberChanged: limitView.limitField.rx.text.asObservable()
@@ -100,11 +104,66 @@ class GroupCreateViewController: UIViewController {
         let output = viewModel.transform(input: input)
         
         output
+            .titleFilled
+            .skip(1)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, filled in
+                vc.infoView.groupNameField.layer.borderColor
+                = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
+            })
+            .disposed(by: bag)
+        
+        output
+            .noticeFilled
+            .skip(1)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, filled in
+                print("filled", filled)
+                vc.infoView.groupNoticeTextView.layer.borderColor
+                = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
+            })
+            .disposed(by: bag)
+        
+        output
+            .imageFilled
+            .skip(1)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, filled in
+                vc.infoView.groupNoticeTextView.layer.borderColor
+                = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
+            })
+            .disposed(by: bag)
+        
+        output
+            .maxCountFilled
+            .skip(1)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, filled in
+                vc.limitView.limitField.layer.borderColor
+                = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
+            })
+            .disposed(by: bag)
+
+        output
+            .isCreateButtonEnabled
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, enabled in
+                vc.createButtonView.wideButton.isEnabled = enabled
+                vc.createButtonView.wideButton.alpha = enabled ? 1.0 : 0.4
+            })
+            .disposed(by: bag)
+        
+        output
             .tagCountValidState
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, validation in
-                print("count", validation)
+                vc.tagView.tagCountCheckView.isValid(validation)
             })
             .disposed(by: bag)
         
@@ -113,7 +172,7 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, validation in
-                print("charCount", validation)
+                vc.tagView.stringCountCheckView.isValid(validation)
             })
             .disposed(by: bag)
         
@@ -122,7 +181,21 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, validation in
-                print("special", validation)
+                vc.tagView.charValidateCheckView.isValid(validation)
+            })
+            .disposed(by: bag)
+        
+        output
+            .didChangedTitleImage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, data in
+                print(data)
+                guard let data = data else {
+                    vc.infoView.groupImageView.image = UIImage(named: "GroupCreateDefaultImage")
+                    return
+                }
+                vc.infoView.groupImageView.image = UIImage(data: data)
             })
             .disposed(by: bag)
     }
@@ -135,6 +208,12 @@ class GroupCreateViewController: UIViewController {
         contentStackView.addArrangedSubview(tagView)
         contentStackView.addArrangedSubview(limitView)
         contentStackView.addArrangedSubview(createButtonView)
+        
+        infoView.groupImageButton.addTarget(self, action: #selector(imageBtnTapped), for: .touchUpInside)
+    }
+    
+    @objc func imageBtnTapped(_ sender: UIButton) {
+        presentPhotoPicker()
     }
     
     func configureLayout() {
@@ -147,5 +226,28 @@ class GroupCreateViewController: UIViewController {
 
     }
     
+    func presentPhotoPicker() {
+        var phPickerConfiguration = PHPickerConfiguration()
+        phPickerConfiguration.selectionLimit = 1
+        phPickerConfiguration.filter = .images
+        phPickerConfiguration.preferredAssetRepresentationMode = .current
+
+        let phPicker = PHPickerViewController(configuration: phPickerConfiguration)
+        phPicker.delegate = self
+        self.present(phPicker, animated: true)
+    }
     
+}
+
+extension GroupCreateViewController: PHPickerViewControllerDelegate { //PHPicker 델리게이트
+func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+    picker.dismiss(animated: true)
+
+    results.first?.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (image, error) in
+        guard let fileName = results.first?.itemProvider.suggestedName else { return }
+        if let data = (image as? UIImage)?.pngData() {
+            self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "png"))
+        }
+    }
+}
 }
