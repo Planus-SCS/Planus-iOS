@@ -45,6 +45,7 @@ class GroupIntroduceViewModel {
     var refreshTokenUseCase: RefreshTokenUseCase
     var setTokenUseCase: SetTokenUseCase
     var fetchUnJoinedGroupUseCase: FetchUnJoinedGroupUseCase
+    var fetchMemberListUseCase: FetchMemberListUseCase
     var fetchImageUseCase: FetchImageUseCase
     
     init(
@@ -52,12 +53,14 @@ class GroupIntroduceViewModel {
         refreshTokenUseCase: RefreshTokenUseCase,
         setTokenUseCase: SetTokenUseCase,
         fetchUnjoinedGroupUseCase: FetchUnJoinedGroupUseCase,
+        fetchMemberListUseCase: FetchMemberListUseCase,
         fetchImageUseCase: FetchImageUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.setTokenUseCase = setTokenUseCase
         self.fetchUnJoinedGroupUseCase = fetchUnjoinedGroupUseCase
+        self.fetchMemberListUseCase = fetchMemberListUseCase
         self.fetchImageUseCase = fetchImageUseCase
     }
     
@@ -113,7 +116,16 @@ class GroupIntroduceViewModel {
                 self?.memberCount = "\(groupDetail.memberCount)/\(groupDetail.limitCount)"
                 self?.captin = groupDetail.leaderName
                 self?.notice = groupDetail.notice
+                self?.groupImageUrl = groupDetail.groupImageUrl
                 self?.didGroupInfoFetched.onNext(())
+            })
+            .disposed(by: bag)
+        
+        fetchMemberListUseCase
+            .execute(token: token, groupId: id)
+            .subscribe(onSuccess: { [weak self] list in
+                self?.memberList = list
+                self?.didGroupMemberFetched.onNext(())
             })
             .disposed(by: bag)
     }

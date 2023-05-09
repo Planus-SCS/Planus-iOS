@@ -17,7 +17,7 @@ class DefaultGroupRepository: GroupRepository {
     
     func fetchGroup(token: String, id: Int) -> Single<ResponseDTO<UnJoinedGroupDetailResponseDTO>> {
         let endPoint = APIEndPoint(
-            url: URLPool.groups + "\(id)",
+            url: URLPool.groups + "/\(id)",
             requestType: .get,
             body: nil,
             query: nil,

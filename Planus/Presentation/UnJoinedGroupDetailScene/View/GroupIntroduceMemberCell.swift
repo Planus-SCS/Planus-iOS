@@ -14,6 +14,7 @@ class GroupIntroduceMemberCell: UICollectionViewCell {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
+        imageView.layer.cornerCurve = .continuous
         return imageView
     }()
     
@@ -48,6 +49,12 @@ class GroupIntroduceMemberCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        memberImageView.layer.cornerRadius = memberImageView.bounds.width/2
     }
     
     func configureView() {
@@ -92,7 +99,7 @@ class GroupIntroduceMemberCell: UICollectionViewCell {
         captinIconView.isHidden = !isCaptin
     }
     
-    func fill(image: UIImage) {
+    func fill(image: UIImage?) {
         self.memberImageView.image = image
     }
 }

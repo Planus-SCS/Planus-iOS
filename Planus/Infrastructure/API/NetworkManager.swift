@@ -47,7 +47,6 @@ class NetworkManager: APIProvider {
                     emitter(.failure(NetworkError.nilDataError))
                     return
                 }
-                print(String(decoding: data, as: UTF8.self))
                 guard let httpResponse = response as? HTTPURLResponse else { return }
                 switch httpResponse.statusCode {
                 case (200..<300):

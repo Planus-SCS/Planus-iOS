@@ -37,18 +37,21 @@ class GroupIntroduceCoordinator: Coordinator {
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
         let fetchUnjoinedGroupUseCase = DefaultFetchUnJoinedGroupUseCase(groupRepository: groupRepo)
+        let fetchMemberListUseCase = DefaultFetchMemberListUseCase(groupRepository: groupRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
         let vm = GroupIntroduceViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             setTokenUseCase: setTokenUseCase,
             fetchUnjoinedGroupUseCase: fetchUnjoinedGroupUseCase,
+            fetchMemberListUseCase: fetchMemberListUseCase,
             fetchImageUseCase: fetchImageUseCase
         )
         vm.setActions(actions: GroupIntroduceViewModelActions(
             popCurrentPage: self?.popCurrentPage,
             didPop: self?.didPop)
         )
+        vm.setGroupId(id: 5)
         let vc = GroupIntroduceViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
 

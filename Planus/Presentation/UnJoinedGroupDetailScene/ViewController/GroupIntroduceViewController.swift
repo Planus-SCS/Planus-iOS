@@ -158,7 +158,9 @@ class GroupIntroduceViewController: UIViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vc, _ in
-                vc.collectionView.reloadSections(IndexSet(0...1))
+                UIView.performWithoutAnimation {
+                    vc.collectionView.reloadSections(IndexSet(0...1))
+                }
             })
             .disposed(by: bag)
         
@@ -168,7 +170,9 @@ class GroupIntroduceViewController: UIViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vc, _ in
-                vc.collectionView.reloadSections(IndexSet(2...2))
+                UIView.performWithoutAnimation {
+                    vc.collectionView.reloadSections(IndexSet(2...2))
+                }
             })
             .disposed(by: bag)
     }
@@ -239,7 +243,18 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
                   let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
 
             cell.fill(name: item.name, introduce: item.description, isCaptin: item.isLeader)
-            cell.fill(image: UIImage(named: "DefaultProfileMedium")!)
+            
+            if let url = item.profileImageUrl {
+                viewModel?.fetchImage(key: url)
+                    .observe(on: MainScheduler.asyncInstance)
+                    .subscribe(onSuccess: { data in
+                        cell.fill(image: UIImage(data: data))
+                    })
+                    .disposed(by: bag)
+            } else {
+                cell.fill(image: UIImage(named: "DefaultProfileMedium"))
+            }
+            
             return cell
         }
     }
@@ -262,6 +277,7 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
             
             if let url = viewModel?.groupImageUrl {
                 viewModel?.fetchImage(key: url)
+                    .observe(on: MainScheduler.asyncInstance)
                     .subscribe(onSuccess: { data in
                         view.fill(image: UIImage(data: data))
                     })
