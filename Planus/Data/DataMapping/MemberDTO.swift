@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MemberDTO {
+struct MemberDTO: Codable {
     var memberId: Int
     var nickname: String
     var isLeader: Bool

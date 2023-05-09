@@ -15,7 +15,7 @@ class DefaultGroupRepository: GroupRepository {
         self.apiProvider = apiProvider
     }
     
-    func readGroup(token: String, id: Int) -> Single<ResponseDTO<UnJoinedGroupDetailResponseDTO>> {
+    func fetchGroup(token: String, id: Int) -> Single<ResponseDTO<UnJoinedGroupDetailResponseDTO>> {
         let endPoint = APIEndPoint(
             url: URLPool.groups + "\(id)",
             requestType: .get,
@@ -27,6 +27,21 @@ class DefaultGroupRepository: GroupRepository {
         return apiProvider.requestCodable(
             endPoint: endPoint,
             type: ResponseDTO<UnJoinedGroupDetailResponseDTO>.self
+        )
+    }
+    
+    func fetchMemberList(token: String, id: Int) -> Single<ResponseDTO<[MemberDTO]>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.groups + "/\(id)/members",
+            requestType: .get,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<[MemberDTO]>.self
         )
     }
 }

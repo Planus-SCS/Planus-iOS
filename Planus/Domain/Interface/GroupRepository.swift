@@ -9,5 +9,6 @@ import Foundation
 import RxSwift
 
 protocol GroupRepository {
-    func readGroup(token: String, id: Int) -> Single<ResponseDTO<UnJoinedGroupDetailResponseDTO>>
+    func fetchGroup(token: String, id: Int) -> Single<ResponseDTO<UnJoinedGroupDetailResponseDTO>>
+    func fetchMemberList(token: String, id: Int) -> Single<ResponseDTO<[MemberDTO]>>
 }
