@@ -6,9 +6,15 @@
 //
 
 import UIKit
+import RxSwift
 
 class GroupJoinNotificationCell: UICollectionViewCell {
     static let reuseIdentifier = "group-join-notification-cell"
+    
+    var bag: DisposeBag?
+    var indexPath: IndexPath?
+    var isAllowTapped: PublishSubject<Int?>?
+    var isDenyTapped: PublishSubject<Int?>?
     
     var profileImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "JoinNotificationProfile"))
@@ -39,7 +45,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         return label
     }()
     
-    var allowButton: UIButton = {
+    lazy var allowButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setTitle("수락", for: .normal)
         button.setTitleColor(UIColor(hex: 0x6495F4), for: .normal)
@@ -47,10 +53,11 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         button.backgroundColor = UIColor(hex: 0xD2E6F6)
         button.layer.cornerRadius = 10
         button.layer.cornerCurve = .continuous
+        button.addTarget(self, action: #selector(allowBtnTapped), for: .touchUpInside)
         return button
     }()
     
-    var denyButton: UIButton = {
+    lazy var denyButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setTitle("거절", for: .normal)
         button.setTitleColor(UIColor(hex: 0xFF0000), for: .normal)
@@ -58,6 +65,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         button.backgroundColor = UIColor(hex: 0xF9E3E9)
         button.layer.cornerRadius = 10
         button.layer.cornerCurve = .continuous
+        button.addTarget(self, action: #selector(denyBtnTapped), for: .touchUpInside)
         return button
     }()
     
@@ -134,10 +142,33 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         }
     }
     
-    func fill(image: String, title: String, name: String, desc: String) {
-        profileImageView.image = UIImage(named: image)
-        groupTitleLabel.text = title
-        nameLabel.text = name
-        descLabel.text = desc
+    @objc func allowBtnTapped(_ sender: UIButton) {
+        isAllowTapped?.onNext(indexPath?.item)
+    }
+    
+    @objc func denyBtnTapped(_ sender: UIButton) {
+        isDenyTapped?.onNext(indexPath?.item)
+    }
+    
+    func fill(
+        bag: DisposeBag,
+        indexPath: IndexPath,
+        isAllowTapped: PublishSubject<Int?>,
+        isDenyTapped: PublishSubject<Int?>
+    ) {
+        self.bag = bag
+        self.indexPath = indexPath
+        self.isAllowTapped = isAllowTapped
+        self.isDenyTapped = isDenyTapped
+    }
+    
+    func fill(groupName: String, memberName: String, memberDesc: String?) {
+        groupTitleLabel.text = groupName
+        nameLabel.text = memberName
+        descLabel.text = memberDesc
+    }
+    
+    func fill(memberImage: UIImage?) {
+        profileImageView.image = memberImage
     }
 }
