@@ -15,7 +15,7 @@ class DefaultFetchJoinApplyListUseCase: FetchJoinApplyListUseCase {
         self.myGroupRepository = myGroupRepository
     }
     
-    func execute(token: Token) -> Single<[GroupJoinApply]> {
+    func execute(token: Token) -> Single<[GroupJoinApplied]> {
         return myGroupRepository
             .fetchJoinApplyList(token: token.accessToken)
             .map {

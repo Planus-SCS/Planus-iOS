@@ -17,7 +17,7 @@ class DefaultFetchUnJoinedGroupUseCase: FetchUnJoinedGroupUseCase {
     
     func execute(token: Token, id: Int) -> Single<UnJoinedGroupDetail> {
         return groupRepository
-            .fetchGroup(token: token.accessToken, id: id)
+            .fetchGroupDetail(token: token.accessToken, id: id)
             .map { dto in
                 return dto.data.toDomain()
             }

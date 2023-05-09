@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct GroupJoinApply {
+struct GroupJoinApplied {
     var groupJoinId: Int
     var groupId: Int
     var groupName: String

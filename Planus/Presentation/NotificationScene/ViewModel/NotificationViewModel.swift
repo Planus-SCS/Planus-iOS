@@ -21,7 +21,7 @@ class NotificationViewModel {
         var didFetchJoinApplyList: Observable<Void?>
     }
     
-    var joinApplyList: [GroupJoinApply]?
+    var joinAppliedList: [GroupJoinApplied]?
     var didFetchJoinApplyList = BehaviorSubject<Void?>(value: nil)
     
     var getTokenUseCase: GetTokenUseCase
@@ -78,7 +78,7 @@ class NotificationViewModel {
         fetchJoinApplyListUseCase
             .execute(token: token)
             .subscribe(onSuccess: { [weak self] list in
-                self?.joinApplyList = list
+                self?.joinAppliedList = list
                 self?.didFetchJoinApplyList.onNext(())
             })
             .disposed(by: bag)

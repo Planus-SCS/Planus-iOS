@@ -28,7 +28,7 @@ class DefaultMyGroupRepository: MyGroupRepository {
         return apiProvider.requestMultipartCodable(endPoint: endPoint, type: ResponseDTO<GroupCreateResponseDTO>.self)
     }
     
-    func fetchJoinApplyList(token: String) -> Single<ResponseDTO<[GroupJoinApplyResponseDTO]>> {
+    func fetchJoinApplyList(token: String) -> Single<ResponseDTO<[GroupJoinAppliedResponseDTO]>> {
         let endPoint = APIEndPoint(
             url: URLPool.groupJoin,
             requestType: .get,
@@ -39,7 +39,7 @@ class DefaultMyGroupRepository: MyGroupRepository {
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: ResponseDTO<[GroupJoinApplyResponseDTO]>.self
+            type: ResponseDTO<[GroupJoinAppliedResponseDTO]>.self
         )
     }
 }

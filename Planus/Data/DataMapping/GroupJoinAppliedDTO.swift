@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct GroupJoinApplyResponseDTO: Codable {
+struct GroupJoinAppliedResponseDTO: Codable {
     var groupJoinId: Int
     var groupId: Int
     var groupName: String
@@ -18,9 +18,9 @@ struct GroupJoinApplyResponseDTO: Codable {
     var acceptStatus: String
 }
 
-extension GroupJoinApplyResponseDTO {
-    func toDomain() -> GroupJoinApply {
-        return GroupJoinApply(
+extension GroupJoinAppliedResponseDTO {
+    func toDomain() -> GroupJoinApplied {
+        return GroupJoinApplied(
             groupJoinId: groupJoinId,
             groupId: groupId,
             groupName: groupName,
