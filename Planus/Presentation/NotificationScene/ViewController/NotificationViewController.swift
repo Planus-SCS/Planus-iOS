@@ -32,13 +32,19 @@ class NotificationViewController: UIViewController {
         return rc
     }()
     
+    var emptyResultView: EmptyResultView = {
+        let view = EmptyResultView(text: "그룹 신청이 없습니다.")
+        view.isHidden = true
+        return view
+    }()
+    
     lazy var resultCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.register(GroupJoinNotificationCell.self, forCellWithReuseIdentifier: GroupJoinNotificationCell.reuseIdentifier)
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
         collectionView.refreshControl = refreshControl
+        collectionView.backgroundColor = .clear
         return collectionView
     }()
     
@@ -89,12 +95,11 @@ class NotificationViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.resultCollectionView.reloadData()
-//                if let count = viewModel.joinApplyList?.count ,
-//                   count == 0 {
-//
-//                } else {
-//
-//                }
+                if viewModel.joinApplyList?.count == 0 {
+                    vc.emptyResultView.isHidden = false
+                } else {
+                    vc.emptyResultView.isHidden = true
+                }
             })
             .disposed(by: bag)
     }
@@ -105,10 +110,15 @@ class NotificationViewController: UIViewController {
 
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.addSubview(emptyResultView)
         self.view.addSubview(resultCollectionView)
     }
     
     func configureLayout() {
+        emptyResultView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
         resultCollectionView.snp.makeConstraints {
             $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
             $0.leading.trailing.equalToSuperview()
