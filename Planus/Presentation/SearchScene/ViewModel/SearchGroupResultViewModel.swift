@@ -8,7 +8,7 @@
 import Foundation
 
 struct GroupSearchResultViewModel {
-    var id: String
+    var id: Int
     var title: String
     var imageName: String
     var tag: String?

@@ -26,7 +26,25 @@ class GroupIntroduceCoordinator: Coordinator {
     }
     
     lazy var showGroupIntroducePage: (Int) -> Void = { [weak self] id in
-        let vm = GroupIntroduceViewModel()
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
+        let profileRepo = DefaultProfileRepository(apiProvider: api)
+        let imageRepo = DefaultImageRepository(apiProvider: api)
+        let groupRepo = DefaultGroupRepository(apiProvider: api)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
+        let fetchUnjoinedGroupUseCase = DefaultFetchUnJoinedGroupUseCase(groupRepository: groupRepo)
+        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
+        let vm = GroupIntroduceViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            setTokenUseCase: setTokenUseCase,
+            fetchUnjoinedGroupUseCase: fetchUnjoinedGroupUseCase,
+            fetchImageUseCase: fetchImageUseCase
+        )
         vm.setActions(actions: GroupIntroduceViewModelActions(
             popCurrentPage: self?.popCurrentPage,
             didPop: self?.didPop)

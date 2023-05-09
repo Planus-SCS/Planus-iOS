@@ -129,7 +129,7 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
         case .member:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier, for: indexPath) as? GroupIntroduceMemberCell,
                   let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
-            cell.fill(name: item.name, introduce: item.desc, isCaptin: item.isCap)
+            cell.fill(name: item.name, introduce: item.description, isCaptin: item.isLeader)
             cell.fill(image: UIImage(named: "DefaultProfileMedium")!)
             return cell
         }

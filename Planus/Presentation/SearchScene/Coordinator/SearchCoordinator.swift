@@ -40,12 +40,12 @@ class SearchCoordinator: Coordinator {
         
     }
     
-    lazy var showGroupIntroducePage: (String) -> Void = { [weak self] groupId in
+    lazy var showGroupIntroducePage: (Int) -> Void = { [weak self] groupId in
         guard let self else { return }
         let groupIntroduceCoordinator = GroupIntroduceCoordinator(navigationController: self.navigationController)
         groupIntroduceCoordinator.finishDelegate = self
         self.childCoordinators.append(groupIntroduceCoordinator)
-        groupIntroduceCoordinator.start()
+        groupIntroduceCoordinator.start(id: groupId)
     }
     
     lazy var showGroupCreatePage: () -> Void = { [weak self] in

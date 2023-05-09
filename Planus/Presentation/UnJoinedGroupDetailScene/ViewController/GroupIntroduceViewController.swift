@@ -39,10 +39,11 @@ enum GroupIntroduceSectionKind: Int, CaseIterable {
 }
 
 struct Member {
-    var imageName: String
+    var id: Int
     var name: String
-    var isCap: Bool
-    var desc: String
+    var isLeader: Bool
+    var description: String?
+    var profileImageUrl: String?
 }
 
 class GroupIntroduceViewController: UIViewController {
@@ -237,7 +238,7 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier, for: indexPath) as? GroupIntroduceMemberCell,
                   let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
 
-            cell.fill(name: item.name, introduce: item.desc, isCaptin: item.isCap)
+            cell.fill(name: item.name, introduce: item.description, isCaptin: item.isLeader)
             cell.fill(image: UIImage(named: "DefaultProfileMedium")!)
             return cell
         }

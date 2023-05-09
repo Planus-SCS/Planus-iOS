@@ -12,12 +12,7 @@ class MyGroupMemberEditViewModel {
     
     var bag = DisposeBag()
     
-    var memberList: [Member]? = [
-        Member(imageName: "", name: "기정이짱짱", isCap: true, desc: "자기소개자기소개자기소개자기소개자기소개자기"),
-        Member(imageName: "", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기"),
-        Member(imageName: "", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기"),
-        Member(imageName: "", name: "이름름", isCap: false, desc: "자기소개자기소개자기소개자기소개자기소개자기")
-    ]
+    var memberList: [Member]?
     
     struct Input {
         var didTappedResignButton: Observable<String>

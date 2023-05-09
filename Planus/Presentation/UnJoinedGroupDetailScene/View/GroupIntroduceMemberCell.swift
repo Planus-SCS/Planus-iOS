@@ -86,7 +86,7 @@ class GroupIntroduceMemberCell: UICollectionViewCell {
         }
     }
     
-    func fill(name: String, introduce: String, isCaptin: Bool) {
+    func fill(name: String, introduce: String?, isCaptin: Bool) {
         memberNameLabel.text = name
         memberIntroduceLabel.text = introduce
         captinIconView.isHidden = !isCaptin

@@ -385,6 +385,8 @@
 		6AC0796D2A0A59FA007ACDB8 /* GroupRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0796C2A0A59FA007ACDB8 /* GroupRepository.swift */; };
 		6AC0796F2A0A7336007ACDB8 /* DefaultFetchUnJoinedGroupUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0796E2A0A7336007ACDB8 /* DefaultFetchUnJoinedGroupUseCase.swift */; };
 		6AC079722A0A73C4007ACDB8 /* FetchUnJoinedGroupUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079712A0A73C4007ACDB8 /* FetchUnJoinedGroupUseCase.swift */; };
+		6AC079742A0A77DC007ACDB8 /* MemberDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079732A0A77DC007ACDB8 /* MemberDTO.swift */; };
+		6AC079762A0A79B3007ACDB8 /* DefaultMemberRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079752A0A79B3007ACDB8 /* DefaultMemberRepository.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -769,6 +771,8 @@
 		6AC0796C2A0A59FA007ACDB8 /* GroupRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRepository.swift; sourceTree = "<group>"; };
 		6AC0796E2A0A7336007ACDB8 /* DefaultFetchUnJoinedGroupUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchUnJoinedGroupUseCase.swift; sourceTree = "<group>"; };
 		6AC079712A0A73C4007ACDB8 /* FetchUnJoinedGroupUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchUnJoinedGroupUseCase.swift; sourceTree = "<group>"; };
+		6AC079732A0A77DC007ACDB8 /* MemberDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberDTO.swift; sourceTree = "<group>"; };
+		6AC079752A0A79B3007ACDB8 /* DefaultMemberRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultMemberRepository.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1212,6 +1216,7 @@
 				6AC079162A08D788007ACDB8 /* DefaultImageRepository.swift */,
 				6AC079522A0A4D1C007ACDB8 /* DefaultMyGroupRepository.swift */,
 				6AC0796A2A0A5945007ACDB8 /* DefaultGroupRepository.swift */,
+				6AC079752A0A79B3007ACDB8 /* DefaultMemberRepository.swift */,
 			);
 			path = Repository;
 			sourceTree = "<group>";
@@ -1910,6 +1915,7 @@
 				6AC079502A0A4D08007ACDB8 /* GroupCreateDTO.swift */,
 				6AC079622A0A5746007ACDB8 /* UnJoinedGroupDetailDTO.swift */,
 				6AC079642A0A57BB007ACDB8 /* GroupTagDTO.swift */,
+				6AC079732A0A77DC007ACDB8 /* MemberDTO.swift */,
 			);
 			path = DataMapping;
 			sourceTree = "<group>";
@@ -2433,6 +2439,7 @@
 				6AC0790A2A08C799007ACDB8 /* ProfileDTO.swift in Sources */,
 				6A2BB1BD29E431740053C5CA /* MyPageEnquireViewController.swift in Sources */,
 				6A95DFE229D53BA1009017D8 /* GroupIntroduceDefaultHeaderView.swift in Sources */,
+				6AC079742A0A77DC007ACDB8 /* MemberDTO.swift in Sources */,
 				6A987A8F29DF119300C27D09 /* SmallCalendarView.swift in Sources */,
 				6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */,
 				6AC079022A07D464007ACDB8 /* TodoUpdateComparator.swift in Sources */,
@@ -2522,6 +2529,7 @@
 				6A95DFD029D50053009017D8 /* UIImage+Ext.swift in Sources */,
 				6AC079202A08E381007ACDB8 /* ImageFile.swift in Sources */,
 				6A08ADD329C8C26F005947D2 /* NetworkError.swift in Sources */,
+				6AC079762A0A79B3007ACDB8 /* DefaultMemberRepository.swift in Sources */,
 				6AC079532A0A4D1C007ACDB8 /* DefaultMyGroupRepository.swift in Sources */,
 				6A9AAB2929FA5A6C002A6DAF /* DefaultDeleteCategoryUseCase.swift in Sources */,
 				6A08AD9E29C89D93005947D2 /* SignInViewController.swift in Sources */,
