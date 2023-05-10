@@ -35,7 +35,7 @@ class GroupCreateCoordinator: Coordinator {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepository)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepository)
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepository)
-        let groupCreateUseCase = DefaultGroupCreateUseCase(myGroupRepository: myGroupRepo)
+        let groupCreateUseCase = DefaultGroupCreateUseCase.shared
         let vm = GroupCreateViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,

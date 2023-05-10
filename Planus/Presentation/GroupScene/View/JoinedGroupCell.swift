@@ -6,8 +6,12 @@
 //
 
 import UIKit
+import RxSwift
 
 class JoinedGroupCell: SearchResultCell {
+    
+    var bag: DisposeBag?
+    var indexPath: IndexPath?
 
     var chatButton: UIButton = {
         let button = UIButton(frame: .zero)
@@ -60,6 +64,12 @@ class JoinedGroupCell: SearchResultCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        onlineButton.setTitle("0", for: .normal)
     }
     
     override func configureView() {

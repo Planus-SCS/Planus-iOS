@@ -37,12 +37,14 @@ class GroupCoordinator: Coordinator {
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepository)
         let fetchMyGroupUseCase = DefaultFetchMyGroupListUseCase(myGroupRepository: myGroupRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
+        let groupCreateUseCase = DefaultGroupCreateUseCase.shared
         let vm = GroupListViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUsecase: refreshTokenUseCase,
             setTokenUseCase: setTokenUseCase,
             fetchMyGroupListUseCase: fetchMyGroupUseCase,
-            fetchImageUseCase: fetchImageUseCase
+            fetchImageUseCase: fetchImageUseCase,
+            groupCreateUseCase: groupCreateUseCase
         )
         
         vm.setActions(actions: GroupListViewModelActions(showJoinedGroupDetail: self?.showGroupDetailPage))

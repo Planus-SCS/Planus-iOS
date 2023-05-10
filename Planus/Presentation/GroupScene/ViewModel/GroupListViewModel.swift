@@ -25,7 +25,9 @@ class GroupListViewModel {
     struct Input {
         var viewDidLoad: Observable<Void>
         var tappedAt: Observable<Int>
-        var changedOnlineStateAt: Observable<Int>
+        var becameOnlineStateAt: Observable<Int>
+        var becameOfflineStateAt: Observable<Int>
+        var refreshRequired: Observable<Void>
     }
     
     struct Output {
@@ -38,18 +40,22 @@ class GroupListViewModel {
     var setTokenUseCase: SetTokenUseCase
     var fetchMyGroupListUseCase: FetchMyGroupListUseCase
     var fetchImageUseCase: FetchImageUseCase
+    var groupCreateUseCase: GroupCreateUseCase
+    
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUsecase: RefreshTokenUseCase,
         setTokenUseCase: SetTokenUseCase,
         fetchMyGroupListUseCase: FetchMyGroupListUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        fetchImageUseCase: FetchImageUseCase,
+        groupCreateUseCase: GroupCreateUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUsecase = refreshTokenUsecase
         self.setTokenUseCase = setTokenUseCase
         self.fetchMyGroupListUseCase = fetchMyGroupListUseCase
         self.fetchImageUseCase = fetchImageUseCase
+        self.groupCreateUseCase = groupCreateUseCase
     }
     
     func setActions(actions: GroupListViewModelActions) {
@@ -57,6 +63,8 @@ class GroupListViewModel {
     }
     
     func transform(input: Input) -> Output {
+        bindUseCase()
+        
         input
             .viewDidLoad
             .withUnretained(self)
@@ -66,10 +74,26 @@ class GroupListViewModel {
             .disposed(by: bag)
         
         input
-            .changedOnlineStateAt
+            .refreshRequired
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchMyGroupList()
+            })
+            .disposed(by: bag)
+        
+        input
+            .becameOnlineStateAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 print(index)
+            })
+            .disposed(by: bag)
+        
+        input
+            .becameOfflineStateAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                
             })
             .disposed(by: bag)
         
@@ -87,9 +111,19 @@ class GroupListViewModel {
             didChangeOnlineStateAt: didChangeOnlineStateAt.asObservable())
     }
     
+    func bindUseCase() {
+        groupCreateUseCase
+            .didCreateGroup
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchMyGroupList()
+            })
+            .disposed(by: bag)
+    }
+    
     func fetchMyGroupList() {
         guard let token = getTokenUseCase.execute() else { return }
-        print("here")
+
         fetchMyGroupListUseCase
             .execute(token: token)
             .subscribe(onSuccess: { [weak self] list in

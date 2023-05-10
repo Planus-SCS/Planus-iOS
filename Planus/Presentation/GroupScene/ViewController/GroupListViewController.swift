@@ -17,7 +17,9 @@ class GroupListViewController: UIViewController {
     var bag = DisposeBag()
         
     var tappedItemAt = PublishSubject<Int>()
-    var changedOnlineStateAt = PublishSubject<Int>()
+    var becameOnlineStateAt = PublishSubject<Int>()
+    var becameOfflineStateAt = PublishSubject<Int>()
+
     var refreshRequired = PublishSubject<Void>()
     
     lazy var refreshControl: UIRefreshControl = {
@@ -101,7 +103,9 @@ class GroupListViewController: UIViewController {
         let input = GroupListViewModel.Input(
             viewDidLoad: Observable.just(()),
             tappedAt: tappedItemAt.asObservable(),
-            changedOnlineStateAt: changedOnlineStateAt.asObservable()
+            becameOnlineStateAt: becameOnlineStateAt.asObservable(),
+            becameOfflineStateAt: becameOfflineStateAt.asObservable(),
+            refreshRequired: refreshRequired.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -142,7 +146,7 @@ class GroupListViewController: UIViewController {
     }
     
     @objc func refresh(_ sender: UIRefreshControl) {
-        self.resultCollectionView.reloadData()
+        refreshRequired.onNext(())
     }
 }
 
@@ -159,6 +163,22 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupCell.reuseIdentifier, for: indexPath) as? JoinedGroupCell,
               let item = viewModel?.groupList?[indexPath.item] else { return UICollectionViewCell() }
 
+        let cellBag = DisposeBag()
+        cell.indexPath = indexPath
+        cell.bag = cellBag
+        cell.onlineSwitch.rx.isOn
+            .withUnretained(self)
+            .subscribe(onNext: { vc, isOn in
+                // 네트워크 요청 성공 시 스위치 토글을 옮겨야한다..!
+                // 아니면 요청후 성공하면 유지, 실패하면 다시 원래자리로 돌리는거..?
+                if isOn {
+                    vc.becameOnlineStateAt.onNext(indexPath.item)
+                } else {
+                    vc.becameOfflineStateAt.onNext(indexPath.item)
+                }
+            })
+            .disposed(by: cellBag)
+        
         cell.fill(
             title: item.groupName,
             tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
