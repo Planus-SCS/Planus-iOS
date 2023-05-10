@@ -72,4 +72,19 @@ class DefaultMyGroupRepository: MyGroupRepository {
             type: ResponseDTO<GroupJoinRejectResponseDTO>.self
         )
     }
+    
+    func fetchGroupList(token: String) -> Single<ResponseDTO<[MyGroupSummaryResponseDTO]>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.myGroup,
+            requestType: .post,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<[MyGroupSummaryResponseDTO]>.self
+        )
+    }
 }

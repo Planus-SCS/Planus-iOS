@@ -17,13 +17,13 @@ class GroupListViewModel {
     var bag = DisposeBag()
     var actions: GroupListViewModelActions?
     
-    var groupList: [JoinedGroupViewModel]? = [
-    ]
+    var groupList: [MyGroupSummary]?
     
     var didFetchedGroupList = BehaviorSubject<Void?>(value: nil)
     
     struct Input {
         var didTappedAt: Observable<Int>
+        var didChangedOnlineStateAt: Observable<Int>
     }
     
     struct Output {

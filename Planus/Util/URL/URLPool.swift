@@ -20,4 +20,5 @@ struct URLPool {
     static let oauthGoogle = Base.main + Path.app + Path.oauth + Path.google
     static let groups = Base.main + Path.app + Path.groups
     static let groupJoin = Self.groups + Path.joins
+    static let myGroup = Base.main + Path.app + Path.myGroups
 }
