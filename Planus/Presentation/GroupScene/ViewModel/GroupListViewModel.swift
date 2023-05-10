@@ -85,7 +85,7 @@ class GroupListViewModel {
             .becameOnlineStateAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                print(index)
+                // 벨류가 바뀌면 저짝에다가 보내고,
             })
             .disposed(by: bag)
         

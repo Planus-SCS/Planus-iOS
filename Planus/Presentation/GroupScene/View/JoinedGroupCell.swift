@@ -51,7 +51,6 @@ class JoinedGroupCell: SearchResultCell {
         swicth.layer.cornerRadius = 14
         swicth.backgroundColor = UIColor(hex: 0x6F81A9)
         swicth.clipsToBounds = true
-        
         return swicth
     }()
     

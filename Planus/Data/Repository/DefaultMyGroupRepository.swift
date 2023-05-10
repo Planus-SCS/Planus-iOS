@@ -87,4 +87,19 @@ class DefaultMyGroupRepository: MyGroupRepository {
             type: ResponseDTO<[MyGroupSummaryResponseDTO]>.self
         )
     }
+    
+    func changeOnlineState(token: String, groupId: Int) -> Single<ResponseDTO<GroupSetOnlineResponseDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.myGroup + "/\(groupId)/online-status",
+            requestType: .patch,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<GroupSetOnlineResponseDTO>.self
+        )
+    }
 }
