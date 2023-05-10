@@ -18,12 +18,6 @@ class GroupListViewModel {
     var actions: GroupListViewModelActions?
     
     var groupList: [JoinedGroupViewModel]? = [
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest1", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest2", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest3", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest4", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest2", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4"),
-        JoinedGroupViewModel(id: "1", title: "가보자네카라쿠베베", imageName: "groupTest1", tag: "#태그개수 #4개까지 #제한하는거 #어때 #5개까지", memCount: "4/18", captin: "기정이짱짱", onlineCount: "4")
     ]
     
     var didFetchedGroupList = BehaviorSubject<Void?>(value: nil)

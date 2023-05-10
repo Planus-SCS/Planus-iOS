@@ -44,6 +44,7 @@ final class AppCoordinator: Coordinator {
             observable
                 .observe(on: MainScheduler.asyncInstance)
                 .subscribe(onSuccess: { [weak self] token in //토큰 리프레시 성공한거임. 메인탭으로
+                    print("newToken: ", token)
                     setTokenUseCase.execute(token: token)
                     self?.showMainTabFlow()
                 }, onFailure: { [weak self] error in
