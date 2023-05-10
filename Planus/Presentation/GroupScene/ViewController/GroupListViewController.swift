@@ -8,27 +8,16 @@
 import UIKit
 import RxSwift
 
-struct JoinedGroupViewModel {
-    var id: String
-    var title: String
-    var imageName: String
-    var tag: String?
-    var memCount: String
-    var captin: String
-    var onlineCount: String
-}
-
 class GroupListViewController: UIViewController {
     
     static let headerElementKind = "group-list-view-controller-header-kind"
     
     var viewModel: GroupListViewModel?
-    // 필요한거 화면에 뿌려줄 컬렉션 뷰, 근데 검색 결과를 보여줄 땐 한 뎁스를 타고 들어가야 한다!
+
     var bag = DisposeBag()
-    
-//    var viewModel: SearchViewModel?
-    
+        
     var tappedItemAt = PublishSubject<Int>()
+    var changedOnlineStateAt = PublishSubject<Int>()
     var refreshRequired = PublishSubject<Void>()
     
     lazy var refreshControl: UIRefreshControl = {
@@ -43,9 +32,15 @@ class GroupListViewController: UIViewController {
         collectionView.register(JoinedGroupSectionHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: JoinedGroupSectionHeaderView.reuseIdentifier)
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        collectionView.backgroundColor = .clear
         collectionView.refreshControl = refreshControl
         return collectionView
+    }()
+    
+    var emptyResultView: EmptyResultView = {
+        let view = EmptyResultView(text: "그룹 신청이 없습니다.")
+        view.isHidden = true
+        return view
     }()
     
     lazy var notificationButton: UIBarButtonItem = {
@@ -91,74 +86,47 @@ class GroupListViewController: UIViewController {
         
         configureView()
         configureLayout()
-        navigationItem.setRightBarButton(notificationButton, animated: true)
         bind()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationItem.title = "내가 참여중인 그룹"
+        navigationItem.setRightBarButton(notificationButton, animated: true)
     }
     
     func bind() {
         guard let viewModel else { return }
-        let input = GroupListViewModel.Input(didTappedAt: tappedItemAt.asObservable())
+        
+        let input = GroupListViewModel.Input(
+            viewDidLoad: Observable.just(()),
+            tappedAt: tappedItemAt.asObservable(),
+            changedOnlineStateAt: changedOnlineStateAt.asObservable()
+        )
+        
         let output = viewModel.transform(input: input)
+        
         output
-            .didFetchedJoinedGroup
+            .didFetchJoinedGroup
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.resultCollectionView.reloadData()
+                vc.emptyResultView.isHidden = (viewModel.groupList?.count == 0) ? true : false
+            })
+            .disposed(by: bag)
+        
+        output
+            .didChangeOnlineStateAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                print(index)
             })
             .disposed(by: bag)
     }
     
-//    func bind() {
-//        guard let viewModel else { return }
-//
-//        let input = SearchViewModel.Input(
-//            viewDidLoad: Observable.just(()),
-//            tappedItemAt: tappedItemAt.asObservable(),
-//            refreshRequired: refreshRequired.asObservable(),
-//            keywordChanged: searchBarField.rx.text.asObservable(),
-//            searchBtnTapped: searchBtnTapped.asObservable(),
-//            createBtnTapped: createGroupButton.rx.tap.asObservable()
-//        )
-//
-//        let output = viewModel.transform(input: input)
-//
-//        output
-//            .didFinishFetchResult
-//            .compactMap { $0 }
-//            .withUnretained(self)
-//            .subscribe(onNext: { vc, _ in
-//                vc.resultCollectionView.reloadData()
-//            })
-//            .disposed(by: bag)
-//
-//        output
-//            .fetchResultProcessing
-//            .compactMap { $0 }
-//            .withUnretained(self)
-//            .subscribe(onNext: { vc, _ in
-//                /*
-//                 로딩 인디케이터 or 스켈레톤뷰
-//                 */
-//            })
-//            .disposed(by: bag)
-//
-//        output
-//            .didAddResult
-//            .withUnretained(self)
-//            .subscribe(onNext: { count in
-//                /*
-//                 insert
-//                 */
-//            })
-//            .disposed(by: bag)
-//    }
     
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
@@ -177,8 +145,7 @@ class GroupListViewController: UIViewController {
         self.resultCollectionView.reloadData()
     }
 }
-//
-//
+
 extension GroupListViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -191,8 +158,22 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupCell.reuseIdentifier, for: indexPath) as? JoinedGroupCell,
               let item = viewModel?.groupList?[indexPath.item] else { return UICollectionViewCell() }
+
+        cell.fill(
+            title: item.groupName,
+            tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
+            memCount: "\(item.totalCount)/\(item.limitCount)",
+            leaderName: item.leaderName,
+            onlineCount: "\(item.onlineCount)"
+        )
         
-        cell.fill(title: item.title, tag: item.tag, memCount: item.memCount, captin: item.captin, onlineCount: item.onlineCount, image: item.imageName)
+        viewModel?.fetchImage(key: item.groupImageUrl)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { data in
+                cell.fill(image: UIImage(data: data))
+            })
+            .disposed(by: bag)
+        
         return cell
     }
     

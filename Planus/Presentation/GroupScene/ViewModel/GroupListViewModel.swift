@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 struct GroupListViewModelActions {
-    var showJoinedGroupDetail: ((String) -> Void)?
+    var showJoinedGroupDetail: ((Int) -> Void)?
 }
 
 class GroupListViewModel {
@@ -19,18 +19,38 @@ class GroupListViewModel {
     
     var groupList: [MyGroupSummary]?
     
-    var didFetchedGroupList = BehaviorSubject<Void?>(value: nil)
+    var didFetchGroupList = BehaviorSubject<Void?>(value: nil)
+    var didChangeOnlineStateAt = PublishSubject<Int>()
     
     struct Input {
-        var didTappedAt: Observable<Int>
-        var didChangedOnlineStateAt: Observable<Int>
+        var viewDidLoad: Observable<Void>
+        var tappedAt: Observable<Int>
+        var changedOnlineStateAt: Observable<Int>
     }
     
     struct Output {
-        var didFetchedJoinedGroup: Observable<Void?>
+        var didFetchJoinedGroup: Observable<Void?>
+        var didChangeOnlineStateAt: Observable<Int>
     }
     
-    init() {}
+    var getTokenUseCase: GetTokenUseCase
+    var refreshTokenUsecase: RefreshTokenUseCase
+    var setTokenUseCase: SetTokenUseCase
+    var fetchMyGroupListUseCase: FetchMyGroupListUseCase
+    var fetchImageUseCase: FetchImageUseCase
+    init(
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUsecase: RefreshTokenUseCase,
+        setTokenUseCase: SetTokenUseCase,
+        fetchMyGroupListUseCase: FetchMyGroupListUseCase,
+        fetchImageUseCase: FetchImageUseCase
+    ) {
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUsecase = refreshTokenUsecase
+        self.setTokenUseCase = setTokenUseCase
+        self.fetchMyGroupListUseCase = fetchMyGroupListUseCase
+        self.fetchImageUseCase = fetchImageUseCase
+    }
     
     func setActions(actions: GroupListViewModelActions) {
         self.actions = actions
@@ -38,18 +58,49 @@ class GroupListViewModel {
     
     func transform(input: Input) -> Output {
         input
-            .didTappedAt
+            .viewDidLoad
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchMyGroupList()
+            })
+            .disposed(by: bag)
+        
+        input
+            .changedOnlineStateAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                guard let list = vm.groupList else { return }
-                let id = list[index].id
+                print(index)
+            })
+            .disposed(by: bag)
+        
+        input
+            .tappedAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                guard let id = vm.groupList?[index].groupId else { return }
                 vm.actions?.showJoinedGroupDetail?(id)
             })
             .disposed(by: bag)
-        return Output(didFetchedJoinedGroup: didFetchedGroupList)
+        
+        return Output(
+            didFetchJoinedGroup: didFetchGroupList,
+            didChangeOnlineStateAt: didChangeOnlineStateAt.asObservable())
     }
     
-    func fetchGroupList() {
-        didFetchedGroupList.onNext(())
+    func fetchMyGroupList() {
+        guard let token = getTokenUseCase.execute() else { return }
+        print("here")
+        fetchMyGroupListUseCase
+            .execute(token: token)
+            .subscribe(onSuccess: { [weak self] list in
+                self?.groupList = list
+                self?.didFetchGroupList.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchImage(key: String) -> Single<Data> {
+        fetchImageUseCase
+            .execute(key: key)
     }
 }

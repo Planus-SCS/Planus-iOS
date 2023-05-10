@@ -76,7 +76,7 @@ class DefaultMyGroupRepository: MyGroupRepository {
     func fetchGroupList(token: String) -> Single<ResponseDTO<[MyGroupSummaryResponseDTO]>> {
         let endPoint = APIEndPoint(
             url: URLPool.myGroup,
-            requestType: .post,
+            requestType: .get,
             body: nil,
             query: nil,
             header: ["Authorization": "Bearer \(token)"]

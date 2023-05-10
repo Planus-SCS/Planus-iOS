@@ -21,11 +21,11 @@ class JoinedGroupDetailCoordinator: Coordinator {
         self.navigationController = navigationController
     }
     
-    func start(id: String) {
+    func start(id: Int) {
         showGroupDetailPage(id)
     }
     
-    lazy var showGroupDetailPage: (String) -> Void = { [weak self] id in
+    lazy var showGroupDetailPage: (Int) -> Void = { [weak self] id in
         let repo = TestTodoDetailRepository(apiProvider: NetworkManager())
         let c = DefaultCreateMonthlyCalendarUseCase()
         let f = DefaultReadTodoListUseCase(todoRepository: repo)

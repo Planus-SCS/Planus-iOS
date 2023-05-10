@@ -93,10 +93,8 @@ class JoinedGroupCell: SearchResultCell {
         }
     }
     
-    func fill(title: String, tag: String?, memCount: String, captin: String, onlineCount: String, image: String) {
-        super.fill(title: title, tag: tag, memCount: memCount, captin: captin)
-        super.fill(image: UIImage(named: image))
-        
+    func fill(title: String, tag: String?, memCount: String, leaderName: String, onlineCount: String) {
+        super.fill(title: title, tag: tag, memCount: memCount, captin: leaderName)
         onlineButton.setTitle(onlineCount, for: .normal)
     }
 }

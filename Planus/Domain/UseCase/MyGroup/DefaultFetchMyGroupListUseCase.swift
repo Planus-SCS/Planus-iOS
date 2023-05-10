@@ -1,5 +1,5 @@
 //
-//  DefaultFetchMyGroupUseCase.swift
+//  DefaultFetchMyGroupListUseCase.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/05/10.
@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultFetchMyGroupUseCase: FetchMyGroupUseCase {
+class DefaultFetchMyGroupListUseCase: FetchMyGroupListUseCase {
     let myGroupRepository: MyGroupRepository
     
     init(myGroupRepository: MyGroupRepository) {

@@ -95,11 +95,7 @@ class NotificationViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.resultCollectionView.reloadData()
-                if viewModel.joinAppliedList?.count == 0 {
-                    vc.emptyResultView.isHidden = false
-                } else {
-                    vc.emptyResultView.isHidden = true
-                }
+                vc.emptyResultView.isHidden = (viewModel.joinAppliedList?.count == 0) ? true : false
             })
             .disposed(by: bag)
         
