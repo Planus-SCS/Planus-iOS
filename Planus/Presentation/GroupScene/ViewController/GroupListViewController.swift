@@ -129,6 +129,16 @@ class GroupListViewController: UIViewController {
                 print(index)
             })
             .disposed(by: bag)
+        
+        output
+            .needReloadItemAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                
+                vc.resultCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            })
+            .disposed(by: bag)
     }
     
     

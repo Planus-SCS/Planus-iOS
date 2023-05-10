@@ -21,6 +21,7 @@ class GroupListViewModel {
     
     var didFetchGroupList = BehaviorSubject<Void?>(value: nil)
     var didChangeOnlineStateAt = PublishSubject<Int>()
+    var needReloadItemAt = PublishSubject<Int>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -33,6 +34,7 @@ class GroupListViewModel {
     struct Output {
         var didFetchJoinedGroup: Observable<Void?>
         var didChangeOnlineStateAt: Observable<Int>
+        var needReloadItemAt: Observable<Int>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -41,6 +43,7 @@ class GroupListViewModel {
     var fetchMyGroupListUseCase: FetchMyGroupListUseCase
     var fetchImageUseCase: FetchImageUseCase
     var groupCreateUseCase: GroupCreateUseCase
+    var setOnlineUseCase: SetOnlineUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
@@ -48,7 +51,8 @@ class GroupListViewModel {
         setTokenUseCase: SetTokenUseCase,
         fetchMyGroupListUseCase: FetchMyGroupListUseCase,
         fetchImageUseCase: FetchImageUseCase,
-        groupCreateUseCase: GroupCreateUseCase
+        groupCreateUseCase: GroupCreateUseCase,
+        setOnlineUseCase: SetOnlineUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUsecase = refreshTokenUsecase
@@ -56,6 +60,7 @@ class GroupListViewModel {
         self.fetchMyGroupListUseCase = fetchMyGroupListUseCase
         self.fetchImageUseCase = fetchImageUseCase
         self.groupCreateUseCase = groupCreateUseCase
+        self.setOnlineUseCase = setOnlineUseCase
     }
     
     func setActions(actions: GroupListViewModelActions) {
@@ -85,7 +90,7 @@ class GroupListViewModel {
             .becameOnlineStateAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                // 벨류가 바뀌면 저짝에다가 보내고,
+                vm.setOnline(index: index)
             })
             .disposed(by: bag)
         
@@ -93,7 +98,7 @@ class GroupListViewModel {
             .becameOfflineStateAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                
+                vm.setOnline(index: index)
             })
             .disposed(by: bag)
         
@@ -108,7 +113,9 @@ class GroupListViewModel {
         
         return Output(
             didFetchJoinedGroup: didFetchGroupList,
-            didChangeOnlineStateAt: didChangeOnlineStateAt.asObservable())
+            didChangeOnlineStateAt: didChangeOnlineStateAt.asObservable(),
+            needReloadItemAt: needReloadItemAt.asObservable()
+        )
     }
     
     func bindUseCase() {
@@ -117,6 +124,32 @@ class GroupListViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.fetchMyGroupList()
+            })
+            .disposed(by: bag)
+        
+        setOnlineUseCase
+            .didChangeOnlineState
+            .withUnretained(self)
+            .subscribe(onNext: { vm, groupId in
+                guard let index = vm.groupList?.firstIndex(where: { $0.groupId == groupId }),
+                      var group = vm.groupList?[index] else { return }
+                
+                group.isOnline = !group.isOnline
+                group.totalCount = group.isOnline ? group.totalCount + 1 : group.totalCount - 1
+                vm.groupList?[index] = group
+                vm.needReloadItemAt.onNext(index)
+            })
+            .disposed(by: bag)
+    }
+    
+    func setOnline(index: Int) {
+        guard let token = getTokenUseCase.execute(),
+              let groupId = self.groupList?[index].groupId  else { return }
+        
+        setOnlineUseCase
+            .execute(token: token, groupId: groupId)
+            .subscribe(onSuccess: { [weak self] _ in
+                // 처리를 유즈케이스 바인딩을 통해 하고있음.
             })
             .disposed(by: bag)
     }

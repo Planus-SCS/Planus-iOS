@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import RxSwift
 
 protocol SetOnlineUseCase {
+    var didChangeOnlineState: PublishSubject<Int> { get }
     func execute(token: Token, groupId: Int) -> Single<Void>
 }
