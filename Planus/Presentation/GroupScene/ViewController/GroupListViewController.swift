@@ -66,7 +66,9 @@ class GroupListViewController: UIViewController {
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
         let fetchJoinApplyUseCase = DefaultFetchJoinApplyListUseCase(myGroupRepository: myGroupRepo)
-        let vm = NotificationViewModel(getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, setTokenUseCase: setTokenUseCase, fetchJoinApplyListUseCase: fetchJoinApplyUseCase, fetchImageUseCase: fetchImageUseCase)
+        let acceptGroupJoinUseCase = DefaultAcceptGroupJoinUseCase(myGroupRepository: myGroupRepo)
+        let denyGroupJoinUseCase = DefaultDenyGroupJoinUseCase(myGroupRepository: myGroupRepo)
+        let vm = NotificationViewModel(getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, setTokenUseCase: setTokenUseCase, fetchJoinApplyListUseCase: fetchJoinApplyUseCase, fetchImageUseCase: fetchImageUseCase, acceptGroupJoinUseCase: acceptGroupJoinUseCase, denyGroupJoinUseCase: denyGroupJoinUseCase)
         let vc = NotificationViewController(viewModel: vm)
         navigationController?.pushViewController(vc, animated: true)
     }

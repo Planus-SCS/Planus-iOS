@@ -95,10 +95,21 @@ class NotificationViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.resultCollectionView.reloadData()
-                if viewModel.joinApplyList?.count == 0 {
+                if viewModel.joinAppliedList?.count == 0 {
                     vc.emptyResultView.isHidden = false
                 } else {
                     vc.emptyResultView.isHidden = true
+                }
+            })
+            .disposed(by: bag)
+        
+        output
+            .needRemoveAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                vc.resultCollectionView.performBatchUpdates {
+                    vc.resultCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
                 }
             })
             .disposed(by: bag)
@@ -137,11 +148,11 @@ extension NotificationViewController: UICollectionViewDataSource, UICollectionVi
         1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel?.joinApplyList?.count ?? Int()
+        viewModel?.joinAppliedList?.count ?? Int()
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let item = viewModel?.joinApplyList?[indexPath.item],
+        guard let item = viewModel?.joinAppliedList?[indexPath.item],
               let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupJoinNotificationCell.reuseIdentifier, for: indexPath) as? GroupJoinNotificationCell else { return UICollectionViewCell() }
         
         var bag = DisposeBag()
