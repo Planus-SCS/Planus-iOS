@@ -143,11 +143,21 @@ class GroupListViewModel {
     }
     
     func setOnline(index: Int) {
-        guard let token = getTokenUseCase.execute(),
-              let groupId = self.groupList?[index].groupId  else { return }
+        guard let groupId = self.groupList?[index].groupId  else { return }
         
-        setOnlineUseCase
-            .execute(token: token, groupId: groupId)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.setOnlineUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUsecase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] _ in
                 // 처리를 유즈케이스 바인딩을 통해 하고있음.
             })
@@ -155,10 +165,19 @@ class GroupListViewModel {
     }
     
     func fetchMyGroupList() {
-        guard let token = getTokenUseCase.execute() else { return }
-
-        fetchMyGroupListUseCase
-            .execute(token: token)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[MyGroupSummary]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchMyGroupListUseCase
+                    .execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUsecase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] list in
                 self?.groupList = list
                 self?.didFetchGroupList.onNext(())

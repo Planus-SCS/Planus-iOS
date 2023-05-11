@@ -95,10 +95,19 @@ class MyPageMainViewModel {
     }
     
     func fetchUserProfile() {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        readProfileUseCase
-            .execute(token: token)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Profile> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.readProfileUseCase
+                    .execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] profile in
                 self?.name = profile.nickName
                 self?.introduce = profile.description

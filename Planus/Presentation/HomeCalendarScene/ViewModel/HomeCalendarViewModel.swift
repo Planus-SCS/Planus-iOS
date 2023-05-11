@@ -124,6 +124,7 @@ class HomeCalendarViewModel {
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
+        
         self.createTodoUseCase = createTodoUseCase
         self.readTodoListUseCase = readTodoListUseCase
         self.updateTodoUseCase = updateTodoUseCase
@@ -303,7 +304,6 @@ class HomeCalendarViewModel {
             .subscribe(onNext: { vm, category in
                 guard let id = category.id else { return }
                 vm.categoryDict[id] = category
-                print(vm.categoryDict)
                 vm.needReloadData.onNext(())
             })
             .disposed(by: bag)
@@ -410,12 +410,21 @@ class HomeCalendarViewModel {
         
         let fromMonthStart = calendar.date(byAdding: DateComponents(day: -7), to: calendar.startOfDay(for: fromMonth)) ?? Date()
         let toMonthStart = calendar.date(byAdding: DateComponents(day: 7), to: calendar.startOfDay(for: toMonth)) ?? Date()
-        
-        guard let token = getTokenUseCase.execute() else {
-            return
-        }
-        
-        readTodoListUseCase.execute(token: token, from: fromMonthStart, to: toMonthStart)
+
+
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[Date: [Todo]]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.readTodoListUseCase
+                    .execute(token: token, from: fromMonthStart, to: toMonthStart)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 (fromIndex..<toIndex).forEach { index in
@@ -434,13 +443,20 @@ class HomeCalendarViewModel {
     }
     
     func fetchCategoryAndGroup() {
-        guard let token = getTokenUseCase.execute() else {
-            print("token이 저장되지 않음")
-            return
-        }
-
-        readCategoryListUseCase
-            .execute(token: token)
+        
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[Category]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.readCategoryListUseCase
+                    .execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] list in
                 list.forEach {
                     guard let id = $0.id else { return }
@@ -450,14 +466,24 @@ class HomeCalendarViewModel {
                 self?.initialReadGroup.onNext(())
             })
             .disposed(by: bag)
-        //토큰따라 리트라이 로직 필요
+
     }
     
     func fetchProfile() {
-        guard let token = getTokenUseCase.execute() else { return }
         
-        readProfileUseCase
-            .execute(token: token)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Profile> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.readProfileUseCase
+                    .execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] profile in
                 guard let self else { return }
                 guard let imageUrl = profile.imageUrl else {

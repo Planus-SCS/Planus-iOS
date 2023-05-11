@@ -40,21 +40,22 @@ final class AppCoordinator: Coordinator {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
-        if let observable = refreshTokenUseCase.execute() {
-            observable
-                .observe(on: MainScheduler.asyncInstance)
-                .subscribe(onSuccess: { [weak self] token in //토큰 리프레시 성공한거임. 메인탭으로
-                    print("newToken: ", token)
-                    setTokenUseCase.execute(token: token)
-                    self?.showMainTabFlow()
-                }, onFailure: { [weak self] error in
-                    print(error)
-                    self?.showSignInFlow()
-                })
-                .disposed(by: bag)
-        } else { //아에 존재조차 안함. signin 창으로 보내야함
-            showSignInFlow()
-        }
+        
+        getTokenUseCase
+            .execute()
+            .flatMap { _ in
+                return refreshTokenUseCase.execute()
+            }
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] _ in
+                print("Succ")
+                self?.showMainTabFlow()
+            }, onFailure: { [weak self] error in
+                self?.showSignInFlow()
+                
+            })
+            .disposed(by: bag)
+            
     }
     
     func showSignInFlow() {

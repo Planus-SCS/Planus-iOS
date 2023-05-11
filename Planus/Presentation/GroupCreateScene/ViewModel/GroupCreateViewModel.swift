@@ -165,7 +165,6 @@ class GroupCreateViewModel {
     }
     
     func createGroup() {
-        guard let token = getTokenUseCase.execute() else { return }
         
         guard let name = try? title.value(),
               let notice = try? notice.value(),
@@ -178,12 +177,23 @@ class GroupCreateViewModel {
             .map { GroupTag(name: $0)}
         
         let groupCreate = GroupCreate(name: name, notice: notice, tagList: tagList, limitCount: limitCount)
-        
-        groupCreateUseCase
-            .execute(
-                token: token,
-                groupCreate: groupCreate,
-                image: image
+
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.groupCreateUseCase
+                    .execute(
+                        token: token,
+                        groupCreate: groupCreate,
+                        image: image
+                    )
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.groupCreateCompleted.onNext(())

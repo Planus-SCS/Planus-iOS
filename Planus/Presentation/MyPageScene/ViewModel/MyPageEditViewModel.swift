@@ -104,9 +104,19 @@ class MyPageEditViewModel {
     }
     
     func fetchProfile() {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        readProfileUseCase.execute(token: token)
+
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Profile> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.readProfileUseCase.execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] profile in
                 guard let self else { return }
 
@@ -124,18 +134,29 @@ class MyPageEditViewModel {
     }
     
     func updateProfile() {
-        guard let token = getTokenUseCase.execute(),
-              let name = try? name.value() else { return }
+        guard let name = try? name.value() else { return }
 
-        updateProfileUseCase.execute(
-            token: token,
-            name: name,
-            introduce: try? introduce.value(),
-            image: try? profileImage.value()
-        ).subscribe(onSuccess: { [weak self] _ in
-            self?.didUpdateProfile.onNext(())
-        })
-        .disposed(by: bag)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.updateProfileUseCase.execute(
+                    token: token,
+                    name: name,
+                    introduce: try? self.introduce.value(),
+                    image: try? self.profileImage.value()
+                )
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.didUpdateProfile.onNext(())
+            })
+            .disposed(by: bag)
     }
     
     func fetchImage(key: String) -> Single<Data> {

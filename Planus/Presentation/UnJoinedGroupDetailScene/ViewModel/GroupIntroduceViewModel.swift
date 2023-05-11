@@ -115,10 +115,20 @@ class GroupIntroduceViewModel {
     }
     
     func fetchGroupInfo(id: Int) {
-        guard let token = getTokenUseCase.execute() else { return }
         
-        fetchUnJoinedGroupUseCase
-            .execute(token: token, id: id)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<UnJoinedGroupDetail> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchUnJoinedGroupUseCase
+                    .execute(token: token, id: id)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] groupDetail in
                 self?.groupTitle = groupDetail.name
                 self?.tag = groupDetail.groupTags.map { "#\($0.name)" }.joined(separator: " ")
@@ -131,8 +141,19 @@ class GroupIntroduceViewModel {
             })
             .disposed(by: bag)
         
-        fetchMemberListUseCase
-            .execute(token: token, groupId: id)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[Member]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchMemberListUseCase
+                    .execute(token: token, groupId: id)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] list in
                 self?.memberList = list
                 self?.didGroupMemberFetched.onNext(())
@@ -141,11 +162,21 @@ class GroupIntroduceViewModel {
     }
     
     func requestJoinGroup() {
-        guard let token = getTokenUseCase.execute(),
-              let groupId = groupId else { return }
-        
-        applyGroupJoinUseCase
-            .execute(token: token, groupId: groupId)
+        guard let groupId = groupId else { return }
+
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.applyGroupJoinUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.actions?.popCurrentPage?()
             })

@@ -376,9 +376,19 @@ final class TodoDetailViewModel {
     }
     
     func fetchCategoryList() {
-        guard let token = getTokenUseCase.execute() else { return }
-        readCategoryUseCase
-            .execute(token: token)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[Category]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.readCategoryUseCase
+                    .execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] list in
                 self?.categorys = list.filter { $0.status == .active }
                 self?.needReloadCategoryList.onNext(())
@@ -387,15 +397,23 @@ final class TodoDetailViewModel {
     }
     
     func fetchGroupList() {
-        guard let token = getTokenUseCase.execute() else { return }
         
     }
     
     func createTodo(todo: Todo) {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        createTodoUseCase
-            .execute(token: token, todo: todo)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Int> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.createTodoUseCase
+                    .execute(token: token, todo: todo)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] id in
                 var todoWithId = todo
                 todoWithId.id = id
@@ -405,10 +423,19 @@ final class TodoDetailViewModel {
     }
     
     func updateTodo(todoUpdate: TodoUpdateComparator) {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        updateTodoUseCase
-            .execute(token: token, todoUpdate: todoUpdate)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.updateTodoUseCase
+                    .execute(token: token, todoUpdate: todoUpdate)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.needDismiss.onNext(())
             })
@@ -416,10 +443,19 @@ final class TodoDetailViewModel {
     }
     
     func deleteTodo(todo: Todo) {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        deleteTodoUseCase
-            .execute(token: token, todo: todo)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.deleteTodoUseCase
+                    .execute(token: token, todo: todo)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.needDismiss.onNext(())
             })
@@ -427,9 +463,19 @@ final class TodoDetailViewModel {
     }
 
     func saveNewCategory(category: Category) {
-        guard let token = getTokenUseCase.execute() else { return }
-        createCategoryUseCase
-            .execute(token: token, category: category)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Int> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.createCategoryUseCase
+                    .execute(token: token, category: category)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] id in
                 var categoryWithId = category
                 categoryWithId.id = id
@@ -442,11 +488,21 @@ final class TodoDetailViewModel {
     }
     
     func updateCategory(category: Category) {
-        guard let token = getTokenUseCase.execute(),
-              let id = category.id else { return }
+        guard let id = category.id else { return }
         
-        updateCategoryUseCase
-            .execute(token: token, id: id, category: category)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Int> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.updateCategoryUseCase
+                    .execute(token: token, id: id, category: category)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] id in
                 guard let index = self?.categorys.firstIndex(where: { $0.id == id }) else { return }
                 self?.categorys[index] = category
@@ -459,10 +515,19 @@ final class TodoDetailViewModel {
     }
     
     func deleteCategory(id: Int) {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        deleteCategoryUseCase
-            .execute(token: token, id: id)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.deleteCategoryUseCase
+                    .execute(token: token, id: id)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] in
                 print("removed!!")
             })

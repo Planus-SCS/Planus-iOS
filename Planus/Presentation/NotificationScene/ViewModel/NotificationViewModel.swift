@@ -86,11 +86,21 @@ class NotificationViewModel {
     }
     
     func acceptGroupJoinAt(index: Int) {
-        guard let token = getTokenUseCase.execute(),
-              let id = joinAppliedList?[index].groupJoinId else { return }
+        guard let id = joinAppliedList?[index].groupJoinId else { return }
 
-        acceptGroupJoinUseCase
-            .execute(token: token, applyId: id)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.acceptGroupJoinUseCase
+                    .execute(token: token, applyId: id)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] _ in
                 /*
                  여기서 저거 알림온거를 삭제한다? 삭제먼저? 아님 요청 응답오면 삭제? 일단 로딩을 띄우도록 하자,,!
@@ -102,11 +112,21 @@ class NotificationViewModel {
     }
     
     func denyGroupJoinAt(index: Int) {
-        guard let token = getTokenUseCase.execute(),
-              let id = joinAppliedList?[index].groupJoinId else { return }
+        guard let id = joinAppliedList?[index].groupJoinId else { return }
         
-        denyGroupJoinUseCase
-            .execute(token: token, applyId: id)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.denyGroupJoinUseCase
+                    .execute(token: token, applyId: id)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.joinAppliedList?.remove(at: index)
                 self?.needRemoveAt.onNext(index)
@@ -115,10 +135,19 @@ class NotificationViewModel {
     }
     
     func fetchJoinApplyList() {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        fetchJoinApplyListUseCase
-            .execute(token: token)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[GroupJoinApplied]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchJoinApplyListUseCase
+                    .execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] list in
                 self?.joinAppliedList = list
                 self?.didFetchJoinApplyList.onNext(())
