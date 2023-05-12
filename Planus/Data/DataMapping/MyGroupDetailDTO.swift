@@ -11,6 +11,7 @@ struct MyGroupDetailResponseDTO: Codable {
     var groupId: Int
     var groupImageUrl: String
     var groupName: String
+    var isLeader: Bool
     var isOnline: Bool
     var onlineCount: Int
     var memberCount: Int
@@ -25,6 +26,7 @@ extension MyGroupDetailResponseDTO {
             groupId: groupId,
             groupImageUrl: groupImageUrl,
             groupName: groupName,
+            isLeader: isLeader,
             isOnline: isOnline,
             onlineCount: onlineCount,
             memberCount: memberCount,
