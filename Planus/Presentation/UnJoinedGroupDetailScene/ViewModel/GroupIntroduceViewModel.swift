@@ -101,6 +101,7 @@ class GroupIntroduceViewModel {
         input
             .didTappedBackBtn
             .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vm, _ in
                 vm.actions?.popCurrentPage?()
             })
@@ -177,6 +178,7 @@ class GroupIntroduceViewModel {
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: TokenError.noTokenExist
             )
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.actions?.popCurrentPage?()
             })

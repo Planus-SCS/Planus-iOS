@@ -18,3 +18,14 @@ extension PrimitiveSequence where Trait == SingleTrait { //어떤상황이면 �
         .retry(2)
     }
 }
+
+extension Observable {
+    func handleRetry<T, E: Error>(retryObservable: Observable<T>, errorType: E) -> Observable<Element> {
+        return retry(when: { (error: Observable<E>) in
+            error.flatMap { error -> Observable<T> in
+                return retryObservable
+            }
+        })
+        .retry(2)
+    }
+}

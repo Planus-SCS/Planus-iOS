@@ -251,7 +251,6 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, data in
-                print("홈화면에 업댓된게 전해짐!", data)
                 vc.profileButton.fill(with: data)
             })
             .disposed(by: bag)

@@ -112,7 +112,7 @@ class GroupListViewModel {
             .disposed(by: bag)
         
         return Output(
-            didFetchJoinedGroup: didFetchGroupList,
+            didFetchJoinedGroup: didFetchGroupList.asObservable(),
             didChangeOnlineStateAt: didChangeOnlineStateAt.asObservable(),
             needReloadItemAt: needReloadItemAt.asObservable()
         )
@@ -133,7 +133,7 @@ class GroupListViewModel {
             .subscribe(onNext: { vm, groupId in
                 guard let index = vm.groupList?.firstIndex(where: { $0.groupId == groupId }),
                       var group = vm.groupList?[index] else { return }
-                
+
                 group.isOnline = !group.isOnline
                 group.totalCount = group.isOnline ? group.totalCount + 1 : group.totalCount - 1
                 vm.groupList?[index] = group

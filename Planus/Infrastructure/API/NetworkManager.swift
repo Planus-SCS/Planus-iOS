@@ -48,7 +48,7 @@ class NetworkManager: APIProvider {
                     return
                 }
                 let str = String(decoding: data, as: UTF8.self)
-                if str.count < 1000 {
+                if str.count < 5000 {
                     print(str)
                 }
                 guard let httpResponse = response as? HTTPURLResponse else { return }

@@ -15,7 +15,6 @@ struct GroupJoinAppliedResponseDTO: Codable {
     var memberName: String
     var memberDescription: String?
     var memberProfileImageUrl: String?
-    var acceptStatus: String
 }
 
 extension GroupJoinAppliedResponseDTO {

@@ -91,11 +91,13 @@ class NotificationViewController: UIViewController {
         
         output
             .didFetchJoinApplyList
+            .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.resultCollectionView.reloadData()
-                vc.emptyResultView.isHidden = (viewModel.joinAppliedList?.count == 0) ? true : false
+                vc.emptyResultView.isHidden = !(viewModel.joinAppliedList?.count == 0)
+                print(vc.emptyResultView.isHidden)
             })
             .disposed(by: bag)
         
@@ -106,6 +108,9 @@ class NotificationViewController: UIViewController {
             .subscribe(onNext: { vc, index in
                 vc.resultCollectionView.performBatchUpdates {
                     vc.resultCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+                }
+                if viewModel.joinAppliedList?.count == 0 {
+                    vc.emptyResultView.isHidden = false
                 }
             })
             .disposed(by: bag)

@@ -102,8 +102,9 @@ class JoinedGroupCell: SearchResultCell {
         }
     }
     
-    func fill(title: String, tag: String?, memCount: String, leaderName: String, onlineCount: String) {
+    func fill(title: String, tag: String?, memCount: String, leaderName: String, onlineCount: String, isOnline: Bool) {
         super.fill(title: title, tag: tag, memCount: memCount, captin: leaderName)
         onlineButton.setTitle(onlineCount, for: .normal)
+        onlineSwitch.setOn(isOnline, animated: false)
     }
 }

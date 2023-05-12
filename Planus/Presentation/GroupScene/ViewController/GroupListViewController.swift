@@ -117,7 +117,7 @@ class GroupListViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.resultCollectionView.reloadData()
-                vc.emptyResultView.isHidden = (viewModel.groupList?.count == 0) ? true : false
+                vc.emptyResultView.isHidden = !((viewModel.groupList?.count == 0) ?? true)
             })
             .disposed(by: bag)
         
@@ -135,7 +135,6 @@ class GroupListViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                
                 vc.resultCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
             })
             .disposed(by: bag)
@@ -144,10 +143,14 @@ class GroupListViewController: UIViewController {
     
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.addSubview(emptyResultView)
         self.view.addSubview(resultCollectionView)
     }
     
     func configureLayout() {
+        emptyResultView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
         resultCollectionView.snp.makeConstraints {
             $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
             $0.leading.trailing.equalToSuperview()
@@ -194,7 +197,8 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
             tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
             memCount: "\(item.totalCount)/\(item.limitCount)",
             leaderName: item.leaderName,
-            onlineCount: "\(item.onlineCount)"
+            onlineCount: "\(item.onlineCount)",
+            isOnline: item.isOnline
         )
         
         viewModel?.fetchImage(key: item.groupImageUrl)

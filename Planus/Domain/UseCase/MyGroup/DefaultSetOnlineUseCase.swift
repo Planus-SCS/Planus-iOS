@@ -20,6 +20,9 @@ class DefaultSetOnlineUseCase: SetOnlineUseCase {
     func execute(token: Token, groupId: Int) -> Single<Void> {
         myGroupRepository
             .changeOnlineState(token: token.accessToken, groupId: groupId)
-            .map { _ in () }
+            .map { [weak self] _ in
+//                self?.didChangeOnlineState.onNext(groupId)
+                return ()
+            }
     }
 }
