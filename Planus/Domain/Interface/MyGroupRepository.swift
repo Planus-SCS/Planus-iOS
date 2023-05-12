@@ -16,5 +16,6 @@ protocol MyGroupRepository {
     func fetchGroupList(token: String) -> Single<ResponseDTO<[MyGroupSummaryResponseDTO]>>
     func fetchMyGroupDetail(token: String, groupId: Int) -> Single<ResponseDTO<MyGroupDetailResponseDTO>>
     func fetchMyGroupMemberList(token: String, groupId: Int) -> Single<ResponseDTO<[MyMemberResponseDTO]>>
+    func updateNotice(token: String, groupId: Int, notice: MyGroupNoticeEditRequestDTO) -> Single<ResponseDTO<MyGroupNoticeEditResponseDTO>>
     func changeOnlineState(token: String, groupId: Int) -> Single<ResponseDTO<GroupSetOnlineResponseDTO>>
 }

@@ -157,6 +157,9 @@
 		6A2744332A0E7D88008FB4F5 /* dotBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2744302A0E7D88008FB4F5 /* dotBtn.png */; };
 		6A2744342A0E7D88008FB4F5 /* dotBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2744312A0E7D88008FB4F5 /* dotBtn@3x.png */; };
 		6A2744352A0E7D88008FB4F5 /* dotBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2744322A0E7D88008FB4F5 /* dotBtn@2x.png */; };
+		6A2744372A0E81AC008FB4F5 /* MyGroupNoticeEditDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744362A0E81AC008FB4F5 /* MyGroupNoticeEditDTO.swift */; };
+		6A2744392A0E829A008FB4F5 /* DefaultUpdateNoticeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744382A0E829A008FB4F5 /* DefaultUpdateNoticeUseCase.swift */; };
+		6A27443B2A0E82FE008FB4F5 /* UpdateNoticeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A27443A2A0E82FE008FB4F5 /* UpdateNoticeUseCase.swift */; };
 		6A2BB1A729E404DA0053C5CA /* MyPageMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */; };
 		6A2BB1AC29E406A70053C5CA /* smallArrow@2.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */; };
 		6A2BB1AD29E406A70053C5CA /* smallArrow@3.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */; };
@@ -579,6 +582,9 @@
 		6A2744302A0E7D88008FB4F5 /* dotBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dotBtn.png; sourceTree = "<group>"; };
 		6A2744312A0E7D88008FB4F5 /* dotBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dotBtn@3x.png"; sourceTree = "<group>"; };
 		6A2744322A0E7D88008FB4F5 /* dotBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dotBtn@2x.png"; sourceTree = "<group>"; };
+		6A2744362A0E81AC008FB4F5 /* MyGroupNoticeEditDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupNoticeEditDTO.swift; sourceTree = "<group>"; };
+		6A2744382A0E829A008FB4F5 /* DefaultUpdateNoticeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultUpdateNoticeUseCase.swift; sourceTree = "<group>"; };
+		6A27443A2A0E82FE008FB4F5 /* UpdateNoticeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateNoticeUseCase.swift; sourceTree = "<group>"; };
 		6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MyPageMainViewController.swift; path = ../../../../../../Documents/MyPageMainViewController.swift; sourceTree = "<group>"; };
 		6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "smallArrow@2.png"; sourceTree = "<group>"; };
 		6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "smallArrow@3.png"; sourceTree = "<group>"; };
@@ -2007,6 +2013,7 @@
 				6A2744102A0B8261008FB4F5 /* GroupSetOnlineResponseDTO.swift */,
 				6A27441E2A0E3FEF008FB4F5 /* MyGroupDetailDTO.swift */,
 				6A2744262A0E460C008FB4F5 /* MyMemberDTO.swift */,
+				6A2744362A0E81AC008FB4F5 /* MyGroupNoticeEditDTO.swift */,
 			);
 			path = DataMapping;
 			sourceTree = "<group>";
@@ -2195,6 +2202,7 @@
 				6A2744122A0B8328008FB4F5 /* DefaultSetOnlineUseCase.swift */,
 				6A2744222A0E415A008FB4F5 /* DefaultFetchMyGroupDetailUseCase.swift */,
 				6A27442A2A0E4834008FB4F5 /* DefaultFetchMyGroupMemberListUseCase.swift */,
+				6A2744382A0E829A008FB4F5 /* DefaultUpdateNoticeUseCase.swift */,
 			);
 			path = MyGroup;
 			sourceTree = "<group>";
@@ -2210,6 +2218,7 @@
 				6A2744142A0B8389008FB4F5 /* SetOnlineUseCase.swift */,
 				6A2744242A0E4500008FB4F5 /* FetchMyGroupDetailUseCase.swift */,
 				6A27442C2A0E48E5008FB4F5 /* FetchMyGroupMemberListUseCase.swift */,
+				6A27443A2A0E82FE008FB4F5 /* UpdateNoticeUseCase.swift */,
 			);
 			path = MyGroup;
 			sourceTree = "<group>";
@@ -2519,6 +2528,7 @@
 				6A24F92129D22EC10000FD64 /* TodoDailyCalendarCell.swift in Sources */,
 				6A95DFC129D4E882009017D8 /* SearchResultCell.swift in Sources */,
 				6AC079842A0A8B26007ACDB8 /* DefaultFetchJoinApplyListUseCase.swift in Sources */,
+				6A27443B2A0E82FE008FB4F5 /* UpdateNoticeUseCase.swift in Sources */,
 				6A987A1D29DC1E0A00C27D09 /* JoinedGroupDetailCalendarHeaderView.swift in Sources */,
 				6A2BB1C129E437960053C5CA /* MyPageEditViewController.swift in Sources */,
 				6A9A080429D40C560051AD43 /* AddTodoView.swift in Sources */,
@@ -2645,6 +2655,7 @@
 				6A08AD7029C889D6005947D2 /* AppCoordinator.swift in Sources */,
 				6AC079262A092C4E007ACDB8 /* ProfileButton.swift in Sources */,
 				6A24F83A29CB49BD0000FD64 /* DayViewModel.swift in Sources */,
+				6A2744392A0E829A008FB4F5 /* DefaultUpdateNoticeUseCase.swift in Sources */,
 				6A24F8F029D1D5F80000FD64 /* MonthPickerViewCell.swift in Sources */,
 				6AC079A42A0B5E0D007ACDB8 /* MyGroupSummaryDTO.swift in Sources */,
 				6A08ADB429C8A064005947D2 /* SignInCoordinator.swift in Sources */,
@@ -2743,6 +2754,7 @@
 				6A9AAB4529FAC1AD002A6DAF /* SetTokenUseCase.swift in Sources */,
 				6A95DFD529D50913009017D8 /* SearchGroupResultViewModel.swift in Sources */,
 				6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */,
+				6A2744372A0E81AC008FB4F5 /* MyGroupNoticeEditDTO.swift in Sources */,
 				6AC0790D2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift in Sources */,
 				6A987A7429DEED1600C27D09 /* TodoDailyViewController.swift in Sources */,
 				6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */,

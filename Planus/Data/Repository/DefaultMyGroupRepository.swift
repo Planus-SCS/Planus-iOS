@@ -118,6 +118,21 @@ class DefaultMyGroupRepository: MyGroupRepository {
         )
     }
     
+    func updateNotice(token: String, groupId: Int, notice: MyGroupNoticeEditRequestDTO) -> Single<ResponseDTO<MyGroupNoticeEditResponseDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.groups + "/\(groupId)/notice",
+            requestType: .get,
+            body: notice,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<MyGroupNoticeEditResponseDTO>.self
+        )
+    }
+    
     func changeOnlineState(token: String, groupId: Int) -> Single<ResponseDTO<GroupSetOnlineResponseDTO>> {
         let endPoint = APIEndPoint(
             url: URLPool.myGroup + "/\(groupId)/online-status",
