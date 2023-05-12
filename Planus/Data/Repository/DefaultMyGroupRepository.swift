@@ -103,6 +103,21 @@ class DefaultMyGroupRepository: MyGroupRepository {
         )
     }
     
+    func fetchMyGroupMemberList(token: String, groupId: Int) -> Single<ResponseDTO<[MyMember]>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.myGroup + "/\(groupId)/members",
+            requestType: .get,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<[MyMember]>.self
+        )
+    }
+    
     func changeOnlineState(token: String, groupId: Int) -> Single<ResponseDTO<GroupSetOnlineResponseDTO>> {
         let endPoint = APIEndPoint(
             url: URLPool.myGroup + "/\(groupId)/online-status",

@@ -15,5 +15,6 @@ protocol MyGroupRepository {
     func denyApply(token: String, applyId: Int) -> Single<ResponseDTO<GroupJoinRejectResponseDTO>>
     func fetchGroupList(token: String) -> Single<ResponseDTO<[MyGroupSummaryResponseDTO]>>
     func fetchMyGroupDetail(token: String, groupId: Int) -> Single<ResponseDTO<MyGroupDetailResponseDTO>>
+    func fetchMyGroupMemberList(token: String, groupId: Int) -> Single<ResponseDTO<[MyMember]>>
     func changeOnlineState(token: String, groupId: Int) -> Single<ResponseDTO<GroupSetOnlineResponseDTO>>
 }
