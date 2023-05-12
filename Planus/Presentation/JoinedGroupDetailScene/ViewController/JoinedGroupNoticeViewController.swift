@@ -161,7 +161,7 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
               let sectionKind = JoinedGroupNoticeSectionKind(rawValue: indexPath.section)
         else { return UICollectionReusableView() }
         
-        view.fill(title: sectionKind.title, description: sectionKind.desc, isCaptin: true)
+        view.fill(title: sectionKind.title, description: sectionKind.desc, isCaptin: false)
         switch sectionKind {
         case .notice:
             view.fill { [weak self] in

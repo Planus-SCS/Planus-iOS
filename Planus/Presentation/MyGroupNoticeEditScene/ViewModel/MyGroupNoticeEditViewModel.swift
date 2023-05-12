@@ -11,7 +11,7 @@ import RxSwift
 class MyGroupNoticeEditViewModel {
     var bag = DisposeBag()
     
-    var goupdId: String?
+    var goupdId: Int?
     var notice = BehaviorSubject<String?>(value: nil)
     var didEditComplete = PublishSubject<Void>()
     
@@ -27,7 +27,7 @@ class MyGroupNoticeEditViewModel {
     
     init() {}
     
-    func setNotice(groupId: String, notice: String) {
+    func setNotice(groupId: Int, notice: String) {
         self.goupdId = groupId
         self.notice.onNext(notice)
     }

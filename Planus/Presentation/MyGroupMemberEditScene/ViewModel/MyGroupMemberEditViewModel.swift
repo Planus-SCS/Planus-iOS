@@ -12,6 +12,7 @@ class MyGroupMemberEditViewModel {
     
     var bag = DisposeBag()
     
+    var groupId: Int?
     var memberList: [Member]?
     
     struct Input {
@@ -23,10 +24,14 @@ class MyGroupMemberEditViewModel {
         var didResignedAt: Observable<Int>
     }
     
-    var resignRequested = PublishSubject<Void>() //요청 응답 올때까지 인디케이터 보여주기?
+    var resignRequested = PublishSubject<Void>()
     var resignedAt = PublishSubject<Int>()
     
     init() {}
+    
+    func setGroupId(id: Int) {
+        self.groupId = id
+    }
     
     func transform(input: Input) -> Output {
         input

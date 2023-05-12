@@ -145,12 +145,18 @@ class JoinedGroupDetailViewController: UIViewController {
         let image = UIImage(named: "dotBtn")
         var item: UIBarButtonItem
         var menuChild = [UIAction]()
-        let link = UIAction(title: "모아 보기", handler: { _ in print("전체 캘린더 조회") })
+        let link = UIAction(title: "공유하기", handler: { _ in print("전체 캘린더 조회") })
         menuChild.append(link)
         if isLeader {
-            let editInfo = UIAction(title: "ios 스터디", handler: { _ in print("전반적인 수정") })
-            let editNotice = UIAction(title: "ios 스터디", handler: { _ in print("공지수정") })
-            let editMember = UIAction(title: "ios 스터디", handler: { _ in print("멤버수정") })
+            let editInfo = UIAction(title: "그룹 정보 수정", handler: { [weak self] _ in
+                
+            })
+            let editNotice = UIAction(title: "공지사항 수정", handler: { [weak self] _ in
+                self?.editNotice()
+            })
+            let editMember = UIAction(title: "멤버 수정", handler: { [weak self] _ in
+                self?.editMember()
+            })
             
             menuChild.append(editInfo)
             menuChild.append(editNotice)
@@ -163,7 +169,22 @@ class JoinedGroupDetailViewController: UIViewController {
         navigationItem.setRightBarButton(item, animated: true)
     }
     
-//    let notice
+    lazy var editNotice: () -> Void = { [weak self] () -> Void in
+        guard let groupId = self?.viewModel?.groupId,
+              let notice = self?.viewModel?.groupNotice else { return }
+        let vm = MyGroupNoticeEditViewModel()
+        vm.setNotice(groupId: groupId, notice: notice)
+        let vc = MyGroupNoticeEditViewController(viewModel: vm)
+        self?.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    lazy var editMember: () -> Void = { [weak self] in
+        guard let groupId = self?.viewModel?.groupId else { return }
+        let vm = MyGroupMemberEditViewModel()
+        vm.setGroupId(id: groupId)
+        let vc = MyGroupMemberEditViewController(viewModel: vm)
+        self?.navigationController?.pushViewController(vc, animated: true)
+    }
     
     @objc func backBtnAction() {
         viewModel?.actions?.pop?()
@@ -213,7 +234,6 @@ class JoinedGroupDetailViewController: UIViewController {
 
         headerView.isUserInteractionEnabled = true
         headerView.addGestureRecognizer(topViewPanGesture)
-
     }
     
     func configureChild() {
