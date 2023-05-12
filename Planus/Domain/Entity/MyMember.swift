@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MyMember: Codable {
+struct MyMember {
     var memberId: Int
     var nickname: String
     var isLeader: Bool

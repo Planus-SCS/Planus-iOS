@@ -103,7 +103,7 @@ class DefaultMyGroupRepository: MyGroupRepository {
         )
     }
     
-    func fetchMyGroupMemberList(token: String, groupId: Int) -> Single<ResponseDTO<[MyMember]>> {
+    func fetchMyGroupMemberList(token: String, groupId: Int) -> Single<ResponseDTO<[MyMemberResponseDTO]>> {
         let endPoint = APIEndPoint(
             url: URLPool.myGroup + "/\(groupId)/members",
             requestType: .get,
@@ -114,7 +114,7 @@ class DefaultMyGroupRepository: MyGroupRepository {
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: ResponseDTO<[MyMember]>.self
+            type: ResponseDTO<[MyMemberResponseDTO]>.self
         )
     }
     
