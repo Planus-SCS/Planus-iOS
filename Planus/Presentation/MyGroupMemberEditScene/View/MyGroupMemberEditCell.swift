@@ -57,6 +57,11 @@ class MyGroupMemberEditCell: GroupIntroduceMemberCell {
 
     }
     
+    override func fill(name: String, introduce: String?, isCaptin: Bool) {
+        super.fill(name: name, introduce: introduce, isCaptin: isCaptin)
+        resignButton.isHidden = isCaptin
+    }
+    
     func fill(closure: @escaping () -> Void) {
         self.buttonActionClosure = closure
     }

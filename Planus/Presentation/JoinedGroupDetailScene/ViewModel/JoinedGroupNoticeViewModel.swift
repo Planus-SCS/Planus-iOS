@@ -15,6 +15,7 @@ class JoinedGroupNoticeViewModel {
     var notice = BehaviorSubject<String?>(value: nil)
     var memberList: [MyMember]?
     var memberListFetched = BehaviorSubject<Void?>(value: nil)
+    var memberKickedOutAt = PublishSubject<Int>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -23,23 +24,27 @@ class JoinedGroupNoticeViewModel {
     struct Output {
         var noticeFetched: Observable<String?>
         var didFetchMemberList: Observable<Void?>
+        var didRemoveMemberAt: Observable<Int>
     }
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
     var fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase
     var fetchImageUseCase: FetchImageUseCase
+    var memberKickOutUseCase: MemberKickOutUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        fetchImageUseCase: FetchImageUseCase,
+        memberKickOutUseCase: MemberKickOutUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.fetchMyGroupMemberListUseCase = fetchMyGroupMemberListUseCase
         self.fetchImageUseCase = fetchImageUseCase
+        self.memberKickOutUseCase = memberKickOutUseCase
     }
     
     func setGroupId(id: Int) {
@@ -47,6 +52,8 @@ class JoinedGroupNoticeViewModel {
     }
     
     func transform(input: Input) -> Output {
+        bindUseCase()
+        
         input
             .viewDidLoad
             .withUnretained(self)
@@ -57,8 +64,22 @@ class JoinedGroupNoticeViewModel {
         
         return Output(
             noticeFetched: notice.asObservable(),
-            didFetchMemberList: memberListFetched.asObservable()
+            didFetchMemberList: memberListFetched.asObservable(),
+            didRemoveMemberAt: memberKickedOutAt.asObservable()
         )
+    }
+    
+    func bindUseCase() {
+        memberKickOutUseCase
+            .didKickOutMemberAt
+            .subscribe(onNext: { [weak self] (groupId, memberId) in
+                guard let currentGroupId = self?.groupId,
+                      groupId == currentGroupId,
+                      let index = self?.memberList?.firstIndex(where: { $0.memberId == memberId }) else { return }
+                self?.memberList?.remove(at: index)
+                self?.memberKickedOutAt.onNext(index)
+            })
+            .disposed(by: bag)
     }
     
     func fetchMemberList() {

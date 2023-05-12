@@ -13,7 +13,7 @@ class MyGroupMemberEditViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: MyGroupMemberEditViewModel?
     
-    var didTappedResignButton = PublishSubject<String>()
+    var didTappedResignButton = PublishSubject<Int>()
     
     lazy var memberCollectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createMemberSection())
@@ -64,17 +64,19 @@ class MyGroupMemberEditViewController: UIViewController {
         guard let viewModel else { return }
         
         let input = MyGroupMemberEditViewModel.Input(
+            viewDidLoad: Observable.just(()),
             didTappedResignButton: didTappedResignButton
         )
         
         let output = viewModel.transform(input: input)
         
         output
-            .didRequestResign
+            .didFetchMemberList
+            .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                // 요청됬다고 표시
+                vc.memberCollectionView.reloadData()
             })
             .disposed(by: bag)
         
@@ -133,11 +135,20 @@ extension MyGroupMemberEditViewController: UICollectionViewDataSource {
         guard let item = viewModel?.memberList?[indexPath.item],
               let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MyGroupMemberEditCell.reuseIdentifier, for: indexPath) as? MyGroupMemberEditCell else { return UICollectionViewCell() }
         
-//        cell.fill(name: item.name, introduce: item.description, isCaptin: item.isLeader)
-//        cell.fill(image: UIImage(named: "DefaultProfileMedium")!)
-//        cell.fill { [weak self] in
-//            self?.didTappedResignButton.onNext(item.name)
-//        }
+        cell.fill(name: item.nickname, introduce: item.description, isCaptin: item.isLeader)
+        if let url = item.profileImageUrl {
+            viewModel?.fetchImage(key: url)
+                .observe(on: MainScheduler.asyncInstance)
+                .subscribe(onSuccess: { data in
+                    cell.fill(image: UIImage(data: data))
+                })
+                .disposed(by: bag)
+        } else {
+            cell.fill(image: UIImage(named: "DefaultProfileMedium"))
+        }
+        cell.fill { [weak self] in
+            self?.didTappedResignButton.onNext(indexPath.item)
+        }
         return cell
     }
     

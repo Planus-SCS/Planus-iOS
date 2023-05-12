@@ -192,7 +192,24 @@ class JoinedGroupDetailViewController: UIViewController {
     
     lazy var editMember: () -> Void = { [weak self] in
         guard let groupId = self?.viewModel?.groupId else { return }
-        let vm = MyGroupMemberEditViewModel()
+        
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
+        let imageRepo = DefaultImageRepository(apiProvider: api)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let fetchMyGroupMemberListUseCase = DefaultFetchMyGroupMemberListUseCase(myGroupRepository: myGroupRepo)
+        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
+        
+        let vm = MyGroupMemberEditViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            fetchMyGroupMemberListUseCase: fetchMyGroupMemberListUseCase,
+            fetchImageUseCase: fetchImageUseCase,
+            memberKickOutUseCase: DefaultMemberKickOutUseCase.shared
+        )
         vm.setGroupId(id: groupId)
         let vc = MyGroupMemberEditViewController(viewModel: vm)
         self?.navigationController?.pushViewController(vc, animated: true)
@@ -263,7 +280,8 @@ class JoinedGroupDetailViewController: UIViewController {
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             fetchMyGroupMemberListUseCase: fetchMyGroupMemberListUseCase,
-            fetchImageUseCase: fetchImageUseCase
+            fetchImageUseCase: fetchImageUseCase,
+            memberKickOutUseCase: DefaultMemberKickOutUseCase.shared
         )
         noticeViewModel.setGroupId(id: groupId)
         let noticeViewController = JoinedGroupNoticeViewController(viewModel: noticeViewModel)

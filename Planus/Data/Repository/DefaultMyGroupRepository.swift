@@ -136,6 +136,23 @@ class DefaultMyGroupRepository: MyGroupRepository {
         )
     }
     
+    func kickOutMember(token: String, groupId: Int, memberId: Int) -> Single<ResponseDTO<MyMemberKickOutResponseDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.groups + "/\(groupId)/members/\(memberId)",
+            requestType: .delete,
+            body: nil,
+            query: nil,
+            header: [
+                "Authorization": "Bearer \(token)"
+            ]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<MyMemberKickOutResponseDTO>.self
+        )
+    }
+    
     func changeOnlineState(token: String, groupId: Int) -> Single<ResponseDTO<GroupSetOnlineResponseDTO>> {
         let endPoint = APIEndPoint(
             url: URLPool.myGroup + "/\(groupId)/online-status",

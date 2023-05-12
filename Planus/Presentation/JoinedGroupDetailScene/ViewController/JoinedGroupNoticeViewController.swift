@@ -100,6 +100,15 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
                 vc.noticeCollectionView.reloadSections(IndexSet(1...1))
             })
             .disposed(by: bag)
+        
+        output
+            .didRemoveMemberAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                vc.noticeCollectionView.deleteItems(at: [IndexPath(item: index, section: 1)])
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {
