@@ -41,7 +41,8 @@ class JoinedGroupDetailCoordinator: Coordinator {
             refreshTokenUseCase: refreshTokenUseCase,
             fetchMyGroupDetailUseCase: fetchMyGroupDetailUseCase,
             fetchImageUseCase: fetchImageUseCase,
-            setOnlineUseCase: setOnlineStateUseCase
+            setOnlineUseCase: setOnlineStateUseCase,
+            updateNoticeUseCase: DefaultUpdateNoticeUseCase.shared
         )
         vm.setGroupId(id: id)
         vm.setActions(actions: JoinedGroupDetailViewModelActions(pop: self?.popCurrentPage))

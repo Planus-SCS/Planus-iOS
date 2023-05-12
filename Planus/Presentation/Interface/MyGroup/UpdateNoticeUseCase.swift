@@ -9,5 +9,7 @@ import Foundation
 import RxSwift
 
 protocol UpdateNoticeUseCase {
-    func execute(token: Token, groupId: Int, notice: String) -> Single<Void>
+    var didUpdateNotice: PublishSubject<GroupNotice> { get }
+    func execute(token: Token, groupNotice: GroupNotice) -> Single<Void>
+    
 }

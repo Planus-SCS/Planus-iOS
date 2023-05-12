@@ -13,7 +13,8 @@ class MyGroupNoticeEditViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: MyGroupNoticeEditViewModel?
     
-    var noticeTextView: UITextView = {
+    var isNoticeFilled = false
+    lazy var noticeTextView: UITextView = {
         let textView = UITextView(frame: .zero)
         textView.layer.cornerRadius = 10
         textView.layer.cornerCurve = .continuous
@@ -27,6 +28,7 @@ class MyGroupNoticeEditViewController: UIViewController {
         attributedString.addAttribute(NSAttributedString.Key.paragraphStyle, value: style, range: NSRange(location: 0, length: attributedString.length))
 
         textView.attributedText = attributedString
+        textView.delegate = self
         return textView
     }()
     
@@ -64,6 +66,8 @@ class MyGroupNoticeEditViewController: UIViewController {
         
         configureView()
         configureLayout()
+        
+        bind()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -74,26 +78,46 @@ class MyGroupNoticeEditViewController: UIViewController {
     
     func bind() {
         guard let viewModel else { return }
+        
+        guard let notice = try? viewModel.notice.value() else { return }
+        print(notice)
+        noticeTextView.text = notice
+        isNoticeFilled = true
+        
+        let noticeChanged = noticeTextView.rx.text.asObservable().map { [weak self] text -> String? in
+            guard let self else { return nil }
+            return self.isNoticeFilled ? text : nil
+        }
+        
         let input = MyGroupNoticeEditViewModel.Input(
             didTapSaveButton: saveButton.rx.tap.asObservable(),
-            didChangeNoticeValue: noticeTextView.rx.text.asObservable()
+            didChangeNoticeValue: noticeChanged
         )
         
         let output = viewModel.transform(input: input)
         
         output
-            .didInitializedNotice
-            .bind(to: noticeTextView.rx.text)
+            .isSaveBtnEnabled
+            .withUnretained(self)
+            .subscribe(onNext: { vc, isEnabled in
+                vc.saveButton.isEnabled = isEnabled
+                if isEnabled {
+                    vc.saveButton.tintColor = UIColor(hex: 0x6495F4)
+                } else {
+                    vc.saveButton.tintColor = UIColor(hex: 0x6495F4).withAlphaComponent(0.5)
+                }
+            })
             .disposed(by: bag)
         
         output
             .didEditCompleted
-            .subscribe(onNext: {
-                /*
-                 pop 로직 실행
-                 */
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.navigationController?.popViewController(animated: true)
             })
             .disposed(by: bag)
+        
     }
     
     func configureView() {
@@ -115,5 +139,23 @@ class MyGroupNoticeEditViewController: UIViewController {
     
     @objc func saveBtnAction(_ sender: UIBarButtonItem) {
         
+    }
+}
+
+extension MyGroupNoticeEditViewController: UITextViewDelegate {
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "간단한 그룹소개 및 공지사항을 입력해주세요"
+            textView.textColor = UIColor(hex: 0x7A7A7A)
+            isNoticeFilled = false
+        }
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if !(isNoticeFilled) {
+            textView.text = nil
+            textView.textColor = .black
+            isNoticeFilled = true
+        }
     }
 }

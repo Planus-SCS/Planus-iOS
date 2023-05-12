@@ -96,9 +96,9 @@ class JoinedGroupDetailViewController: UIViewController {
                 vc.headerView.tagLabel.text = viewModel.tag
                 vc.headerView.memberCountButton.setTitle(viewModel.memberCount, for: .normal)
                 vc.headerView.captinButton.setTitle(viewModel.leaderName, for: .normal)
-                
-                vc.noticeViewController?.viewModel?.notice = viewModel.groupNotice
-                vc.noticeViewController?.viewModel?.noticeFetched.onNext(())
+                vc.setMenuButton(isLeader: viewModel.isLeader)
+//                vc.noticeViewController?.viewModel?.notice.onNext(viewModel.groupNotice)
+//                vc.noticeViewController?.viewModel?.noticeFetched.onNext(())
                 if let url = viewModel.groupImageUrl {
                     viewModel.fetchImage(key: url)
                         .observe(on: MainScheduler.asyncInstance)
@@ -127,27 +127,26 @@ class JoinedGroupDetailViewController: UIViewController {
                 vc.headerView.onlineButton.setTitle("\(count)", for: .normal)
             })
             .disposed(by: bag)
-        
+
         output
-            .isLeader
+            .noticeFetched
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, isLeader in
-                vc.setMenuButton(isLeader: isLeader)
+            .subscribe(onNext: { vc, notice in
+                vc.noticeViewController?.viewModel?.notice.onNext(notice)
             })
             .disposed(by: bag)
         
-        
     }
     
-    func setMenuButton(isLeader: Bool) {
+    func setMenuButton(isLeader: Bool?) {
         let image = UIImage(named: "dotBtn")
         var item: UIBarButtonItem
         var menuChild = [UIAction]()
         let link = UIAction(title: "공유하기", handler: { _ in print("전체 캘린더 조회") })
         menuChild.append(link)
-        if isLeader {
+        if isLeader ?? false {
             let editInfo = UIAction(title: "그룹 정보 수정", handler: { [weak self] _ in
                 
             })
@@ -171,8 +170,21 @@ class JoinedGroupDetailViewController: UIViewController {
     
     lazy var editNotice: () -> Void = { [weak self] () -> Void in
         guard let groupId = self?.viewModel?.groupId,
-              let notice = self?.viewModel?.groupNotice else { return }
-        let vm = MyGroupNoticeEditViewModel()
+              let notice = try? self?.viewModel?.groupNotice.value()  else { return }
+        
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let updateNoticeUseCase = DefaultUpdateNoticeUseCase.shared
+    
+        let vm = MyGroupNoticeEditViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            updateNoticeUseCase: updateNoticeUseCase
+        )
         vm.setNotice(groupId: groupId, notice: notice)
         let vc = MyGroupNoticeEditViewController(viewModel: vm)
         self?.navigationController?.pushViewController(vc, animated: true)
@@ -247,7 +259,6 @@ class JoinedGroupDetailViewController: UIViewController {
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let fetchMyGroupMemberListUseCase = DefaultFetchMyGroupMemberListUseCase(myGroupRepository: myGroupRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        
         let noticeViewModel = JoinedGroupNoticeViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,

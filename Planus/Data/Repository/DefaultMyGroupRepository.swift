@@ -121,10 +121,13 @@ class DefaultMyGroupRepository: MyGroupRepository {
     func updateNotice(token: String, groupId: Int, notice: MyGroupNoticeEditRequestDTO) -> Single<ResponseDTO<MyGroupNoticeEditResponseDTO>> {
         let endPoint = APIEndPoint(
             url: URLPool.groups + "/\(groupId)/notice",
-            requestType: .get,
+            requestType: .patch,
             body: notice,
             query: nil,
-            header: ["Authorization": "Bearer \(token)"]
+            header: [
+                "Authorization": "Bearer \(token)",
+                "Content-Type": "application/json"
+            ]
         )
         
         return apiProvider.requestCodable(

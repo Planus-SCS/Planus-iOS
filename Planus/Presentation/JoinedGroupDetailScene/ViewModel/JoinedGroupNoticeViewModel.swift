@@ -12,9 +12,8 @@ class JoinedGroupNoticeViewModel {
     var bag = DisposeBag()
     
     var groupId: Int?
-    var notice: String?
+    var notice = BehaviorSubject<String?>(value: nil)
     var memberList: [MyMember]?
-    var noticeFetched = BehaviorSubject<Void?>(value: nil)
     var memberListFetched = BehaviorSubject<Void?>(value: nil)
     
     struct Input {
@@ -22,7 +21,7 @@ class JoinedGroupNoticeViewModel {
     }
     
     struct Output {
-        var noticeFetched: Observable<Void?>
+        var noticeFetched: Observable<String?>
         var didFetchMemberList: Observable<Void?>
     }
     
@@ -57,14 +56,13 @@ class JoinedGroupNoticeViewModel {
             .disposed(by: bag)
         
         return Output(
-            noticeFetched: noticeFetched.asObservable(),
+            noticeFetched: notice.asObservable(),
             didFetchMemberList: memberListFetched.asObservable()
         )
     }
     
     func fetchMemberList() {
         guard let groupId else { return }
-        
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[MyMember]> in

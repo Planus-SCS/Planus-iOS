@@ -134,7 +134,7 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
         switch sectionKind {
         case .notice:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier, for: indexPath) as? GroupIntroduceNoticeCell else { return UICollectionViewCell() }
-            cell.fill(notice: viewModel?.notice ?? "")
+            cell.fill(notice: (try? viewModel?.notice.value()) ?? "")
             return cell
         case .member:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupMemberCell.reuseIdentifier, for: indexPath) as? JoinedGroupMemberCell,
