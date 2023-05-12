@@ -44,7 +44,7 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createNoticeLayout())
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
         cv.register(GroupIntroduceNoticeCell.self, forCellWithReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier)
-        cv.register(GroupIntroduceMemberCell.self, forCellWithReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier)
+        cv.register(JoinedGroupMemberCell.self, forCellWithReuseIdentifier: JoinedGroupMemberCell.reuseIdentifier)
         cv.register(GroupIntroduceDefaultHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier)
         cv.dataSource = self
         cv.delegate = self
@@ -75,19 +75,29 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
     }
     
     func bind() {
-        noticeEditButtonTapped
-            .subscribe(onNext: {
-                let vm = MyGroupNoticeEditViewModel()
-                let vc = MyGroupNoticeEditViewController(viewModel: vm)
-                self.navigationController?.pushViewController(vc, animated: true)
+        guard let viewModel else { return }
+        
+        let input = JoinedGroupNoticeViewModel.Input(viewDidLoad: Observable.just(()))
+        
+        let output = viewModel.transform(input: input)
+        
+        output
+            .noticeFetched
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.noticeCollectionView.reloadSections(IndexSet(0...0))
             })
             .disposed(by: bag)
         
-        memberEditButtonTapped
-            .subscribe(onNext: {
-                let vm = MyGroupMemberEditViewModel()
-                let vc = MyGroupMemberEditViewController(viewModel: vm)
-                self.navigationController?.pushViewController(vc, animated: true)
+        output
+            .didFetchMemberList
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.noticeCollectionView.reloadSections(IndexSet(1...1))
             })
             .disposed(by: bag)
     }
@@ -127,10 +137,21 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
             cell.fill(notice: viewModel?.notice ?? "")
             return cell
         case .member:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier, for: indexPath) as? GroupIntroduceMemberCell,
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupMemberCell.reuseIdentifier, for: indexPath) as? JoinedGroupMemberCell,
                   let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
-            cell.fill(name: item.name, introduce: item.description, isCaptin: item.isLeader)
-            cell.fill(image: UIImage(named: "DefaultProfileMedium")!)
+            
+            cell.fill(name: item.nickname, introduce: item.description, isCaptin: item.isLeader, isOnline: item.isOnline)
+            
+            if let url = item.profileImageUrl {
+                viewModel?.fetchImage(key: url)
+                    .observe(on: MainScheduler.asyncInstance)
+                    .subscribe(onSuccess: { data in
+                        cell.fill(image: UIImage(data: data))
+                    })
+                    .disposed(by: bag)
+            } else {
+                cell.fill(image: UIImage(named: "DefaultProfileMedium"))
+            }
             return cell
         }
     }

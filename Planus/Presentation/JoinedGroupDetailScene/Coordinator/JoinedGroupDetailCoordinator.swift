@@ -26,10 +26,24 @@ class JoinedGroupDetailCoordinator: Coordinator {
     }
     
     lazy var showGroupDetailPage: (Int) -> Void = { [weak self] id in
-        let repo = TestTodoDetailRepository(apiProvider: NetworkManager())
-        let c = DefaultCreateMonthlyCalendarUseCase()
-        let f = DefaultReadTodoListUseCase(todoRepository: repo)
-        let vm = JoinedGroupDetailViewModel()
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
+        let imageRepo = DefaultImageRepository(apiProvider: api)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let fetchMyGroupDetailUseCase = DefaultFetchMyGroupDetailUseCase(myGroupRepository: myGroupRepo)
+        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
+        let setOnlineStateUseCase = DefaultSetOnlineUseCase.shared
+        let vm = JoinedGroupDetailViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            fetchMyGroupDetailUseCase: fetchMyGroupDetailUseCase,
+            fetchImageUseCase: fetchImageUseCase,
+            setOnlineUseCase: setOnlineStateUseCase
+        )
+        vm.setGroupId(id: id)
         vm.setActions(actions: JoinedGroupDetailViewModelActions(pop: self?.popCurrentPage))
 
         let vc = JoinedGroupDetailViewController(viewModel: vm)

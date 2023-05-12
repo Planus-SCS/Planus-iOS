@@ -153,6 +153,10 @@
 		6A2744292A0E468E008FB4F5 /* MyMember.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744282A0E468E008FB4F5 /* MyMember.swift */; };
 		6A27442B2A0E4834008FB4F5 /* DefaultFetchMyGroupMemberListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A27442A2A0E4834008FB4F5 /* DefaultFetchMyGroupMemberListUseCase.swift */; };
 		6A27442D2A0E48E5008FB4F5 /* FetchMyGroupMemberListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A27442C2A0E48E5008FB4F5 /* FetchMyGroupMemberListUseCase.swift */; };
+		6A27442F2A0E6AAA008FB4F5 /* JoinedGroupMemberCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A27442E2A0E6AAA008FB4F5 /* JoinedGroupMemberCell.swift */; };
+		6A2744332A0E7D88008FB4F5 /* dotBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2744302A0E7D88008FB4F5 /* dotBtn.png */; };
+		6A2744342A0E7D88008FB4F5 /* dotBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2744312A0E7D88008FB4F5 /* dotBtn@3x.png */; };
+		6A2744352A0E7D88008FB4F5 /* dotBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2744322A0E7D88008FB4F5 /* dotBtn@2x.png */; };
 		6A2BB1A729E404DA0053C5CA /* MyPageMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */; };
 		6A2BB1AC29E406A70053C5CA /* smallArrow@2.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */; };
 		6A2BB1AD29E406A70053C5CA /* smallArrow@3.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */; };
@@ -571,6 +575,10 @@
 		6A2744282A0E468E008FB4F5 /* MyMember.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyMember.swift; sourceTree = "<group>"; };
 		6A27442A2A0E4834008FB4F5 /* DefaultFetchMyGroupMemberListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMyGroupMemberListUseCase.swift; sourceTree = "<group>"; };
 		6A27442C2A0E48E5008FB4F5 /* FetchMyGroupMemberListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMyGroupMemberListUseCase.swift; sourceTree = "<group>"; };
+		6A27442E2A0E6AAA008FB4F5 /* JoinedGroupMemberCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupMemberCell.swift; sourceTree = "<group>"; };
+		6A2744302A0E7D88008FB4F5 /* dotBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dotBtn.png; sourceTree = "<group>"; };
+		6A2744312A0E7D88008FB4F5 /* dotBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dotBtn@3x.png"; sourceTree = "<group>"; };
+		6A2744322A0E7D88008FB4F5 /* dotBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dotBtn@2x.png"; sourceTree = "<group>"; };
 		6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MyPageMainViewController.swift; path = ../../../../../../Documents/MyPageMainViewController.swift; sourceTree = "<group>"; };
 		6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "smallArrow@2.png"; sourceTree = "<group>"; };
 		6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "smallArrow@3.png"; sourceTree = "<group>"; };
@@ -995,6 +1003,9 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A2744302A0E7D88008FB4F5 /* dotBtn.png */,
+				6A2744322A0E7D88008FB4F5 /* dotBtn@2x.png */,
+				6A2744312A0E7D88008FB4F5 /* dotBtn@3x.png */,
 				6AC079902A0A9507007ACDB8 /* EmptyResultLogo.png */,
 				6AC079912A0A9507007ACDB8 /* EmptyResultLogo@2x.png */,
 				6AC0798F2A0A9507007ACDB8 /* EmptyResultLogo@3x.png */,
@@ -1717,6 +1728,7 @@
 				6A987A0329DBD40A00C27D09 /* JoinedGroupDetailHeaderView.swift */,
 				6A987A1129DBEC4000C27D09 /* JoinedGroupDetailHeaderTabView.swift */,
 				6A987A1C29DC1E0A00C27D09 /* JoinedGroupDetailCalendarHeaderView.swift */,
+				6A27442E2A0E6AAA008FB4F5 /* JoinedGroupMemberCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2312,6 +2324,7 @@
 				6A987A9429DF1A7A00C27D09 /* plusBtn.png in Resources */,
 				6A9A07BA29D3C7F10051AD43 /* arrow_dark@2x.png in Resources */,
 				6A95DFBF29D4E2E6009017D8 /* searchBarIcon@3x.png in Resources */,
+				6A2744352A0E7D88008FB4F5 /* dotBtn@2x.png in Resources */,
 				6A9AAAF629F8151A002A6DAF /* todoCheck@3x.png in Resources */,
 				6A08AD8B29C892E0005947D2 /* check-done-01@2x.png in Resources */,
 				6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */,
@@ -2434,6 +2447,7 @@
 				6A1B3F0A29D7192100BFB3A6 /* messageIcon@3x.png in Resources */,
 				6A987A9629DF1A7A00C27D09 /* plusBtn@3x.png in Resources */,
 				6A987A6229DEDCE700C27D09 /* DefaultProfileMedium@3x.png in Resources */,
+				6A2744342A0E7D88008FB4F5 /* dotBtn@3x.png in Resources */,
 				6A24F8E829D1D4A40000FD64 /* list@3x.png in Resources */,
 				6A987A0A29DBE56100C27D09 /* peopleWhite.png in Resources */,
 				6A9A07BE29D3D52B0051AD43 /* categoryCheck.png in Resources */,
@@ -2441,6 +2455,7 @@
 				6A95E01329D5BE8B009017D8 /* cameraBtn@2x.png in Resources */,
 				6A24F8B529CE3F800000FD64 /* Pretendard-SemiBold.otf in Resources */,
 				6A24F8FB29D1D6470000FD64 /* chevron-left@2x.png in Resources */,
+				6A2744332A0E7D88008FB4F5 /* dotBtn.png in Resources */,
 				6A987A0829DBE56100C27D09 /* peopleWhite@3x.png in Resources */,
 				6AC079922A0A9507007ACDB8 /* EmptyResultLogo@3x.png in Resources */,
 				6A987A1029DBE60600C27D09 /* DefaultProfileSmall@3x.png in Resources */,
@@ -2680,6 +2695,7 @@
 				6A987A4A29DDBB4200C27D09 /* MyGroupNoticeEditViewModel.swift in Sources */,
 				6A9AAB1629F90AD5002A6DAF /* TokenRepository.swift in Sources */,
 				6A9AAB0729F8FF99002A6DAF /* CategoryDTO.swift in Sources */,
+				6A27442F2A0E6AAA008FB4F5 /* JoinedGroupMemberCell.swift in Sources */,
 				6AC079002A053677007ACDB8 /* EmptyTodoMockCell.swift in Sources */,
 				6A987A1229DBEC4000C27D09 /* JoinedGroupDetailHeaderTabView.swift in Sources */,
 				6A987A0429DBD40A00C27D09 /* JoinedGroupDetailHeaderView.swift in Sources */,

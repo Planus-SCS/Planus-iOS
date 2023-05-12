@@ -16,23 +16,160 @@ class JoinedGroupDetailViewModel {
     var bag = DisposeBag()
     var actions: JoinedGroupDetailViewModelActions?
     
-    var groupTitle: String? = "가보자네카라쿠베베"
-    var tag: String? = "#태그개수수수수 #네개까지지지지 #제한하는거다다\n#어때아무글자텍스트테스트 #오개까지아무글자텍스"
-    var memberCount: String? = "1/4"
-    var captin: String? = "기정이짱짱"
+    var groupId: Int?
+    var groupTitle: String?
+    var groupImageUrl: String?
+    var tag: String?
+    var memberCount: String?
+    var onlineCount = BehaviorSubject<Int?>(value: nil)
+    var leaderName: String?
+    var groupNotice: String?
+    
+    var isOnline = BehaviorSubject<Bool?>(value: nil)
+    var isLeader = BehaviorSubject<Bool?>(value: nil)
+    
+    var groupDetailFetched = BehaviorSubject<Void?>(value: nil)
     
     struct Input {
+        var viewDidLoad: Observable<Void>
+        var onlineStateChanged: Observable<Bool>
     }
     
     struct Output {
+        var didFetchGroupDetail: Observable<Void?>
+        var isOnline: Observable<Bool?>
+        var onlineCountChanged: Observable<Int?>
+        var isLeader: Observable<Bool?>
     }
+    
+    var getTokenUseCase: GetTokenUseCase
+    var refreshTokenUseCase: RefreshTokenUseCase
+    var fetchMyGroupDetailUseCase: FetchMyGroupDetailUseCase
+    var fetchImageUseCase: FetchImageUseCase
+    var setOnlineUseCase: SetOnlineUseCase
 
     init(
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase,
+        fetchMyGroupDetailUseCase: FetchMyGroupDetailUseCase,
+        fetchImageUseCase: FetchImageUseCase,
+        setOnlineUseCase: SetOnlineUseCase
     ) {
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
+        self.fetchMyGroupDetailUseCase = fetchMyGroupDetailUseCase
+        self.fetchImageUseCase = fetchImageUseCase
+        self.setOnlineUseCase = setOnlineUseCase
+    }
+    
+    func setGroupId(id: Int) {
+        self.groupId = id
     }
     
     func setActions(actions: JoinedGroupDetailViewModelActions) {
         self.actions = actions
+    }
+    
+    func transform(input: Input) -> Output {
+        bindUseCase()
+        
+        input
+            .viewDidLoad
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                guard let groupId = vm.groupId else { return }
+                vm.fetchGroupDetail(groupId: groupId)
+            })
+            .disposed(by: bag)
+        
+        input
+            .onlineStateChanged
+            .withUnretained(self)
+            .subscribe(onNext: { vm, isOnline in
+                guard let currentState = try? vm.isOnline.value(),
+                   currentState != isOnline else { return }
+                vm.setOnlineState(isOnline: isOnline)
+            })
+            .disposed(by: bag)
+        
+        return Output(
+            didFetchGroupDetail: groupDetailFetched.asObservable(),
+            isOnline: isOnline.asObservable(),
+            onlineCountChanged: onlineCount.asObservable(),
+            isLeader: isLeader.asObservable()
+        )
+    }
+    
+    func fetchGroupDetail(groupId: Int) {
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<MyGroupDetail> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchMyGroupDetailUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] detail in
+                self?.isLeader.onNext(detail.isLeader)
+                self?.groupTitle = detail.groupName
+                self?.groupImageUrl = detail.groupImageUrl
+                self?.tag = detail.groupTags.map { "#\($0.name)" }.joined(separator: " ")
+                self?.memberCount = "\(detail.memberCount)/\(detail.limitCount)"
+                self?.onlineCount.onNext(detail.onlineCount)
+                self?.leaderName = detail.leaderName
+                self?.groupNotice = detail.notice
+                self?.isOnline.onNext(detail.isOnline)
+                self?.groupDetailFetched.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchImage(key: String) -> Single<Data> {
+        fetchImageUseCase
+            .execute(key: key)
+    }
+    
+    func bindUseCase() {
+        setOnlineUseCase
+            .didChangeOnlineState
+            .withUnretained(self)
+            .subscribe(onNext: { vm, groupId in
+                if groupId == vm.groupId {
+                    guard let exValue = try? vm.isOnline.value(),
+                          let onlineCount = try? vm.onlineCount.value() else { return }
+                    let newValue = !exValue
+                    vm.isOnline.onNext(newValue)
+                    vm.onlineCount.onNext(newValue ? (onlineCount + 1) : (onlineCount - 1))
+                }
+            })
+            .disposed(by: bag)
+    }
+    
+    func setOnlineState(isOnline: Bool) {
+        guard let groupId else { return }
+        
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.setOnlineUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onError: { [weak self] _ in
+                self?.isOnline.onNext(try? self?.isOnline.value())
+            })
+            .disposed(by: bag)
     }
     
 }

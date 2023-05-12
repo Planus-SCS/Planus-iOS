@@ -17,6 +17,7 @@ struct MyGroupDetailResponseDTO: Codable {
     var memberCount: Int
     var limitCount: Int
     var leaderName: String
+    var notice: String
     var groupTags: [GroupTagResponseDTO]
 }
 
@@ -32,6 +33,7 @@ extension MyGroupDetailResponseDTO {
             memberCount: memberCount,
             limitCount: limitCount,
             leaderName: leaderName,
+            notice: notice,
             groupTags: groupTags.map { $0.toDomain() }
         )
     }

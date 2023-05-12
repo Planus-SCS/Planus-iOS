@@ -84,7 +84,8 @@ class NotificationViewController: UIViewController {
         let input = NotificationViewModel.Input(
             viewDidLoad: Observable.just(()),
             didTapAllowBtnAt: didAllowBtnTappedAt.asObservable(),
-            didTapDenyBtnAt: didDenyBtnTappedAt.asObservable()
+            didTapDenyBtnAt: didDenyBtnTappedAt.asObservable(),
+            refreshRequired: refreshRequired.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -139,7 +140,7 @@ class NotificationViewController: UIViewController {
     }
     
     @objc func refresh(_ sender: UIRefreshControl) {
-        self.resultCollectionView.reloadData()
+        refreshRequired.onNext(())
     }
 }
 
@@ -170,13 +171,6 @@ extension NotificationViewController: UICollectionViewDataSource, UICollectionVi
         }
         
         return cell
-    }
-
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if (refreshControl.isRefreshing) {
-            self.refreshControl.endRefreshing()
-            refreshRequired.onNext(())
-        }
     }
 
 }

@@ -116,6 +116,9 @@ class GroupListViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                if (vc.refreshControl.isRefreshing) {
+                    vc.refreshControl.endRefreshing()
+                }
                 vc.resultCollectionView.reloadData()
                 vc.emptyResultView.isHidden = !((viewModel.groupList?.count == 0) ?? true)
             })
@@ -151,6 +154,7 @@ class GroupListViewController: UIViewController {
     
     @objc func refresh(_ sender: UIRefreshControl) {
         refreshRequired.onNext(())
+        print("ref required")
     }
 }
 
@@ -207,12 +211,12 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
         return cell
     }
     
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if (refreshControl.isRefreshing) {
-            self.refreshControl.endRefreshing()
-            refreshRequired.onNext(())
-        }
-    }
+//    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+//        if (refreshControl.isRefreshing) {
+//            self.refreshControl.endRefreshing()
+////            refreshRequired.onNext(())
+//        }
+//    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         tappedItemAt.onNext(indexPath.item)

@@ -80,6 +80,7 @@ class GroupListViewModel {
             .refreshRequired
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
+                print("reff!!!")
                 vm.fetchMyGroupList()
             })
             .disposed(by: bag)
@@ -120,6 +121,7 @@ class GroupListViewModel {
             .didCreateGroup
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
+                print("created!")
                 vm.fetchMyGroupList()
             })
             .disposed(by: bag)

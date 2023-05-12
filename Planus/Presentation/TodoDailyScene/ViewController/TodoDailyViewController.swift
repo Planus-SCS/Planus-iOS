@@ -96,6 +96,7 @@ class TodoDailyViewController: UIViewController {
                 if indexPath.section == 0 {
                     if vm.viewModel?.scheduledTodoList?.count == 1 {
                         vm.collectionView.deleteItems(at: [indexPath])
+                        print("removed!")
                     }
                 } else if indexPath.section == 1 {
                     if vm.viewModel?.unscheduledTodoList?.count == 1 {
@@ -116,6 +117,16 @@ class TodoDailyViewController: UIViewController {
             .subscribe(onNext: { vm, indexPath in
                 vm.collectionView.performBatchUpdates {
                     vm.collectionView.deleteItems(at: [indexPath])
+                }
+                if indexPath.section == 0 {
+                    if vm.viewModel?.scheduledTodoList?.count == 0 {
+                        vm.collectionView.insertItems(at: [indexPath])
+                        print("removed!")
+                    }
+                } else if indexPath.section == 1 {
+                    if vm.viewModel?.unscheduledTodoList?.count == 0 {
+                        vm.collectionView.insertItems(at: [indexPath])
+                    }
                 }
             })
             .disposed(by: bag)

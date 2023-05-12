@@ -15,6 +15,7 @@ class NotificationViewModel {
         var viewDidLoad: Observable<Void>
         var didTapAllowBtnAt: Observable<Int?>
         var didTapDenyBtnAt: Observable<Int?>
+        var refreshRequired: Observable<Void>
     }
     
     struct Output {
@@ -76,6 +77,14 @@ class NotificationViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 vm.denyGroupJoinAt(index: index)
+            })
+            .disposed(by: bag)
+        
+        input
+            .refreshRequired
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchJoinApplyList()
             })
             .disposed(by: bag)
         

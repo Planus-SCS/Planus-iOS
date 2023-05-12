@@ -17,5 +17,6 @@ struct MyGroupDetail {
     var memberCount: Int
     var limitCount: Int
     var leaderName: String
+    var notice: String
     var groupTags: [GroupTag]
 }

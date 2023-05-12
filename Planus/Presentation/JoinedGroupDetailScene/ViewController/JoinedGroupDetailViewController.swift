@@ -10,7 +10,10 @@ import RxSwift
 import SnapKit
 
 class JoinedGroupDetailViewController: UIViewController {
+    var bag = DisposeBag()
     var viewModel: JoinedGroupDetailViewModel?
+    
+    var titleFetched = BehaviorSubject<String?>(value: nil)
     
     var headerView = JoinedGroupDetailHeaderView(frame: .zero)
     var headerTabView = JoinedGroupDetailHeaderTabView(frame: .zero)
@@ -36,7 +39,7 @@ class JoinedGroupDetailViewController: UIViewController {
         item.tintColor = .black
         return item
     }()
-    
+        
     convenience init(viewModel: JoinedGroupDetailViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
@@ -58,15 +61,109 @@ class JoinedGroupDetailViewController: UIViewController {
         configureChild()
         configurePanGesture()
         
-        testSetView()
+        bind()
         navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        navigationItem.title = "가보자네카라쿠배배"
+        titleFetched
+            .withUnretained(self)
+            .compactMap { $0 }
+            .subscribe(onNext: { vc, title in
+                vc.navigationItem.title = title
+            })
+            .disposed(by: bag)
     }
+    
+    func bind() {
+        guard let viewModel else { return }
+        
+        let input = JoinedGroupDetailViewModel.Input(
+            viewDidLoad: Observable.just(()),
+            onlineStateChanged: headerView.onlineSwitch.rx.isOn.asObservable()
+        )
+        let output = viewModel.transform(input: input)
+        
+        output
+            .didFetchGroupDetail
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.titleFetched.onNext(viewModel.groupTitle)
+                vc.headerView.tagLabel.text = viewModel.tag
+                vc.headerView.memberCountButton.setTitle(viewModel.memberCount, for: .normal)
+                vc.headerView.captinButton.setTitle(viewModel.leaderName, for: .normal)
+                
+                vc.noticeViewController?.viewModel?.notice = viewModel.groupNotice
+                vc.noticeViewController?.viewModel?.noticeFetched.onNext(())
+                if let url = viewModel.groupImageUrl {
+                    viewModel.fetchImage(key: url)
+                        .observe(on: MainScheduler.asyncInstance)
+                        .subscribe(onSuccess: { data in
+                            vc.headerView.titleImageView.image = UIImage(data: data)
+                        })
+                        .disposed(by: vc.bag)
+                }
+            })
+            .disposed(by: bag)
+        
+        output
+            .isOnline
+            .compactMap { $0 }
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
+            .bind(to: headerView.onlineSwitch.rx.isOn)
+            .disposed(by: bag)
+        
+        output
+            .onlineCountChanged
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, count in
+                vc.headerView.onlineButton.setTitle("\(count)", for: .normal)
+            })
+            .disposed(by: bag)
+        
+        output
+            .isLeader
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, isLeader in
+                vc.setMenuButton(isLeader: isLeader)
+            })
+            .disposed(by: bag)
+        
+        
+    }
+    
+    func setMenuButton(isLeader: Bool) {
+        let image = UIImage(named: "dotBtn")
+        var item: UIBarButtonItem
+        var menuChild = [UIAction]()
+        let link = UIAction(title: "모아 보기", handler: { _ in print("전체 캘린더 조회") })
+        menuChild.append(link)
+        if isLeader {
+            let editInfo = UIAction(title: "ios 스터디", handler: { _ in print("전반적인 수정") })
+            let editNotice = UIAction(title: "ios 스터디", handler: { _ in print("공지수정") })
+            let editMember = UIAction(title: "ios 스터디", handler: { _ in print("멤버수정") })
+            
+            menuChild.append(editInfo)
+            menuChild.append(editNotice)
+            menuChild.append(editMember)
+        }
+        
+        let menu = UIMenu(options: .displayInline, children: menuChild)
+        item = UIBarButtonItem(image: image, menu: menu)
+        item.tintColor = UIColor(hex: 0x000000)
+        navigationItem.setRightBarButton(item, animated: true)
+    }
+    
+//    let notice
     
     @objc func backBtnAction() {
         viewModel?.actions?.pop?()
@@ -103,21 +200,6 @@ class JoinedGroupDetailViewController: UIViewController {
         }
     }
     
-    
-    
-    func testSetView() {
-        headerView.titleImageView.image = UIImage(named: "groupTest1")
-        headerView.tagLabel.text = "#태그개수수수수 #네개까지지지지 #제한하는거다다 #어때아무글자텍스트테스트 #오개까지아무글자텍스"
-        headerView.memberCountButton.setTitle("4/18", for: .normal)
-        headerView.captinButton.setTitle("기정이짱짱", for: .normal)
-        headerView.onlineButton.setTitle("4", for: .normal)
-        
-        headerView.memberProfileStack.addArrangedSubview(headerView.generateMemberProfileImageView(image: UIImage(named: "DefaultProfileSmall")))
-        headerView.memberProfileStack.addArrangedSubview(headerView.generateMemberProfileImageView(image: UIImage(named: "DefaultProfileSmall")))
-        headerView.memberProfileStack.addArrangedSubview(headerView.generateMemberProfileImageView(image: UIImage(named: "DefaultProfileSmall")))
-    }
-
-    
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
 
@@ -135,7 +217,24 @@ class JoinedGroupDetailViewController: UIViewController {
     }
     
     func configureChild() {
-        let noticeViewModel = JoinedGroupNoticeViewModel()
+        guard let groupId = viewModel?.groupId else { return }
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
+        let imageRepo = DefaultImageRepository(apiProvider: api)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let fetchMyGroupMemberListUseCase = DefaultFetchMyGroupMemberListUseCase(myGroupRepository: myGroupRepo)
+        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
+        
+        let noticeViewModel = JoinedGroupNoticeViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            fetchMyGroupMemberListUseCase: fetchMyGroupMemberListUseCase,
+            fetchImageUseCase: fetchImageUseCase
+        )
+        noticeViewModel.setGroupId(id: groupId)
         let noticeViewController = JoinedGroupNoticeViewController(viewModel: noticeViewModel)
         noticeViewController.delegate = self
         self.noticeViewController = noticeViewController

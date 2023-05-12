@@ -184,14 +184,13 @@ class TodoDailyViewModel {
                     }
                     vm.needDeleteItem.onNext(IndexPath(item: item, section: section))
                 } else {
-                    print(todoBeforeUpdate.startTime, todoAfterUpdate.startTime)
                     switch (todoBeforeUpdate.startTime, todoAfterUpdate.startTime) {
                     case (nil, nil): //이건 그냥 그대로 바꿔주면됨!
                         let section = 1
                         let item = vm.unscheduledTodoList?.firstIndex(where: { $0.id == todoAfterUpdate.id }) ?? 0
                         vm.unscheduledTodoList?[item] = todoAfterUpdate
                         vm.needReloadItem.onNext(IndexPath(item: item, section: section))
-                    case (let beforeTime, nil):
+                    case (let _, nil):
                         let beforeSection = 0
                         let beforeItem = vm.scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id }) ?? 0
                         vm.scheduledTodoList?.remove(at: beforeItem)

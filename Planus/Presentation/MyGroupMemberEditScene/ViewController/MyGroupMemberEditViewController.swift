@@ -133,11 +133,11 @@ extension MyGroupMemberEditViewController: UICollectionViewDataSource {
         guard let item = viewModel?.memberList?[indexPath.item],
               let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MyGroupMemberEditCell.reuseIdentifier, for: indexPath) as? MyGroupMemberEditCell else { return UICollectionViewCell() }
         
-        cell.fill(name: item.name, introduce: item.description, isCaptin: item.isLeader)
-        cell.fill(image: UIImage(named: "DefaultProfileMedium")!)
-        cell.fill { [weak self] in
-            self?.didTappedResignButton.onNext(item.name)
-        }
+//        cell.fill(name: item.name, introduce: item.description, isCaptin: item.isLeader)
+//        cell.fill(image: UIImage(named: "DefaultProfileMedium")!)
+//        cell.fill { [weak self] in
+//            self?.didTappedResignButton.onNext(item.name)
+//        }
         return cell
     }
     

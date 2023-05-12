@@ -38,7 +38,7 @@ class GroupCoordinator: Coordinator {
         let fetchMyGroupUseCase = DefaultFetchMyGroupListUseCase(myGroupRepository: myGroupRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
         let groupCreateUseCase = DefaultGroupCreateUseCase.shared
-        let setOnlineUseCase = DefaultSetOnlineUseCase(myGroupRepository: myGroupRepo)
+        let setOnlineUseCase = DefaultSetOnlineUseCase.shared
         let vm = GroupListViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUsecase: refreshTokenUseCase,

@@ -9,11 +9,12 @@ import Foundation
 import RxSwift
 
 class DefaultSetOnlineUseCase: SetOnlineUseCase {
+    static let shared = DefaultSetOnlineUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
     let myGroupRepository: MyGroupRepository
     
     var didChangeOnlineState = PublishSubject<Int>()
     
-    init(myGroupRepository: MyGroupRepository) {
+    private init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository
     }
     
