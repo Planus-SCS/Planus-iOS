@@ -20,7 +20,6 @@ class GroupListViewModel {
     var groupList: [MyGroupSummary]?
     
     var didFetchGroupList = BehaviorSubject<Void?>(value: nil)
-    var didChangeOnlineStateAt = PublishSubject<Int>()
     var needReloadItemAt = PublishSubject<Int>()
     
     struct Input {
@@ -33,7 +32,6 @@ class GroupListViewModel {
     
     struct Output {
         var didFetchJoinedGroup: Observable<Void?>
-        var didChangeOnlineStateAt: Observable<Int>
         var needReloadItemAt: Observable<Int>
     }
     
@@ -113,7 +111,6 @@ class GroupListViewModel {
         
         return Output(
             didFetchJoinedGroup: didFetchGroupList.asObservable(),
-            didChangeOnlineStateAt: didChangeOnlineStateAt.asObservable(),
             needReloadItemAt: needReloadItemAt.asObservable()
         )
     }
@@ -133,9 +130,9 @@ class GroupListViewModel {
             .subscribe(onNext: { vm, groupId in
                 guard let index = vm.groupList?.firstIndex(where: { $0.groupId == groupId }),
                       var group = vm.groupList?[index] else { return }
-
                 group.isOnline = !group.isOnline
-                group.totalCount = group.isOnline ? group.totalCount + 1 : group.totalCount - 1
+
+                group.onlineCount = group.isOnline ? group.onlineCount + 1 : group.onlineCount - 1
                 vm.groupList?[index] = group
                 vm.needReloadItemAt.onNext(index)
             })
@@ -158,8 +155,8 @@ class GroupListViewModel {
                 retryObservable: refreshTokenUsecase.execute(),
                 errorType: TokenError.noTokenExist
             )
-            .subscribe(onSuccess: { [weak self] _ in
-                // 처리를 유즈케이스 바인딩을 통해 하고있음.
+            .subscribe(onError: { [weak self] _ in
+                self?.needReloadItemAt.onNext(index)
             })
             .disposed(by: bag)
     }

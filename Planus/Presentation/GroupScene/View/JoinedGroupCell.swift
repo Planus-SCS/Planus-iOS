@@ -11,7 +11,10 @@ import RxSwift
 class JoinedGroupCell: SearchResultCell {
     
     var bag: DisposeBag?
+    var switchBag = DisposeBag()
     var indexPath: IndexPath?
+    
+    var isOnline = PublishSubject<Bool>()
 
     var chatButton: UIButton = {
         let button = UIButton(frame: .zero)
@@ -51,6 +54,13 @@ class JoinedGroupCell: SearchResultCell {
         swicth.layer.cornerRadius = 14
         swicth.backgroundColor = UIColor(hex: 0x6F81A9)
         swicth.clipsToBounds = true
+        swicth.rx.isOn.asObservable()
+            .withUnretained(self)
+            .subscribe(onNext: { cell, isOn in
+                cell.isOnline.onNext(isOn)
+        })
+        .disposed(by: switchBag)
+        
         return swicth
     }()
     
@@ -105,6 +115,6 @@ class JoinedGroupCell: SearchResultCell {
     func fill(title: String, tag: String?, memCount: String, leaderName: String, onlineCount: String, isOnline: Bool) {
         super.fill(title: title, tag: tag, memCount: memCount, captin: leaderName)
         onlineButton.setTitle(onlineCount, for: .normal)
-        onlineSwitch.setOn(isOnline, animated: false)
+        onlineSwitch.isOn = isOnline
     }
 }

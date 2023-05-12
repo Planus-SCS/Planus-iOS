@@ -145,6 +145,8 @@
 		6A2744132A0B8328008FB4F5 /* DefaultSetOnlineUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744122A0B8328008FB4F5 /* DefaultSetOnlineUseCase.swift */; };
 		6A2744152A0B8389008FB4F5 /* SetOnlineUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744142A0B8389008FB4F5 /* SetOnlineUseCase.swift */; };
 		6A27441B2A0CC9EF008FB4F5 /* PrimitiveSequence+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A27441A2A0CC9EF008FB4F5 /* PrimitiveSequence+Ext.swift */; };
+		6A27441F2A0E3FEF008FB4F5 /* MyGroupDetailDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A27441E2A0E3FEF008FB4F5 /* MyGroupDetailDTO.swift */; };
+		6A2744212A0E40D3008FB4F5 /* MyGroupDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744202A0E40D3008FB4F5 /* MyGroupDetail.swift */; };
 		6A2BB1A729E404DA0053C5CA /* MyPageMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */; };
 		6A2BB1AC29E406A70053C5CA /* smallArrow@2.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */; };
 		6A2BB1AD29E406A70053C5CA /* smallArrow@3.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */; };
@@ -555,6 +557,8 @@
 		6A2744122A0B8328008FB4F5 /* DefaultSetOnlineUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSetOnlineUseCase.swift; sourceTree = "<group>"; };
 		6A2744142A0B8389008FB4F5 /* SetOnlineUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetOnlineUseCase.swift; sourceTree = "<group>"; };
 		6A27441A2A0CC9EF008FB4F5 /* PrimitiveSequence+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PrimitiveSequence+Ext.swift"; sourceTree = "<group>"; };
+		6A27441E2A0E3FEF008FB4F5 /* MyGroupDetailDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailDTO.swift; sourceTree = "<group>"; };
+		6A2744202A0E40D3008FB4F5 /* MyGroupDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetail.swift; sourceTree = "<group>"; };
 		6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MyPageMainViewController.swift; path = ../../../../../../Documents/MyPageMainViewController.swift; sourceTree = "<group>"; };
 		6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "smallArrow@2.png"; sourceTree = "<group>"; };
 		6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "smallArrow@3.png"; sourceTree = "<group>"; };
@@ -1585,6 +1589,7 @@
 				6AC079662A0A5815007ACDB8 /* UnJoinedGroupDetail.swift */,
 				6AC079812A0A893B007ACDB8 /* GroupJoinApplied.swift */,
 				6AC079A52A0B5FE7007ACDB8 /* MyGroupSummary.swift */,
+				6A2744202A0E40D3008FB4F5 /* MyGroupDetail.swift */,
 			);
 			path = Entity;
 			sourceTree = "<group>";
@@ -1975,6 +1980,7 @@
 				6AC079952A0AA573007ACDB8 /* GroupJoinApplingDTO.swift */,
 				6AC079A32A0B5E0D007ACDB8 /* MyGroupSummaryDTO.swift */,
 				6A2744102A0B8261008FB4F5 /* GroupSetOnlineResponseDTO.swift */,
+				6A27441E2A0E3FEF008FB4F5 /* MyGroupDetailDTO.swift */,
 			);
 			path = DataMapping;
 			sourceTree = "<group>";
@@ -2531,6 +2537,7 @@
 				6A987A8F29DF119300C27D09 /* SmallCalendarView.swift in Sources */,
 				6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */,
 				6AC079822A0A893B007ACDB8 /* GroupJoinApplied.swift in Sources */,
+				6A2744212A0E40D3008FB4F5 /* MyGroupDetail.swift in Sources */,
 				6AC079022A07D464007ACDB8 /* TodoUpdateComparator.swift in Sources */,
 				6A987A7929DEFC6600C27D09 /* TodoDailyViewModel.swift in Sources */,
 				6AC0793F2A0A3650007ACDB8 /* ValidationCheckView.swift in Sources */,
@@ -2714,6 +2721,7 @@
 				6A95DFB729D4DD40009017D8 /* SearchViewModel.swift in Sources */,
 				6A24F90A29D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift in Sources */,
 				6A2BB1B729E41EC40053C5CA /* MyPageMainTitleViewModel.swift in Sources */,
+				6A27441F2A0E3FEF008FB4F5 /* MyGroupDetailDTO.swift in Sources */,
 				6A9AAB3D29FA5E07002A6DAF /* CreateCategoryUseCase.swift in Sources */,
 				6AC079302A0A1272007ACDB8 /* GroupCreateInfoView.swift in Sources */,
 				6A9A07F329D40B5D0051AD43 /* DayPickerView.swift in Sources */,

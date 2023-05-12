@@ -21,7 +21,7 @@ class DefaultSetOnlineUseCase: SetOnlineUseCase {
         myGroupRepository
             .changeOnlineState(token: token.accessToken, groupId: groupId)
             .map { [weak self] _ in
-//                self?.didChangeOnlineState.onNext(groupId)
+                self?.didChangeOnlineState.onNext(groupId)
                 return ()
             }
     }

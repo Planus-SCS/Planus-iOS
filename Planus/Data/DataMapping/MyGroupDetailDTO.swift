@@ -1,13 +1,13 @@
 //
-//  MyGroupSummaryDTO.swift
+//  MyGroupDetailDTO.swift
 //  Planus
 //
-//  Created by Sangmin Lee on 2023/05/10.
+//  Created by Sangmin Lee on 2023/05/12.
 //
 
 import Foundation
 
-struct MyGroupSummaryResponseDTO: Codable {
+struct MyGroupDetailResponseDTO: Codable {
     var groupId: Int
     var groupImageUrl: String
     var groupName: String
@@ -19,15 +19,15 @@ struct MyGroupSummaryResponseDTO: Codable {
     var groupTags: [GroupTagResponseDTO]
 }
 
-extension MyGroupSummaryResponseDTO {
-    func toDomain() -> MyGroupSummary {
-        return MyGroupSummary(
+extension MyGroupDetailResponseDTO {
+    func toDomain() -> MyGroupDetail {
+        return MyGroupDetail(
             groupId: groupId,
             groupImageUrl: groupImageUrl,
             groupName: groupName,
             isOnline: isOnline,
             onlineCount: onlineCount,
-            totalCount: memberCount,
+            memberCount: memberCount,
             limitCount: limitCount,
             leaderName: leaderName,
             groupTags: groupTags.map { $0.toDomain() }

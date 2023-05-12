@@ -122,15 +122,6 @@ class GroupListViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .didChangeOnlineStateAt
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, index in
-                print(index)
-            })
-            .disposed(by: bag)
-        
-        output
             .needReloadItemAt
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
@@ -175,13 +166,27 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupCell.reuseIdentifier, for: indexPath) as? JoinedGroupCell,
               let item = viewModel?.groupList?[indexPath.item] else { return UICollectionViewCell() }
-
+        
+        // 이전에 바인딩되있던게 있다면 전부 버림
+        cell.bag = nil
+        cell.fill(
+            title: item.groupName,
+            tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
+            memCount: "\(item.totalCount)/\(item.limitCount)",
+            leaderName: item.leaderName,
+            onlineCount: "\(item.onlineCount)",
+            isOnline: item.isOnline
+        ) //값먼저 주고
+        
+        // 새로 바인딩..!
         let cellBag = DisposeBag()
         cell.indexPath = indexPath
         cell.bag = cellBag
-        cell.onlineSwitch.rx.isOn
+        cell.isOnline
+            .distinctUntilChanged()
             .withUnretained(self)
             .subscribe(onNext: { vc, isOn in
+                print(isOn)
                 // 네트워크 요청 성공 시 스위치 토글을 옮겨야한다..!
                 // 아니면 요청후 성공하면 유지, 실패하면 다시 원래자리로 돌리는거..?
                 if isOn {
@@ -191,15 +196,6 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
                 }
             })
             .disposed(by: cellBag)
-        
-        cell.fill(
-            title: item.groupName,
-            tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
-            memCount: "\(item.totalCount)/\(item.limitCount)",
-            leaderName: item.leaderName,
-            onlineCount: "\(item.onlineCount)",
-            isOnline: item.isOnline
-        )
         
         viewModel?.fetchImage(key: item.groupImageUrl)
             .observe(on: MainScheduler.asyncInstance)
@@ -243,7 +239,7 @@ extension GroupListViewController {
         group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 14, trailing: 0)
 
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: -7, trailing: 7)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
         
         let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                        heightDimension: .absolute(34))
