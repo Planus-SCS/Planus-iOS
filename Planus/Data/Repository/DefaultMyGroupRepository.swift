@@ -118,6 +118,24 @@ class DefaultMyGroupRepository: MyGroupRepository {
         )
     }
     
+    func updateInfo(token: String, groupId: Int, editRequestDTO: MyGroupInfoEditRequestDTO, image: ImageFile) -> Single<ResponseDTO<MyGroupInfoEditResponseDTO>> {
+        let endPoint = APIMultiPartEndPoint(
+            url: URLPool.groups + "\(groupId)",
+            requestType: .patch,
+            body: ["groupUpdateRequestDto": editRequestDTO],
+            image: ["image": image],
+            query: nil,
+            header: [
+                "Authorization": "Bearer \(token)"
+            ]
+        )
+        
+        return apiProvider.requestMultipartCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<MyGroupInfoEditResponseDTO>.self
+        )
+    }
+    
     func updateNotice(token: String, groupId: Int, notice: MyGroupNoticeEditRequestDTO) -> Single<ResponseDTO<MyGroupNoticeEditResponseDTO>> {
         let endPoint = APIEndPoint(
             url: URLPool.groups + "/\(groupId)/notice",
