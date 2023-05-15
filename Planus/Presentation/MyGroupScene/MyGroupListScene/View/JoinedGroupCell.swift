@@ -16,8 +16,8 @@ class JoinedGroupCell: SearchResultCell {
     
     var isOnline = PublishSubject<Bool>()
 
-    var chatButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    var chatButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
         button.setTitle("바로가기", for: .normal)
         button.backgroundColor = UIColor(hex: 0x000000, a: 0.7)
         button.setTitleColor(UIColor(hex: 0xFFFFFF), for: .normal)

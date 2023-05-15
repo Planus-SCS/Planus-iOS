@@ -89,8 +89,8 @@ class GroupIntroduceViewController: UIViewController {
         return view
     }()
     
-    var joinButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    var joinButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
         button.setTitle("로딩중", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = UIColor(hex: 0x6495F4)

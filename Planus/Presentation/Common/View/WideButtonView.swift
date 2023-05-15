@@ -8,8 +8,8 @@
 import UIKit
 
 class WideButtonView: UIView {
-    var wideButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    var wideButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
         button.setTitle("그룹 생성하기", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = UIColor(hex: 0x6495F4)

@@ -37,8 +37,8 @@ class GroupCreateInfoView: UIView {
         return imageView
     }()
     
-    var groupImageButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    var groupImageButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
         button.setImage(UIImage(named: "cameraBtn"), for: .normal)
         return button
     }()

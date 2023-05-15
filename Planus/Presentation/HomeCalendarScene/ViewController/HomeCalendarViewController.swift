@@ -21,8 +21,8 @@ class HomeCalendarViewController: UIViewController {
     
     let scrolledTo = PublishSubject<ScrollDirection>()
     
-    lazy var yearMonthButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    lazy var yearMonthButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
         button.setImage(UIImage(named: "downButton"), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft

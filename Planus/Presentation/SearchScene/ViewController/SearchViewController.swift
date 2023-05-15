@@ -69,8 +69,8 @@ class SearchViewController: UIViewController {
         return textField
     }()
     
-    var createGroupButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    var createGroupButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
         button.setImage(UIImage(named: "GroupAddBtn"), for: .normal)
         button.layer.cornerRadius = 25
         button.layer.cornerCurve = .continuous

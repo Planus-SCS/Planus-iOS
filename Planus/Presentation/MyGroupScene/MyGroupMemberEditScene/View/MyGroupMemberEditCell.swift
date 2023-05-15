@@ -11,8 +11,8 @@ class MyGroupMemberEditCell: GroupIntroduceMemberCell {
     
     var buttonActionClosure: (() -> Void)?
 
-    lazy var resignButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    lazy var resignButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
         button.backgroundColor = UIColor(hex: 0xF9E3E9)
         button.setTitle("탈퇴", for: .normal)
         button.setTitleColor(UIColor(hex: 0xFF0000), for: .normal)

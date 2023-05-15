@@ -45,8 +45,8 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         return label
     }()
     
-    lazy var allowButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    lazy var allowButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
         button.setTitle("수락", for: .normal)
         button.setTitleColor(UIColor(hex: 0x6495F4), for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 14)
@@ -57,8 +57,8 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         return button
     }()
     
-    lazy var denyButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    lazy var denyButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
         button.setTitle("거절", for: .normal)
         button.setTitleColor(UIColor(hex: 0xFF0000), for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 14)
