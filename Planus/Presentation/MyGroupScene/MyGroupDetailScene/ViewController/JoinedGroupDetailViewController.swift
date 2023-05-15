@@ -93,8 +93,8 @@ class JoinedGroupDetailViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.titleFetched.onNext(viewModel.groupTitle)
-                vc.headerView.tagLabel.text = viewModel.tag
-                vc.headerView.memberCountButton.setTitle(viewModel.memberCount, for: .normal)
+                vc.headerView.tagLabel.text = viewModel.tag?.map { "#\($0)" }.joined(separator: " ")
+                vc.headerView.memberCountButton.setTitle("\(viewModel.memberCount ?? 0)/\(viewModel.limitCount ?? 0)", for: .normal)
                 vc.headerView.captinButton.setTitle(viewModel.leaderName, for: .normal)
                 vc.setMenuButton(isLeader: viewModel.isLeader)
                 if let url = viewModel.groupImageUrl {
@@ -224,8 +224,15 @@ class JoinedGroupDetailViewController: UIViewController {
         
         let vm = MyGroupInfoEditViewModel(
             getTokenUseCase: getTokenUseCase,
-            refreshTokenUseCase: refreshTokenUseCase
+            refreshTokenUseCase: refreshTokenUseCase,
+            fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: imageRepo)
         )
+        guard let id = self?.viewModel?.groupId,
+              let title = self?.viewModel?.groupTitle,
+              let url = self?.viewModel?.groupImageUrl,
+              let tagList = self?.viewModel?.tag,
+              let max = self?.viewModel?.limitCount else { return }
+        vm.setGroup(id: id, title: title, imageUrl: url, tagList: tagList, maxMember: max)
         
         let vc = MyGroupInfoEditViewController(viewModel: vm)
         self?.navigationController?.pushViewController(vc, animated: true)

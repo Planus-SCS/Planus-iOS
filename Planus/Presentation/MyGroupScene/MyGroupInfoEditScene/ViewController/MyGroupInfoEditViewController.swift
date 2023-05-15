@@ -76,38 +76,38 @@ class MyGroupInfoEditViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
-        let tagObservableList = [
-            tagView.tagField1.rx.text.asObservable(),
-            tagView.tagField2.rx.text.asObservable(),
-            tagView.tagField3.rx.text.asObservable(),
-            tagView.tagField4.rx.text.asObservable(),
-            tagView.tagField5.rx.text.asObservable()
-        ].map { str in
-            return str.map {
-                return (($0?.isEmpty) ?? true) ? nil : $0
-            }
+        let tagFieldList: [UITextField] = [
+            tagView.tagField1,
+            tagView.tagField2,
+            tagView.tagField3,
+            tagView.tagField4,
+            tagView.tagField5
+        ]
+        
+        infoView.groupNameField.text = viewModel.title
+        (try? viewModel.tagList.value())?.enumerated().forEach { index, tag in
+            tagFieldList[index].text = tag
         }
+        limitView.limitField.text = "\((try? viewModel.maxMember.value()) ?? 0)"
+        
+        let tagObservableList = tagFieldList
+            .map {
+                $0.rx.text.asObservable()
+            }.map { str in
+                return str.map {
+                    return (($0?.isEmpty) ?? true) ? nil : $0
+                }
+            }
         
         let tagListChanged = Observable.combineLatest(tagObservableList)
 
         let input = MyGroupInfoEditViewModel.Input(
-            titleChanged: infoView.groupNameField.rx.text.asObservable(),
             titleImageChanged: titleImageChanged.asObservable(),
             tagListChanged: tagListChanged,
             maxMemberChanged: limitView.limitField.rx.text.asObservable(),
             saveBtnTapped: createButtonView.wideButton.rx.tap.asObservable()
         )
         let output = viewModel.transform(input: input)
-        
-        output
-            .titleFilled
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, filled in
-                vc.infoView.groupNameField.layer.borderColor
-                = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
-            })
-            .disposed(by: bag)
         
         output
             .maxCountFilled

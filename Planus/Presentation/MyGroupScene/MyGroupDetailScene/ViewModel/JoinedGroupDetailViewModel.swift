@@ -19,8 +19,9 @@ class JoinedGroupDetailViewModel {
     var groupId: Int?
     var groupTitle: String?
     var groupImageUrl: String?
-    var tag: String?
-    var memberCount: String?
+    var tag: [String]?
+    var memberCount: Int?
+    var limitCount: Int?
     var leaderName: String?
     var isLeader: Bool?
     
@@ -121,15 +122,16 @@ class JoinedGroupDetailViewModel {
                 self?.isLeader = detail.isLeader
                 self?.groupTitle = detail.groupName
                 self?.groupImageUrl = detail.groupImageUrl
-                self?.tag = detail.groupTags.map { "#\($0.name)" }.joined(separator: " ")
-                self?.memberCount = "\(detail.memberCount)/\(detail.limitCount)"
+                self?.tag = detail.groupTags.map { $0.name }
+                self?.memberCount = detail.memberCount
+                self?.limitCount = detail.limitCount
                 self?.onlineCount.onNext(detail.onlineCount)
                 self?.leaderName = detail.leaderName
                 self?.groupNotice.onNext(detail.notice)
                 self?.isOnline.onNext(detail.isOnline)
                 self?.groupDetailFetched.onNext(())
             })
-            .disposed(by: bag)
+            .disposed(by: bag) //.map { "#\($0.name)" }.joined(separator: " ")
     }
     
     func fetchImage(key: String) -> Single<Data> {

@@ -12,15 +12,14 @@ class MyGroupInfoEditViewModel {
     var bag = DisposeBag()
     var groupId: Int?
     
-    var title = BehaviorSubject<String?>(value: nil)
+    var title: String?
     var titleImage = BehaviorSubject<ImageFile?>(value: nil)
     var tagList = BehaviorSubject<[String?]>(value: [])
     var maxMember = BehaviorSubject<Int?>(value: nil)
-
+    
     var groupCreateCompleted = PublishSubject<Void>()
     
     struct Input {
-        var titleChanged: Observable<String?>
         var titleImageChanged: Observable<ImageFile?>
         var tagListChanged: Observable<[String?]>
         var maxMemberChanged: Observable<String?>
@@ -28,7 +27,6 @@ class MyGroupInfoEditViewModel {
     }
     
     struct Output {
-        var titleFilled: Observable<Bool>
         var imageFilled: Observable<Bool>
         var maxCountFilled: Observable<Bool>
         var didChangedTitleImage: Observable<Data?>
@@ -41,17 +39,36 @@ class MyGroupInfoEditViewModel {
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
+    var fetchImageUseCase: FetchImageUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase
+        refreshTokenUseCase: RefreshTokenUseCase,
+        fetchImageUseCase: FetchImageUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
+        self.fetchImageUseCase = fetchImageUseCase
     }
     
-    public func setGroupId(id: Int) {
+    public func setGroup(
+        id: Int,
+        title: String,
+        imageUrl: String,
+        tagList: [String],
+        maxMember: Int
+    ) {
         self.groupId = id
+        self.title = title
+        self.tagList.onNext(tagList)
+        self.maxMember.onNext(maxMember)
+        
+        fetchImageUseCase
+            .execute(key: imageUrl)
+            .subscribe(onSuccess: { [weak self] data in
+                self?.titleImage.onNext(ImageFile(filename: "original", data: data, type: "png"))
+            })
+            .disposed(by: bag)
     }
     
     public func transform(input: Input) -> Output {
@@ -88,10 +105,6 @@ class MyGroupInfoEditViewModel {
                 }
                 return true
             }
-        input
-            .titleChanged
-            .bind(to: title)
-            .disposed(by: bag)
 
         input
             .titleImageChanged
@@ -120,7 +133,6 @@ class MyGroupInfoEditViewModel {
             })
             .disposed(by: bag)
         
-        let titleFilled = title.map{ !(($0?.isEmpty) ?? true) }.asObservable()
         let imageFilled = titleImage.map { $0 != nil }.asObservable()
         let maxMemberFilled = maxMember.map {
             guard let max = $0,
@@ -129,7 +141,6 @@ class MyGroupInfoEditViewModel {
         }
         
         let isCreateButtonEnabled = Observable.combineLatest([
-            titleFilled,
             imageFilled,
             maxMemberFilled,
             tagCountValidState,
@@ -141,7 +152,6 @@ class MyGroupInfoEditViewModel {
         }
         
         return Output(
-            titleFilled: titleFilled,
             imageFilled: imageFilled,
             maxCountFilled: maxMemberFilled,
             didChangedTitleImage: titleImage.map { $0?.data }.asObservable(),

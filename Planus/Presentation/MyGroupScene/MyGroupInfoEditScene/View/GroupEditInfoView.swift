@@ -58,6 +58,9 @@ class GroupEditInfoView: UIView {
             string: "그룹 이름을 입력하세요",
             attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
         )
+        
+        textField.alpha = 0.6
+        textField.isEnabled = false
 
         return textField
     }()
