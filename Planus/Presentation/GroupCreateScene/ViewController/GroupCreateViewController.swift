@@ -200,11 +200,20 @@ class GroupCreateViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .groupCreateCompleted
+            .showCreateLoadPage
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.navigationController?.popViewController(animated: true)
+            .subscribe(onNext: { vc, groupInfo in
+                let api = NetworkManager()
+                let keyChain = KeyChainManager()
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+                let getToken = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+                let refToken = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+                let groupCreate = DefaultGroupCreateUseCase.shared
+                let viewModel = GroupCreateLoadViewModel(getTokenUseCase: getToken, refreshTokenUseCase: refToken, groupCreateUseCase: groupCreate)
+                viewModel.setGroupCreate(groupCreate: groupInfo.0, image: groupInfo.1)
+                let viewController = GroupCreateLoadViewController(viewModel: viewModel)
+                vc.navigationController?.pushViewController(viewController, animated: true)
             })
             .disposed(by: bag)
     }

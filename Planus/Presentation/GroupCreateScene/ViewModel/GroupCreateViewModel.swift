@@ -18,7 +18,7 @@ class GroupCreateViewModel {
     var tagList = BehaviorSubject<[String?]>(value: [])
     var maxMember = BehaviorSubject<Int?>(value: nil)
 
-    var groupCreateCompleted = PublishSubject<Void>()
+    var showGroupCreateLoadPage = PublishSubject<(GroupCreate, ImageFile)>()
     
     struct Input {
         var titleChanged: Observable<String?>
@@ -39,7 +39,7 @@ class GroupCreateViewModel {
         var tagCharCountValidState: Observable<Bool>
         var tagSpecialCharValidState: Observable<Bool>
         var isCreateButtonEnabled: Observable<Bool>
-        var groupCreateCompleted: Observable<Void>
+        var showCreateLoadPage: Observable<(GroupCreate, ImageFile)>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -160,12 +160,11 @@ class GroupCreateViewModel {
             tagCharCountValidState: tagCharCountValidState.asObservable(),
             tagSpecialCharValidState: tagSpecialCharValidState.asObservable(),
             isCreateButtonEnabled: isCreateButtonEnabled,
-            groupCreateCompleted: groupCreateCompleted.asObservable()
+            showCreateLoadPage: showGroupCreateLoadPage.asObservable()
         )
     }
     
     func createGroup() {
-        
         guard let name = try? title.value(),
               let notice = try? notice.value(),
               let strTagList = try? tagList.value(),
@@ -178,27 +177,6 @@ class GroupCreateViewModel {
         
         let groupCreate = GroupCreate(name: name, notice: notice, tagList: tagList, limitCount: limitCount)
 
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.groupCreateUseCase
-                    .execute(
-                        token: token,
-                        groupCreate: groupCreate,
-                        image: image
-                    )
-            }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
-            )
-            .subscribe(onSuccess: { [weak self] _ in
-                self?.groupCreateCompleted.onNext(())
-                print("개별조회 창으로 넘어가야한다..!")
-            })
-            .disposed(by: bag)
+        showGroupCreateLoadPage.onNext((groupCreate, image))
     }
 }

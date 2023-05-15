@@ -28,7 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let useCase3 = DefaultDateFormatYYYYMMUseCase()
 //
 //        let vm = MyPageMainViewModel()
-//        let vc = MyPageMainViewController(viewModel: vm)
+//        let vc = GroupCreateLoadViewController(nibName: nil, bundle: nil)
 //        let navi = UINavigationController(rootViewController: vc)
 //        window.rootViewController = navi
 //

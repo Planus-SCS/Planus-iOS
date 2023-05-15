@@ -19,14 +19,14 @@ class DefaultGroupCreateUseCase: GroupCreateUseCase {
         self.myGroupRepository = myGroupRepository
     }
     
-    func execute(token: Token, groupCreate: GroupCreate, image: ImageFile) -> Single<Void> {
+    func execute(token: Token, groupCreate: GroupCreate, image: ImageFile) -> Single<Int> {
         myGroupRepository.create(
             token: token.accessToken,
             groupCreateRequestDTO: groupCreate.toDTO(),
             image: image
-        ).map { [weak self] _ in
+        ).map { [weak self] dto in
             self?.didCreateGroup.onNext(())
-            return ()
+            return dto.data.groupId
         }
     }
 }
