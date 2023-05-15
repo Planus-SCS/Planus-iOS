@@ -18,20 +18,32 @@ class DailyCalendarCell: UICollectionViewCell {
         if isSelected {
             UIView.animate(withDuration: 0.01,
                            animations: {
-                self.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
                 self.alpha = 0.5
                 self.backgroundColor = UIColor(hex: 0xDBDAFF)
             })
         } else {
             UIView.animate(withDuration: 0.01,
                            animations: {
-                self.transform = CGAffineTransform(scaleX: 1, y: 1)
                 self.alpha = 1
                 self.backgroundColor = nil
                 
             })
         }
       }
+    }
+    
+    override var isHighlighted: Bool {
+        didSet {
+            if isHighlighted {
+                UIView.animate(withDuration: 0.07, delay: 0, options: .curveEaseIn, animations: {
+                    self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+                })
+            } else {
+                UIView.animate(withDuration: 0.07, delay: 0, options: .curveEaseOut, animations: {
+                    self.transform = CGAffineTransform(scaleX: 1, y: 1)
+                })
+            }
+        }
     }
     
     var views: [UIView] = []

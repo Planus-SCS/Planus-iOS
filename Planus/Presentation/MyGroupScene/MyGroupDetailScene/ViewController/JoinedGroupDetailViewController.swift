@@ -97,8 +97,6 @@ class JoinedGroupDetailViewController: UIViewController {
                 vc.headerView.memberCountButton.setTitle(viewModel.memberCount, for: .normal)
                 vc.headerView.captinButton.setTitle(viewModel.leaderName, for: .normal)
                 vc.setMenuButton(isLeader: viewModel.isLeader)
-//                vc.noticeViewController?.viewModel?.notice.onNext(viewModel.groupNotice)
-//                vc.noticeViewController?.viewModel?.noticeFetched.onNext(())
                 if let url = viewModel.groupImageUrl {
                     viewModel.fetchImage(key: url)
                         .observe(on: MainScheduler.asyncInstance)
@@ -148,7 +146,7 @@ class JoinedGroupDetailViewController: UIViewController {
         menuChild.append(link)
         if isLeader ?? false {
             let editInfo = UIAction(title: "그룹 정보 수정", handler: { [weak self] _ in
-                
+                self?.editInfo()
             })
             let editNotice = UIAction(title: "공지사항 수정", handler: { [weak self] _ in
                 self?.editNotice()
@@ -212,6 +210,24 @@ class JoinedGroupDetailViewController: UIViewController {
         )
         vm.setGroupId(id: groupId)
         let vc = MyGroupMemberEditViewController(viewModel: vm)
+        self?.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    lazy var editInfo: () -> Void = { [weak self] in
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
+        let imageRepo = DefaultImageRepository(apiProvider: api)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        
+        let vm = MyGroupInfoEditViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase
+        )
+        
+        let vc = MyGroupInfoEditViewController(viewModel: vm)
         self?.navigationController?.pushViewController(vc, animated: true)
     }
     
