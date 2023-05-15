@@ -103,6 +103,10 @@ class SignInViewController: UIViewController {
         bind()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)        
+    }
+    
     func bind() {
         guard let viewModel else { return }
         
