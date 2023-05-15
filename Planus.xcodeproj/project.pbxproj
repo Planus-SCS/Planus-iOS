@@ -185,6 +185,9 @@
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
+		6A9199532A11FF2900108BF4 /* MyGroupInfoEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */; };
+		6A9199562A11FFC000108BF4 /* GroupEditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */; };
+		6A9199592A12004100108BF4 /* MyGroupInfoEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199582A12004100108BF4 /* MyGroupInfoEditViewModel.swift */; };
 		6A95DFB529D4DD33009017D8 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB429D4DD33009017D8 /* SearchViewController.swift */; };
 		6A95DFB729D4DD40009017D8 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */; };
 		6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */; };
@@ -615,6 +618,9 @@
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
 		6A483DB129CA804C003375BF /* PlanusRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PlanusRelease.entitlements; sourceTree = "<group>"; };
+		6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupInfoEditViewController.swift; sourceTree = "<group>"; };
+		6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEditInfoView.swift; sourceTree = "<group>"; };
+		6A9199582A12004100108BF4 /* MyGroupInfoEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupInfoEditViewModel.swift; sourceTree = "<group>"; };
 		6A95DFB429D4DD33009017D8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Ext.swift"; sourceTree = "<group>"; };
@@ -930,15 +936,12 @@
 				6A2BB1A129E404B20053C5CA /* MyPageScene */,
 				6A987A6F29DEECEE00C27D09 /* TodoDailyScene */,
 				6A987A4D29DE494E00C27D09 /* MemberProfileScene */,
-				6A987A3829DDA60000C27D09 /* MyGroupMemberEditScene */,
-				6A987A3429DD9F0500C27D09 /* MyGroupNoticeEditScene */,
-				6A9879FA29DBD0CF00C27D09 /* JoinedGroupDetailScene */,
 				6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */,
 				6A95E00729D5BC52009017D8 /* GroupCreateScene */,
 				6A95DFD629D51BDE009017D8 /* UnJoinedGroupDetailScene */,
 				6A9A07C129D3D7B00051AD43 /* AddTodoScene */,
 				6A08AD9129C898A1005947D2 /* HomeCalendarScene */,
-				6A24F82629CB44940000FD64 /* GroupScene */,
+				6A24F82629CB44940000FD64 /* MyGroupScene */,
 				6A24F82529CB44850000FD64 /* SearchScene */,
 				6A24F82429CB44780000FD64 /* TodoScene */,
 				6A08AD9629C89971005947D2 /* SignInScene */,
@@ -1425,15 +1428,16 @@
 			path = SearchScene;
 			sourceTree = "<group>";
 		};
-		6A24F82629CB44940000FD64 /* GroupScene */ = {
+		6A24F82629CB44940000FD64 /* MyGroupScene */ = {
 			isa = PBXGroup;
 			children = (
-				6A24F82E29CB44DA0000FD64 /* ViewModel */,
-				6A24F82D29CB44D40000FD64 /* View */,
-				6A24F82C29CB44CD0000FD64 /* ViewController */,
-				6A24F82B29CB44C40000FD64 /* Coordinator */,
+				6A9199502A11FF0800108BF4 /* MyGroupInfoEditScene */,
+				6A987A3829DDA60000C27D09 /* MyGroupMemberEditScene */,
+				6A987A3429DD9F0500C27D09 /* MyGroupNoticeEditScene */,
+				6A9879FA29DBD0CF00C27D09 /* MyGroupDetailScene */,
+				6A91994F2A11FEB000108BF4 /* MyGroupListScene */,
 			);
-			path = GroupScene;
+			path = MyGroupScene;
 			sourceTree = "<group>";
 		};
 		6A24F82729CB44A90000FD64 /* View */ = {
@@ -1633,6 +1637,51 @@
 			path = Entity;
 			sourceTree = "<group>";
 		};
+		6A91994F2A11FEB000108BF4 /* MyGroupListScene */ = {
+			isa = PBXGroup;
+			children = (
+				6A24F82E29CB44DA0000FD64 /* ViewModel */,
+				6A24F82D29CB44D40000FD64 /* View */,
+				6A24F82C29CB44CD0000FD64 /* ViewController */,
+				6A24F82B29CB44C40000FD64 /* Coordinator */,
+			);
+			path = MyGroupListScene;
+			sourceTree = "<group>";
+		};
+		6A9199502A11FF0800108BF4 /* MyGroupInfoEditScene */ = {
+			isa = PBXGroup;
+			children = (
+				6A9199572A12003300108BF4 /* ViewModel */,
+				6A9199542A11FFA400108BF4 /* View */,
+				6A9199512A11FF1A00108BF4 /* ViewController */,
+			);
+			path = MyGroupInfoEditScene;
+			sourceTree = "<group>";
+		};
+		6A9199512A11FF1A00108BF4 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		6A9199542A11FFA400108BF4 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		6A9199572A12003300108BF4 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				6A9199582A12004100108BF4 /* MyGroupInfoEditViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		6A95DFD629D51BDE009017D8 /* UnJoinedGroupDetailScene */ = {
 			isa = PBXGroup;
 			children = (
@@ -1725,16 +1774,15 @@
 			path = Coordinator;
 			sourceTree = "<group>";
 		};
-		6A9879FA29DBD0CF00C27D09 /* JoinedGroupDetailScene */ = {
+		6A9879FA29DBD0CF00C27D09 /* MyGroupDetailScene */ = {
 			isa = PBXGroup;
 			children = (
-				6A987A1329DBFE8F00C27D09 /* DataSource */,
 				6A9879FE29DBD0F300C27D09 /* Coordinator */,
 				6A9879FD29DBD0EB00C27D09 /* ViewModel */,
 				6A9879FC29DBD0E400C27D09 /* ViewController */,
 				6A9879FB29DBD0DE00C27D09 /* View */,
 			);
-			path = JoinedGroupDetailScene;
+			path = MyGroupDetailScene;
 			sourceTree = "<group>";
 		};
 		6A9879FB29DBD0DE00C27D09 /* View */ = {
@@ -1777,13 +1825,6 @@
 				6A9879FF29DBD10500C27D09 /* JoinedGroupDetailCoordinator.swift */,
 			);
 			path = Coordinator;
-			sourceTree = "<group>";
-		};
-		6A987A1329DBFE8F00C27D09 /* DataSource */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = DataSource;
 			sourceTree = "<group>";
 		};
 		6A987A3429DD9F0500C27D09 /* MyGroupNoticeEditScene */ = {
@@ -2672,10 +2713,12 @@
 				6A2744392A0E829A008FB4F5 /* DefaultUpdateNoticeUseCase.swift in Sources */,
 				6A24F8F029D1D5F80000FD64 /* MonthPickerViewCell.swift in Sources */,
 				6AC079A42A0B5E0D007ACDB8 /* MyGroupSummaryDTO.swift in Sources */,
+				6A9199592A12004100108BF4 /* MyGroupInfoEditViewModel.swift in Sources */,
 				6A08ADB429C8A064005947D2 /* SignInCoordinator.swift in Sources */,
 				6AC079632A0A5746007ACDB8 /* UnJoinedGroupDetailDTO.swift in Sources */,
 				6A9AAAFA29F8D337002A6DAF /* Group.swift in Sources */,
 				6A24F86629CC84150000FD64 /* DateFormatYYYYMMUseCase.swift in Sources */,
+				6A9199562A11FFC000108BF4 /* GroupEditInfoView.swift in Sources */,
 				6A9A07F529D40B700051AD43 /* DayPickerCollectionView.swift in Sources */,
 				6A2BB1C729E55E8F0053C5CA /* DefaultDeleteTodoUseCase.swift in Sources */,
 				6AC0791E2A08DE41007ACDB8 /* MyPageEditViewModel.swift in Sources */,
@@ -2722,6 +2765,7 @@
 				6A987A4A29DDBB4200C27D09 /* MyGroupNoticeEditViewModel.swift in Sources */,
 				6A9AAB1629F90AD5002A6DAF /* TokenRepository.swift in Sources */,
 				6A9AAB0729F8FF99002A6DAF /* CategoryDTO.swift in Sources */,
+				6A9199532A11FF2900108BF4 /* MyGroupInfoEditViewController.swift in Sources */,
 				6A27442F2A0E6AAA008FB4F5 /* JoinedGroupMemberCell.swift in Sources */,
 				6AC079002A053677007ACDB8 /* EmptyTodoMockCell.swift in Sources */,
 				6A987A1229DBEC4000C27D09 /* JoinedGroupDetailHeaderTabView.swift in Sources */,
