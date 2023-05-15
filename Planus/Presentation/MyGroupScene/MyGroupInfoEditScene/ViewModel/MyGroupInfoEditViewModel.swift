@@ -17,7 +17,7 @@ class MyGroupInfoEditViewModel {
     var tagList = BehaviorSubject<[String?]>(value: [])
     var maxMember = BehaviorSubject<Int?>(value: nil)
     
-    var groupCreateCompleted = PublishSubject<Void>()
+    var infoUpdateCompleted = PublishSubject<Void>()
     
     struct Input {
         var titleImageChanged: Observable<ImageFile?>
@@ -33,22 +33,25 @@ class MyGroupInfoEditViewModel {
         var tagCountValidState: Observable<Bool>
         var tagCharCountValidState: Observable<Bool>
         var tagSpecialCharValidState: Observable<Bool>
-        var isCreateButtonEnabled: Observable<Bool>
-        var groupCreateCompleted: Observable<Void>
+        var isUpdateButtonEnabled: Observable<Bool>
+        var infoUpdateCompleted: Observable<Void>
     }
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
     var fetchImageUseCase: FetchImageUseCase
+    var updateGroupInfoUseCase: UpdateGroupInfoUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        fetchImageUseCase: FetchImageUseCase,
+        updateGroupInfoUseCase: UpdateGroupInfoUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.fetchImageUseCase = fetchImageUseCase
+        self.updateGroupInfoUseCase = updateGroupInfoUseCase
     }
     
     public func setGroup(
@@ -127,9 +130,7 @@ class MyGroupInfoEditViewModel {
             .saveBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                /*
-                 update!
-                 */
+                vm.requestUpdateInfo()
             })
             .disposed(by: bag)
         
@@ -158,8 +159,33 @@ class MyGroupInfoEditViewModel {
             tagCountValidState: tagCountValidState.asObservable(),
             tagCharCountValidState: tagCharCountValidState.asObservable(),
             tagSpecialCharValidState: tagSpecialCharValidState.asObservable(),
-            isCreateButtonEnabled: isCreateButtonEnabled,
-            groupCreateCompleted: groupCreateCompleted.asObservable()
+            isUpdateButtonEnabled: isCreateButtonEnabled,
+            infoUpdateCompleted: infoUpdateCompleted.asObservable()
         )
+    }
+    
+    func requestUpdateInfo() {
+        guard let groupId,
+              let tagList = try? tagList.value().compactMap { $0 },
+              let limit = try? maxMember.value(),
+              let image = try? titleImage.value() else { return }
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.updateGroupInfoUseCase
+                    .execute(token: token, groupId: groupId, tagList: tagList, limit: limit, image: image)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.infoUpdateCompleted.onNext(())
+            })
+            .disposed(by: bag)
+            
     }
 }

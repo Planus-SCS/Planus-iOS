@@ -120,7 +120,7 @@ class MyGroupInfoEditViewController: UIViewController {
             .disposed(by: bag)
 
         output
-            .isCreateButtonEnabled
+            .isUpdateButtonEnabled
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, enabled in
@@ -170,7 +170,7 @@ class MyGroupInfoEditViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .groupCreateCompleted
+            .infoUpdateCompleted
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
