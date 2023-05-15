@@ -14,6 +14,7 @@ class JoinedGroupDetailViewController: UIViewController {
     var viewModel: JoinedGroupDetailViewModel?
     
     var titleFetched = BehaviorSubject<String?>(value: nil)
+    var needRefresh = PublishSubject<Void>()
     
     var headerView = JoinedGroupDetailHeaderView(frame: .zero)
     var headerTabView = JoinedGroupDetailHeaderTabView(frame: .zero)
@@ -82,7 +83,8 @@ class JoinedGroupDetailViewController: UIViewController {
         
         let input = JoinedGroupDetailViewModel.Input(
             viewDidLoad: Observable.just(()),
-            onlineStateChanged: headerView.onlineSwitch.rx.isOn.asObservable()
+            onlineStateChanged: headerView.onlineSwitch.rx.isOn.asObservable(),
+            refreshRequested: needRefresh.asObservable()
         )
         let output = viewModel.transform(input: input)
         
@@ -221,11 +223,12 @@ class JoinedGroupDetailViewController: UIViewController {
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        
+        let updateGroupInfoUseCase = DefaultUpdateGroupInfoUseCase(myGroupRepository: myGroupRepo)
         let vm = MyGroupInfoEditViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
-            fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: imageRepo)
+            fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: imageRepo),
+            updateGroupInfoUseCase: updateGroupInfoUseCase
         )
         guard let id = self?.viewModel?.groupId,
               let title = self?.viewModel?.groupTitle,
@@ -308,6 +311,7 @@ class JoinedGroupDetailViewController: UIViewController {
         )
         noticeViewModel.setGroupId(id: groupId)
         let noticeViewController = JoinedGroupNoticeViewController(viewModel: noticeViewModel)
+        noticeViewController.noticeDelegate = self
         noticeViewController.delegate = self
         self.noticeViewController = noticeViewController
         
@@ -356,6 +360,12 @@ class JoinedGroupDetailViewController: UIViewController {
         
         guard let headerViewHeightConstraint = headerView.constraints.first(where: { $0.firstAttribute == .height }) else { return }
         self.headerViewHeightConstraint = headerViewHeightConstraint
+    }
+}
+
+extension JoinedGroupDetailViewController: JoinedGroupNoticeViewControllerDelegate {
+    func refreshRequested(_ viewController: JoinedGroupNoticeViewController) {
+        self.needRefresh.onNext(())
     }
 }
 

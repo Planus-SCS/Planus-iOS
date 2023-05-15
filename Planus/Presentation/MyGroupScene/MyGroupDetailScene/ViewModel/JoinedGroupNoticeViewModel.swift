@@ -19,6 +19,7 @@ class JoinedGroupNoticeViewModel {
     
     struct Input {
         var viewDidLoad: Observable<Void>
+        var memberRefreshRequested: Observable<Void>
     }
     
     struct Output {
@@ -56,6 +57,14 @@ class JoinedGroupNoticeViewModel {
         
         input
             .viewDidLoad
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchMemberList()
+            })
+            .disposed(by: bag)
+        
+        input
+            .memberRefreshRequested
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.fetchMemberList()

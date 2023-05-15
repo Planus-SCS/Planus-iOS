@@ -23,6 +23,11 @@ class JoinedGroupDetailHeaderView: UIView {
         label.font = UIFont(name: "Pretendard-Medium", size: 12)
         label.numberOfLines = 2
         label.textAlignment = .center
+        label.layer.masksToBounds = false
+        label.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
+        label.layer.shadowOpacity = 1
+        label.layer.shadowOffset = CGSize(width: 0, height: 0)
+        label.layer.shadowRadius = 2
         return label
     }()
     

@@ -37,8 +37,17 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
     
     var viewModel: JoinedGroupNoticeViewModel?
     
+    weak var noticeDelegate: JoinedGroupNoticeViewControllerDelegate?
+    
+    var memberRefreshRequired = PublishSubject<Void>()
     var noticeEditButtonTapped = PublishSubject<Void>()
     var memberEditButtonTapped = PublishSubject<Void>()
+    
+    lazy var refreshControl: UIRefreshControl = {
+        let rc = UIRefreshControl(frame: .zero)
+        rc.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        return rc
+    }()
     
     lazy var noticeCollectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createNoticeLayout())
@@ -49,6 +58,7 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
         cv.dataSource = self
         cv.delegate = self
         cv.alwaysBounceVertical = true
+        cv.refreshControl = refreshControl
         return cv
     }()
     
@@ -77,7 +87,10 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
     func bind() {
         guard let viewModel else { return }
         
-        let input = JoinedGroupNoticeViewModel.Input(viewDidLoad: Observable.just(()))
+        let input = JoinedGroupNoticeViewModel.Input(
+            viewDidLoad: Observable.just(()),
+            memberRefreshRequested: memberRefreshRequired.asObservable()
+        )
         
         let output = viewModel.transform(input: input)
         
@@ -87,6 +100,9 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                if (vc.refreshControl.isRefreshing) {
+                    vc.refreshControl.endRefreshing()
+                }
                 vc.noticeCollectionView.reloadSections(IndexSet(0...0))
             })
             .disposed(by: bag)
@@ -97,6 +113,9 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                if (vc.refreshControl.isRefreshing) {
+                    vc.refreshControl.endRefreshing()
+                }
                 vc.noticeCollectionView.reloadSections(IndexSet(1...1))
             })
             .disposed(by: bag)
@@ -119,6 +138,11 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
         noticeCollectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+    }
+    
+    @objc func refresh(_ sender: UIRefreshControl) {
+        noticeDelegate?.refreshRequested(self)
+        memberRefreshRequired.onNext(())
     }
 }
 
@@ -278,4 +302,8 @@ extension JoinedGroupNoticeViewController {
             }
         }
     }
+}
+
+protocol JoinedGroupNoticeViewControllerDelegate: AnyObject {
+    func refreshRequested(_ viewController: JoinedGroupNoticeViewController)
 }

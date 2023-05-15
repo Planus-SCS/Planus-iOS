@@ -34,6 +34,7 @@ class JoinedGroupDetailViewModel {
     struct Input {
         var viewDidLoad: Observable<Void>
         var onlineStateChanged: Observable<Bool>
+        var refreshRequested: Observable<Void>
     }
     
     struct Output {
@@ -79,6 +80,15 @@ class JoinedGroupDetailViewModel {
         
         input
             .viewDidLoad
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                guard let groupId = vm.groupId else { return }
+                vm.fetchGroupDetail(groupId: groupId)
+            })
+            .disposed(by: bag)
+        
+        input
+            .refreshRequested
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 guard let groupId = vm.groupId else { return }

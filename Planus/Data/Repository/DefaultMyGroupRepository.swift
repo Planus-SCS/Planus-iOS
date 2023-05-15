@@ -120,7 +120,7 @@ class DefaultMyGroupRepository: MyGroupRepository {
     
     func updateInfo(token: String, groupId: Int, editRequestDTO: MyGroupInfoEditRequestDTO, image: ImageFile) -> Single<ResponseDTO<MyGroupInfoEditResponseDTO>> {
         let endPoint = APIMultiPartEndPoint(
-            url: URLPool.groups + "\(groupId)",
+            url: URLPool.groups + "/\(groupId)",
             requestType: .patch,
             body: ["groupUpdateRequestDto": editRequestDTO],
             image: ["image": image],

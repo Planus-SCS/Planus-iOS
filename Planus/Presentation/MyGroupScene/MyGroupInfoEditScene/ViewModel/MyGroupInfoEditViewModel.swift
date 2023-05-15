@@ -169,6 +169,7 @@ class MyGroupInfoEditViewModel {
               let tagList = try? tagList.value().compactMap { $0 },
               let limit = try? maxMember.value(),
               let image = try? titleImage.value() else { return }
+        print(tagList)
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
