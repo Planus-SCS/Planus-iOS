@@ -21,7 +21,7 @@ class DefaultMemberCalendarRepository: MemberCalendarRepository {
         memberId: Int,
         from: Date,
         to: Date
-    ) -> Single<ResponseDTO<[TodoResponseDataDTO]>> {
+    ) -> Single<ResponseDTO<[TodoEntityResponseDTO]>> {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.timeZone = .current
@@ -39,7 +39,7 @@ class DefaultMemberCalendarRepository: MemberCalendarRepository {
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: ResponseDTO<[TodoResponseDataDTO]>.self
+            type: ResponseDTO<[TodoEntityResponseDTO]>.self
         )
     }
 }

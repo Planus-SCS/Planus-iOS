@@ -15,5 +15,5 @@ protocol MemberCalendarRepository {
         memberId: Int,
         from: Date,
         to: Date
-    ) -> Single<ResponseDTO<[TodoResponseDataDTO]>>
+    ) -> Single<ResponseDTO<[TodoEntityResponseDTO]>>
 }
