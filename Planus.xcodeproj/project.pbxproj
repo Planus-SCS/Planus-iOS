@@ -202,6 +202,7 @@
 		6A9199952A13211E00108BF4 /* DefaultFetchMemberTodoListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199942A13211E00108BF4 /* DefaultFetchMemberTodoListUseCase.swift */; };
 		6A9199972A13222000108BF4 /* FetchMemberTodoListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199962A13222000108BF4 /* FetchMemberTodoListUseCase.swift */; };
 		6A9199992A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199982A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift */; };
+		6A91999B2A1349A900108BF4 /* FetchMemberCategoryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A91999A2A1349A900108BF4 /* FetchMemberCategoryUseCase.swift */; };
 		6A95DFB529D4DD33009017D8 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB429D4DD33009017D8 /* SearchViewController.swift */; };
 		6A95DFB729D4DD40009017D8 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */; };
 		6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */; };
@@ -649,6 +650,7 @@
 		6A9199942A13211E00108BF4 /* DefaultFetchMemberTodoListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMemberTodoListUseCase.swift; sourceTree = "<group>"; };
 		6A9199962A13222000108BF4 /* FetchMemberTodoListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMemberTodoListUseCase.swift; sourceTree = "<group>"; };
 		6A9199982A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMemberCategoryUseCase.swift; sourceTree = "<group>"; };
+		6A91999A2A1349A900108BF4 /* FetchMemberCategoryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMemberCategoryUseCase.swift; sourceTree = "<group>"; };
 		6A95DFB429D4DD33009017D8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Ext.swift"; sourceTree = "<group>"; };
@@ -2210,6 +2212,7 @@
 				6A9AAB3A29FA5DE2002A6DAF /* ReadCategoryListUseCase.swift */,
 				6A9AAB3829FA5DB8002A6DAF /* UpdateCategoryUseCase.swift */,
 				6A9AAB3529FA5D8E002A6DAF /* DeleteCategoryUseCase.swift */,
+				6A91999A2A1349A900108BF4 /* FetchMemberCategoryUseCase.swift */,
 			);
 			path = Category;
 			sourceTree = "<group>";
@@ -2747,6 +2750,7 @@
 				6AC0793B2A0A24E0007ACDB8 /* GroupCreateViewModel.swift in Sources */,
 				6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */,
 				6A24F91B29D22D5B0000FD64 /* BigTodoCell.swift in Sources */,
+				6A91999B2A1349A900108BF4 /* FetchMemberCategoryUseCase.swift in Sources */,
 				6A987A5729DEB02300C27D09 /* MemberProfileHeaderView.swift in Sources */,
 				6AC078E82A0387FD007ACDB8 /* TowWayBinding.swift in Sources */,
 				6A9A080029D40BEF0051AD43 /* TodoDetailViewModel.swift in Sources */,

@@ -8,14 +8,22 @@
 import Foundation
 import RxSwift
 
-class DefaultFetchMemberCategoryUseCase {
-    let myGroupRepository: MyGroupRepository
+class DefaultFetchMemberCategoryUseCase: FetchMemberCategoryUseCase {
+    let memberCalendarRepository: MemberCalendarRepository
     
-    init(myGroupRepository: MyGroupRepository) {
-        self.myGroupRepository = myGroupRepository
+    init(memberCalendarRepository: MemberCalendarRepository) {
+        self.memberCalendarRepository = memberCalendarRepository
     }
     
-    func execute() -> Single<[Category]> {
-        
+    func execute(token: Token, groupId: Int, memberId: Int) -> Single<[Category]> {
+        return memberCalendarRepository
+            .fetchMemberCategoryList(
+                token: token.accessToken,
+                groupId: groupId,
+                memberId: memberId
+            )
+            .map { dto in
+                dto.data.map { $0.toDomain() }
+            }
     }
 }
