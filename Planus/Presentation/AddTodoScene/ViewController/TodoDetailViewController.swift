@@ -85,7 +85,7 @@ class TodoDetailViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        addTodoView.titleField.becomeFirstResponder()
+        
         UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
              self.addTodoView.snp.remakeConstraints {
                  $0.bottom.leading.trailing.equalToSuperview()
@@ -344,8 +344,20 @@ class TodoDetailViewController: UIViewController {
         switch viewModel.todoCreateState {
         case .edit(_):
             addTodoView.removeButton.isHidden = false
+            addTodoView.titleField.becomeFirstResponder()
         case .new:
             addTodoView.removeButton.isHidden = true
+            addTodoView.titleField.becomeFirstResponder()
+        case .others(_):
+            addTodoView.contentStackView.isUserInteractionEnabled = false
+            dayPickerViewController.view.isHidden = true
+            addTodoView.saveButton.isHidden = true
+            addTodoView.removeButton.isHidden = true
+            addTodoView.contentStackView.snp.remakeConstraints {
+                $0.leading.trailing.equalToSuperview().inset(16)
+                $0.top.equalTo(self.addTodoView.headerBarView.snp.bottom)
+                $0.bottom.equalToSuperview()
+            }
         }
         
         self.textViewDidBeginEditing(addTodoView.memoTextView)

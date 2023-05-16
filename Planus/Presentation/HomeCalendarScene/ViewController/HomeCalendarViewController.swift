@@ -176,7 +176,7 @@ class HomeCalendarViewController: UIViewController {
                     categoryDict: vc.viewModel?.categoryDict ?? [:],
                     groupDict: vc.viewModel?.groupDict ?? [:]
                 )
-
+                viewModel.setOwnership(isOwner: true)
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)
                 nav.modalPresentationStyle = .pageSheet

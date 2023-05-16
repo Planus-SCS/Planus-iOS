@@ -119,6 +119,7 @@ class MemberProfileViewController: UIViewController {
             .disposed(by: bag)
         
         output.showDailyTodoPage
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, dayViewModel in
                 let todoList = dayViewModel.todoList

@@ -16,6 +16,7 @@ enum CategoryCreateState {
 enum TodoCreateState {
     case new
     case edit(Todo)
+    case others(Todo)
 }
 
 final class TodoDetailViewModel {
@@ -247,6 +248,8 @@ final class TodoDetailViewModel {
                 case .edit(let exTodo):
                     todo.id = exTodo.id
                     vm.updateTodo(todoUpdate: TodoUpdateComparator(before: exTodo, after: todo))
+                default:
+                    return
                 }
                 
             })
@@ -373,6 +376,20 @@ final class TodoDetailViewModel {
         self.todoTime.onNext(todo.startTime)
         self.todoMemo.onNext(todo.memo)
         self.todoCreateState = .edit(todo)
+    }
+    
+    func setForOthers(todo: Todo, category: Category) {
+        guard let id = todo.id else { return }
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = .current
+        dateFormatter.dateFormat = "yyyy.MM.dd"
+        self.todoTitle.onNext(todo.title)
+        self.todoCategory.onNext(category)
+        self.todoStartDay.onNext(todo.startDate)
+        // FIXME: endDate는 설정 안함 아직
+        self.todoTime.onNext(todo.startTime)
+        self.todoMemo.onNext(todo.memo)
+        self.todoCreateState = .others(todo)
     }
     
     func fetchCategoryList() {

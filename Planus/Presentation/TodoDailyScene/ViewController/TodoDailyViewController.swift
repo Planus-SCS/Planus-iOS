@@ -104,9 +104,7 @@ class TodoDailyViewController: UIViewController {
                     }
                 }
                 
-//                vm.collectionView.performBatchUpdates {
-                    vm.collectionView.insertItems(at: [indexPath])
-//                }
+                vm.collectionView.insertItems(at: [indexPath])
             })
             .disposed(by: bag)
             
@@ -139,7 +137,7 @@ class TodoDailyViewController: UIViewController {
                 vc.collectionView.reloadData()
             })
             .disposed(by: bag)
-
+        
     }
     
     func configureView() {
@@ -263,10 +261,10 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         default:
             return UICollectionViewCell()
         }
-        guard let todoItem,
-              let category = viewModel?.categoryDict[todoItem.categoryId] else {
+        guard let todoItem else {
             return UICollectionViewCell()
         }
+        let category = Category(title: "dd", color: .blue)
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
@@ -298,6 +296,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         var item: Todo?
+        print("a")
         switch indexPath.section {
         case 0:
             if viewModel?.scheduledTodoList?.count == 0 {
@@ -314,8 +313,10 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         default:
             return false
         }
-        guard let item else { return false }
-        
+        print("b")
+        guard let item,
+              let isOwner = viewModel?.isOwner else { return false }
+        print("c")
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         
@@ -344,8 +345,13 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             deleteCategoryUseCase: deleteCategoryUseCase,
             readCategoryUseCase: readCateogryUseCase
         )
-        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
-        vm.setForEdit(todo: item, category: category)
+//        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+        
+        if isOwner {
+//            vm.setForEdit(todo: item, category: category)
+        } else {
+            vm.setForOthers(todo: item, category: Category(title: "ㅇㅇ", color: CategoryColor.blue))
+        }
         vm.todoStartDay.onNext(viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen

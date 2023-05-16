@@ -257,7 +257,7 @@ class TodoDailyViewModel {
         
         return Output(
             currentDateText: currentDateText,
-            isOwner: true,
+            isOwner: isOwner,
             needInsertItem: needInsertItem.asObservable(),
             needReloadItem: needReloadItem.asObservable(),
             needDeleteItem: needDeleteItem.asObservable(),
