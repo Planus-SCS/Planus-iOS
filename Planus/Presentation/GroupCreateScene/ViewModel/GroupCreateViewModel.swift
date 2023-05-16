@@ -38,6 +38,7 @@ class GroupCreateViewModel {
         var tagCountValidState: Observable<Bool>
         var tagCharCountValidState: Observable<Bool>
         var tagSpecialCharValidState: Observable<Bool>
+        var tagDuplicateValidState: Observable<Bool>
         var isCreateButtonEnabled: Observable<Bool>
         var showCreateLoadPage: Observable<(GroupCreate, ImageFile)>
     }
@@ -93,6 +94,15 @@ class GroupCreateViewModel {
                 }
                 return true
             }
+        
+        let tagDuplicateValidState = Observable.zip(tagList, tagCountValidState)
+            .map { (list, countValid) in
+                guard countValid else { return false }
+                
+                let nonNilList = list.compactMap { $0 }
+                return Set(nonNilList).count == nonNilList.count
+            }
+        
         input
             .titleChanged
             .bind(to: title)
@@ -156,9 +166,10 @@ class GroupCreateViewModel {
             imageFilled: imageFilled,
             maxCountFilled: maxMemberFilled,
             didChangedTitleImage: titleImage.map { $0?.data }.asObservable(),
-            tagCountValidState: tagCountValidState.asObservable(),
-            tagCharCountValidState: tagCharCountValidState.asObservable(),
-            tagSpecialCharValidState: tagSpecialCharValidState.asObservable(),
+            tagCountValidState: tagCountValidState,
+            tagCharCountValidState: tagCharCountValidState,
+            tagSpecialCharValidState: tagSpecialCharValidState,
+            tagDuplicateValidState: tagDuplicateValidState,
             isCreateButtonEnabled: isCreateButtonEnabled,
             showCreateLoadPage: showGroupCreateLoadPage.asObservable()
         )

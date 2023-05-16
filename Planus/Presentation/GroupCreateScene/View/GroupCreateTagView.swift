@@ -43,6 +43,9 @@ class GroupCreateTagView: UIView {
     
     lazy var charcaterValidateLabel: UILabel = self.validationLabelGenerator(text: "띄어쓰기, 특수 문자는 빼주세요")
     var charValidateCheckView: ValidationCheckImageView = .init()
+    
+    lazy var duplicateValidateLabel: UILabel = self.validationLabelGenerator(text: "태그를 중복 없이 작성 해주세요")
+    var duplicateValidateCheckView: ValidationCheckImageView = .init()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -73,10 +76,12 @@ class GroupCreateTagView: UIView {
         self.addSubview(tagCountValidateLabel)
         self.addSubview(stringCountValidateLabel)
         self.addSubview(charcaterValidateLabel)
+        self.addSubview(duplicateValidateLabel)
         
         self.addSubview(tagCountCheckView)
         self.addSubview(stringCountCheckView)
         self.addSubview(charValidateCheckView)
+        self.addSubview(duplicateValidateCheckView)
     }
     
     func configureLayout() {
@@ -154,11 +159,21 @@ class GroupCreateTagView: UIView {
         charcaterValidateLabel.snp.makeConstraints {
             $0.top.equalTo(stringCountValidateLabel.snp.bottom).offset(10)
             $0.leading.equalToSuperview().offset(20)
-            $0.bottom.equalToSuperview().inset(30)
         }
         
         charValidateCheckView.snp.makeConstraints {
             $0.centerY.equalTo(charcaterValidateLabel)
+            $0.trailing.equalToSuperview().inset(20)
+        }
+        
+        duplicateValidateLabel.snp.makeConstraints {
+            $0.top.equalTo(charcaterValidateLabel.snp.bottom).offset(10)
+            $0.leading.equalToSuperview().offset(20)
+            $0.bottom.equalToSuperview().inset(30)
+        }
+        
+        duplicateValidateCheckView.snp.makeConstraints {
+            $0.centerY.equalTo(duplicateValidateLabel)
             $0.trailing.equalToSuperview().inset(20)
         }
     }

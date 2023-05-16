@@ -350,6 +350,7 @@ class TodoDetailViewController: UIViewController {
             addTodoView.titleField.becomeFirstResponder()
         case .others(_):
             addTodoView.contentStackView.isUserInteractionEnabled = false
+            addTodoView.titleField.resignFirstResponder()
             dayPickerViewController.view.isHidden = true
             addTodoView.saveButton.isHidden = true
             addTodoView.removeButton.isHidden = true

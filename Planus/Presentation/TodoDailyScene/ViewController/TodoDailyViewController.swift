@@ -345,10 +345,10 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             deleteCategoryUseCase: deleteCategoryUseCase,
             readCategoryUseCase: readCateogryUseCase
         )
-//        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
         
         if isOwner {
-//            vm.setForEdit(todo: item, category: category)
+            guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+            vm.setForEdit(todo: item, category: category)
         } else {
             vm.setForOthers(todo: item, category: Category(title: "ㅇㅇ", color: CategoryColor.blue))
         }

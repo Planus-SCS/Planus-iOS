@@ -102,8 +102,6 @@ class GroupIntroduceViewController: UIViewController {
         button.layer.shadowOpacity = 1
         button.layer.shadowOffset = CGSize(width: 0, height: 2)
         button.layer.shadowRadius = 4
-        button.isEnabled = false
-        button.alpha = 0.5
         return button
     }()
     
@@ -142,6 +140,8 @@ class GroupIntroduceViewController: UIViewController {
         self.navigationItem.setLeftBarButton(backButton, animated: false)
         self.navigationItem.setRightBarButton(shareButton, animated: false)
     }
+    
+    var co: JoinedGroupDetailCoordinator?
     
     func bind() {
         guard let viewModel else { return }
@@ -184,13 +184,21 @@ class GroupIntroduceViewController: UIViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vc, isJoined in
-                vc.joinButton.isEnabled = !isJoined
-                vc.joinButton.alpha = isJoined ? 0.5 : 1.0
                 if isJoined {
-                    vc.joinButton.setTitle("이미 가입된 그룹입니다", for: .normal)
+                    vc.joinButton.setTitle("그룹 페이지로 이동하기", for: .normal)
                 } else {
                     vc.joinButton.setTitle("그룹가입 신청하기", for: .normal)
                 }
+            })
+            .disposed(by: bag)
+        
+        output
+            .showGroupDetailPage
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, id in
+                vc.co = JoinedGroupDetailCoordinator(navigationController: vc.navigationController!)
+                vc.co?.start(id: id)
             })
             .disposed(by: bag)
     }

@@ -7,17 +7,12 @@
 
 import UIKit
 
-class ValidationCheckImageView: UIImageView {
-    var checkImage: UIImage?
-    var uncheckImage: UIImage?
-    
+class ValidationCheckImageView: UIImageView {    
     convenience init() {
-        let checkImage = UIImage(named: "check")
-        let uncheckImage = UIImage(named: "uncheck")
+        let checkImage = UIImage(named: "uncheck")?.withRenderingMode(.alwaysTemplate)
         
         self.init(frame: CGRect(x: 0, y: 0, width: checkImage?.size.width ?? 0, height: checkImage?.size.height ?? 0))
-        self.checkImage = checkImage
-        self.uncheckImage = uncheckImage
+        self.image = checkImage
     }
     private override init(frame: CGRect) {
         super.init(frame: frame)
@@ -36,6 +31,6 @@ class ValidationCheckImageView: UIImageView {
     }
     
     public func isValid(_ isValid: Bool) {
-        self.image = isValid ? checkImage : uncheckImage
+        self.tintColor = isValid ? UIColor(hex: 0x99F370) : UIColor(hex: 0x6F81A9)
     }
 }

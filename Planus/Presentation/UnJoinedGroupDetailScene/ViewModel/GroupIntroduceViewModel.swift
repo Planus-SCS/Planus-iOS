@@ -29,6 +29,7 @@ class GroupIntroduceViewModel {
     
     var didGroupInfoFetched = BehaviorSubject<Void?>(value: nil)
     var didGroupMemberFetched = BehaviorSubject<Void?>(value: nil)
+    var showGroupDetailPage = PublishSubject<Int>()
     var isJoinableGroup = BehaviorSubject<Bool?>(value: nil)
     var applyCompleted = PublishSubject<Void>()
     
@@ -43,6 +44,7 @@ class GroupIntroduceViewModel {
         var didGroupMemberFetched: Observable<Void?>
         var isJoinableGroup: Observable<Bool?>
         var didCompleteApply: Observable<Void>
+        var showGroupDetailPage: Observable<Int>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -94,7 +96,14 @@ class GroupIntroduceViewModel {
             .didTappedJoinBtn
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.requestJoinGroup()
+                guard let isJoined = try? vm.isJoinableGroup.value(),
+                      let groupId = vm.groupId else { return }
+                if isJoined {
+                    vm.showGroupDetailPage.onNext((groupId))
+                } else {
+                    vm.requestJoinGroup()
+                }
+                
             })
             .disposed(by: bag)
         
@@ -111,7 +120,8 @@ class GroupIntroduceViewModel {
             didGroupInfoFetched: didGroupInfoFetched.asObservable(),
             didGroupMemberFetched: didGroupMemberFetched.asObservable(),
             isJoinableGroup: isJoinableGroup.asObservable(),
-            didCompleteApply: applyCompleted.asObservable()
+            didCompleteApply: applyCompleted.asObservable(),
+            showGroupDetailPage: showGroupDetailPage.asObservable()
         )
     }
     

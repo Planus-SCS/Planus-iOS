@@ -121,7 +121,6 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
-                print("filled", filled)
                 vc.infoView.groupNoticeTextView.layer.borderColor
                 = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
             })
@@ -183,6 +182,15 @@ class GroupCreateViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, validation in
                 vc.tagView.charValidateCheckView.isValid(validation)
+            })
+            .disposed(by: bag)
+        
+        output
+            .tagDuplicateValidState
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, validation in
+                vc.tagView.duplicateValidateCheckView.isValid(validation)
             })
             .disposed(by: bag)
         
