@@ -89,7 +89,7 @@ extension UIViewController {
         self.view.addSubview(toast)
         toast.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.bottom.equalToSuperview().inset(100)
+            $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).inset(100)
             $0.width.lessThanOrEqualToSuperview().inset(50)
         }
         UIView.animate(withDuration: 2.0, delay: 2.0, options: .curveEaseOut, animations: {

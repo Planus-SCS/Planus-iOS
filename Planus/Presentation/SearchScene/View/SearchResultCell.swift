@@ -126,13 +126,8 @@ class SearchResultCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        UIView.transition(with: titleImageView,
-                          duration: 0.1,
-                          options: .transitionCrossDissolve,
-                          animations: {
-            self.titleImageView.image = nil
-        },
-                          completion: nil)
+
+        titleImageView.image = nil
         captinNameLabel.text = nil
         memberCountLabel.text = nil
         titleLabel.text = nil

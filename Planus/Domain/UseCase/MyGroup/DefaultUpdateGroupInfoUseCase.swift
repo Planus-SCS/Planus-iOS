@@ -9,9 +9,10 @@ import Foundation
 import RxSwift
 
 class DefaultUpdateGroupInfoUseCase: UpdateGroupInfoUseCase {
+    static let shared = DefaultUpdateGroupInfoUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
     let myGroupRepository: MyGroupRepository
     
-    var didUpdateInfo = PublishSubject<(Int, [String], Int, ImageFile)>()
+    var didUpdateInfoWithId = PublishSubject<Int>()
     
     init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository
@@ -32,7 +33,7 @@ class DefaultUpdateGroupInfoUseCase: UpdateGroupInfoUseCase {
                 image: image
             )
             .map { [weak self] _ in
-                self?.didUpdateInfo.onNext((groupId, tagList, limit, image))
+                self?.didUpdateInfoWithId.onNext(groupId)
                 return ()
                 
             }

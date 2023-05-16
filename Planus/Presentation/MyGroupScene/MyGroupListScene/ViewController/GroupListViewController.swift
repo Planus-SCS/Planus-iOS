@@ -115,12 +115,16 @@ class GroupListViewController: UIViewController {
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
+            .subscribe(onNext: { vc, type in
                 if (vc.refreshControl.isRefreshing) {
                     vc.refreshControl.endRefreshing()
                 }
                 vc.resultCollectionView.reloadData()
                 vc.emptyResultView.isHidden = !((viewModel.groupList?.count == 0) ?? true)
+                
+                if type == .refresh {
+                    vc.showToast(message: "새로고침을 성공하였습니다.", type: .normal)
+                }
             })
             .disposed(by: bag)
         
@@ -130,6 +134,15 @@ class GroupListViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
                 vc.resultCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            })
+            .disposed(by: bag)
+        
+        output
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message, type: .normal)
             })
             .disposed(by: bag)
     }

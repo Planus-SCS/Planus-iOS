@@ -51,6 +51,11 @@ class GroupCreateLoadViewController: UIViewController {
         bind()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationItem.setLeftBarButton(nil, animated: false)
+    }
+    
     func bind() {
         guard let viewModel else { return }
         
@@ -80,7 +85,8 @@ class GroupCreateLoadViewController: UIViewController {
                     fetchMyGroupDetailUseCase: fetchMyGroupDetailUseCase,
                     fetchImageUseCase: fetchImageUseCase,
                     setOnlineUseCase: setOnlineStateUseCase,
-                    updateNoticeUseCase: DefaultUpdateNoticeUseCase.shared
+                    updateNoticeUseCase: DefaultUpdateNoticeUseCase.shared,
+                    updateInfoUseCase: DefaultUpdateGroupInfoUseCase.shared
                 )
                 myGroupDetailVM.setGroupId(id: groupId)
                 myGroupDetailVM.setActions(actions: JoinedGroupDetailViewModelActions(pop: {
@@ -112,7 +118,6 @@ class GroupCreateLoadViewController: UIViewController {
         self.view.addSubview(logoImageView)
         self.view.addSubview(spinner)
         self.view.addSubview(messageLabel)
-
     }
     
     func configureLayout() {

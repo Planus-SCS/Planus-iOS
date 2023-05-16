@@ -254,6 +254,16 @@ class HomeCalendarViewController: UIViewController {
                 vc.profileButton.fill(with: data)
             })
             .disposed(by: bag)
+        
+        output.needWelcome
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                print(message)
+                vc.showToast(message: message, type: .normal)
+            })
+            .disposed(by: bag)
     }
     
 

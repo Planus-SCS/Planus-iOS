@@ -196,6 +196,7 @@
 		6A9199882A1248B000108BF4 /* UpdateGroupInfoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199872A1248B000108BF4 /* UpdateGroupInfoUseCase.swift */; };
 		6A91998A2A1254F300108BF4 /* GroupCreateLoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199892A1254F300108BF4 /* GroupCreateLoadViewController.swift */; };
 		6A91998C2A1261A800108BF4 /* GroupCreateLoadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A91998B2A1261A800108BF4 /* GroupCreateLoadViewModel.swift */; };
+		6A91998F2A1276DB00108BF4 /* FetchType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A91998E2A1276DB00108BF4 /* FetchType.swift */; };
 		6A95DFB529D4DD33009017D8 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB429D4DD33009017D8 /* SearchViewController.swift */; };
 		6A95DFB729D4DD40009017D8 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */; };
 		6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */; };
@@ -637,6 +638,7 @@
 		6A9199872A1248B000108BF4 /* UpdateGroupInfoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateGroupInfoUseCase.swift; sourceTree = "<group>"; };
 		6A9199892A1254F300108BF4 /* GroupCreateLoadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreateLoadViewController.swift; sourceTree = "<group>"; };
 		6A91998B2A1261A800108BF4 /* GroupCreateLoadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreateLoadViewModel.swift; sourceTree = "<group>"; };
+		6A91998E2A1276DB00108BF4 /* FetchType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchType.swift; sourceTree = "<group>"; };
 		6A95DFB429D4DD33009017D8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Ext.swift"; sourceTree = "<group>"; };
@@ -1007,6 +1009,7 @@
 		6A08AD6C29C88939005947D2 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				6A91998D2A1276CF00108BF4 /* Enum */,
 				6AC079372A0A1571007ACDB8 /* View */,
 				6A08AD7229C89133005947D2 /* Coordinator */,
 				6A08AD7129C8912A005947D2 /* Interface */,
@@ -1696,6 +1699,14 @@
 				6A9199582A12004100108BF4 /* MyGroupInfoEditViewModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		6A91998D2A1276CF00108BF4 /* Enum */ = {
+			isa = PBXGroup;
+			children = (
+				6A91998E2A1276DB00108BF4 /* FetchType.swift */,
+			);
+			path = Enum;
 			sourceTree = "<group>";
 		};
 		6A95DFD629D51BDE009017D8 /* UnJoinedGroupDetailScene */ = {
@@ -2712,6 +2723,7 @@
 				6AC079722A0A73C4007ACDB8 /* FetchUnJoinedGroupUseCase.swift in Sources */,
 				6A08ADD129C8C256005947D2 /* NetworkManager.swift in Sources */,
 				6A24F89B29CE299A0000FD64 /* SmallTodoView.swift in Sources */,
+				6A91998F2A1276DB00108BF4 /* FetchType.swift in Sources */,
 				6AC079862A0A8B95007ACDB8 /* FetchJoinApplyListUseCase.swift in Sources */,
 				6A9AAB1429F90A1F002A6DAF /* Token.swift in Sources */,
 				6A2BB1BB29E429D50053C5CA /* MyPageReadableViewModel.swift in Sources */,

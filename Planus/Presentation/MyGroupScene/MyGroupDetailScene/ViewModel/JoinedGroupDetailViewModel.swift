@@ -29,7 +29,8 @@ class JoinedGroupDetailViewModel {
     var onlineCount = BehaviorSubject<Int?>(value: nil)
     
     var isOnline = BehaviorSubject<Bool?>(value: nil)
-    var groupDetailFetched = BehaviorSubject<Void?>(value: nil)
+    var groupDetailFetched = BehaviorSubject<FetchType?>(value: nil)
+    var showMessage = BehaviorSubject<String?>(value: nil)
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -38,10 +39,11 @@ class JoinedGroupDetailViewModel {
     }
     
     struct Output {
-        var didFetchGroupDetail: Observable<Void?>
+        var didFetchGroupDetail: Observable<FetchType?>
         var isOnline: Observable<Bool?>
         var onlineCountChanged: Observable<Int?>
         var noticeFetched: Observable<String?>
+        var showMessage: Observable<String?>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -50,6 +52,7 @@ class JoinedGroupDetailViewModel {
     var fetchImageUseCase: FetchImageUseCase
     var setOnlineUseCase: SetOnlineUseCase
     var updateNoticeUseCase: UpdateNoticeUseCase
+    var updateInfoUseCase: UpdateGroupInfoUseCase
 
     init(
         getTokenUseCase: GetTokenUseCase,
@@ -57,7 +60,8 @@ class JoinedGroupDetailViewModel {
         fetchMyGroupDetailUseCase: FetchMyGroupDetailUseCase,
         fetchImageUseCase: FetchImageUseCase,
         setOnlineUseCase: SetOnlineUseCase,
-        updateNoticeUseCase: UpdateNoticeUseCase
+        updateNoticeUseCase: UpdateNoticeUseCase,
+        updateInfoUseCase: UpdateGroupInfoUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -65,6 +69,7 @@ class JoinedGroupDetailViewModel {
         self.fetchImageUseCase = fetchImageUseCase
         self.setOnlineUseCase = setOnlineUseCase
         self.updateNoticeUseCase = updateNoticeUseCase
+        self.updateInfoUseCase = updateInfoUseCase
     }
     
     func setGroupId(id: Int) {
@@ -83,7 +88,7 @@ class JoinedGroupDetailViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 guard let groupId = vm.groupId else { return }
-                vm.fetchGroupDetail(groupId: groupId)
+                vm.fetchGroupDetail(groupId: groupId, fetchType: .initail)
             })
             .disposed(by: bag)
         
@@ -92,7 +97,7 @@ class JoinedGroupDetailViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 guard let groupId = vm.groupId else { return }
-                vm.fetchGroupDetail(groupId: groupId)
+                vm.fetchGroupDetail(groupId: groupId, fetchType: .refresh)
             })
             .disposed(by: bag)
         
@@ -110,11 +115,12 @@ class JoinedGroupDetailViewModel {
             didFetchGroupDetail: groupDetailFetched.asObservable(),
             isOnline: isOnline.asObservable(),
             onlineCountChanged: onlineCount.asObservable(),
-            noticeFetched: groupNotice.asObservable()
+            noticeFetched: groupNotice.asObservable(),
+            showMessage: showMessage.asObservable()
         )
     }
     
-    func fetchGroupDetail(groupId: Int) {
+    func fetchGroupDetail(groupId: Int, fetchType: FetchType) {
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<MyGroupDetail> in
@@ -139,7 +145,7 @@ class JoinedGroupDetailViewModel {
                 self?.leaderName = detail.leaderName
                 self?.groupNotice.onNext(detail.notice)
                 self?.isOnline.onNext(detail.isOnline)
-                self?.groupDetailFetched.onNext(())
+                self?.groupDetailFetched.onNext((fetchType))
             })
             .disposed(by: bag) //.map { "#\($0.name)" }.joined(separator: " ")
     }
@@ -171,8 +177,21 @@ class JoinedGroupDetailViewModel {
                 guard let id = vm.groupId,
                       id == groupNotice.groupId else { return }
                 vm.groupNotice.onNext(groupNotice.notice)
+                vm.showMessage.onNext("공지사항을 업데이트 하였습니다.")
             })
             .disposed(by: bag)
+        
+        updateInfoUseCase
+            .didUpdateInfoWithId
+            .withUnretained(self)
+            .subscribe(onNext: { vm, id in
+                guard id == vm.groupId else { return }
+                
+                vm.fetchGroupDetail(groupId: id, fetchType: .update)
+            })
+            .disposed(by: bag)
+        
+        
     }
     
     func setOnlineState(isOnline: Bool) {

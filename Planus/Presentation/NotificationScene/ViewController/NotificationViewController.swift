@@ -95,10 +95,15 @@ class NotificationViewController: UIViewController {
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
+            .subscribe(onNext: { vc, type in
+                if vc.refreshControl.isRefreshing {
+                    vc.refreshControl.endRefreshing()
+                }
                 vc.resultCollectionView.reloadData()
                 vc.emptyResultView.isHidden = !(viewModel.joinAppliedList?.count == 0)
-                print(vc.emptyResultView.isHidden)
+                if type == .refresh {
+                    vc.showToast(message: "새로고침을 성공하였습니다.", type: .normal)
+                }
             })
             .disposed(by: bag)
         

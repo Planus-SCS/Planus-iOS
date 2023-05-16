@@ -19,12 +19,12 @@ class NotificationViewModel {
     }
     
     struct Output {
-        var didFetchJoinApplyList: Observable<Void?>
+        var didFetchJoinApplyList: Observable<FetchType?>
         var needRemoveAt: Observable<Int>
     }
     
     var joinAppliedList: [GroupJoinApplied]?
-    var didFetchJoinApplyList = BehaviorSubject<Void?>(value: nil)
+    var didFetchJoinApplyList = BehaviorSubject<FetchType?>(value: nil)
     var needRemoveAt = PublishSubject<Int>()
     
     var getTokenUseCase: GetTokenUseCase
@@ -58,7 +58,7 @@ class NotificationViewModel {
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchJoinApplyList()
+                vm.fetchJoinApplyList(fetchType: .initail)
             })
             .disposed(by: bag)
         
@@ -84,7 +84,7 @@ class NotificationViewModel {
             .refreshRequired
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchJoinApplyList()
+                vm.fetchJoinApplyList(fetchType: .refresh)
             })
             .disposed(by: bag)
         
@@ -143,7 +143,7 @@ class NotificationViewModel {
             .disposed(by: bag)
     }
     
-    func fetchJoinApplyList() {
+    func fetchJoinApplyList(fetchType: FetchType) {
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[GroupJoinApplied]> in
@@ -159,7 +159,7 @@ class NotificationViewModel {
             )
             .subscribe(onSuccess: { [weak self] list in
                 self?.joinAppliedList = list
-                self?.didFetchJoinApplyList.onNext(())
+                self?.didFetchJoinApplyList.onNext((fetchType))
             })
             .disposed(by: bag)
     }

@@ -9,6 +9,7 @@ import Foundation
 import RxSwift
 
 protocol UpdateGroupInfoUseCase {
+    var didUpdateInfoWithId: PublishSubject<Int> { get }
     func execute(
         token: Token,
         groupId: Int,

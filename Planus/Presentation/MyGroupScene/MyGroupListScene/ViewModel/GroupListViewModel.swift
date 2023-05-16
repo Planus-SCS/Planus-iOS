@@ -19,8 +19,9 @@ class GroupListViewModel {
     
     var groupList: [MyGroupSummary]?
     
-    var didFetchGroupList = BehaviorSubject<Void?>(value: nil)
+    var didFetchGroupList = BehaviorSubject<FetchType?>(value: nil)
     var needReloadItemAt = PublishSubject<Int>()
+    var showMessage = PublishSubject<String>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -31,8 +32,9 @@ class GroupListViewModel {
     }
     
     struct Output {
-        var didFetchJoinedGroup: Observable<Void?>
+        var didFetchJoinedGroup: Observable<FetchType?>
         var needReloadItemAt: Observable<Int>
+        var showMessage: Observable<String>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -72,7 +74,7 @@ class GroupListViewModel {
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchMyGroupList()
+                vm.fetchMyGroupList(fetchType: .initail)
             })
             .disposed(by: bag)
         
@@ -81,7 +83,7 @@ class GroupListViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 print("reff!!!")
-                vm.fetchMyGroupList()
+                vm.fetchMyGroupList(fetchType: .refresh)
             })
             .disposed(by: bag)
         
@@ -112,7 +114,8 @@ class GroupListViewModel {
         
         return Output(
             didFetchJoinedGroup: didFetchGroupList.asObservable(),
-            needReloadItemAt: needReloadItemAt.asObservable()
+            needReloadItemAt: needReloadItemAt.asObservable(),
+            showMessage: showMessage.asObservable()
         )
     }
     
@@ -122,7 +125,7 @@ class GroupListViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 print("created!")
-                vm.fetchMyGroupList()
+                vm.fetchMyGroupList(fetchType: .initail)
             })
             .disposed(by: bag)
         
@@ -137,6 +140,7 @@ class GroupListViewModel {
                 group.onlineCount = group.isOnline ? group.onlineCount + 1 : group.onlineCount - 1
                 vm.groupList?[index] = group
                 vm.needReloadItemAt.onNext(index)
+                vm.showMessage.onNext("\(group.groupName) 그룹을 \(group.isOnline ? "온" : "오프")라인으로 전환하였습니다.")
             })
             .disposed(by: bag)
     }
@@ -163,7 +167,7 @@ class GroupListViewModel {
             .disposed(by: bag)
     }
     
-    func fetchMyGroupList() {
+    func fetchMyGroupList(fetchType: FetchType) {
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[MyGroupSummary]> in
@@ -179,7 +183,7 @@ class GroupListViewModel {
             )
             .subscribe(onSuccess: { [weak self] list in
                 self?.groupList = list
-                self?.didFetchGroupList.onNext(())
+                self?.didFetchGroupList.onNext((fetchType))
             })
             .disposed(by: bag)
     }

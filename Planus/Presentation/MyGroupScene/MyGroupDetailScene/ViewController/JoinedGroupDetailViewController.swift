@@ -93,7 +93,7 @@ class JoinedGroupDetailViewController: UIViewController {
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
+            .subscribe(onNext: { vc, message in
                 vc.titleFetched.onNext(viewModel.groupTitle)
                 vc.headerView.tagLabel.text = viewModel.tag?.map { "#\($0)" }.joined(separator: " ")
                 vc.headerView.memberCountButton.setTitle("\(viewModel.memberCount ?? 0)/\(viewModel.limitCount ?? 0)", for: .normal)
@@ -106,6 +106,14 @@ class JoinedGroupDetailViewController: UIViewController {
                             vc.headerView.titleImageView.image = UIImage(data: data)
                         })
                         .disposed(by: vc.bag)
+                }
+                switch message {
+                case .update:
+                    vc.showToast(message: "그룹 정보를 수정하였습니다.", type: .normal)
+                case .refresh:
+                    vc.showToast(message: "새로고침을 완료하였습니다.", type: .normal)
+                default:
+                    return
                 }
             })
             .disposed(by: bag)
@@ -135,6 +143,17 @@ class JoinedGroupDetailViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, notice in
                 vc.noticeViewController?.viewModel?.notice.onNext(notice)
+            })
+            .disposed(by: bag)
+        
+        output
+            .showMessage
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                print(message)
+                vc.showToast(message: message, type: .normal)
             })
             .disposed(by: bag)
         
@@ -223,7 +242,7 @@ class JoinedGroupDetailViewController: UIViewController {
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let updateGroupInfoUseCase = DefaultUpdateGroupInfoUseCase(myGroupRepository: myGroupRepo)
+        let updateGroupInfoUseCase = DefaultUpdateGroupInfoUseCase.shared
         let vm = MyGroupInfoEditViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
