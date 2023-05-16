@@ -19,7 +19,7 @@ class MyPageMainViewModel {
         return BehaviorSubject<Bool>(value: false)
     }()
     
-    var didFetchUserProfile = BehaviorSubject<Void?>(value: nil)
+    var didRefreshUserProfile = BehaviorSubject<Void?>(value: nil)
     
     lazy var titleList: [MyPageMainTitleViewModel] = [ //이 리스트까지 이넘으로 해서 caseIterable쓸까?
         MyPageMainTitleViewModel(title: "푸시 알림 설정", type: .toggle(self.isPushOn)),
@@ -37,37 +37,38 @@ class MyPageMainViewModel {
     }
     
     struct Output {
-        var didFetchUserProfile: Observable<Void?>
+        var didRefreshUserProfile: Observable<Void?>
     }
     
-    var readProfileUseCase: ReadProfileUseCase
     var updateProfileUseCase: UpdateProfileUseCase
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
     var fetchImageUseCase: FetchImageUseCase
     
     init(
-        readProfileUseCase: ReadProfileUseCase,
         updateProfileUseCase: UpdateProfileUseCase,
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         fetchImageUseCase: FetchImageUseCase
     ) {
-        self.readProfileUseCase = readProfileUseCase
         self.updateProfileUseCase = DefaultUpdateProfileUseCase.shared
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.fetchImageUseCase = fetchImageUseCase
     }
     
+    func setProfile(profile: Profile) {
+        self.name = profile.nickName
+        self.introduce = profile.description
+        self.imageURL = profile.imageUrl
+    }
+    
     func transform(input: Input) -> Output {
-        
         input
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.bindUseCase()
-                vm.fetchUserProfile()
             })
             .disposed(by: bag)
         
@@ -78,7 +79,7 @@ class MyPageMainViewModel {
             })
             .disposed(by: bag)
         
-        return Output(didFetchUserProfile: didFetchUserProfile.asObservable())
+        return Output(didRefreshUserProfile: didRefreshUserProfile.asObservable())
     }
     
     func bindUseCase() {
@@ -89,30 +90,7 @@ class MyPageMainViewModel {
                 vm.name = profile.nickName
                 vm.introduce = profile.description
                 vm.imageURL = profile.imageUrl
-                vm.didFetchUserProfile.onNext(())
-            })
-            .disposed(by: bag)
-    }
-    
-    func fetchUserProfile() {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Profile> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.readProfileUseCase
-                    .execute(token: token)
-            }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
-            )
-            .subscribe(onSuccess: { [weak self] profile in
-                self?.name = profile.nickName
-                self?.introduce = profile.description
-                self?.imageURL = profile.imageUrl
-                self?.didFetchUserProfile.onNext(())
+                vm.didRefreshUserProfile.onNext(())
             })
             .disposed(by: bag)
     }

@@ -260,7 +260,6 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
-                print(message)
                 vc.showToast(message: message, type: .normal)
             })
             .disposed(by: bag)
@@ -268,6 +267,7 @@ class HomeCalendarViewController: UIViewController {
     
 
     @objc func profileButtonTapped() {
+        guard let profile = viewModel?.profile else { return }
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
@@ -278,7 +278,8 @@ class HomeCalendarViewController: UIViewController {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        let vm = MyPageMainViewModel(readProfileUseCase: readProfileUseCase, updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, fetchImageUseCase: fetchImageUseCase)
+        let vm = MyPageMainViewModel(updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, fetchImageUseCase: fetchImageUseCase)
+        vm.setProfile(profile: profile)
         let vc = MyPageMainViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(vc, animated: true)

@@ -71,7 +71,7 @@ class MemberProfileHeaderView: UIView {
         introduceLabel.snp.remakeConstraints {
             $0.leading.trailing.equalToSuperview().inset(48)
             $0.top.equalTo(nameLabel.snp.bottom).offset(16)
-            $0.bottom.equalTo(separateView.snp.top).inset(-22)
+            $0.bottom.equalTo(separateView.snp.top).inset(-30)
         }
         
         nameLabel.text = mockName

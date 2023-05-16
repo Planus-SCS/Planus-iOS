@@ -55,6 +55,7 @@ class HomeCalendarViewModel {
     var needReloadData = PublishSubject<Void>()
     var needWelcome = BehaviorSubject<String?>(value: nil)
     
+    var profile: Profile?
     var fetchedProfileImage = PublishSubject<Data?>()
     
     var initialReadCategory = BehaviorSubject<Void?>(value: nil)
@@ -275,9 +276,11 @@ class HomeCalendarViewModel {
     }
     
     func bindProfileUseCase() {
-        updateProfileUseCase.didUpdateProfile.subscribe(onNext: { [weak self] profile in
+        updateProfileUseCase
+            .didUpdateProfile
+            .subscribe(onNext: { [weak self] profile in
             guard let self else { return }
-            
+            self.profile = profile
             guard let imageUrl = profile.imageUrl else {
                 self.fetchedProfileImage.onNext(nil)
                 return
@@ -406,7 +409,7 @@ class HomeCalendarViewModel {
     }
 
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
-
+        
         guard let currentDate = try? self.currentDate.value() else { return }
         let fromMonth = calendar.date(byAdding: DateComponents(month: fromIndex - currentIndex), to: currentDate) ?? Date()
         let toMonth = calendar.date(byAdding: DateComponents(month: toIndex - currentIndex), to: currentDate) ?? Date()
@@ -471,7 +474,7 @@ class HomeCalendarViewModel {
     }
     
     func fetchProfile() {
-        print("여기1")
+        
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Profile> in
@@ -487,8 +490,10 @@ class HomeCalendarViewModel {
             )
             .subscribe(onSuccess: { [weak self] profile in
                 guard let self else { return }
-                print("herererer")
+                
                 self.needWelcome.onNext("\(profile.nickName)님 반갑습니다!")
+                self.profile = profile
+                
                 guard let imageUrl = profile.imageUrl else {
                     self.fetchedProfileImage.onNext(nil)
                     return
