@@ -44,6 +44,7 @@ class GroupListViewModel {
     var fetchImageUseCase: FetchImageUseCase
     var groupCreateUseCase: GroupCreateUseCase
     var setOnlineUseCase: SetOnlineUseCase
+    var updateGroupInfoUseCase: UpdateGroupInfoUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
@@ -52,7 +53,8 @@ class GroupListViewModel {
         fetchMyGroupListUseCase: FetchMyGroupListUseCase,
         fetchImageUseCase: FetchImageUseCase,
         groupCreateUseCase: GroupCreateUseCase,
-        setOnlineUseCase: SetOnlineUseCase
+        setOnlineUseCase: SetOnlineUseCase,
+        updateGroupInfoUseCase: UpdateGroupInfoUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUsecase = refreshTokenUsecase
@@ -61,6 +63,7 @@ class GroupListViewModel {
         self.fetchImageUseCase = fetchImageUseCase
         self.groupCreateUseCase = groupCreateUseCase
         self.setOnlineUseCase = setOnlineUseCase
+        self.updateGroupInfoUseCase = updateGroupInfoUseCase
     }
     
     func setActions(actions: GroupListViewModelActions) {
@@ -124,7 +127,6 @@ class GroupListViewModel {
             .didCreateGroup
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                print("created!")
                 vm.fetchMyGroupList(fetchType: .initail)
             })
             .disposed(by: bag)
@@ -141,6 +143,14 @@ class GroupListViewModel {
                 vm.groupList?[index] = group
                 vm.needReloadItemAt.onNext(index)
                 vm.showMessage.onNext("\(group.groupName) 그룹을 \(group.isOnline ? "온" : "오프")라인으로 전환하였습니다.")
+            })
+            .disposed(by: bag)
+        
+        updateGroupInfoUseCase
+            .didUpdateInfoWithId
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchMyGroupList(fetchType: .initail)
             })
             .disposed(by: bag)
     }

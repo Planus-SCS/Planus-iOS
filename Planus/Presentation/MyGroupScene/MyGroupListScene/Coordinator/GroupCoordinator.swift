@@ -46,7 +46,8 @@ class GroupCoordinator: Coordinator {
             fetchMyGroupListUseCase: fetchMyGroupUseCase,
             fetchImageUseCase: fetchImageUseCase,
             groupCreateUseCase: groupCreateUseCase,
-            setOnlineUseCase: setOnlineUseCase
+            setOnlineUseCase: setOnlineUseCase,
+            updateGroupInfoUseCase: DefaultUpdateGroupInfoUseCase.shared
         )
         
         vm.setActions(actions: GroupListViewModelActions(showJoinedGroupDetail: self?.showGroupDetailPage))
