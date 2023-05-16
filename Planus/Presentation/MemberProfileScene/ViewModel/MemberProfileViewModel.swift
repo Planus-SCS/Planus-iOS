@@ -14,7 +14,7 @@ class MemberProfileViewModel {
     let calendar = Calendar.current
     
     var groupId: Int?
-    var memberId: Int?
+    var member: MyMember?
     
     // for todoList caching
     let cachingIndexDiff = 8
@@ -29,10 +29,14 @@ class MemberProfileViewModel {
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
+    var categoryDict = [Int: Category]()
     var mainDayList = [[DayViewModel]]()
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
+    var categoryFetched = BehaviorSubject<Void?>(value: nil)
+    var needReloadSection = BehaviorSubject<IndexSet?>(value: nil)
+    
     var showDailyTodoPage = PublishSubject<DayViewModel>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
@@ -51,10 +55,13 @@ class MemberProfileViewModel {
     struct Output {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
-        var todoListFetchedInIndexRange: Observable<(Int, Int)?> // a부터 b까지 리로드 해라!
+        var needReloadSectionInRange: Observable<IndexSet?> // a부터 b까지 리로드 해라!
         var showDailyTodoPage: Observable<DayViewModel>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
+        var memberName: String?
+        var memberDesc: String?
+        var memberImageUrl: String?
     }
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
@@ -63,6 +70,7 @@ class MemberProfileViewModel {
     let refreshTokenUseCase: RefreshTokenUseCase
     let fetchMemberTodoUseCase: FetchMemberTodoListUseCase
     let fetchMemberCategoryUseCase: FetchMemberCategoryUseCase
+    let fetchImageUseCase: FetchImageUseCase
     
     init(
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
@@ -70,7 +78,8 @@ class MemberProfileViewModel {
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
-        fetchMemberCategoryUseCase: FetchMemberCategoryUseCase
+        fetchMemberCategoryUseCase: FetchMemberCategoryUseCase,
+        fetchImageUseCase: FetchImageUseCase
     ) {
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.fetchMemberTodoUseCase = fetchMemberTodoUseCase
@@ -78,12 +87,12 @@ class MemberProfileViewModel {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.fetchMemberCategoryUseCase = fetchMemberCategoryUseCase
-        bind()
+        self.fetchImageUseCase = fetchImageUseCase
     }
     
-    func setMember(groupId: Int, memberId: Int) {
+    func setMember(groupId: Int, member: MyMember) {
         self.groupId = groupId
-        self.memberId = memberId
+        self.member = member
     }
     
     func bind() {
@@ -100,20 +109,27 @@ class MemberProfileViewModel {
             .take(1)
             .withUnretained(self)
             .subscribe(onNext: { vm, date in
-                vm.
-//                vm.initCalendar(date: date)
-                Observable.combineLatest(
-                    vm.initialReadCategory.compactMap { $0 }
-                )
-                .subscribe(onNext: { _ in
-                    vm.initTodoList(date: date)
-                })
-                .disposed(by: vm.bag)
+                vm.initCalendar(date: date)
+                vm.fetchCategoryList()
+                vm.initTodoList(date: date)
             })
             .disposed(by: bag)
+        
+        Observable.zip(
+            categoryFetched.compactMap { $0 },
+            todoListFetchedInIndexRange.compactMap { $0 }
+        )
+        .withUnretained(self)
+        .subscribe(onNext: { vm, arg in
+            let from = arg.1.0
+            let to = arg.1.1
+            vm.needReloadSection.onNext(IndexSet(from..<to))
+        })
+        .disposed(by: bag)
     }
     
     func transform(input: Input) -> Output {
+        bind()
         
         input.viewDidLoaded
             .withUnretained(self)
@@ -122,7 +138,6 @@ class MemberProfileViewModel {
                     [.year, .month],
                     from: Date()
                 )
-                
                 let currentDate = vm.calendar.date(from: components) ?? Date()
                 vm.currentDate.onNext(currentDate)
             }
@@ -171,10 +186,13 @@ class MemberProfileViewModel {
         return Output(
             didLoadYYYYMM: currentYYYYMM.asObservable(),
             initialDayListFetchedInCenterIndex: initialDayListFetchedInCenterIndex.asObservable(),
-            todoListFetchedInIndexRange: todoListFetchedInIndexRange.asObservable(),
+            needReloadSectionInRange: needReloadSection.asObservable(),
             showDailyTodoPage: showDailyTodoPage.asObservable(),
             showMonthPicker: showMonthPicker.asObservable(),
-            monthChangedByPicker: didSelectMonth.asObservable()
+            monthChangedByPicker: didSelectMonth.asObservable(),
+            memberName: member?.nickname,
+            memberDesc: member?.description,
+            memberImageUrl: member?.profileImageUrl
         )
     }
     
@@ -226,7 +244,6 @@ class MemberProfileViewModel {
         }
     }
     
-    // 여기만 하면 이제 당분간은 투두 받아오는 부분 걱정도 없을듯? 근데 애니메이션을 어케 적용해야되냐?????
     func checkCacheLoadNeed() {
         guard let currentDate = try? self.currentDate.value() else { return }
         if latestPrevCacheRequestedIndex - currentIndex == cachingIndexDiff {
@@ -234,7 +251,7 @@ class MemberProfileViewModel {
             // 100에서 시작해서 92에 도달함. 리로드하고 어디부터? 83-90
             let fromIndex = currentIndex - cachingAmount // 92 - 10 - (10-8)
             let toIndex = currentIndex - (cachingAmount - cachingIndexDiff) //92 - (10-8) : 90
-            fetchTodoList(from: fromIndex, to: toIndex)
+            fetch(from: fromIndex, to: toIndex)
             
             // 100에서 시작함 108에 도달함. 리로드 실시하고 어디부터 어디까지? 111 - 118 까지
             // 108에서 리로드를 했음. 현재는 119까지 있음. 그럼 이제 또 116에서 리로드가 이뤄지겠지?
@@ -242,15 +259,20 @@ class MemberProfileViewModel {
             latestFollowingCacheRequestedIndex = currentIndex
             let fromIndex = currentIndex + cachingAmount - cachingIndexDiff + 1 // 108 + 10 - 8 + 1
             let toIndex = currentIndex + cachingAmount + 1 // 108 + 10
-            fetchTodoList(from: fromIndex, to: toIndex)
+            fetch(from: fromIndex, to: toIndex)
         }
+    }
+    
+    func fetch(from fromIndex: Int, to toIndex: Int) {
+        fetchTodoList(from: fromIndex, to: toIndex)
+        fetchCategoryList()
     }
     
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
 
         guard let currentDate = try? self.currentDate.value(),
               let groupId,
-              let memberId else { return }
+              let memberId = member?.memberId else { return }
         
         let fromMonth = calendar.date(byAdding: DateComponents(month: fromIndex - currentIndex), to: currentDate) ?? Date()
         let toMonth = calendar.date(byAdding: DateComponents(month: toIndex - currentIndex), to: currentDate) ?? Date()
@@ -289,7 +311,6 @@ class MemberProfileViewModel {
                         dayViewModel.todoList = todoList
                         return dayViewModel
                     }
-                    
                 }
                 self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
             })
@@ -297,29 +318,45 @@ class MemberProfileViewModel {
     }
     
     func fetchCategoryList() {
+        guard let groupId,
+              let memberId = member?.memberId else { return }
+        
+        let fetchMemberCategoryUseCase = fetchMemberCategoryUseCase
+        
         getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<[Category]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.fetchMemberCategoryUseCase
-                    .execute(token: token)
+            .flatMap { token -> Single<[Category]> in
+                fetchMemberCategoryUseCase
+                    .execute(token: token, groupId: groupId, memberId: memberId)
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: TokenError.noTokenExist
             )
             .subscribe(onSuccess: { [weak self] list in
+                self?.categoryDict.removeAll()
                 list.forEach {
                     guard let id = $0.id else { return }
                     self?.categoryDict[id] = $0
                 }
-                self?.initialReadCategory.onNext(())
-                self?.initialReadGroup.onNext(())
+                self?.categoryFetched.onNext(())
             })
             .disposed(by: bag)
+    }
+    
+    func getMaxInWeek(indexPath: IndexPath) -> DayViewModel {
+        let item = indexPath.item
+        let section = indexPath.section
         
+        let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
+            mainDayList[section][a].todoList.count < mainDayList[section][b].todoList.count
+        }) ?? Int()
         
+        return mainDayList[indexPath.section][maxItem]
+    }
+    
+    func fetchImage(key: String) -> Single<Data> {
+        fetchImageUseCase
+            .execute(key: key)
     }
 }

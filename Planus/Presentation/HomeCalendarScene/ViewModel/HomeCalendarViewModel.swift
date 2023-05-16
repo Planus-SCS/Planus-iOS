@@ -645,7 +645,7 @@ class HomeCalendarViewModel {
         let section = indexPath.section
         
         let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-            mainDayList[section][a].todoList.count ?? 0 < mainDayList[section][b].todoList.count ?? 0
+            mainDayList[section][a].todoList.count < mainDayList[section][b].todoList.count
         }) ?? Int()
         
         return mainDayList[indexPath.section][maxItem]

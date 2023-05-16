@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultFetchMemberTodoListUseCase {
+class DefaultFetchMemberTodoListUseCase: FetchMemberTodoListUseCase {
     let memberCalendarRepository: MemberCalendarRepository
     
     init(memberCalendarRepository: MemberCalendarRepository) {

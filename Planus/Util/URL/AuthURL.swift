@@ -9,7 +9,7 @@ import Foundation
 
 struct KakaoAuthURL {
     static let kakaoAuthCodeURL = "https://kauth.kakao.com/oauth/authorize?client_id=e3db77b879bd944542d59883a7d1f448&redirect_uri=\(redirectURI)&response_type=code"
-    static let redirectURI = "http://localhost:8080/app/oauth/kakao"
+    static let redirectURI = "http://43.200.117.212:8080/app/oauth/kakao"
 }
 
 struct GoogleAuthURL {

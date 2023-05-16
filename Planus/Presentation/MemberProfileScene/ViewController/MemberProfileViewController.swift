@@ -12,6 +12,9 @@ class MemberProfileViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: MemberProfileViewModel?
     
+    var headerViewInitialHeight: CGFloat?
+    var headerViewFinalHeight: CGFloat? = 98 // 이것도 desc안넣고 mockFrame계산할까?
+
     var headerViewHeightConstraint: NSLayoutConstraint?
     
     var isSingleSelected = PublishSubject<IndexPath>()
@@ -66,13 +69,13 @@ class MemberProfileViewController: UIViewController {
         configurePanGesture()
         bind()
         
-        self.navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         self.navigationItem.title = "그룹 멤버 캘린더"
+        self.navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
     func bind() {
@@ -106,18 +109,22 @@ class MemberProfileViewController: UIViewController {
             })
             .disposed(by: bag)
             
-        output.todoListFetchedInIndexRange
+        output.needReloadSectionInRange
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, rangeSet in
-                vc.collectionView.reloadSections(IndexSet(rangeSet.0..<rangeSet.1))
+                vc.collectionView.reloadSections(rangeSet)
             })
             .disposed(by: bag)
         
         output.showDailyTodoPage
             .withUnretained(self)
             .subscribe(onNext: { vc, dayViewModel in
+                let todoList = dayViewModel.todoList
+                let categoryDict = viewModel.categoryDict
+                
+                
                 let api = NetworkManager()
                 let keyChain = KeyChainManager()
                 let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
@@ -147,11 +154,12 @@ class MemberProfileViewController: UIViewController {
                 )
                 
                 viewModel.setDate(currentDate: dayViewModel.date)
-//                viewModel.setTodoList(
-//                    todoList: dayViewModel.todoList ?? [],
-//                    categoryDict: vc.viewModel?.categoryDict ?? [:],
-//                    groupDict: vc.viewModel?.groupDict ?? [:]
-//                )
+                viewModel.setTodoList(
+                    todoList: todoList,
+                    categoryDict: categoryDict,
+                    groupDict: [:]
+                )
+                viewModel.setOwnership(isOwner: false)
 
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)
@@ -189,6 +197,44 @@ class MemberProfileViewController: UIViewController {
             })
             .disposed(by: bag)
         
+        headerView.nameLabel.text = output.memberName
+        headerView.introduceLabel.text = output.memberDesc
+        
+        if let url = output.memberImageUrl {
+            viewModel
+                .fetchImage(key: url)
+                .subscribe(onSuccess: { [weak self] data in
+                    self?.headerView.profileImageView.image = UIImage(data: data)
+                })
+                .disposed(by: bag)
+        } else {
+            headerView.profileImageView.image = UIImage(named: "DefaultProfileMedium")
+        }
+                
+        configureHeaderViewLayout(
+            memberName: output.memberName,
+            memberDesc: output.memberDesc
+        )
+    }
+    
+    func configureHeaderViewLayout(memberName: String?, memberDesc: String?) {
+        let mockHeaderView = MemberProfileHeaderView(
+            mockName: memberName,
+            mockDesc: memberDesc
+        )
+        
+        let estimatedSize = mockHeaderView
+            .systemLayoutSizeFitting(CGSize(width: self.view.frame.width,
+                       height: UIView.layoutFittingCompressedSize.height))
+        
+        print(estimatedSize)
+        self.headerViewInitialHeight = estimatedSize.height
+        headerView.snp.makeConstraints {
+            $0.height.equalTo(estimatedSize.height)
+        }
+        
+        guard let headerViewHeightConstraint = headerView.constraints.first(where: { $0.firstAttribute == .height }) else { return }
+        self.headerViewHeightConstraint = headerViewHeightConstraint
     }
     
     func configureView() {
@@ -202,11 +248,7 @@ class MemberProfileViewController: UIViewController {
     func configureLayout() {
         headerView.snp.makeConstraints {
             $0.top.leading.trailing.equalTo(self.view.safeAreaLayoutGuide)
-            $0.height.equalTo(208)
         }
-        
-        guard let headerViewHeightConstraint = headerView.constraints.first(where: { $0.firstAttribute == .height }) else { return }
-        self.headerViewHeightConstraint = headerViewHeightConstraint
         
         calendarHeaderView.snp.makeConstraints {
             $0.top.equalTo(headerView.snp.bottom)
@@ -258,7 +300,6 @@ class MemberProfileViewController: UIViewController {
         
         }
     }
-    
 }
 
 
@@ -277,13 +318,17 @@ extension MemberProfileViewController: UICollectionViewDataSource, UICollectionV
         
         cell.fill(
             section: indexPath.section,
-            delegate: self,
-            nestedScrollableCellDelegate: self
+            viewModel: viewModel
         )
-
         cell.fill(
             isSingleSelected: isSingleSelected
         )
+        
+        cell.fill(
+            headerInitialHeight: headerViewInitialHeight,
+            headerFinalHeight: headerViewFinalHeight
+        )
+        cell.nestedScrollableCellDelegate = self
         
         return cell
     }
@@ -328,42 +373,6 @@ extension MemberProfileViewController {
     
 }
 
-extension MemberProfileViewController: NestedScrollableMonthlyCalendarCellDelegate {
-
-    func monthlyCalendarCell(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, at indexPath: IndexPath) -> DayViewModel? {
-        guard let viewModel else { return nil }
-        return viewModel.mainDayList[indexPath.section][indexPath.item]
-    }
-    
-    func monthlyCalendarCell(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, maxCountOfTodoInWeek indexPath: IndexPath) -> DayViewModel? {
-        guard let viewModel else { return nil }
-        let item = indexPath.item
-        let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-            viewModel.mainDayList[indexPath.section][a].todoList.count ?? 0 < viewModel.mainDayList[indexPath.section][b].todoList.count ?? 0
-        }) ?? Int()
-            
-        return viewModel.mainDayList[indexPath.section][maxItem]
-    }
-    
-    func numberOfItems(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, in section: Int) -> Int? {
-        return viewModel?.mainDayList[section].count
-    }
-    
-    func findCachedHeight(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, todoCount: Int) -> Double? {
-        return viewModel?.cachedCellHeightForTodoCount[todoCount]
-    }
-    
-    func cacheHeight(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, count: Int, height: Double) {
-        viewModel?.cachedCellHeightForTodoCount[count] = height
-    }
-    
-    func frameWidth(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell) -> CGSize {
-        return self.view.frame.size
-    }
-    
-}
-
-
 extension MemberProfileViewController: NestedScrollableCellDelegate {
     
     var currentHeaderHeight: CGFloat? {
@@ -374,19 +383,19 @@ extension MemberProfileViewController: NestedScrollableCellDelegate {
         guard let headerViewHeightConstraint else { return }
         headerViewHeightConstraint.constant -= scrollDistance
 
-        if headerViewHeightConstraint.constant < memberProfileTopViewFinalHeight {
-            headerViewHeightConstraint.constant = memberProfileTopViewFinalHeight
-        } else if headerViewHeightConstraint.constant >= memberProfileTopViewInitialHeight {
-            headerViewHeightConstraint.constant = memberProfileTopViewInitialHeight
+        if headerViewHeightConstraint.constant < headerViewFinalHeight ?? 0 {
+            headerViewHeightConstraint.constant = headerViewFinalHeight ?? 0
+        } else if headerViewHeightConstraint.constant >= headerViewInitialHeight ?? 0 {
+            headerViewHeightConstraint.constant = headerViewInitialHeight ?? 0
         }
     }
-//
+
     func innerTableViewScrollEnded(withScrollDirection scrollDirection: DragDirection) {
         guard let headerViewHeightConstraint else { return }
 
         let topViewHeight = headerViewHeightConstraint.constant
 
-        if topViewHeight >= memberProfileTopViewInitialHeight {
+        if topViewHeight >= headerViewInitialHeight ?? 0 {
             scrollToInitialView()
         }
     }
@@ -396,7 +405,7 @@ extension MemberProfileViewController: NestedScrollableCellDelegate {
 
         let topViewCurrentHeight = headerView.frame.height
 
-        let distanceToBeMoved = abs(topViewCurrentHeight - memberProfileTopViewInitialHeight)
+        let distanceToBeMoved = abs(topViewCurrentHeight - (headerViewInitialHeight ?? 0))
 
         var time = distanceToBeMoved / 500
 
@@ -405,7 +414,7 @@ extension MemberProfileViewController: NestedScrollableCellDelegate {
             time = 0.2
         }
 
-        headerViewHeightConstraint.constant = memberProfileTopViewInitialHeight
+        headerViewHeightConstraint.constant = headerViewInitialHeight ?? 0
 
         UIView.animate(withDuration: TimeInterval(time), animations: {
 
@@ -418,7 +427,7 @@ extension MemberProfileViewController: NestedScrollableCellDelegate {
 
         let topViewCurrentHeight = headerView.frame.height
 
-        let distanceToBeMoved = abs(topViewCurrentHeight - memberProfileTopViewFinalHeight)
+        let distanceToBeMoved = abs(topViewCurrentHeight - (headerViewFinalHeight ?? 0))
 
         var time = distanceToBeMoved / 500
 
@@ -427,7 +436,7 @@ extension MemberProfileViewController: NestedScrollableCellDelegate {
             time = 0.2
         }
 
-        headerViewHeightConstraint.constant = memberProfileTopViewFinalHeight
+        headerViewHeightConstraint.constant = headerViewFinalHeight ?? 0
 
         UIView.animate(withDuration: TimeInterval(time), animations: {
 

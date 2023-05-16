@@ -209,23 +209,32 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        let networkManager = NetworkManager()
-        let useCase1 = DefaultCreateMonthlyCalendarUseCase()
-        let useCase2 = DefaultReadTodoListUseCase(todoRepository: TestTodoDetailRepository(apiProvider: networkManager))
-        let useCase3 = DefaultDateFormatYYYYMMUseCase()
+        guard let groupId = viewModel?.groupId,
+              let member = viewModel?.memberList?[indexPath.item] else { return false }
+        let api = NetworkManager()
+        let memberCalendarRepo = DefaultMemberCalendarRepository(apiProvider: api)
+        let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
+        let fetchMemberTodoUseCase = DefaultFetchMemberTodoListUseCase(memberCalendarRepository: memberCalendarRepo)
+        let fetchMemberCategoryUseCase = DefaultFetchMemberCategoryUseCase(memberCalendarRepository: memberCalendarRepo)
+        let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
         let keyChainManager = KeyChainManager()
         
-        let tokenRepo = DefaultTokenRepository(apiProvider: networkManager, keyChainManager: keyChainManager)
-        let useCase4 = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let useCase5 = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChainManager)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         
         let vm = MemberProfileViewModel(
-            createMonthlyCalendarUseCase: useCase1,
-            fetchTodoListUseCase: useCase2,
-            dateFormatYYYYMMUseCase: useCase3,
-            getTokenUseCase: useCase4,
-            refreshTokenUseCase: useCase5
+            createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
+            fetchMemberTodoUseCase: fetchMemberTodoUseCase,
+            dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            fetchMemberCategoryUseCase: fetchMemberCategoryUseCase,
+            fetchImageUseCase: DefaultFetchImageUseCase.init(imageRepository: DefaultImageRepository.shared)
         )
+        
+        vm.setMember(groupId: groupId, member: member)
+        
         let vc = MemberProfileViewController(viewModel: vm)
         self.navigationController?.pushViewController(vc, animated: true)
         return false

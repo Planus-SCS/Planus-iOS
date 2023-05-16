@@ -33,7 +33,6 @@ class MemberProfileHeaderView: UIView {
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 35
         imageView.layer.cornerCurve = .continuous
-        imageView.image = UIImage(named: "DefaultProfileMedium")
 
         return imageView
     }()
@@ -66,14 +65,17 @@ class MemberProfileHeaderView: UIView {
         return view
     }()
     
-    convenience init(mockFrame: CGRect) {
-        self.init(frame: mockFrame)
+    convenience init(mockName: String?, mockDesc: String?) {
+        self.init(frame: .zero)
         
         introduceLabel.snp.remakeConstraints {
             $0.leading.trailing.equalToSuperview().inset(48)
             $0.top.equalTo(nameLabel.snp.bottom).offset(16)
             $0.bottom.equalTo(separateView.snp.top).inset(-22)
         }
+        
+        nameLabel.text = mockName
+        introduceLabel.text = mockDesc
     }
     
     override init(frame: CGRect) {

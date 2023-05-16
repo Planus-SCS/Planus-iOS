@@ -14,22 +14,22 @@ class DailyCalendarCell: UICollectionViewCell {
     weak var delegate: DailyCalendarCellDelegate?
     
     override var isSelected: Bool {
-      didSet {
-        if isSelected {
-            UIView.animate(withDuration: 0.01,
-                           animations: {
-                self.alpha = 0.5
-                self.backgroundColor = UIColor(hex: 0xDBDAFF)
-            })
-        } else {
-            UIView.animate(withDuration: 0.01,
-                           animations: {
-                self.alpha = 1
-                self.backgroundColor = nil
-                
-            })
+        didSet {
+            if isSelected {
+                UIView.animate(withDuration: 0.01,
+                               animations: {
+                    self.alpha = 0.5
+                    self.backgroundColor = UIColor(hex: 0xDBDAFF)
+                })
+            } else {
+                UIView.animate(withDuration: 0.01,
+                               animations: {
+                    self.alpha = 1
+                    self.backgroundColor = nil
+                    
+                })
+            }
         }
-      }
     }
     
     override var isHighlighted: Bool {
@@ -51,7 +51,6 @@ class DailyCalendarCell: UICollectionViewCell {
     lazy var stackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .vertical
-//        stackView.distribution = .
         stackView.spacing = 2
         stackView.alignment = .fill
         return stackView
