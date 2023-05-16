@@ -16,4 +16,10 @@ protocol MemberCalendarRepository {
         from: Date,
         to: Date
     ) -> Single<ResponseDTO<[TodoEntityResponseDTO]>>
+    
+    func fetchMemberCategoryList(
+        token: String,
+        groupId: Int,
+        memberId: Int
+    ) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>>
 }

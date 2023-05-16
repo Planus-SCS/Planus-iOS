@@ -13,6 +13,9 @@ class MemberProfileViewModel {
         
     let calendar = Calendar.current
     
+    var groupId: Int?
+    var memberId: Int?
+    
     // for todoList caching
     let cachingIndexDiff = 8
     let cachingAmount = 10
@@ -55,24 +58,32 @@ class MemberProfileViewModel {
     }
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
-    let fetchTodoListUseCase: ReadTodoListUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     let getTokenUseCase: GetTokenUseCase
     let refreshTokenUseCase: RefreshTokenUseCase
+    let fetchMemberTodoUseCase: FetchMemberTodoListUseCase
+    let fetchMemberCategoryUseCase: FetchMemberCategoryUseCase
     
     init(
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        fetchTodoListUseCase: ReadTodoListUseCase,
+        fetchMemberTodoUseCase: FetchMemberTodoListUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
         getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase
+        refreshTokenUseCase: RefreshTokenUseCase,
+        fetchMemberCategoryUseCase: FetchMemberCategoryUseCase
     ) {
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
-        self.fetchTodoListUseCase = fetchTodoListUseCase
+        self.fetchMemberTodoUseCase = fetchMemberTodoUseCase
         self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
+        self.fetchMemberCategoryUseCase = fetchMemberCategoryUseCase
         bind()
+    }
+    
+    func setMember(groupId: Int, memberId: Int) {
+        self.groupId = groupId
+        self.memberId = memberId
     }
     
     func bind() {
@@ -81,6 +92,24 @@ class MemberProfileViewModel {
             .subscribe { [weak self] date in
                 self?.updateTitle(date: date)
             }
+            .disposed(by: bag)
+        
+        // init
+        currentDate
+            .compactMap { $0 }
+            .take(1)
+            .withUnretained(self)
+            .subscribe(onNext: { vm, date in
+                vm.
+//                vm.initCalendar(date: date)
+                Observable.combineLatest(
+                    vm.initialReadCategory.compactMap { $0 }
+                )
+                .subscribe(onNext: { _ in
+                    vm.initTodoList(date: date)
+                })
+                .disposed(by: vm.bag)
+            })
             .disposed(by: bag)
     }
     
@@ -96,8 +125,6 @@ class MemberProfileViewModel {
                 
                 let currentDate = vm.calendar.date(from: components) ?? Date()
                 vm.currentDate.onNext(currentDate)
-                vm.initCalendar(date: currentDate)
-                vm.initTodoList(date: currentDate)
             }
             .disposed(by: bag)
         
@@ -221,7 +248,10 @@ class MemberProfileViewModel {
     
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
 
-        guard let currentDate = try? self.currentDate.value() else { return }
+        guard let currentDate = try? self.currentDate.value(),
+              let groupId,
+              let memberId else { return }
+        
         let fromMonth = calendar.date(byAdding: DateComponents(month: fromIndex - currentIndex), to: currentDate) ?? Date()
         let toMonth = calendar.date(byAdding: DateComponents(month: toIndex - currentIndex), to: currentDate) ?? Date()
         
@@ -235,8 +265,14 @@ class MemberProfileViewModel {
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.fetchTodoListUseCase
-                    .execute(token: token, from: fromMonthStart, to: toMonthStart)
+                return self.fetchMemberTodoUseCase
+                    .execute(
+                        token: token,
+                        groupId: groupId,
+                        memberId: memberId,
+                        from: fromMonthStart,
+                        to: toMonthStart
+                    )
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
@@ -258,5 +294,32 @@ class MemberProfileViewModel {
                 self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
             })
             .disposed(by: bag)
+    }
+    
+    func fetchCategoryList() {
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[Category]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchMemberCategoryUseCase
+                    .execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] list in
+                list.forEach {
+                    guard let id = $0.id else { return }
+                    self?.categoryDict[id] = $0
+                }
+                self?.initialReadCategory.onNext(())
+                self?.initialReadGroup.onNext(())
+            })
+            .disposed(by: bag)
+        
+        
     }
 }

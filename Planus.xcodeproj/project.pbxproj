@@ -201,6 +201,7 @@
 		6A9199932A1320B400108BF4 /* MemberCalendarRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199922A1320B400108BF4 /* MemberCalendarRepository.swift */; };
 		6A9199952A13211E00108BF4 /* DefaultFetchMemberTodoListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199942A13211E00108BF4 /* DefaultFetchMemberTodoListUseCase.swift */; };
 		6A9199972A13222000108BF4 /* FetchMemberTodoListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199962A13222000108BF4 /* FetchMemberTodoListUseCase.swift */; };
+		6A9199992A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199982A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift */; };
 		6A95DFB529D4DD33009017D8 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB429D4DD33009017D8 /* SearchViewController.swift */; };
 		6A95DFB729D4DD40009017D8 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */; };
 		6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */; };
@@ -647,6 +648,7 @@
 		6A9199922A1320B400108BF4 /* MemberCalendarRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberCalendarRepository.swift; sourceTree = "<group>"; };
 		6A9199942A13211E00108BF4 /* DefaultFetchMemberTodoListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMemberTodoListUseCase.swift; sourceTree = "<group>"; };
 		6A9199962A13222000108BF4 /* FetchMemberTodoListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMemberTodoListUseCase.swift; sourceTree = "<group>"; };
+		6A9199982A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMemberCategoryUseCase.swift; sourceTree = "<group>"; };
 		6A95DFB429D4DD33009017D8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Ext.swift"; sourceTree = "<group>"; };
@@ -2155,6 +2157,7 @@
 				6A9AAB2629FA595B002A6DAF /* DefaultReadCategoryListUseCase.swift */,
 				6A9AAB2429FA588F002A6DAF /* DefaultUpdateCategoryUseCase.swift */,
 				6A9AAB2829FA5A6C002A6DAF /* DefaultDeleteCategoryUseCase.swift */,
+				6A9199982A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift */,
 			);
 			path = Category;
 			sourceTree = "<group>";
@@ -2784,6 +2787,7 @@
 				6A1B3F0229D717B400BFB3A6 /* GroupListViewController.swift in Sources */,
 				6A9A07F729D40B820051AD43 /* DayPickerCollectionViewCell.swift in Sources */,
 				6A987A3729DD9F3400C27D09 /* MyGroupNoticeEditViewController.swift in Sources */,
+				6A9199992A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift in Sources */,
 				6A95DFD029D50053009017D8 /* UIImage+Ext.swift in Sources */,
 				6A27443D2A0E8806008FB4F5 /* GroupNotice.swift in Sources */,
 				6AC079202A08E381007ACDB8 /* ImageFile.swift in Sources */,

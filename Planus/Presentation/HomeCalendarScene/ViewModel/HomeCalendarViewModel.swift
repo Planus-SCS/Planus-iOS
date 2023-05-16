@@ -404,7 +404,7 @@ class HomeCalendarViewModel {
             fetchTodoList(from: fromIndex, to: toIndex)
         }
     }
-    lazy var refreshTokenObservable = refreshTokenUseCase.execute().asObservable().share(replay: 1)
+
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
 
         guard let currentDate = try? self.currentDate.value() else { return }

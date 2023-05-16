@@ -42,4 +42,24 @@ class DefaultMemberCalendarRepository: MemberCalendarRepository {
             type: ResponseDTO<[TodoEntityResponseDTO]>.self
         )
     }
+    
+    func fetchMemberCategoryList(
+        token: String,
+        groupId: Int,
+        memberId: Int
+    ) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.myGroup+"/\(groupId)/members/\(memberId)/categories",
+            requestType: .get,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider
+            .requestCodable(
+                endPoint: endPoint,
+                type: ResponseDTO<[CategoryEntityResponseDTO]>.self
+            )
+    }
 }
