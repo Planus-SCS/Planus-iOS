@@ -115,14 +115,14 @@ class MemberProfileViewModel {
             })
             .disposed(by: bag)
         
-//        Observable.zip(
-//            categoryFetched.compactMap { $0 },
+        Observable.zip(
+            categoryFetched.compactMap { $0 },
             todoListFetchedInIndexRange.compactMap { $0 }
-        //)
+        )
         .withUnretained(self)
         .subscribe(onNext: { vm, arg in
-            let from = arg.0
-            let to = arg.1
+            let from = arg.1.0
+            let to = arg.1.1
             vm.needReloadSection.onNext(IndexSet(from..<to))
         })
         .disposed(by: bag)

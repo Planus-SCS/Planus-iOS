@@ -58,7 +58,21 @@ class HomeCalendarViewController: UIViewController {
         return item
     }()
     
-    var weekStackView = UIStackView()
+    var weekStackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.distribution = .fillEqually
+
+        let dayOfTheWeek = ["월", "화", "수", "목", "금", "토", "일"]
+        for i in 0..<7 {
+            let label = UILabel()
+            label.text = dayOfTheWeek[i]
+            label.textAlignment = .center
+            label.font = UIFont(name: "Pretendard-Regular", size: 12)
+            stackView.addArrangedSubview(label)
+        }
+        stackView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        return stackView
+    }()
     
     lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
@@ -358,19 +372,8 @@ extension HomeCalendarViewController {
     func configureView() {
         self.navigationItem.setLeftBarButton(groupListButton, animated: false)
         self.navigationItem.setRightBarButton(profileBarButton, animated: false)
-
-        self.view.addSubview(weekStackView)
-        weekStackView.distribution = .fillEqually
-
-        let dayOfTheWeek = ["월", "화", "수", "목", "금", "토", "일"]
-        for i in 0..<7 {
-            let label = UILabel()
-            label.text = dayOfTheWeek[i]
-            label.textAlignment = .center
-            label.font = UIFont(name: "Pretendard-Regular", size: 12)
-            self.weekStackView.addArrangedSubview(label)
-        }
         self.view.addSubview(collectionView)
+        self.view.addSubview(weekStackView)
     }
 }
 

@@ -264,7 +264,8 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         guard let todoItem else {
             return UICollectionViewCell()
         }
-        let category = Category(title: "dd", color: .blue)
+
+        guard let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
@@ -346,11 +347,11 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             readCategoryUseCase: readCateogryUseCase
         )
         
+        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
         if isOwner {
-            guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
             vm.setForEdit(todo: item, category: category)
         } else {
-            vm.setForOthers(todo: item, category: Category(title: "ㅇㅇ", color: CategoryColor.blue))
+            vm.setForOthers(todo: item, category: category)
         }
         vm.todoStartDay.onNext(viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)
