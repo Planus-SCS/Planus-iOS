@@ -17,7 +17,7 @@ class DefaultFetchMyGroupListUseCase: FetchMyGroupListUseCase {
     
     func execute(token: Token) -> Single<[MyGroupSummary]> {
         myGroupRepository
-            .fetchGroupList(token: token.accessToken)
+            .fetchGroupSummaryList(token: token.accessToken)
             .map {
                 $0.data.map {
                     $0.toDomain()

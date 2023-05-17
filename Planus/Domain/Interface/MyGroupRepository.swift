@@ -13,7 +13,8 @@ protocol MyGroupRepository {
     func fetchJoinApplyList(token: String) -> Single<ResponseDTO<[GroupJoinAppliedResponseDTO]>>
     func acceptApply(token: String, applyId: Int) -> Single<ResponseDTO<GroupJoinAcceptResponseDTO>>
     func denyApply(token: String, applyId: Int) -> Single<ResponseDTO<GroupJoinRejectResponseDTO>>
-    func fetchGroupList(token: String) -> Single<ResponseDTO<[MyGroupSummaryResponseDTO]>>
+    func fetchGroupNameList(token: String) -> Single<ResponseDTO<[GroupNameResponseDTO]>>
+    func fetchGroupSummaryList(token: String) -> Single<ResponseDTO<[MyGroupSummaryResponseDTO]>>
     func fetchMyGroupDetail(token: String, groupId: Int) -> Single<ResponseDTO<MyGroupDetailResponseDTO>>
     func fetchMyGroupMemberList(token: String, groupId: Int) -> Single<ResponseDTO<[MyMemberResponseDTO]>>
     func updateNotice(token: String, groupId: Int, notice: MyGroupNoticeEditRequestDTO) -> Single<ResponseDTO<MyGroupNoticeEditResponseDTO>>

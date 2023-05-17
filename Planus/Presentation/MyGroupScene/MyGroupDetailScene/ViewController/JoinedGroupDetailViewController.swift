@@ -81,8 +81,6 @@ class JoinedGroupDetailViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        self.headerView.titleImageView.setTowColorGradient(color1: .black.withAlphaComponent(0), color2: .black.withAlphaComponent(0.5), axis: .topToBottom)
     }
     
     func bind() {

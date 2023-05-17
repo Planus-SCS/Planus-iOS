@@ -73,7 +73,22 @@ class DefaultMyGroupRepository: MyGroupRepository {
         )
     }
     
-    func fetchGroupList(token: String) -> Single<ResponseDTO<[MyGroupSummaryResponseDTO]>> {
+    func fetchGroupNameList(token: String) -> Single<ResponseDTO<[GroupNameResponseDTO]>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.calendar + "/my-groups",
+            requestType: .get,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<[GroupNameResponseDTO]>.self
+        )
+    }
+    
+    func fetchGroupSummaryList(token: String) -> Single<ResponseDTO<[MyGroupSummaryResponseDTO]>> {
         let endPoint = APIEndPoint(
             url: URLPool.myGroup,
             requestType: .get,

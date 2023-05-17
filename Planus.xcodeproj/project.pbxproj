@@ -204,6 +204,10 @@
 		6A9199992A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199982A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift */; };
 		6A91999B2A1349A900108BF4 /* FetchMemberCategoryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A91999A2A1349A900108BF4 /* FetchMemberCategoryUseCase.swift */; };
 		6A9199BD2A14A3F600108BF4 /* UIView+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199BC2A14A3F600108BF4 /* UIView+Ext.swift */; };
+		6A9199BF2A14E5E200108BF4 /* GroupName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199BE2A14E5E200108BF4 /* GroupName.swift */; };
+		6A9199C12A14E5FD00108BF4 /* GroupNameDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199C02A14E5FD00108BF4 /* GroupNameDTO.swift */; };
+		6A9199C32A14E6A500108BF4 /* DefaultFetchMyGroupNameListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199C22A14E6A500108BF4 /* DefaultFetchMyGroupNameListUseCase.swift */; };
+		6A9199C52A14E71E00108BF4 /* FetchMyGroupNameListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199C42A14E71E00108BF4 /* FetchMyGroupNameListUseCase.swift */; };
 		6A95DFB529D4DD33009017D8 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB429D4DD33009017D8 /* SearchViewController.swift */; };
 		6A95DFB729D4DD40009017D8 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */; };
 		6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */; };
@@ -653,6 +657,10 @@
 		6A9199982A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMemberCategoryUseCase.swift; sourceTree = "<group>"; };
 		6A91999A2A1349A900108BF4 /* FetchMemberCategoryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMemberCategoryUseCase.swift; sourceTree = "<group>"; };
 		6A9199BC2A14A3F600108BF4 /* UIView+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Ext.swift"; sourceTree = "<group>"; };
+		6A9199BE2A14E5E200108BF4 /* GroupName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupName.swift; sourceTree = "<group>"; };
+		6A9199C02A14E5FD00108BF4 /* GroupNameDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNameDTO.swift; sourceTree = "<group>"; };
+		6A9199C22A14E6A500108BF4 /* DefaultFetchMyGroupNameListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMyGroupNameListUseCase.swift; sourceTree = "<group>"; };
+		6A9199C42A14E71E00108BF4 /* FetchMyGroupNameListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMyGroupNameListUseCase.swift; sourceTree = "<group>"; };
 		6A95DFB429D4DD33009017D8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		6A95DFB629D4DD40009017D8 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Ext.swift"; sourceTree = "<group>"; };
@@ -1669,6 +1677,7 @@
 				6A2744202A0E40D3008FB4F5 /* MyGroupDetail.swift */,
 				6A2744282A0E468E008FB4F5 /* MyMember.swift */,
 				6A27443C2A0E8806008FB4F5 /* GroupNotice.swift */,
+				6A9199BE2A14E5E200108BF4 /* GroupName.swift */,
 			);
 			path = Entity;
 			sourceTree = "<group>";
@@ -2112,6 +2121,7 @@
 				6A2744362A0E81AC008FB4F5 /* MyGroupNoticeEditDTO.swift */,
 				6A27443E2A0E9DA7008FB4F5 /* MyMemberKickOutDTO.swift */,
 				6A9199832A12461300108BF4 /* MyGroupInfoEditDTO.swift */,
+				6A9199C02A14E5FD00108BF4 /* GroupNameDTO.swift */,
 			);
 			path = DataMapping;
 			sourceTree = "<group>";
@@ -2310,6 +2320,7 @@
 				6A2744382A0E829A008FB4F5 /* DefaultUpdateNoticeUseCase.swift */,
 				6A2744422A0E9E4C008FB4F5 /* DefaultMemberKickOutUseCase.swift */,
 				6A9199852A1247B700108BF4 /* DefaultUpdateGroupInfoUseCase.swift */,
+				6A9199C22A14E6A500108BF4 /* DefaultFetchMyGroupNameListUseCase.swift */,
 			);
 			path = MyGroup;
 			sourceTree = "<group>";
@@ -2328,6 +2339,7 @@
 				6A27443A2A0E82FE008FB4F5 /* UpdateNoticeUseCase.swift */,
 				6A2744442A0E9EE0008FB4F5 /* MemberKickOutUseCase.swift */,
 				6A9199872A1248B000108BF4 /* UpdateGroupInfoUseCase.swift */,
+				6A9199C42A14E71E00108BF4 /* FetchMyGroupNameListUseCase.swift */,
 			);
 			path = MyGroup;
 			sourceTree = "<group>";
@@ -2635,6 +2647,7 @@
 			files = (
 				6A24F84429CB4AAE0000FD64 /* CategoryColor.swift in Sources */,
 				6A24F92129D22EC10000FD64 /* TodoDailyCalendarCell.swift in Sources */,
+				6A9199C32A14E6A500108BF4 /* DefaultFetchMyGroupNameListUseCase.swift in Sources */,
 				6A95DFC129D4E882009017D8 /* SearchResultCell.swift in Sources */,
 				6AC079842A0A8B26007ACDB8 /* DefaultFetchJoinApplyListUseCase.swift in Sources */,
 				6A27443B2A0E82FE008FB4F5 /* UpdateNoticeUseCase.swift in Sources */,
@@ -2786,6 +2799,7 @@
 				6A9199802A12111400108BF4 /* LoadableImageView.swift in Sources */,
 				6AC0791E2A08DE41007ACDB8 /* MyPageEditViewModel.swift in Sources */,
 				6A9199BD2A14A3F600108BF4 /* UIView+Ext.swift in Sources */,
+				6A9199BF2A14E5E200108BF4 /* GroupName.swift in Sources */,
 				6AC079242A08EC4A007ACDB8 /* UpdateProfileUseCase.swift in Sources */,
 				6A9AAB0B29F901CF002A6DAF /* TodoDTO.swift in Sources */,
 				6A2BB1C529E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift in Sources */,
@@ -2798,6 +2812,7 @@
 				6A9199992A13487C00108BF4 /* DefaultFetchMemberCategoryUseCase.swift in Sources */,
 				6A95DFD029D50053009017D8 /* UIImage+Ext.swift in Sources */,
 				6A27443D2A0E8806008FB4F5 /* GroupNotice.swift in Sources */,
+				6A9199C52A14E71E00108BF4 /* FetchMyGroupNameListUseCase.swift in Sources */,
 				6AC079202A08E381007ACDB8 /* ImageFile.swift in Sources */,
 				6A08ADD329C8C26F005947D2 /* NetworkError.swift in Sources */,
 				6AC079532A0A4D1C007ACDB8 /* DefaultMyGroupRepository.swift in Sources */,
@@ -2890,6 +2905,7 @@
 				6A987A7429DEED1600C27D09 /* TodoDailyViewController.swift in Sources */,
 				6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */,
 				6A1B3F1829D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift in Sources */,
+				6A9199C12A14E5FD00108BF4 /* GroupNameDTO.swift in Sources */,
 				6AC079A62A0B5FE7007ACDB8 /* MyGroupSummary.swift in Sources */,
 				6A24F85E29CB87D70000FD64 /* ReadTodoListUseCase.swift in Sources */,
 				6A987A2729DCFC5E00C27D09 /* JoinedGroupNoticeViewModel.swift in Sources */,
