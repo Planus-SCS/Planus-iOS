@@ -11,8 +11,10 @@ import RxSwift
 class HomeCalendarViewModel {
     
     var bag = DisposeBag()
-        
+    
     let calendar = Calendar.current
+    
+    var filteredGroupId = BehaviorSubject<Int?>(value: nil)
     
     // for todoList caching
     let cachingIndexDiff = 8
@@ -29,7 +31,7 @@ class HomeCalendarViewModel {
 
     var mainDayList = [[DayViewModel]]()
     
-    var groupDict = [Int: Group]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
+    var groupDict = [Int: GroupName]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
     var categoryDict = [Int: Category]()
     
     
@@ -72,6 +74,7 @@ class HomeCalendarViewModel {
         var didMultipleSelectItemsInRange: Observable<(Int, (Int, Int))>
         var didTappedTitleButton: Observable<Void>
         var didSelectMonth: Observable<Date>
+        var filterGroupWithId: Observable<Int>
     }
     
     struct Output {
@@ -86,6 +89,8 @@ class HomeCalendarViewModel {
         var needReloadData: Observable<Void>
         var profileImageFetched: Observable<Data?>
         var needWelcome: Observable<String?>
+        var groupListFetched: Observable<Void?>
+        var needFilterGroupWithId: Observable<Int?>
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -100,6 +105,8 @@ class HomeCalendarViewModel {
     let readCategoryListUseCase: ReadCategoryListUseCase
     let updateCategoryUseCase: UpdateCategoryUseCase
     let deleteCategoryUseCase: DeleteCategoryUseCase
+    
+    let fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
@@ -119,6 +126,7 @@ class HomeCalendarViewModel {
         readCategoryListUseCase: ReadCategoryListUseCase,
         updateCategoryUseCase: UpdateCategoryUseCase,
         deleteCategoryUseCase: DeleteCategoryUseCase,
+        fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase,
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
         readProfileUseCase: ReadProfileUseCase,
@@ -136,6 +144,7 @@ class HomeCalendarViewModel {
         self.readCategoryListUseCase = readCategoryListUseCase
         self.updateCategoryUseCase = updateCategoryUseCase
         self.deleteCategoryUseCase = deleteCategoryUseCase
+        self.fetchMyGroupNameListUseCase = fetchMyGroupNameListUseCase
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
         self.readProfileUseCase = readProfileUseCase
@@ -243,6 +252,10 @@ class HomeCalendarViewModel {
             })
             .disposed(by: bag)
         
+        input.filterGroupWithId
+            .bind(to: filteredGroupId)
+            .disposed(by: bag)
+        
         return Output(
             didLoadYYYYMM: currentYYYYMM.asObservable(),
             initialDayListFetchedInCenterIndex: initialDayListFetchedInCenterIndex.asObservable(),
@@ -254,7 +267,9 @@ class HomeCalendarViewModel {
             needReloadSectionSet: needReloadSectionSet.asObservable(),
             needReloadData: needReloadData.asObservable(),
             profileImageFetched: fetchedProfileImage.asObservable(),
-            needWelcome: needWelcome.asObservable()
+            needWelcome: needWelcome.asObservable(),
+            groupListFetched: initialReadGroup.asObservable(),
+            needFilterGroupWithId: filteredGroupId.asObservable()
         )
     }
     
@@ -467,6 +482,26 @@ class HomeCalendarViewModel {
                     self?.categoryDict[id] = $0
                 }
                 self?.initialReadCategory.onNext(())
+            })
+            .disposed(by: bag)
+        
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[GroupName]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchMyGroupNameListUseCase
+                    .execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] list in
+                list.forEach {
+                    self?.groupDict[$0.groupId] = $0
+                }
                 self?.initialReadGroup.onNext(())
             })
             .disposed(by: bag)
@@ -649,9 +684,16 @@ class HomeCalendarViewModel {
         let item = indexPath.item
         let section = indexPath.section
         
-        let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-            mainDayList[section][a].todoList.count < mainDayList[section][b].todoList.count
-        }) ?? Int()
+        var maxItem: Int
+        if let filteredGroupId = try? filteredGroupId.value() {
+            maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
+                mainDayList[section][a].todoList.filter { $0.groupId == filteredGroupId }.count < mainDayList[section][b].todoList.filter { $0.groupId == filteredGroupId }.count
+            }) ?? Int()
+        } else {
+            maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
+                mainDayList[section][a].todoList.count < mainDayList[section][b].todoList.count
+            }) ?? Int()
+        }
         
         return mainDayList[indexPath.section][maxItem]
     }

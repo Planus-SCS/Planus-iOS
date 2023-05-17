@@ -18,6 +18,7 @@ class HomeCalendarViewController: UIViewController {
     var isMultipleSelecting = PublishSubject<Bool>()
     var isMultipleSelected = PublishSubject<(Int, (Int, Int))>()
     var isSingleSelected = PublishSubject<(Int, Int)>()
+    var isGroupSelectedWithId = PublishSubject<Int?>()
     
     let scrolledTo = PublishSubject<ScrollDirection>()
     
@@ -33,18 +34,7 @@ class HomeCalendarViewController: UIViewController {
         return button
     }()
     
-    var groupListButton: UIBarButtonItem = {
-        let image = UIImage(named: "groupCalendarList")
-        
-        let all = UIAction(title: "모아 보기", handler: { _ in print("전체 캘린더 조회") })
-        let groupA = UIAction(title: "ios 스터디", handler: { _ in print("스터디 캘린더 조회") })
-        
-        let buttonMenu = UIMenu(options: .displayInline, children: [all, groupA])
-        
-        let item = UIBarButtonItem(image: image, menu: buttonMenu)
-        item.tintColor = UIColor(hex: 0x000000)
-        return item
-    }()
+    var groupListButton: UIBarButtonItem?
     
 //    var profileButton
     lazy var profileButton: ProfileButton = {
@@ -122,7 +112,8 @@ class HomeCalendarViewController: UIViewController {
             didSelectItem: isSingleSelected.asObservable(),
             didMultipleSelectItemsInRange: isMultipleSelected.asObservable(),
             didTappedTitleButton: yearMonthButton.rx.tap.asObservable(),
-            didSelectMonth: isMonthChanged.asObservable()
+            didSelectMonth: isMonthChanged.asObservable(),
+            filterGroupWithId: <#T##Observable<Int>#>
         )
         
         let output = viewModel.transform(input: input)
@@ -277,6 +268,56 @@ class HomeCalendarViewController: UIViewController {
                 vc.showToast(message: message, type: .normal)
             })
             .disposed(by: bag)
+        
+        output
+            .groupListFetched
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.setGroupButton()
+            })
+            .disposed(by: bag)
+        
+        output
+            .needFilterGroupWithId
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.collectionView.reloadData()
+            })
+            .disposed(by: bag)
+            
+    }
+    
+    func setGroupButton() {
+        let image = UIImage(named: "groupCalendarList")
+        var children = [UIMenuElement]()
+        let all = UIAction(title: "모아 보기", handler: { [weak self] _ in
+            self?.groupSelected(id: nil)
+        })
+        children.append(all)
+        if let groupDict = viewModel?.groupDict {
+            let groupList = Array(groupDict.values)
+            let sortedList = groupList.sorted(by: { $0.groupId < $1.groupId })
+            
+            sortedList.enumerated().forEach { index, groupName in
+                let group = UIAction(title: groupName.groupName, handler: { [weak self] _ in
+                    self?.groupSelected(id: groupName.groupId)
+                })
+                children.append(group)
+            }
+        }
+        
+        let buttonMenu = UIMenu(options: .displayInline, children: children)
+        
+        let item = UIBarButtonItem(image: image, menu: buttonMenu)
+        item.tintColor = UIColor(hex: 0x000000)
+        self.groupListButton = item
+    }
+    
+    func groupSelected(id: Int?) {
+        isGroupSelectedWithId.onNext(id)
     }
     
 
