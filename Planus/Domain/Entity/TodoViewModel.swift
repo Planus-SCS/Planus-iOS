@@ -13,7 +13,7 @@ struct TodoViewModel {
     var startDate: Date
     var endDate: Date
     var memo: String?
-    var group: Group?
+    var group: GroupName?
     var category: Category
     var startTime: String?
     
@@ -23,7 +23,7 @@ struct TodoViewModel {
         startDate: Date,
         endDate: Date,
         memo: String?,
-        group: Group?,
+        group: GroupName?,
         category: Category,
         startTime: String?
     ) {

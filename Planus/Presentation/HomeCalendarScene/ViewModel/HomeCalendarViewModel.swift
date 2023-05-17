@@ -74,7 +74,7 @@ class HomeCalendarViewModel {
         var didMultipleSelectItemsInRange: Observable<(Int, (Int, Int))>
         var didTappedTitleButton: Observable<Void>
         var didSelectMonth: Observable<Date>
-        var filterGroupWithId: Observable<Int>
+        var filterGroupWithId: Observable<Int?>
     }
     
     struct Output {

@@ -27,7 +27,7 @@ final class TodoDetailViewModel {
     var categoryColorList: [CategoryColor] = Array(CategoryColor.allCases[0..<CategoryColor.allCases.count-1])
     
     var categorys: [Category] = []
-    var groups: [Group] = []
+    var groups: [GroupName] = []
     
     var todoCreateState: TodoCreateState = .new
     var categoryCreatingState: CategoryCreateState = .new
@@ -37,7 +37,7 @@ final class TodoDetailViewModel {
     var todoStartDay = BehaviorSubject<Date?>(value: nil)
     var todoEndDay: Date?
     var todoTime = BehaviorSubject<String?>(value: nil)
-    var todoGroup = BehaviorSubject<Group?>(value: nil)
+    var todoGroup = BehaviorSubject<GroupName?>(value: nil)
     var todoMemo = BehaviorSubject<String?>(value: nil)
     
     var needDismiss = PublishSubject<Void>()
@@ -82,6 +82,7 @@ final class TodoDetailViewModel {
     
     struct Output {
         var categoryChanged: Observable<Category?>
+        var groupChanged: Observable<GroupName?>
         var todoSaveBtnEnabled: Observable<Bool>
         var newCategorySaveBtnEnabled: Observable<Bool>
         var newCategorySaved: Observable<Void>
@@ -170,10 +171,14 @@ final class TodoDetailViewModel {
         
         input
             .groupSelected
-            .compactMap { $0 }
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                vm.todoGroup.onNext(vm.groups[index])
+                if let index {
+                    vm.todoGroup.onNext(vm.groups[index])
+                } else {
+                    vm.todoGroup.onNext(nil)
+                }
+                
             })
             .disposed(by: bag)
         
@@ -231,16 +236,19 @@ final class TodoDetailViewModel {
                       let categoryId = (try? vm.todoCategory.value())?.id else { return }
                 let memo = try? vm.todoMemo.value()
                 let time = try? vm.todoTime.value()
+                let groupName = try? vm.todoGroup.value()
                 var todo = Todo(
                     id: nil,
                     title: title,
                     startDate: startDate,
                     endDate: vm.todoEndDay ?? startDate,
                     memo: memo,
-                    groupId: nil,
+                    groupId: groupName?.groupId,
                     categoryId: categoryId,
                     startTime: ((time?.isEmpty) ?? true) ? nil : time
                 )
+                
+                print(todo)
                 
                 switch vm.todoCreateState {
                 case .new:
@@ -352,6 +360,7 @@ final class TodoDetailViewModel {
         
         return Output(
             categoryChanged: todoCategory.asObservable(),
+            groupChanged: todoGroup.asObservable(),
             todoSaveBtnEnabled: todoSaveBtnEnabled.asObservable(),
             newCategorySaveBtnEnabled: newCategorySaveBtnEnabled.asObservable(),
             newCategorySaved: needReloadCategoryList.asObservable(),
@@ -364,18 +373,25 @@ final class TodoDetailViewModel {
         )
     }
     
-    func setForEdit(todo: Todo, category: Category) {
+    func setGroup(groupList: [GroupName]) {
+        self.groups = groupList
+    }
+    
+    func setForEdit(todo: Todo, category: Category, groupName: GroupName?) {
         guard let id = todo.id else { return }
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = .current
         dateFormatter.dateFormat = "yyyy.MM.dd"
         self.todoTitle.onNext(todo.title)
         self.todoCategory.onNext(category)
+        self.todoGroup.onNext(groupName)
         self.todoStartDay.onNext(todo.startDate)
         // FIXME: endDate는 설정 안함 아직
         self.todoTime.onNext(todo.startTime)
         self.todoMemo.onNext(todo.memo)
         self.todoCreateState = .edit(todo)
+        
+        print(todo)
     }
     
     func setForOthers(todo: Todo, category: Category) {

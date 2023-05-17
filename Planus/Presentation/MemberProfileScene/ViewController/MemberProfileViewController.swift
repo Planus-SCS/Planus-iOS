@@ -158,7 +158,8 @@ class MemberProfileViewController: UIViewController {
                 viewModel.setTodoList(
                     todoList: todoList,
                     categoryDict: categoryDict,
-                    groupDict: [:]
+                    groupDict: [:],
+                    filteringGroupId: nil
                 )
                 viewModel.setOwnership(isOwner: false)
 

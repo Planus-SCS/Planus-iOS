@@ -17,7 +17,9 @@ class TodoDailyViewModel {
     var unscheduledTodoList: [Todo]?
     
     var categoryDict: [Int: Category] = [:]
-    var groupDict: [Int: Group] = [:]
+    var groupDict: [Int: GroupName] = [:]
+    
+    var filteringGroupId: Int?
 
     var currentDate: Date?
     var currentDateText: String?
@@ -89,8 +91,9 @@ class TodoDailyViewModel {
         self.currentDateText = dateFormatter.string(from: currentDate)
     }
     
-    func setTodoList(todoList: [Todo], categoryDict: [Int: Category], groupDict: [Int: Group]) { // 여기서도 정렬해서 집어넣어야함..!
+    func setTodoList(todoList: [Todo], categoryDict: [Int: Category], groupDict: [Int: GroupName], filteringGroupId: Int?) { // 여기서도 정렬해서 집어넣어야함..!
         self.categoryDict = categoryDict
+        self.groupDict = groupDict
         
         var scheduled = [Todo]()
         var unscheduled = [Todo]()
@@ -103,10 +106,15 @@ class TodoDailyViewModel {
         }
         scheduled = scheduled.sorted { $0.startTime ?? String() < $1.startTime ?? String() }
         unscheduled = unscheduled.sorted { $0.id ?? Int() < $1.id ?? Int() }
-        
+        // 아에 여기서부터 필터링을 갈겨서 넣어야함. 그게 아니면 계속 셀이 deque될때마다 다시 필터링하고 계산을 하게됨..! -> 너무무겁다
+        if let filteringGroupId {
+            scheduled = scheduled.filter { $0.groupId == filteringGroupId }
+            unscheduled = unscheduled.filter { $0.groupId == filteringGroupId }
+        }
         self.scheduledTodoList = scheduled
         self.unscheduledTodoList = unscheduled
         
+        self.filteringGroupId = filteringGroupId
     }
     
     func bindCategoryUseCase() {
@@ -144,8 +152,14 @@ class TodoDailyViewModel {
         createTodoUseCase
             .didCreateTodo
             .withUnretained(self)
-            .subscribe(onNext: { vm, todo in
+            .subscribe(onNext: { vm, todo in //무조건 추가하면 안된다.. 그룹보고 필터그룹이랑 다르면 추가 x
                 guard todo.startDate == vm.currentDate else { return }
+                
+                if let filteringGroupId = vm.filteringGroupId,
+                   todo.groupId == filteringGroupId {
+                    return
+                }
+                
                 var section: Int
                 var item: Int
                 if let _ = todo.startTime {
@@ -164,7 +178,7 @@ class TodoDailyViewModel {
         updateTodoUseCase
             .didUpdateTodo
             .withUnretained(self)
-            .subscribe(onNext: { vm, todoUpdate in
+            .subscribe(onNext: { vm, todoUpdate in //무조건 그대로 두면 안된다,,, 그룹을 확인해서 빼줘야한다..!
                 let todoAfterUpdate = todoUpdate.after
                 let todoBeforeUpdate = todoUpdate.before
                 
@@ -183,7 +197,24 @@ class TodoDailyViewModel {
                         vm.unscheduledTodoList?.remove(at: item)
                     }
                     vm.needDeleteItem.onNext(IndexPath(item: item, section: section))
-                } else {
+                }
+                else if let filteringGroupId = vm.filteringGroupId,
+                        todoAfterUpdate.groupId != filteringGroupId {
+                    var section: Int
+                    var item: Int
+                    
+                    if let _ = todoBeforeUpdate.startTime {
+                        section = 0
+                        item = vm.scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id }) ?? 0
+                        vm.scheduledTodoList?.remove(at: item)
+                    } else {
+                        section = 1
+                        item = vm.unscheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id }) ?? 0
+                        vm.unscheduledTodoList?.remove(at: item)
+                    }
+                    vm.needDeleteItem.onNext(IndexPath(item: item, section: section))
+                }
+                else {
                     switch (todoBeforeUpdate.startTime, todoAfterUpdate.startTime) {
                     case (nil, nil): //이건 그냥 그대로 바꿔주면됨!
                         let section = 1

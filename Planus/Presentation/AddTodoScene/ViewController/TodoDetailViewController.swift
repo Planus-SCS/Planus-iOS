@@ -243,6 +243,18 @@ class TodoDetailViewController: UIViewController {
             .disposed(by: bag)
         
         output
+            .groupChanged
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, groupName in
+                vc.addTodoView.groupSelectionField.text = groupName?.groupName ?? ""
+            })
+            .disposed(by: bag)
+        
+        addTodoView.groupSelectionField.isEnabled = true
+        addTodoView.groupSelectionField.isUserInteractionEnabled = true
+        
+        output
             .todoSaveBtnEnabled
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
@@ -335,7 +347,6 @@ class TodoDetailViewController: UIViewController {
         }
         addTodoView.titleField.text = try? viewModel.todoTitle.value()
         dayPickerViewController.setDate(date: startDate)
-//        addTodoView.groupSelectionField.text = (try? viewModel.todoGroup.value())?.title
         addTodoView.memoTextView.text = try? viewModel.todoMemo.value()
         addTodoView.isMemoFilled = (try? viewModel.todoMemo.value()) != nil
         addTodoView.memoTextView.textColor = ((try? viewModel.todoMemo.value()) != nil) ? .black : UIColor(hex: 0xBFC7D7)
@@ -580,17 +591,23 @@ extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        viewModel?.groups.count ?? Int()
+        return (viewModel?.groups.count ?? 0) + 1
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        viewModel?.groups[row].title
+        if row == 0 {
+            return "그룹 선택"
+        }
+        return viewModel?.groups[row-1].groupName
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        addTodoView.groupSelectionField.text = viewModel?.groups[row].title
-        addTodoView.groupSelectionField.textColor = .black
-        didSelectedGroupAt.onNext(row)
+        if row == 0 {
+            addTodoView.groupSelectionField.text = nil
+            return
+        }
+        print(row-1)
+        didSelectedGroupAt.onNext(row-1)
     }
 }
 

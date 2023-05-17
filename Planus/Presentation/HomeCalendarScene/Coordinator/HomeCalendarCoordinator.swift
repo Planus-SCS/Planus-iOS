@@ -34,7 +34,7 @@ class HomeCalendarCoordinator: Coordinator {
         let tokenRepository = DefaultTokenRepository(apiProvider: apiProvider, keyChainManager: keyChain)
         let categoryRepository = DefaultCategoryRepository(apiProvider: apiProvider)
         let profileRepository = DefaultProfileRepository(apiProvider: apiProvider)
-        
+        let myGroupRepository = DefaultMyGroupRepository(apiProvider: apiProvider)
         let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
         let readTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: todoRepository)
         let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
@@ -50,6 +50,7 @@ class HomeCalendarCoordinator: Coordinator {
         let readProfileUseCase = DefaultReadProfileUseCase(profileRepository: profileRepository)
         let updateProfileUseCase = DefaultUpdateProfileUseCase.shared
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
+        let fetchMyGroupNameListUseCase = DefaultFetchMyGroupNameListUseCase(myGroupRepo: myGroupRepository)
         let vm = HomeCalendarViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
@@ -61,6 +62,7 @@ class HomeCalendarCoordinator: Coordinator {
             readCategoryListUseCase: readCategoryUseCase,
             updateCategoryUseCase: updateCategoryUseCase,
             deleteCategoryUseCase: deleteCategoryUseCase,
+            fetchMyGroupNameListUseCase: fetchMyGroupNameListUseCase,
             createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
             dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
             readProfileUseCase: readProfileUseCase,

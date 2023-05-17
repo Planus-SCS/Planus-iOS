@@ -185,6 +185,9 @@ class TodoDailyViewController: UIViewController {
             deleteCategoryUseCase: deleteCategoryUseCase,
             readCategoryUseCase: readCateogryUseCase
         )
+        guard let groupDict = viewModel?.groupDict else { return }
+        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+        vm.setGroup(groupList: groupList)
         vm.todoStartDay.onNext(viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
@@ -244,18 +247,14 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         switch indexPath.section {
         case 0:
             if viewModel?.scheduledTodoList?.count == 0 {
-                print("mock")
                 return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
             } else {
-                print("real")
                 todoItem = viewModel?.scheduledTodoList?[indexPath.item]
             }
         case 1:
             if viewModel?.unscheduledTodoList?.count == 0 {
-                print("mock")
                 return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
             } else {
-                print("real")
                 todoItem = viewModel?.unscheduledTodoList?[indexPath.item]
             }
         default:
@@ -265,6 +264,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             return UICollectionViewCell()
         }
 
+        // FIXME: 이부분은 api 만들어지면 안쓸 부분임 고치자!
         guard let isOwner = viewModel?.isOwner else { return UICollectionViewCell() }
         if isOwner {
             guard let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
@@ -311,16 +311,24 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         print("a")
         switch indexPath.section {
         case 0:
-            if viewModel?.scheduledTodoList?.count == 0 {
+            var filteredScheduledTodoList = viewModel?.scheduledTodoList
+            if let groupId = viewModel?.filteringGroupId {
+                filteredScheduledTodoList = filteredScheduledTodoList?.filter { $0.groupId == groupId }
+            }
+            if filteredScheduledTodoList?.count == 0 {
                 return false
             } else {
-                item = viewModel?.scheduledTodoList?[indexPath.item]
+                item = filteredScheduledTodoList?[indexPath.item]
             }
         case 1:
-            if viewModel?.unscheduledTodoList?.count == 0 {
+            var filteredUnscheduledTodoList = viewModel?.unscheduledTodoList
+            if let groupId = viewModel?.filteringGroupId {
+                filteredUnscheduledTodoList = filteredUnscheduledTodoList?.filter { $0.groupId == groupId }
+            }
+            if filteredUnscheduledTodoList?.count == 0 {
                 return false
             } else {
-                item = viewModel?.unscheduledTodoList?[indexPath.item]
+                item = filteredUnscheduledTodoList?[indexPath.item]
             }
         default:
             return false
@@ -358,10 +366,17 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             readCategoryUseCase: readCateogryUseCase
         )
         
-//        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+        guard let groupDict = viewModel?.groupDict else { return false }
+        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+        vm.setGroup(groupList: groupList)
+        
         if isOwner {
             guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
-            vm.setForEdit(todo: item, category: category)
+            var groupName: GroupName?
+            if let groupId = item.groupId {
+                groupName = groupDict[groupId]
+            }
+            vm.setForEdit(todo: item, category: category, groupName: groupName)
         } else {
             vm.setForOthers(todo: item, category: Category(title: "kk", color: .blue))
         }

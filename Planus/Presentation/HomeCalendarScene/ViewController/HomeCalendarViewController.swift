@@ -113,7 +113,7 @@ class HomeCalendarViewController: UIViewController {
             didMultipleSelectItemsInRange: isMultipleSelected.asObservable(),
             didTappedTitleButton: yearMonthButton.rx.tap.asObservable(),
             didSelectMonth: isMonthChanged.asObservable(),
-            filterGroupWithId: <#T##Observable<Int>#>
+            filterGroupWithId: isGroupSelectedWithId.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -179,8 +179,9 @@ class HomeCalendarViewController: UIViewController {
                 viewModel.setTodoList(
                     todoList: dayViewModel.todoList ?? [],
                     categoryDict: vc.viewModel?.categoryDict ?? [:],
-                    groupDict: vc.viewModel?.groupDict ?? [:]
-                )
+                    groupDict: vc.viewModel?.groupDict ?? [:],
+                    filteringGroupId: try? vc.viewModel?.filteredGroupId.value()
+                ) //투두리스트를 필터링해야함..! 아니 걍 다 올리고 저짝에서 필터링하자 그게 편하다..!
                 viewModel.setOwnership(isOwner: true)
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)
@@ -275,6 +276,7 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                print("fetched!!!")
                 vc.setGroupButton()
             })
             .disposed(by: bag)
@@ -313,6 +315,7 @@ class HomeCalendarViewController: UIViewController {
         
         let item = UIBarButtonItem(image: image, menu: buttonMenu)
         item.tintColor = UIColor(hex: 0x000000)
+        navigationItem.setLeftBarButton(item, animated: true)
         self.groupListButton = item
     }
     
