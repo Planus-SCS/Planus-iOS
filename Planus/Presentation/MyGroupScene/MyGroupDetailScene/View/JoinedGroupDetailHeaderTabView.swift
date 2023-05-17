@@ -22,7 +22,7 @@ class JoinedGroupDetailHeaderTabView: UIView {
         let view = UIView(frame: .zero)
         view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
         view.layer.shadowOpacity = 1
-        view.layer.shadowOffset = CGSize(width: 0, height: 1)
+        view.layer.shadowOffset = CGSize(width: 0, height: 4)
         view.layer.shadowRadius = 2
         view.layer.masksToBounds = false
         return view

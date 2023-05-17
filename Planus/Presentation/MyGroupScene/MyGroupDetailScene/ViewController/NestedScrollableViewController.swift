@@ -8,9 +8,9 @@
 import UIKit
 import SnapKit
 
-var joinedGroupTopViewInitialHeight : CGFloat = 220
+var joinedGroupTopViewInitialHeight : CGFloat = 220 + UIApplication.shared.statusBarFrame.size.height + 44
 
-let joinedGroupTopViewFinalHeight : CGFloat = 40 //navigation hieght
+let joinedGroupTopViewFinalHeight : CGFloat = 40 + UIApplication.shared.statusBarFrame.size.height + 44 //navigation hieght
 
 let joinedGroupTopViewHeightConstraintRange = joinedGroupTopViewFinalHeight..<joinedGroupTopViewInitialHeight
 

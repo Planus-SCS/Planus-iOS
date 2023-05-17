@@ -28,12 +28,11 @@ class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
         return label
     }()
     
-    var editButton: UIButton = {
-        let image = UIImage(named: "editBlack") ?? UIImage()
-        let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
-        button.setImage(image, for: .normal)
-        button.addTarget(self, action: #selector(editBtnTapped), for: .touchUpInside)
-        return button
+    var stackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .vertical
+        stackView.spacing = 3
+        return stackView
     }()
     
     override init(frame: CGRect) {
@@ -48,40 +47,21 @@ class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
     
     func configureView() {
         self.backgroundColor = UIColor(hex: 0xF5F5FB)
-
-        self.addSubview(titleLabel)
-        self.addSubview(descLabel)
-        self.addSubview(editButton)
+        self.addSubview(stackView)
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(descLabel)
     }
     
     func configureLayout() {
-        titleLabel.snp.makeConstraints {
-            $0.leading.equalToSuperview().inset(24)
-            $0.top.equalToSuperview().inset(8)
-        }
-        
-        descLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(3)
-            $0.leading.equalToSuperview().inset(24)
-        }
-        
-        editButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(24)
-            $0.centerY.equalTo(descLabel)
+        stackView.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(24)
+            $0.centerY.equalToSuperview()
         }
     }
     
-    func fill(title: String, description: String, isCaptin: Bool) {
+    func fill(title: String, description: String) {
         self.titleLabel.text = title
         self.descLabel.text = description
-        editButton.isHidden = !isCaptin
     }
-    
-    func fill(closure: @escaping () -> Void) {
-        self.buttonActionClosure = closure
-    }
-    
-    @objc func editBtnTapped(_ sender: UIButton) {
-        buttonActionClosure?()
-    }
+
 }

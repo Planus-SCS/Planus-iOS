@@ -76,6 +76,13 @@ class JoinedGroupDetailViewController: UIViewController {
                 vc.navigationItem.title = title
             })
             .disposed(by: bag)
+
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        self.headerView.titleImageView.setTowColorGradient(color1: .black.withAlphaComponent(0), color2: .black.withAlphaComponent(0.5), axis: .topToBottom)
     }
     
     func bind() {
@@ -296,7 +303,7 @@ class JoinedGroupDetailViewController: UIViewController {
     }
     
     func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.backgroundColor = .white
 
         self.view.addSubview(headerView)
         self.view.addSubview(bottomView)
@@ -362,8 +369,8 @@ class JoinedGroupDetailViewController: UIViewController {
     
     func configureLayout() {
         headerView.snp.makeConstraints {
-            $0.top.leading.trailing.equalTo(self.view.safeAreaLayoutGuide)
-            $0.height.equalTo(220)
+            $0.top.leading.trailing.equalToSuperview()
+            $0.height.equalTo(220 + UIApplication.shared.statusBarFrame.size.height + 44)
         }
         
         headerTabView.snp.makeConstraints {
@@ -436,12 +443,14 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
     func innerTableViewDidScroll(withDistance scrollDistance: CGFloat) {
         guard let headerViewHeightConstraint else { return }
         headerViewHeightConstraint.constant -= scrollDistance
-
+        headerView.alpha = (headerViewHeightConstraint.constant - joinedGroupTopViewFinalHeight) / (joinedGroupTopViewInitialHeight - joinedGroupTopViewFinalHeight)
         if headerViewHeightConstraint.constant < joinedGroupTopViewFinalHeight {
             headerViewHeightConstraint.constant = joinedGroupTopViewFinalHeight
         } else if headerViewHeightConstraint.constant >= joinedGroupTopViewInitialHeight {
             headerViewHeightConstraint.constant = joinedGroupTopViewInitialHeight
         }
+        
+        
     }
 //
     func innerTableViewScrollEnded(withScrollDirection scrollDirection: DragDirection) {
@@ -479,10 +488,10 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
 
         headerViewHeightConstraint.constant = joinedGroupTopViewInitialHeight
 
-        UIView.animate(withDuration: TimeInterval(time), animations: {
-
-            self.view.layoutIfNeeded()
-        })
+//        UIView.animate(withDuration: TimeInterval(time), animations: {
+//
+//            self.view.layoutIfNeeded()
+//        })
     }
 
     func scrollToFinalView() {
@@ -501,9 +510,9 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
 
         headerViewHeightConstraint.constant = joinedGroupTopViewFinalHeight
 
-        UIView.animate(withDuration: TimeInterval(time), animations: {
-
-            self.view.layoutIfNeeded()
-        })
+//        UIView.animate(withDuration: TimeInterval(time), animations: {
+//
+//            self.view.layoutIfNeeded()
+//        })
     }
 }

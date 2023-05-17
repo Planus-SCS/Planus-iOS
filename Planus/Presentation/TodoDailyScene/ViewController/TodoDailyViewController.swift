@@ -265,12 +265,23 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             return UICollectionViewCell()
         }
 
-        guard let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
-            return UICollectionViewCell()
+        guard let isOwner = viewModel?.isOwner else { return UICollectionViewCell() }
+        if isOwner {
+            guard let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
+                return UICollectionViewCell()
+            }
+            cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
+            return cell
+        } else {
+            let category = Category(title: "kk", color: .blue)
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
+                return UICollectionViewCell()
+            }
+            cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
+            return cell
         }
-        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
-        return cell
+
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -347,11 +358,12 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             readCategoryUseCase: readCateogryUseCase
         )
         
-        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+//        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
         if isOwner {
+            guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
             vm.setForEdit(todo: item, category: category)
         } else {
-            vm.setForOthers(todo: item, category: category)
+            vm.setForOthers(todo: item, category: Category(title: "kk", color: .blue))
         }
         vm.todoStartDay.onNext(viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)

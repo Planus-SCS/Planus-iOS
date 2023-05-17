@@ -136,9 +136,29 @@ class GroupIntroduceViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+//        self.navigationItem.setLeftBarButton(backButton, animated: false)
+//        self.navigationItem.setRightBarButton(shareButton, animated: false)
+//        self.navigationItem.title = "dkssddd"
+        navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationItem.setRightBarButton(shareButton, animated: false)
         
-        self.navigationItem.setLeftBarButton(backButton, animated: false)
-        self.navigationItem.setRightBarButton(shareButton, animated: false)
+        let initialAppearance = UINavigationBarAppearance()
+        let scrollingAppearance = UINavigationBarAppearance()
+        scrollingAppearance.configureWithOpaqueBackground()
+        scrollingAppearance.backgroundColor = UIColor(hex: 0xF5F5FB)
+        let initialBarButtonAppearance = UIBarButtonItemAppearance()
+        initialBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white]
+        initialAppearance.configureWithTransparentBackground()
+        initialAppearance.buttonAppearance = initialBarButtonAppearance
+        
+        let scrollingBarButtonAppearance = UIBarButtonItemAppearance()
+        scrollingBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.black]
+        scrollingAppearance.buttonAppearance = scrollingBarButtonAppearance
+        self.navigationItem.standardAppearance = scrollingAppearance
+        self.navigationItem.scrollEdgeAppearance = initialAppearance
+        
+        self.navigationController?.navigationBar.standardAppearance = scrollingAppearance
+        self.navigationController?.navigationBar.scrollEdgeAppearance = initialAppearance
     }
     
     var co: JoinedGroupDetailCoordinator?
@@ -223,8 +243,8 @@ class GroupIntroduceViewController: UIViewController {
         }
         
         collectionView.snp.makeConstraints {
-            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.bottom.equalToSuperview()
+//            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
+            $0.top.leading.trailing.bottom.equalToSuperview()
         }
     }
     
@@ -312,7 +332,7 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
             return view
         case .notice, .member:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
-            view.fill(title: sectionKind.title, description: sectionKind.desc, isCaptin: false)
+            view.fill(title: sectionKind.title, description: sectionKind.desc)
             return view
         }
     }
@@ -355,7 +375,7 @@ extension GroupIntroduceViewController {
         group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = .init(top: 0, leading: 0, bottom: 50, trailing: 0)
+        section.contentInsets = .init(top: 0, leading: 0, bottom: 30, trailing: 0)
         let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                        heightDimension: .absolute(70))
         

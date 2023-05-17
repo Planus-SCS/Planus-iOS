@@ -15,9 +15,9 @@ enum JoinedGroupNoticeSectionKind: Int {
     var title: String {
         switch self {
         case .notice:
-            return " "
+            return "공지사항"
         case .member:
-            return " "
+            return "그룹멤버"
         }
     }
     
@@ -58,7 +58,7 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
         cv.dataSource = self
         cv.delegate = self
         cv.alwaysBounceVertical = true
-        cv.refreshControl = refreshControl
+//        cv.refreshControl = refreshControl
         return cv
     }()
     
@@ -193,18 +193,7 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
         guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView,
               let sectionKind = JoinedGroupNoticeSectionKind(rawValue: indexPath.section)
         else { return UICollectionReusableView() }
-        
-        view.fill(title: sectionKind.title, description: sectionKind.desc, isCaptin: false)
-        switch sectionKind {
-        case .notice:
-            view.fill { [weak self] in
-                self?.noticeEditButtonTapped.onNext(())
-            }
-        case .member:
-            view.fill { [weak self] in
-                self?.memberEditButtonTapped.onNext(())
-            }
-        }
+        view.fill(title: sectionKind.title, description: sectionKind.desc)
         return view
     }
     
@@ -258,14 +247,14 @@ extension JoinedGroupNoticeViewController {
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = .init(top: 10, leading: 0, bottom: 30, trailing: 0)
         let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                       heightDimension: .absolute(60))
+                                                       heightDimension: .absolute(80))
         
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
             elementKind: Self.headerElementKind,
             alignment: .top
         )
-
+        
         section.boundarySupplementaryItems = [sectionHeader]
 
         return section
@@ -284,7 +273,7 @@ extension JoinedGroupNoticeViewController {
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
         let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                       heightDimension: .absolute(60))
+                                                       heightDimension: .absolute(80))
         
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,

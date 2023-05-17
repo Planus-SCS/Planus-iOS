@@ -9,11 +9,11 @@ import UIKit
 import SnapKit
 
 class JoinedGroupDetailHeaderView: UIView {
-    
-    var titleImageView: UIImageView = {
+    lazy var titleImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
+        imageView.clipsToBounds = false
+        imageView.setTowColorGradient(color1: .black.withAlphaComponent(0), color2: .black.withAlphaComponent(0.5), axis: .topToBottom)
         return imageView
     }()
     
