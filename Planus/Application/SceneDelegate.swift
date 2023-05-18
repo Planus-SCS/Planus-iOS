@@ -21,23 +21,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         guard let window = window else { return }
-//        let vm = SearchViewModel()
-        
-//        let useCase1 = DefaultCreateMonthlyCalendarUseCase()
-//        let useCase2 = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
-//        let useCase3 = DefaultDateFormatYYYYMMUseCase()
-//
-//        let vm = MyPageMainViewModel()
-//        let vc = GroupCreateLoadViewController(nibName: nil, bundle: nil)
-//        let navi = UINavigationController(rootViewController: vc)
-//        window.rootViewController = navi
-//
-//        window.makeKeyAndVisible()
+
+        let vc = GroupCreateViewController(nibName: nil, bundle: nil)
+        let navi = UINavigationController(rootViewController: vc)
+        window.rootViewController = navi
+
+        window.makeKeyAndVisible()
 //
 
-        self.appCoordinator = AppCoordinator(window: window)
-        self.appCoordinator?.start()
-//
+//        self.appCoordinator = AppCoordinator(window: window)
+//        self.appCoordinator?.start()
+////
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

@@ -29,6 +29,7 @@ class GroupCreateViewController: UIViewController {
     
     var infoView: GroupCreateInfoView = .init(frame: .zero)
     var tagView: GroupCreateTagView = .init(frame: .zero)
+    var tagTestView: GroupCreateTagViewTest = .init(frame: .zero)
     var limitView: GroupCreateLimitView = .init(frame: .zero)
     var createButtonView: WideButtonView = .init(frame: .zero)
     
@@ -232,6 +233,7 @@ class GroupCreateViewController: UIViewController {
         scrollView.addSubview(contentStackView)
         contentStackView.addArrangedSubview(infoView)
         contentStackView.addArrangedSubview(tagView)
+        contentStackView.addArrangedSubview(tagTestView)
         contentStackView.addArrangedSubview(limitView)
         contentStackView.addArrangedSubview(createButtonView)
         

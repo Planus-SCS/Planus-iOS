@@ -230,11 +230,3 @@ class GroupCreateTagView: UIView {
         return label
     }
 }
-
-class GroupCreateTagViewTest: UIView {
-//    var tagCollectionView: UICollectionView = {
-//        let view = UICollectionView(frame: .zero, collectionViewLayout: <#T##UICollectionViewLayout#>)
-//        return view
-//    }()
-}
-

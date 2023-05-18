@@ -8,9 +8,10 @@
 import UIKit
 
 class GroupCreateTagCell: UICollectionViewCell {
+    static let reuseIdentifier = "group-create-tag-cell"
     var label: UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont(name: "Pretendard-Regular", size: 14)
+        label.font = UIFont(name: "Pretendard-Bold", size: 14)
         label.textColor = .white
         return label
     }()
@@ -34,6 +35,10 @@ class GroupCreateTagCell: UICollectionViewCell {
     }
     
     func configureView() {
+        self.backgroundColor = UIColor(hex: 0x6495F4)
+        self.layer.cornerRadius = 10
+        self.layer.cornerCurve = .continuous
+        
         self.addSubview(label)
         self.addSubview(removeButton)
     }
