@@ -205,7 +205,7 @@ class HomeCalendarViewController: UIViewController {
                 let vc = MonthPickerViewController(firstYear: first, lastYear: last, currentDate: current) { [weak self] date in
                     self?.isMonthChanged.onNext(date)
                 }
-                // 여기서 앞뒤로 범위까지 전달할 수 있어야함. 즉, 저걸 열면 현재날짜에서 월별로 앞뒤로를 만들어서 한번에 데이터소스에 집어넣는게 맞을듯하다..!아이구야,,,
+
                 vc.preferredContentSize = CGSize(width: 320, height: 290)
                 vc.modalPresentationStyle = .popover
                 let popover: UIPopoverPresentationController = vc.popoverPresentationController!

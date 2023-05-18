@@ -84,6 +84,12 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
         bind()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        noticeDelegate?.refreshRequested(self)
+    }
+    
     func bind() {
         guard let viewModel else { return }
         

@@ -57,6 +57,11 @@ class HomeCalendarViewModel {
     var needReloadData = PublishSubject<Void>()
     var needWelcome = BehaviorSubject<String?>(value: nil)
     
+    lazy var categoryAndGroupZip = Observable.combineLatest(
+        initialReadGroup.compactMap { $0 },
+        initialReadCategory.compactMap { $0 }
+    )
+    
     var profile: Profile?
     var fetchedProfileImage = BehaviorSubject<Data?>(value: nil)
     
@@ -107,6 +112,7 @@ class HomeCalendarViewModel {
     let deleteCategoryUseCase: DeleteCategoryUseCase
     
     let fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase
+    let groupCreateUseCase: GroupCreateUseCase
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
@@ -127,6 +133,7 @@ class HomeCalendarViewModel {
         updateCategoryUseCase: UpdateCategoryUseCase,
         deleteCategoryUseCase: DeleteCategoryUseCase,
         fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase,
+        groupCreateUseCase: GroupCreateUseCase,
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
         readProfileUseCase: ReadProfileUseCase,
@@ -145,6 +152,7 @@ class HomeCalendarViewModel {
         self.updateCategoryUseCase = updateCategoryUseCase
         self.deleteCategoryUseCase = deleteCategoryUseCase
         self.fetchMyGroupNameListUseCase = fetchMyGroupNameListUseCase
+        self.groupCreateUseCase = groupCreateUseCase
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
         self.readProfileUseCase = readProfileUseCase
@@ -166,18 +174,17 @@ class HomeCalendarViewModel {
             .take(1)
             .withUnretained(self)
             .subscribe(onNext: { vm, date in
-                vm.fetchCategoryAndGroup()
+                vm.fetchCategory()
+                vm.fetchGroup()
                 vm.fetchProfile()
                 vm.bindCategoryUseCase()
                 vm.bindTodoUseCase(initialDate: date)
-                vm.initCalendar(date: date)
                 vm.bindProfileUseCase()
-                Observable.combineLatest(
-                    vm.initialReadGroup.compactMap { $0 },
-                    vm.initialReadCategory.compactMap { $0 }
-                )
+                vm.bindGroupUseCase()
+                vm.initCalendar(date: date)
+                vm.categoryAndGroupZip
                 .subscribe(onNext: { _ in
-                    vm.initTodoList(date: date)
+                    vm.initTodoList()
                 })
                 .disposed(by: vm.bag)
             })
@@ -248,7 +255,7 @@ class HomeCalendarViewModel {
                 vm.currentIndex = index
                 vm.currentDate.onNext(date)
                 vm.didSelectMonth.onNext(index)
-                vm.initTodoList(date: date)
+                vm.initTodoList()
             })
             .disposed(by: bag)
         
@@ -283,11 +290,28 @@ class HomeCalendarViewModel {
             return createMonthlyCalendarUseCase.execute(date: calendarDate)
         }
         currentIndex = -endOfFirstIndex
-        latestPrevCacheRequestedIndex = currentIndex
-        latestFollowingCacheRequestedIndex = currentIndex
+//        latestPrevCacheRequestedIndex = currentIndex
+//        latestFollowingCacheRequestedIndex = currentIndex
         
         initialDayListFetchedInCenterIndex.onNext(currentIndex)
         // 여기서 바인딩 할것인가?
+    }
+    
+    func bindGroupUseCase() {
+        groupCreateUseCase
+            .didCreateGroup
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchGroup()
+                vm.fetchCategory()
+                
+                vm.categoryAndGroupZip
+                    .subscribe(onNext: { _ in
+                        vm.initTodoList()
+                    })
+                    .disposed(by: vm.bag)
+            })
+            .disposed(by: bag)
     }
     
     func bindProfileUseCase() {
@@ -328,16 +352,6 @@ class HomeCalendarViewModel {
                 vm.needReloadData.onNext(())
             })
             .disposed(by: bag)
-        
-//        deleteCategoryUseCase
-//            .didDeleteCategory
-//            .withUnretained(self)
-//            .subscribe(onNext: { vm, id in
-//                guard var category = vm.categoryDict[id] else { return }
-//                category.status = .inactive
-//                vm.categoryDict[id] = category
-//            })
-//            .disposed(by: bag)
     }
     
     func bindTodoUseCase(initialDate: Date) {
@@ -371,7 +385,10 @@ class HomeCalendarViewModel {
             .disposed(by: bag)
     }
     
-    func initTodoList(date: Date) {
+    func initTodoList() {
+        latestPrevCacheRequestedIndex = currentIndex
+        latestFollowingCacheRequestedIndex = currentIndex
+        
         let fromIndex = (currentIndex - cachingAmount >= 0) ? currentIndex - cachingAmount : 0
         let toIndex = currentIndex + cachingAmount + 1 < mainDayList.count ? currentIndex + cachingAmount + 1 : mainDayList.count-1
         
@@ -462,7 +479,7 @@ class HomeCalendarViewModel {
             .disposed(by: bag)
     }
     
-    func fetchCategoryAndGroup() {
+    func fetchCategory() {
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[Category]> in
@@ -484,7 +501,9 @@ class HomeCalendarViewModel {
                 self?.initialReadCategory.onNext(())
             })
             .disposed(by: bag)
-        
+    }
+    
+    func fetchGroup() {
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[GroupName]> in
@@ -505,7 +524,6 @@ class HomeCalendarViewModel {
                 self?.initialReadGroup.onNext(())
             })
             .disposed(by: bag)
-
     }
     
     func fetchProfile() {
@@ -567,8 +585,7 @@ class HomeCalendarViewModel {
         
         needReloadSectionSet.onNext(sectionSet)
     }
-    
-    // 만약 날짜가 바뀐다면...???
+
     func updateTodo(firstDate: Date, todoUpdate: TodoUpdateComparator) {
         
         let todoBeforeUpdate = todoUpdate.before

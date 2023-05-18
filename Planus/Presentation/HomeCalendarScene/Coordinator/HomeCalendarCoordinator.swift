@@ -63,6 +63,7 @@ class HomeCalendarCoordinator: Coordinator {
             updateCategoryUseCase: updateCategoryUseCase,
             deleteCategoryUseCase: deleteCategoryUseCase,
             fetchMyGroupNameListUseCase: fetchMyGroupNameListUseCase,
+            groupCreateUseCase: DefaultGroupCreateUseCase.shared,
             createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
             dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
             readProfileUseCase: readProfileUseCase,
