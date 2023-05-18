@@ -8,6 +8,9 @@
 import UIKit
 
 class GroupCreateTagViewTest: UIView {
+    
+    weak var delegate: GroupCreateTagViewDelegate?
+    
     var testSource = ["그dddd룹1", "태ddddddd그2", "태ddd그3", "태그dd4", "태그4", "태그ddd4", "태그ddd4", ]
     
     var keyWordTitleLabel: UILabel = {
@@ -28,11 +31,13 @@ class GroupCreateTagViewTest: UIView {
     
     lazy var tagCollectionView: UICollectionView = {
         let layout = EqualSpacedCollectionViewLayout()
-        layout.estimatedItemSize = CGSize(width: 90, height: 40)
+        layout.estimatedItemSize = CGSize(width: 40, height: 40)
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.register(GroupCreateTagCell.self, forCellWithReuseIdentifier: GroupCreateTagCell.reuseIdentifier)
+        cv.register(GroupCreateTagAddCell.self, forCellWithReuseIdentifier: GroupCreateTagAddCell.reuseIdentifier)
         cv.backgroundColor = .brown
         cv.dataSource = self
+        cv.delegate = self
         return cv
     }()
     
@@ -86,7 +91,7 @@ class GroupCreateTagViewTest: UIView {
         tagCollectionView.snp.makeConstraints {
             $0.top.equalTo(keyWordDescLabel.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(100)
+            $0.height.equalTo(150)
         }
         
         tagCountValidateLabel.snp.makeConstraints {
@@ -140,24 +145,46 @@ class GroupCreateTagViewTest: UIView {
     }
 }
 
-extension GroupCreateTagViewTest: UICollectionViewDataSource {
+extension GroupCreateTagViewTest: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        self.testSource.count
+        self.testSource.count + 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupCreateTagCell.reuseIdentifier, for: indexPath) as? GroupCreateTagCell else {
-            return UICollectionViewCell()
+        if indexPath.item == testSource.count {
+            return collectionView.dequeueReusableCell(withReuseIdentifier: GroupCreateTagAddCell.reuseIdentifier, for: indexPath)
+        } else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupCreateTagCell.reuseIdentifier, for: indexPath) as? GroupCreateTagCell else {
+                return UICollectionViewCell()
+            }
+            cell.fill(tag: testSource[indexPath.item])
+            return cell
         }
-        cell.fill(tag: testSource[indexPath.item])
-        return cell
     }
     
-    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        if indexPath.item == testSource.count {
+            guard let cell = collectionView.cellForItem(at: indexPath) else { return false }
+            delegate?.shouldPresentTestVC(cell: cell)
+        }
+        return false
+    }
+}
+
+protocol GroupCreateTagViewDelegate: AnyObject {
+    func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell)
+}
+
+class GroupTagInputViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.view.backgroundColor = .orange
+    }
 }
 
 class EqualSpacedCollectionViewLayout: UICollectionViewFlowLayout {

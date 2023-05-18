@@ -236,6 +236,7 @@ class GroupCreateViewController: UIViewController {
         contentStackView.addArrangedSubview(tagTestView)
         contentStackView.addArrangedSubview(limitView)
         contentStackView.addArrangedSubview(createButtonView)
+        tagTestView.delegate = self
         
         infoView.groupImageButton.addTarget(self, action: #selector(imageBtnTapped), for: .touchUpInside)
     }
@@ -268,14 +269,36 @@ class GroupCreateViewController: UIViewController {
 }
 
 extension GroupCreateViewController: PHPickerViewControllerDelegate { //PHPicker 델리게이트
-func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-    picker.dismiss(animated: true)
-
-    results.first?.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (image, error) in
-        guard let fileName = results.first?.itemProvider.suggestedName else { return }
-        if let data = (image as? UIImage)?.pngData() {
-            self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "png"))
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        results.first?.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (image, error) in
+            guard let fileName = results.first?.itemProvider.suggestedName else { return }
+            if let data = (image as? UIImage)?.pngData() {
+                self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "png"))
+            }
         }
     }
 }
+
+extension GroupCreateViewController: GroupCreateTagViewDelegate {
+    func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell) {
+        let vc = GroupTagInputViewController(nibName: nil, bundle: nil)
+        vc.preferredContentSize = CGSize(width: 320, height: 290)
+        vc.modalPresentationStyle = .popover
+        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
+        popover.delegate = self
+        popover.sourceView = self.view
+        popover.sourceItem = collectionViewCell
+        
+        self.present(vc, animated: true, completion: nil)
+    }
+    
+    
+}
+
+extension GroupCreateViewController: UIPopoverPresentationControllerDelegate {
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
+    }
 }
