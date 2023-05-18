@@ -211,7 +211,6 @@ class GroupCreateTagView: UIView {
                 attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0xBFC7D7)]
             )
         }
-//
         return textField
     }
     
@@ -230,5 +229,12 @@ class GroupCreateTagView: UIView {
         label.textColor = UIColor(hex: 0x6F81A9)
         return label
     }
+}
+
+class GroupCreateTagViewTest: UIView {
+//    var tagCollectionView: UICollectionView = {
+//        let view = UICollectionView(frame: .zero, collectionViewLayout: <#T##UICollectionViewLayout#>)
+//        return view
+//    }()
 }
 

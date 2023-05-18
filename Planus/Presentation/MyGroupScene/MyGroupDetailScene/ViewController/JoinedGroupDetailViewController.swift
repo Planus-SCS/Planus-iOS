@@ -25,6 +25,7 @@ class JoinedGroupDetailViewController: UIViewController {
         let pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
         pageViewController.dataSource = self
         pageViewController.delegate = self
+        pageViewController.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         return pageViewController
     }()
     
@@ -427,8 +428,21 @@ extension JoinedGroupDetailViewController: UIPageViewControllerDelegate {
         guard let currentVCIndex = childList.firstIndex(where: { $0 == currentVC }) else { return }
         
         let indexPathAtCollectionView = IndexPath(item: currentVCIndex, section: 0)
-        
+        print("fetched in firstTab")
         headerTabView.scrollToTab(index: currentVCIndex)
+        switch currentVCIndex {
+        case 0:
+            noticeViewController?.noticeCollectionView.isHidden = true
+            noticeViewController?.spinner.hidesWhenStopped = true
+            noticeViewController?.spinner.startAnimating()
+            self.needRefresh.onNext(())
+        case 1:
+            return
+        case 2:
+            return
+        default:
+            return
+        }
     }
 }
 

@@ -79,6 +79,7 @@ class JoinedGroupDetailHeaderTabView: UIView {
         contentView.addSubview(headerStack)
         contentView.addSubview(statusBackGroundView)
         statusBackGroundView.addSubview(statusBarView)
+        titleButtonList.first?.setTitleColor(UIColor(hex: 0x6F81A9), for: .normal)
     }
     
     func configureLayout() {
