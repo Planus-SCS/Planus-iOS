@@ -47,9 +47,13 @@ class NetworkManager: APIProvider {
                     emitter(.failure(NetworkError.nilDataError))
                     return
                 }
+                if let reqData = request.httpBody {
+                    print(String(decoding: reqData, as: UTF8.self))
+                }
                 let str = String(decoding: data, as: UTF8.self)
+                if str.count <= 1000 {
                     print(str)
-                
+                }
                 
                 guard let httpResponse = response as? HTTPURLResponse else { return }
                 switch httpResponse.statusCode {

@@ -34,27 +34,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //
 //        window.makeKeyAndVisible()
 //
-        let initialAppearance = UINavigationBarAppearance()
-        initialAppearance.configureWithTransparentBackground()
-        
-        let scrollingAppearance = UINavigationBarAppearance()
-        scrollingAppearance.configureWithTransparentBackground()
-        
-        let initialBarButtonAppearance = UIBarButtonItemAppearance()
-        initialBarButtonAppearance.normal.titleTextAttributes = [ .foregroundColor: UIColor.white ]
-        initialBarButtonAppearance.focused.titleTextAttributes = [.foregroundColor: UIColor.white]
-        initialBarButtonAppearance.highlighted.titleTextAttributes = [.foregroundColor: UIColor.white]
-        initialAppearance.buttonAppearance = initialBarButtonAppearance
-        
-        
-        let scrollingBarButtonAppearance = UIBarButtonItemAppearance()
-        scrollingBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.blue]
-        scrollingBarButtonAppearance.focused.titleTextAttributes = [.foregroundColor: UIColor.blue]
-        scrollingBarButtonAppearance.highlighted.titleTextAttributes = [.foregroundColor: UIColor.blue]
-        scrollingAppearance.buttonAppearance = scrollingBarButtonAppearance
-        
-        UINavigationBar.appearance().standardAppearance = scrollingAppearance
-        UINavigationBar.appearance().scrollEdgeAppearance = scrollingAppearance
+
         self.appCoordinator = AppCoordinator(window: window)
         self.appCoordinator?.start()
 //

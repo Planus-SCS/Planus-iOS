@@ -20,12 +20,20 @@ class DefaultUpdateProfileUseCase: UpdateProfileUseCase {
         self.profileRepository = profileRepository
     }
     
-    func execute(token: Token, name: String, introduce: String?, image: ImageFile?) -> Single<Void> {
+    func execute(
+        token: Token,
+        name: String,
+        introduce: String?,
+        isImageRemoved: Bool,
+        image: ImageFile?
+    ) -> Single<Void> {
         return profileRepository.updateProfile(
             token: token.accessToken,
             requestDTO: ProfileRequestDTO(
                 nickname: name,
-                description: introduce),
+                description: introduce,
+                profileImageRemove: isImageRemoved
+            ),
             profileImage: image).map { [weak self] in
                 let profile = $0.data.toDomain()
                 self?.didUpdateProfile.onNext(profile)

@@ -10,5 +10,11 @@ import RxSwift
 
 protocol UpdateProfileUseCase {
     var didUpdateProfile: PublishSubject<Profile> { get }
-    func execute(token: Token, name: String, introduce: String?, image: ImageFile?) -> Single<Void>
+    func execute(
+        token: Token,
+        name: String,
+        introduce: String?,
+        isImageRemoved: Bool,
+        image: ImageFile?
+    ) -> Single<Void>
 }

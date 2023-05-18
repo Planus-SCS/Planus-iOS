@@ -58,7 +58,7 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
         cv.dataSource = self
         cv.delegate = self
         cv.alwaysBounceVertical = true
-//        cv.refreshControl = refreshControl
+        cv.refreshControl = refreshControl
         return cv
     }()
     

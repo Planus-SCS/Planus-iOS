@@ -15,6 +15,9 @@ class MyPageEditViewModel {
     var introduce = BehaviorSubject<String?>(value: nil)
     var profileImage = BehaviorSubject<ImageFile?>(value: nil)
     
+    var imageChangeChecker: Bool = false
+    var isInitialValueNil: Bool = false
+    
     var didUpdateProfile = PublishSubject<Void>()
     
     struct Input {
@@ -87,6 +90,17 @@ class MyPageEditViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .didChangeImage
+            .take(1)
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                print("changed")
+                vm.imageChangeChecker = true
+            })
+            .disposed(by: bag)
+            
+        
         let saveBtnEnabled = name
             .compactMap { $0 }
             .map {
@@ -123,7 +137,11 @@ class MyPageEditViewModel {
                 self.name.onNext(profile.nickName)
                 self.introduce.onNext(profile.description)
                 
-                guard let key = profile.imageUrl else { return }
+                guard let key = profile.imageUrl else {
+                    self.isInitialValueNil = true
+                    return
+                }
+                self.isInitialValueNil = false
                 self.fetchImage(key: key)
                     .subscribe(onSuccess: { data in
                         self.profileImage.onNext(ImageFile(filename: "originalProfile", data: data, type: "png"))
@@ -135,6 +153,15 @@ class MyPageEditViewModel {
     
     func updateProfile() {
         guard let name = try? name.value() else { return }
+        
+        var isImageRemoved: Bool = false
+        var image: ImageFile?
+
+        if let imageValue = try? profileImage.value() {
+            image = (imageChangeChecker) ? imageValue : nil
+        } else {
+            isImageRemoved = !isInitialValueNil
+        }
 
         getTokenUseCase
             .execute()
@@ -146,7 +173,8 @@ class MyPageEditViewModel {
                     token: token,
                     name: name,
                     introduce: try? self.introduce.value(),
-                    image: try? self.profileImage.value()
+                    isImageRemoved: isImageRemoved,
+                    image: image
                 )
             }
             .handleRetry(

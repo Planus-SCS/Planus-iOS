@@ -58,7 +58,7 @@ class HomeCalendarViewModel {
     var needWelcome = BehaviorSubject<String?>(value: nil)
     
     var profile: Profile?
-    var fetchedProfileImage = PublishSubject<Data?>()
+    var fetchedProfileImage = BehaviorSubject<Data?>(value: nil)
     
     var initialReadCategory = BehaviorSubject<Void?>(value: nil)
     var initialReadGroup = BehaviorSubject<Void?>(value: nil)
@@ -528,11 +528,13 @@ class HomeCalendarViewModel {
                 
                 self.needWelcome.onNext("\(profile.nickName)님 반갑습니다!")
                 self.profile = profile
-                
+                print(profile)
                 guard let imageUrl = profile.imageUrl else {
+                    print("no image")
                     self.fetchedProfileImage.onNext(nil)
                     return
                 }
+                print("yes image")
                 self.fetchImageUseCase.execute(key: imageUrl)
                     .subscribe(onSuccess: { data in
                         self.fetchedProfileImage.onNext(data)

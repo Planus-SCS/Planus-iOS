@@ -264,23 +264,13 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             return UICollectionViewCell()
         }
 
-        // FIXME: 이부분은 api 만들어지면 안쓸 부분임 고치자!
-        guard let isOwner = viewModel?.isOwner else { return UICollectionViewCell() }
-        if isOwner {
-            guard let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
-                return UICollectionViewCell()
-            }
-            cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
-            return cell
-        } else {
-            let category = Category(title: "kk", color: .blue)
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
-                return UICollectionViewCell()
-            }
-            cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
-            return cell
+        guard let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
+            return UICollectionViewCell()
         }
+        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
+        return cell
+        
 
     }
     
@@ -369,16 +359,18 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         guard let groupDict = viewModel?.groupDict else { return false }
         let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
         vm.setGroup(groupList: groupList)
+        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+        var groupName: GroupName?
+        if let groupId = item.groupId {
+            groupName = groupDict[groupId]
+        }
         
         if isOwner {
-            guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
-            var groupName: GroupName?
-            if let groupId = item.groupId {
-                groupName = groupDict[groupId]
-            }
+            
+
             vm.setForEdit(todo: item, category: category, groupName: groupName)
         } else {
-            vm.setForOthers(todo: item, category: Category(title: "kk", color: .blue))
+            vm.setForOthers(todo: item, category: category, groupName: groupName)
         }
         vm.todoStartDay.onNext(viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)

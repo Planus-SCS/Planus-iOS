@@ -394,7 +394,7 @@ final class TodoDetailViewModel {
         print(todo)
     }
     
-    func setForOthers(todo: Todo, category: Category) {
+    func setForOthers(todo: Todo, category: Category, groupName: GroupName?) {
         guard let id = todo.id else { return }
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = .current
@@ -406,6 +406,7 @@ final class TodoDetailViewModel {
         self.todoTime.onNext(todo.startTime)
         self.todoMemo.onNext(todo.memo)
         self.todoCreateState = .others(todo)
+        self.todoGroup.onNext(groupName)
     }
     
     func fetchCategoryList() {

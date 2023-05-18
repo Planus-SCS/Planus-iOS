@@ -224,15 +224,18 @@ class MemberProfileViewController: UIViewController {
             mockName: memberName,
             mockDesc: (memberDesc?.count != 0) ? memberDesc : "자기소개가 없습니다."
         )
-        
+        mockHeaderView.layoutIfNeeded()
         let estimatedSize = mockHeaderView
             .systemLayoutSizeFitting(CGSize(width: self.view.frame.width,
                        height: UIView.layoutFittingCompressedSize.height))
         
         self.headerViewInitialHeight = estimatedSize.height
+        print(mockHeaderView.introduceLabel.bounds.height)
         headerView.snp.makeConstraints {
             $0.height.equalTo(estimatedSize.height)
         }
+        
+        print(estimatedSize.height)
         
         guard let headerViewHeightConstraint = headerView.constraints.first(where: { $0.firstAttribute == .height }) else { return }
         self.headerViewHeightConstraint = headerViewHeightConstraint
