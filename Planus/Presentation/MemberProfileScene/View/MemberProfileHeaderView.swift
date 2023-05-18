@@ -50,9 +50,8 @@ class MemberProfileHeaderView: UIView {
         textView.isEditable = false
         textView.isScrollEnabled = false
         textView.font = UIFont(name: "Pretendard-Regular", size: 14)
-        textView.textContainerInset = UIEdgeInsets(top: 20, left: 16, bottom: 20, right: 16)
         textView.textColor = UIColor(hex: 0x6F81A9)
-
+        textView.backgroundColor = UIColor(hex: 0xF5F5FB)
 
         textView.textAlignment = .center
         return textView
@@ -75,13 +74,13 @@ class MemberProfileHeaderView: UIView {
         introduceLabel.snp.remakeConstraints {
             $0.leading.trailing.equalToSuperview().inset(48)
             $0.top.equalTo(nameLabel.snp.bottom).offset(16)
-            $0.bottom.equalTo(separateView.snp.top).offset(-22)
+            $0.bottom.equalToSuperview().offset(-25)
         }
         
         nameLabel.text = mockName
         introduceLabel.text = mockDesc
-        introduceLabel.backgroundColor = .orange
-        introduceLabel.sizeToFit()
+        
+        self.layoutIfNeeded()
     }
     
     override init(frame: CGRect) {

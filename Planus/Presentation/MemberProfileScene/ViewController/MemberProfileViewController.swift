@@ -220,22 +220,24 @@ class MemberProfileViewController: UIViewController {
     }
     
     func configureHeaderViewLayout(memberName: String?, memberDesc: String?) {
-        let mockHeaderView = MemberProfileHeaderView(
+        let mockView = MemberProfileHeaderView(
             mockName: memberName,
             mockDesc: (memberDesc?.count != 0) ? memberDesc : "자기소개가 없습니다."
         )
-        mockHeaderView.layoutIfNeeded()
-        let estimatedSize = mockHeaderView
+        let estimatedSize = mockView
             .systemLayoutSizeFitting(CGSize(width: self.view.frame.width,
-                       height: UIView.layoutFittingCompressedSize.height))
+                                            height: 111))
         
-        self.headerViewInitialHeight = estimatedSize.height
-        print(mockHeaderView.introduceLabel.bounds.height)
+        let estimatedDescTextViewSize = mockView.introduceLabel.systemLayoutSizeFitting(CGSize(width: UIScreen.main.bounds.width - 96, height: UIView.layoutFittingCompressedSize.height))
+        
+        let sizeThatFitsTextView = mockView.introduceLabel.sizeThatFits(CGSize(width: UIScreen.main.bounds.width - 96, height: CGFloat(MAXFLOAT)))
+        let estimatedInitialHeight = estimatedSize.height + (sizeThatFitsTextView.height - estimatedDescTextViewSize.height)
+        
+        self.headerViewInitialHeight = estimatedInitialHeight
+        
         headerView.snp.makeConstraints {
-            $0.height.equalTo(estimatedSize.height)
+            $0.height.equalTo(estimatedInitialHeight)
         }
-        
-        print(estimatedSize.height)
         
         guard let headerViewHeightConstraint = headerView.constraints.first(where: { $0.firstAttribute == .height }) else { return }
         self.headerViewHeightConstraint = headerViewHeightConstraint
