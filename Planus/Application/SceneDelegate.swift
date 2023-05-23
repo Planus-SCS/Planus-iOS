@@ -22,7 +22,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let window = window else { return }
 
-        let vc = GroupCreateViewController(nibName: nil, bundle: nil)
+        let vm = GroupCreateViewModel(getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), setTokenUseCase: DefaultSetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), groupCreateUseCase: DefaultGroupCreateUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager())))
+        let vc = GroupCreateViewController(viewModel: vm)
         let navi = UINavigationController(rootViewController: vc)
         window.rootViewController = navi
 

@@ -24,6 +24,8 @@ class GroupCreateTagCell: UICollectionViewCell {
         }
     }
     
+    var removeBtnClosure: (() -> Void)?
+    
     var label: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 14)
@@ -31,10 +33,11 @@ class GroupCreateTagCell: UICollectionViewCell {
         return label
     }()
     
-    var removeButton: UIButton = {
+    lazy var removeButton: UIButton = {
         let image = UIImage(named: "removeBtn") ?? UIImage()
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
         button.setImage(image, for: .normal)
+        button.addTarget(self, action: #selector(removeBtnTapped), for: .touchUpInside)
         return button
     }()
     
@@ -73,5 +76,9 @@ class GroupCreateTagCell: UICollectionViewCell {
     
     func fill(tag: String) {
         self.label.text = tag
+    }
+    
+    @objc func removeBtnTapped(_ sender: UIButton) {
+        removeBtnClosure?()
     }
 }

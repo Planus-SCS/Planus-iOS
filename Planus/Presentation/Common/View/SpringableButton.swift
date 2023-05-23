@@ -18,6 +18,16 @@ class SpringableButton: UIButton {
         }
     }
     
+    override var isEnabled: Bool {
+        didSet {
+            if isEnabled {
+                self.alpha = 1.0
+            } else {
+                self.alpha = 0.5
+            }
+        }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         

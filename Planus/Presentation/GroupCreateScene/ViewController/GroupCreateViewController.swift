@@ -14,6 +14,8 @@ class GroupCreateViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: GroupCreateViewModel?
     
+    var tagAdded = PublishSubject<String>()
+    var tagRemovedAt = PublishSubject<Int>()
     var titleImageChanged = PublishSubject<ImageFile?>()
     
     var scrollView = UIScrollView(frame: .zero)
@@ -29,7 +31,6 @@ class GroupCreateViewController: UIViewController {
     
     var infoView: GroupCreateInfoView = .init(frame: .zero)
     var tagView: GroupCreateTagView = .init(frame: .zero)
-    var tagTestView: GroupCreateTagViewTest = .init(frame: .zero)
     var limitView: GroupCreateLimitView = .init(frame: .zero)
     var createButtonView: WideButtonView = .init(frame: .zero)
     
@@ -48,6 +49,7 @@ class GroupCreateViewController: UIViewController {
         self.init(nibName: nil, bundle: nil)
         
         self.viewModel = viewModel
+        self.tagView.viewModel = viewModel
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -76,30 +78,23 @@ class GroupCreateViewController: UIViewController {
     
     func bind() {
         guard let viewModel else { return }
-        
-        let tagObservableList = [
-            tagView.tagField1.rx.text.asObservable(),
-            tagView.tagField2.rx.text.asObservable(),
-            tagView.tagField3.rx.text.asObservable(),
-            tagView.tagField4.rx.text.asObservable(),
-            tagView.tagField5.rx.text.asObservable()
-        ].map { str in
-            return str.map {
-                return (($0?.isEmpty) ?? true) ? nil : $0
-            }
-        }
-        
-        let tagListChanged = Observable.combineLatest(tagObservableList)
+
         let noticeChanged = infoView.groupNoticeTextView.rx.text.asObservable().map { [weak self] text -> String? in
             guard let self else { return nil }
             return self.infoView.isDescEditing ? text : nil
         }
         
+        tagAdded.subscribe(onNext: {
+            print($0)
+        })
+        .disposed(by: bag)
+        
         let input = GroupCreateViewModel.Input(
             titleChanged: infoView.groupNameField.rx.text.asObservable(),
             noticeChanged: noticeChanged,
             titleImageChanged: titleImageChanged.asObservable(),
-            tagListChanged: tagListChanged,
+            tagAdded: tagAdded.asObservable(),
+            tagRemovedAt: tagRemovedAt.asObservable(),
             maxMemberChanged: limitView.limitField.rx.text.asObservable(),
             saveBtnTapped: createButtonView.wideButton.rx.tap.asObservable()
         )
@@ -155,7 +150,7 @@ class GroupCreateViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, enabled in
                 vc.createButtonView.wideButton.isEnabled = enabled
-                vc.createButtonView.wideButton.alpha = enabled ? 1.0 : 0.4
+                vc.createButtonView.wideButton.alpha = enabled ? 1.0 : 0.5
             })
             .disposed(by: bag)
         
@@ -225,6 +220,56 @@ class GroupCreateViewController: UIViewController {
                 vc.navigationController?.pushViewController(viewController, animated: true)
             })
             .disposed(by: bag)
+        
+        output
+            .insertTagAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                vc
+                    .tagView
+                    .tagCollectionView
+                    .performBatchUpdates({
+                        vc
+                            .tagView
+                            .tagCollectionView
+                            .insertItems(at: [IndexPath(item: index, section: 0)])
+                    }, completion: { _ in
+                            UIView.performWithoutAnimation {
+                                vc
+                                    .tagView
+                                    .tagCollectionView
+                                    .reloadSections(IndexSet(0...0))
+                            }
+                    })
+            })
+            .disposed(by: bag)
+        
+        output
+            .remvoeTagAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                vc
+                    .tagView
+                    .tagCollectionView
+                    .performBatchUpdates({
+                        vc
+                            .tagView
+                            .tagCollectionView
+                            .deleteItems(at: [IndexPath(item: index, section: 0)])
+                    }, completion: { _ in
+                            UIView.performWithoutAnimation {
+                                vc
+                                    .tagView
+                                    .tagCollectionView
+                                    .reloadSections(IndexSet(0...0))
+                            }
+                    })
+                
+                
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {
@@ -233,10 +278,9 @@ class GroupCreateViewController: UIViewController {
         scrollView.addSubview(contentStackView)
         contentStackView.addArrangedSubview(infoView)
         contentStackView.addArrangedSubview(tagView)
-        contentStackView.addArrangedSubview(tagTestView)
         contentStackView.addArrangedSubview(limitView)
         contentStackView.addArrangedSubview(createButtonView)
-        tagTestView.delegate = self
+        tagView.delegate = self
         
         infoView.groupImageButton.addTarget(self, action: #selector(imageBtnTapped), for: .touchUpInside)
     }
@@ -284,7 +328,11 @@ extension GroupCreateViewController: PHPickerViewControllerDelegate { //PHPicker
 extension GroupCreateViewController: GroupCreateTagViewDelegate {
     func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell) {
         let vc = GroupTagInputViewController(nibName: nil, bundle: nil)
-        vc.preferredContentSize = CGSize(width: 320, height: 290)
+        vc.tagAddclosure = { [weak self] tag in
+            self?.tagAdded.onNext(tag)            
+        }
+        
+        vc.preferredContentSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 60)
         vc.modalPresentationStyle = .popover
         let popover: UIPopoverPresentationController = vc.popoverPresentationController!
         popover.delegate = self
@@ -292,6 +340,10 @@ extension GroupCreateViewController: GroupCreateTagViewDelegate {
         popover.sourceItem = collectionViewCell
         
         self.present(vc, animated: true, completion: nil)
+    }
+    
+    func shouldRemoveTagAt(index: IndexPath) {
+        self.tagRemovedAt.onNext(index.item)
     }
     
     
