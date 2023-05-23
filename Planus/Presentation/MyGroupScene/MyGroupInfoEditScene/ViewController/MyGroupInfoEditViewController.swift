@@ -76,30 +76,8 @@ class MyGroupInfoEditViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
-        let tagFieldList: [UITextField] = [
-            tagView.tagField1,
-            tagView.tagField2,
-            tagView.tagField3,
-            tagView.tagField4,
-            tagView.tagField5
-        ]
-        
         infoView.groupNameField.text = viewModel.title
-        (try? viewModel.tagList.value())?.enumerated().forEach { index, tag in
-            tagFieldList[index].text = tag
-        }
         limitView.limitField.text = "\((try? viewModel.maxMember.value()) ?? 0)"
-        
-        let tagObservableList = tagFieldList
-            .map {
-                $0.rx.text.asObservable()
-            }.map { str in
-                return str.map {
-                    return (($0?.isEmpty) ?? true) ? nil : $0
-                }
-            }
-        
-        let tagListChanged = Observable.combineLatest(tagObservableList)
 
         let input = MyGroupInfoEditViewModel.Input(
             titleImageChanged: titleImageChanged.asObservable(),

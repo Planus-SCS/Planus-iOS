@@ -14,14 +14,20 @@ class MyGroupInfoEditViewModel {
     
     var title: String?
     var titleImage = BehaviorSubject<ImageFile?>(value: nil)
-    var tagList = BehaviorSubject<[String?]>(value: [])
+    var tagList = [String]()
     var maxMember = BehaviorSubject<Int?>(value: nil)
+    
+    let tagCountValidState = PublishSubject<Bool>()
+    let tagLengthValidState = PublishSubject<Bool>()
+    let tagSpecialCharValidState = PublishSubject<Bool>()
+    let tagDuplicateValidState = PublishSubject<Bool>()
     
     var infoUpdateCompleted = PublishSubject<Void>()
     
     struct Input {
         var titleImageChanged: Observable<ImageFile?>
-        var tagListChanged: Observable<[String?]>
+        var tagAdded: Observable<String>
+        var tagRemovedAt: Observable<Int>
         var maxMemberChanged: Observable<String?>
         var saveBtnTapped: Observable<Void>
     }
@@ -33,8 +39,11 @@ class MyGroupInfoEditViewModel {
         var tagCountValidState: Observable<Bool>
         var tagCharCountValidState: Observable<Bool>
         var tagSpecialCharValidState: Observable<Bool>
+        var tagDuplicateValidState: Observable<Bool>
         var isUpdateButtonEnabled: Observable<Bool>
         var infoUpdateCompleted: Observable<Void>
+        var insertTagAt: Observable<Int>
+        var removeTagAt: Observable<Int>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -63,7 +72,7 @@ class MyGroupInfoEditViewModel {
     ) {
         self.groupId = id
         self.title = title
-        self.tagList.onNext(tagList)
+        self.tagList = tagList
         self.maxMember.onNext(maxMember)
         
         fetchImageUseCase
@@ -75,48 +84,12 @@ class MyGroupInfoEditViewModel {
     }
     
     public func transform(input: Input) -> Output {
-        let tagCountValidState = tagList
-            .map { list in
-                let nonNilList = list.filter { $0 != nil }
-                return nonNilList.count <= 5 && nonNilList.count > 0
-            }
+        let insertAt = PublishSubject<Int>()
+        let removeAt = PublishSubject<Int>()
         
-        let tagCharCountValidState = Observable.zip(tagList, tagCountValidState)
-            .map { (list, countValid) in
-                guard countValid else {
-                    return false
-                }
-                for i in (0..<list.count) {
-                    if let tag = list[i],
-                       tag.count > 7 {
-                        return false
-                    }
-                }
-                return true
-            }
-        
-        let tagSpecialCharValidState = Observable.zip(tagList, tagCountValidState)
-            .map { (list, countValid) in
-                guard countValid else {
-                    return false
-                }
-                for i in (0..<list.count) {
-                    if let tag = list[i],
-                       tag.checkRegex(regex: "^(?=.*[\\s!@#$%0-9])") {
-                       return false
-                    }
-                }
-                return true
-            }
-
         input
             .titleImageChanged
             .bind(to: titleImage)
-            .disposed(by: bag)
-        
-        input
-            .tagListChanged
-            .bind(to: tagList)
             .disposed(by: bag)
         
         input
@@ -134,6 +107,26 @@ class MyGroupInfoEditViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .tagAdded
+            .withUnretained(self)
+            .subscribe(onNext: { vm, tag in
+                vm.tagList.append(tag)
+                vm.checkTagValidation()
+                insertAt.onNext(vm.tagList.count - 1)
+            })
+            .disposed(by: bag)
+        
+        input
+            .tagRemovedAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                vm.tagList.remove(at: index)
+                vm.checkTagValidation()
+                removeAt.onNext(index)
+            })
+            .disposed(by: bag)
+        
         let imageFilled = titleImage.map { $0 != nil }.asObservable()
         let maxMemberFilled = maxMember.map {
             guard let max = $0,
@@ -145,8 +138,9 @@ class MyGroupInfoEditViewModel {
             imageFilled,
             maxMemberFilled,
             tagCountValidState,
-            tagCharCountValidState,
-            tagSpecialCharValidState
+            tagLengthValidState,
+            tagSpecialCharValidState,
+            tagDuplicateValidState
         ]).map { list in
             guard let _ = list.first(where: { !$0 }) else { return true }
             return false
@@ -157,19 +151,32 @@ class MyGroupInfoEditViewModel {
             maxCountFilled: maxMemberFilled,
             didChangedTitleImage: titleImage.map { $0?.data }.asObservable(),
             tagCountValidState: tagCountValidState.asObservable(),
-            tagCharCountValidState: tagCharCountValidState.asObservable(),
+            tagCharCountValidState: tagLengthValidState.asObservable(),
             tagSpecialCharValidState: tagSpecialCharValidState.asObservable(),
+            tagDuplicateValidState: tagDuplicateValidState.asObservable(),
             isUpdateButtonEnabled: isCreateButtonEnabled,
-            infoUpdateCompleted: infoUpdateCompleted.asObservable()
+            infoUpdateCompleted: infoUpdateCompleted.asObservable(),
+            insertTagAt: insertAt.asObservable(),
+            removeTagAt: removeAt.asObservable()
         )
+    }
+    
+    func checkTagValidation() {
+        let tagCountState = tagList.count <= 5 && tagList.count > 0
+        let tagLengthState = tagCountState && tagList.filter { $0.count > 7 }.count == 0
+        let tagSpecialCharState = tagCountState && tagList.filter { $0.checkRegex(regex: "^(?=.*[\\s!@#$%0-9])") }.count == 0
+        let tagDuplicateState = tagCountState && Set(tagList).count == tagList.count
+        
+        self.tagCountValidState.onNext(tagCountState)
+        self.tagLengthValidState.onNext(tagLengthState)
+        self.tagSpecialCharValidState.onNext(tagSpecialCharState)
+        self.tagDuplicateValidState.onNext(tagDuplicateState)
     }
     
     func requestUpdateInfo() {
         guard let groupId,
-              let tagList = try? tagList.value().compactMap { $0 },
               let limit = try? maxMember.value(),
               let image = try? titleImage.value() else { return }
-        print(tagList)
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
@@ -177,7 +184,7 @@ class MyGroupInfoEditViewModel {
                     throw DefaultError.noCapturedSelf
                 }
                 return self.updateGroupInfoUseCase
-                    .execute(token: token, groupId: groupId, tagList: tagList, limit: limit, image: image)
+                    .execute(token: token, groupId: groupId, tagList: self.tagList, limit: limit, image: image)
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),

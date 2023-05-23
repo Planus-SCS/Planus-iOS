@@ -9,10 +9,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 class GroupCreateTagView: UIView {
-    
-    var viewModel: GroupCreateViewModel?
-    weak var delegate: GroupCreateTagViewDelegate?
-    
+        
     var keyWordTitleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "그룹과 관련된 키워드를 입력하세요"
@@ -36,8 +33,6 @@ class GroupCreateTagView: UIView {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.register(GroupCreateTagCell.self, forCellWithReuseIdentifier: GroupCreateTagCell.reuseIdentifier)
         cv.register(GroupCreateTagAddCell.self, forCellWithReuseIdentifier: GroupCreateTagAddCell.reuseIdentifier)
-        cv.dataSource = self
-        cv.delegate = self
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
     
         return cv
@@ -52,11 +47,6 @@ class GroupCreateTagView: UIView {
     var stringCountCheckView: ValidationCheckImageView = .init()
     var charValidateCheckView: ValidationCheckImageView = .init()
     var duplicateValidateCheckView: ValidationCheckImageView = .init()
-    
-    convenience init(viewModel: GroupCreateViewModel) {
-        self.init(frame: .zero)
-        self.viewModel = viewModel
-    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -150,49 +140,6 @@ class GroupCreateTagView: UIView {
         label.textColor = UIColor(hex: 0x6F81A9)
         return label
     }
-}
-
-extension GroupCreateTagViewTest: UICollectionViewDataSource, UICollectionViewDelegate {
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if viewModel?.tagList.count == 5 {
-            return 5
-        } else {
-            return (viewModel?.tagList.count ?? 0) + 1
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.item == (viewModel?.tagList.count ?? 0) {
-            return collectionView.dequeueReusableCell(withReuseIdentifier: GroupCreateTagAddCell.reuseIdentifier, for: indexPath)
-        } else {
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupCreateTagCell.reuseIdentifier, for: indexPath) as? GroupCreateTagCell,
-                  let tag = viewModel?.tagList[indexPath.item] else {
-                return UICollectionViewCell()
-            }
-            cell.fill(tag: tag)
-            cell.removeBtnClosure = { [weak self] in
-                self?.delegate?.shouldRemoveTagAt(index: indexPath)
-            }
-            return cell
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        if indexPath.item == (viewModel?.tagList.count ?? 0) {
-            guard let cell = collectionView.cellForItem(at: indexPath) else { return false }
-            delegate?.shouldPresentTestVC(cell: cell)
-        }
-        return false
-    }
-}
-
-protocol GroupCreateTagViewDelegate: AnyObject {
-    func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell)
-    func shouldRemoveTagAt(index: IndexPath)
 }
 
 class GroupTagInputViewController: UIViewController {

@@ -49,7 +49,6 @@ class GroupCreateViewController: UIViewController {
         self.init(nibName: nil, bundle: nil)
         
         self.viewModel = viewModel
-        self.tagView.viewModel = viewModel
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -273,6 +272,8 @@ class GroupCreateViewController: UIViewController {
     }
     
     func configureView() {
+        tagView.tagCollectionView.dataSource = self
+        tagView.tagCollectionView.delegate = self
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(scrollView)
         scrollView.addSubview(contentStackView)
@@ -280,7 +281,6 @@ class GroupCreateViewController: UIViewController {
         contentStackView.addArrangedSubview(tagView)
         contentStackView.addArrangedSubview(limitView)
         contentStackView.addArrangedSubview(createButtonView)
-        tagView.delegate = self
         
         infoView.groupImageButton.addTarget(self, action: #selector(imageBtnTapped), for: .touchUpInside)
     }
@@ -325,7 +325,45 @@ extension GroupCreateViewController: PHPickerViewControllerDelegate { //PHPicker
     }
 }
 
-extension GroupCreateViewController: GroupCreateTagViewDelegate {
+extension GroupCreateViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if viewModel?.tagList.count == 5 {
+            return 5
+        } else {
+            return (viewModel?.tagList.count ?? 0) + 1
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if indexPath.item == (viewModel?.tagList.count ?? 0) {
+            return collectionView.dequeueReusableCell(withReuseIdentifier: GroupCreateTagAddCell.reuseIdentifier, for: indexPath)
+        } else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupCreateTagCell.reuseIdentifier, for: indexPath) as? GroupCreateTagCell,
+                  let tag = viewModel?.tagList[indexPath.item] else {
+                return UICollectionViewCell()
+            }
+            cell.fill(tag: tag)
+            cell.removeBtnClosure = { [weak self] in
+                self?.tagRemovedAt.onNext(indexPath.item)
+            }
+            return cell
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        if indexPath.item == (viewModel?.tagList.count ?? 0) {
+            guard let cell = collectionView.cellForItem(at: indexPath) else { return false }
+            self.shouldPresentTestVC(cell: cell)
+        }
+        return false
+    }
+}
+
+extension GroupCreateViewController {
     func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell) {
         let vc = GroupTagInputViewController(nibName: nil, bundle: nil)
         vc.tagAddclosure = { [weak self] tag in

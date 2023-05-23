@@ -77,7 +77,6 @@ class GroupCreateViewModel {
             .tagAdded
             .withUnretained(self)
             .subscribe(onNext: { vm, tag in
-                print(tag, "added")
                 vm.tagList.append(tag)
                 vm.checkTagValidation()
                 insertAt.onNext(vm.tagList.count - 1)
