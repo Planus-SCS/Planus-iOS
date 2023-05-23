@@ -14,6 +14,9 @@ class MyGroupInfoEditViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: MyGroupInfoEditViewModel?
     
+    var tagAdded = PublishSubject<String>()
+    var tagRemovedAt = PublishSubject<Int>()
+    
     var titleImageChanged = PublishSubject<ImageFile?>()
     
     var scrollView = UIScrollView(frame: .zero)
@@ -81,10 +84,12 @@ class MyGroupInfoEditViewController: UIViewController {
 
         let input = MyGroupInfoEditViewModel.Input(
             titleImageChanged: titleImageChanged.asObservable(),
-            tagListChanged: tagListChanged,
+            tagAdded: tagAdded.asObservable(),
+            tagRemovedAt: tagRemovedAt.asObservable(),
             maxMemberChanged: limitView.limitField.rx.text.asObservable(),
             saveBtnTapped: createButtonView.wideButton.rx.tap.asObservable()
         )
+        
         let output = viewModel.transform(input: input)
         
         output
@@ -155,9 +160,64 @@ class MyGroupInfoEditViewController: UIViewController {
                 vc.navigationController?.popViewController(animated: true)
             })
             .disposed(by: bag)
+        
+        output
+            .insertTagAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                vc
+                    .tagView
+                    .tagCollectionView
+                    .performBatchUpdates({
+                        vc
+                            .tagView
+                            .tagCollectionView
+                            .insertItems(at: [IndexPath(item: index, section: 0)])
+                    }, completion: { _ in
+                            UIView.performWithoutAnimation {
+                                vc
+                                    .tagView
+                                    .tagCollectionView
+                                    .reloadSections(IndexSet(0...0))
+                            }
+                    })
+            })
+            .disposed(by: bag)
+        
+        output
+            .removeTagAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                vc
+                    .tagView
+                    .tagCollectionView
+                    .performBatchUpdates({
+                        vc
+                            .tagView
+                            .tagCollectionView
+                            .deleteItems(at: [IndexPath(item: index, section: 0)])
+                    }, completion: { _ in
+                            UIView.performWithoutAnimation {
+                                vc
+                                    .tagView
+                                    .tagCollectionView
+                                    .reloadSections(IndexSet(0...0))
+                            }
+                    })
+                
+                
+            })
+            .disposed(by: bag)
+            
+            
     }
     
     func configureView() {
+        tagView.tagCollectionView.dataSource = self
+        tagView.tagCollectionView.delegate = self
+        
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(scrollView)
         scrollView.addSubview(contentStackView)
@@ -205,5 +265,67 @@ extension MyGroupInfoEditViewController: PHPickerViewControllerDelegate { //PHPi
                 self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "png"))
             }
         }
+    }
+}
+
+extension MyGroupInfoEditViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if viewModel?.tagList.count == 5 {
+            return 5
+        } else {
+            return (viewModel?.tagList.count ?? 0) + 1
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if indexPath.item == (viewModel?.tagList.count ?? 0) {
+            return collectionView.dequeueReusableCell(withReuseIdentifier: GroupCreateTagAddCell.reuseIdentifier, for: indexPath)
+        } else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupCreateTagCell.reuseIdentifier, for: indexPath) as? GroupCreateTagCell,
+                  let tag = viewModel?.tagList[indexPath.item] else {
+                return UICollectionViewCell()
+            }
+            cell.fill(tag: tag)
+            cell.removeBtnClosure = { [weak self] in
+                self?.tagRemovedAt.onNext(indexPath.item)
+            }
+            return cell
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        if indexPath.item == (viewModel?.tagList.count ?? 0) {
+            guard let cell = collectionView.cellForItem(at: indexPath) else { return false }
+            self.shouldPresentTestVC(cell: cell)
+        }
+        return false
+    }
+}
+
+extension MyGroupInfoEditViewController {
+    func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell) {
+        let vc = GroupTagInputViewController(nibName: nil, bundle: nil)
+        vc.tagAddclosure = { [weak self] tag in
+            self?.tagAdded.onNext(tag)
+        }
+        
+        vc.preferredContentSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 60)
+        vc.modalPresentationStyle = .popover
+        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
+        popover.delegate = self
+        popover.sourceView = self.view
+        popover.sourceItem = collectionViewCell
+        
+        self.present(vc, animated: true, completion: nil)
+    }
+}
+
+extension MyGroupInfoEditViewController: UIPopoverPresentationControllerDelegate {
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
     }
 }

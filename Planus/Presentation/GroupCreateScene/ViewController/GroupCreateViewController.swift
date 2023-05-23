@@ -379,12 +379,6 @@ extension GroupCreateViewController {
         
         self.present(vc, animated: true, completion: nil)
     }
-    
-    func shouldRemoveTagAt(index: IndexPath) {
-        self.tagRemovedAt.onNext(index.item)
-    }
-    
-    
 }
 
 extension GroupCreateViewController: UIPopoverPresentationControllerDelegate {
