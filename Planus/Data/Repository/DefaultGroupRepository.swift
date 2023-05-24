@@ -15,6 +15,24 @@ class DefaultGroupRepository: GroupRepository {
         self.apiProvider = apiProvider
     }
     
+    func fetchSearchHome(page: Int, size: Int) -> Single<ResponseDTO<[UnJoinedGroupSummaryResponseDTO]>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.groups,
+            requestType: .get,
+            body: nil,
+            query: [
+                "page": String(page),
+                "size": String(size)
+            ],
+            header: nil
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<[UnJoinedGroupSummaryResponseDTO]>.self
+        )
+    }
+    
     func fetchGroupDetail(token: String, id: Int) -> Single<ResponseDTO<UnJoinedGroupDetailResponseDTO>> {
         let endPoint = APIEndPoint(
             url: URLPool.groups + "/\(id)",

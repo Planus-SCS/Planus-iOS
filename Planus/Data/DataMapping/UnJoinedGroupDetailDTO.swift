@@ -7,6 +7,17 @@
 
 import Foundation
 
+struct UnJoinedGroupSummaryResponseDTO: Codable {
+    var groupId: Int
+    var name: String
+    var groupImageUrl: String
+    var memberCount: Int
+    var limitCount: Int
+    var leaderId: Int
+    var leaderName: String
+    var groupTags: GroupTagResponseDTO
+}
+
 struct UnJoinedGroupDetailResponseDTO: Codable {
     var id: Int
     var name: String
