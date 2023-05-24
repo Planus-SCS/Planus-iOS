@@ -15,7 +15,22 @@ struct UnJoinedGroupSummaryResponseDTO: Codable {
     var limitCount: Int
     var leaderId: Int
     var leaderName: String
-    var groupTags: GroupTagResponseDTO
+    var groupTags: [GroupTagResponseDTO]
+}
+
+extension UnJoinedGroupSummaryResponseDTO {
+    func toDomain() -> UnJoinedGroupSummary {
+        return UnJoinedGroupSummary(
+            groupId: groupId,
+            name: name,
+            groupImageUrl: groupImageUrl,
+            memberCount: memberCount,
+            limitCount: limitCount,
+            leaderId: leaderId,
+            leaderName: leaderName,
+            groupTags: groupTags.map { $0.toDomain() }
+        )
+    }
 }
 
 struct UnJoinedGroupDetailResponseDTO: Codable {
