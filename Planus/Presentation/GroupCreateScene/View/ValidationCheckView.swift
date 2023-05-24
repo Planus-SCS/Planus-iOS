@@ -13,6 +13,7 @@ class ValidationCheckImageView: UIImageView {
         
         self.init(frame: CGRect(x: 0, y: 0, width: checkImage?.size.width ?? 0, height: checkImage?.size.height ?? 0))
         self.image = checkImage
+        self.tintColor = UIColor(hex: 0x6F81A9)
     }
     private override init(frame: CGRect) {
         super.init(frame: frame)

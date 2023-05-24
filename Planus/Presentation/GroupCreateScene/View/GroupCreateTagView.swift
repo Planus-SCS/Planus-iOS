@@ -34,18 +34,13 @@ class GroupCreateTagView: UIView {
         cv.register(GroupCreateTagCell.self, forCellWithReuseIdentifier: GroupCreateTagCell.reuseIdentifier)
         cv.register(GroupCreateTagAddCell.self, forCellWithReuseIdentifier: GroupCreateTagAddCell.reuseIdentifier)
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
-    
         return cv
     }()
     
     lazy var tagCountValidateLabel: UILabel = self.validationLabelGenerator(text: "태그는 최대 5개까지 입력할 수 있어요")
-    lazy var stringCountValidateLabel: UILabel = self.validationLabelGenerator(text: "한번에 최대 7자 이하만 적을 수 있어요")
-    lazy var charcaterValidateLabel: UILabel = self.validationLabelGenerator(text: "띄어쓰기, 특수 문자는 빼주세요")
     lazy var duplicateValidateLabel: UILabel = self.validationLabelGenerator(text: "태그를 중복 없이 작성 해주세요")
 
     var tagCountCheckView: ValidationCheckImageView = .init()
-    var stringCountCheckView: ValidationCheckImageView = .init()
-    var charValidateCheckView: ValidationCheckImageView = .init()
     var duplicateValidateCheckView: ValidationCheckImageView = .init()
     
     override init(frame: CGRect) {
@@ -66,10 +61,6 @@ class GroupCreateTagView: UIView {
 
         self.addSubview(tagCountValidateLabel)
         self.addSubview(tagCountCheckView)
-        self.addSubview(stringCountValidateLabel)
-        self.addSubview(stringCountCheckView)
-        self.addSubview(charcaterValidateLabel)
-        self.addSubview(charValidateCheckView)
         self.addSubview(duplicateValidateLabel)
         self.addSubview(duplicateValidateCheckView)
     }
@@ -88,11 +79,11 @@ class GroupCreateTagView: UIView {
         tagCollectionView.snp.makeConstraints {
             $0.top.equalTo(keyWordDescLabel.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(100)
+            $0.height.equalTo(90)
         }
         
         tagCountValidateLabel.snp.makeConstraints {
-            $0.top.equalTo(tagCollectionView.snp.bottom).offset(16)
+            $0.top.equalTo(tagCollectionView.snp.bottom).offset(10)
             $0.leading.equalToSuperview().offset(20)
         }
         
@@ -101,28 +92,8 @@ class GroupCreateTagView: UIView {
             $0.trailing.equalToSuperview().inset(20)
         }
         
-        stringCountValidateLabel.snp.makeConstraints {
-            $0.top.equalTo(tagCountValidateLabel.snp.bottom).offset(10)
-            $0.leading.equalToSuperview().offset(20)
-        }
-        
-        stringCountCheckView.snp.makeConstraints {
-            $0.centerY.equalTo(stringCountValidateLabel)
-            $0.trailing.equalToSuperview().inset(20)
-        }
-        
-        charcaterValidateLabel.snp.makeConstraints {
-            $0.top.equalTo(stringCountValidateLabel.snp.bottom).offset(10)
-            $0.leading.equalToSuperview().offset(20)
-        }
-        
-        charValidateCheckView.snp.makeConstraints {
-            $0.centerY.equalTo(charcaterValidateLabel)
-            $0.trailing.equalToSuperview().inset(20)
-        }
-        
         duplicateValidateLabel.snp.makeConstraints {
-            $0.top.equalTo(charcaterValidateLabel.snp.bottom).offset(10)
+            $0.top.equalTo(tagCountCheckView.snp.bottom).offset(10)
             $0.leading.equalToSuperview().offset(20)
             $0.bottom.equalToSuperview().inset(30)
         }
@@ -172,6 +143,17 @@ class GroupTagInputViewController: UIViewController {
         return textField
     }()
     
+    lazy var infoButton: UIButton = {
+        let image = UIImage(systemName: "info.circle.fill")?.withRenderingMode(.alwaysTemplate)
+        let button = UIButton(frame: .zero)
+        button.setImage(image, for: .normal)
+        button.tintColor = UIColor(white: 0, alpha: 0.6)
+        button.addTarget(self, action: #selector(infoBtnTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    var isInfoViewing: Bool = false
+    
     lazy var enterButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
         button.setTitle("입력", for: .normal)
@@ -185,11 +167,8 @@ class GroupTagInputViewController: UIViewController {
         return button
     }()
     
-    var separatorView: UIView = {
-        let view = UIView(frame: .zero)
-        view.backgroundColor = .gray
-        return view
-    }()
+    lazy var stringCountValidateLabel: UILabel = self.validationLabelGenerator(text: "• 한번에 최대 7자 이하만 적을 수 있어요")
+    lazy var charcaterValidateLabel: UILabel = self.validationLabelGenerator(text: "• 띄어쓰기, 특수 문자는 빼주세요")
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -204,11 +183,16 @@ class GroupTagInputViewController: UIViewController {
         tagField
             .rx
             .text
+            .map { text in
+                guard let text else { return false }
+                let tagLengthState = text.count > 0 && text.count <= 7
+                let tagSpecialCharState = text.checkRegex(regex: "^(?=.*[\\s!@#$%0-9])")
+                return tagLengthState && !tagSpecialCharState
+            }
             .withUnretained(self)
-            .subscribe(onNext: { vc, tag in
-                let isEmpty = (tag?.isEmpty ?? true)
-                vc.enterButton.isEnabled = !isEmpty
-                vc.enterButton.alpha = !isEmpty ? 1.0 : 0.4
+            .subscribe(onNext: { vc, isFilled in
+                vc.enterButton.isEnabled = isFilled
+                vc.enterButton.alpha = isFilled ? 1.0 : 0.4
             })
             .disposed(by: bag)
         
@@ -218,21 +202,44 @@ class GroupTagInputViewController: UIViewController {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(tagField)
         self.view.addSubview(enterButton)
+        self.view.addSubview(infoButton)
+        self.view.addSubview(stringCountValidateLabel)
+        self.view.addSubview(charcaterValidateLabel)
+        
+        self.stringCountValidateLabel.isHidden = true
+        self.charcaterValidateLabel.isHidden = true
     }
     
     func configureLayout() {
+        enterButton.snp.makeConstraints {
+            $0.top.equalTo(self.view.safeAreaLayoutGuide).inset(10)
+            $0.height.equalTo(40)
+            $0.width.equalTo(50)
+            $0.trailing.equalTo(self.view.safeAreaLayoutGuide).inset(40)
+        }
+        
+        infoButton.snp.makeConstraints {
+            $0.centerY.equalTo(enterButton)
+            $0.height.equalTo(20)
+            $0.trailing.equalTo(self.view.safeAreaLayoutGuide).inset(10)
+            $0.width.equalTo(20)
+        }
+        
         tagField.snp.makeConstraints {
+            $0.centerY.equalTo(enterButton)
             $0.leading.equalTo(self.view.safeAreaLayoutGuide).inset(10)
-            $0.trailing.equalTo(self.view.safeAreaLayoutGuide).inset(86)
-            $0.centerY.equalTo(self.view.safeAreaLayoutGuide)
+            $0.trailing.equalTo(enterButton.snp.leading).offset(-10)
             $0.height.equalTo(40)
         }
         
-        enterButton.snp.makeConstraints {
-            $0.centerY.equalTo(tagField)
-            $0.height.equalTo(tagField)
-            $0.leading.equalTo(tagField.snp.trailing).offset(10)
-            $0.trailing.equalTo(self.view.safeAreaLayoutGuide).inset(10)
+        stringCountValidateLabel.snp.makeConstraints {
+            $0.top.equalTo(tagField.snp.bottom).offset(10)
+            $0.leading.equalTo(self.view.safeAreaLayoutGuide).inset(16)
+        }
+        
+        charcaterValidateLabel.snp.makeConstraints {
+            $0.top.equalTo(stringCountValidateLabel.snp.bottom).offset(10)
+            $0.leading.equalTo(self.view.safeAreaLayoutGuide).inset(16)
         }
     }
     
@@ -240,6 +247,26 @@ class GroupTagInputViewController: UIViewController {
         guard let tag = tagField.text else { return }
         tagAddclosure?(tag)
         self.dismiss(animated: true)
+    }
+    
+    @objc func infoBtnTapped(_ sender: UIButton) {
+        print(self.view.bounds)
+        isInfoViewing = !isInfoViewing
+        self.preferredContentSize = isInfoViewing ?
+        CGSize(width: self.view.bounds.width, height: 110) :
+        CGSize(width: self.view.bounds.width, height: 60)
+        
+        self.stringCountValidateLabel.setAnimatedIsHidden(!isInfoViewing)
+        self.charcaterValidateLabel.setAnimatedIsHidden(!isInfoViewing)
+        
+    }
+    
+    func validationLabelGenerator(text: String) -> UILabel {
+        let label = UILabel(frame: .zero)
+        label.text = text
+        label.font = UIFont(name: "Pretendard-Regular", size: 12)
+        label.textColor = UIColor(hex: 0x6F81A9)
+        return label
     }
 }
 

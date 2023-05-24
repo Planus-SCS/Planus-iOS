@@ -163,24 +163,6 @@ class GroupCreateViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .tagCharCountValidState
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, validation in
-                vc.tagView.stringCountCheckView.isValid(validation)
-            })
-            .disposed(by: bag)
-        
-        output
-            .tagSpecialCharValidState
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, validation in
-                vc.tagView.charValidateCheckView.isValid(validation)
-            })
-            .disposed(by: bag)
-        
-        output
             .tagDuplicateValidState
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
@@ -274,6 +256,9 @@ class GroupCreateViewController: UIViewController {
     func configureView() {
         tagView.tagCollectionView.dataSource = self
         tagView.tagCollectionView.delegate = self
+        
+        createButtonView.wideButton.setTitle("그룹 생성하기", for: .normal)
+
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(scrollView)
         scrollView.addSubview(contentStackView)

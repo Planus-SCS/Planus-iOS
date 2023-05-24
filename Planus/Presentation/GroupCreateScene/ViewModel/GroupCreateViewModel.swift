@@ -19,8 +19,6 @@ class GroupCreateViewModel {
     var maxMember = BehaviorSubject<Int?>(value: nil)
     
     let tagCountValidState = PublishSubject<Bool>()
-    let tagLengthValidState = PublishSubject<Bool>()
-    let tagSpecialCharValidState = PublishSubject<Bool>()
     let tagDuplicateValidState = PublishSubject<Bool>()
 
     var showGroupCreateLoadPage = PublishSubject<(GroupCreate, ImageFile)>()
@@ -42,8 +40,6 @@ class GroupCreateViewModel {
         var maxCountFilled: Observable<Bool>
         var didChangedTitleImage: Observable<Data?>
         var tagCountValidState: Observable<Bool>
-        var tagCharCountValidState: Observable<Bool>
-        var tagSpecialCharValidState: Observable<Bool>
         var tagDuplicateValidState: Observable<Bool>
         var isCreateButtonEnabled: Observable<Bool>
         var showCreateLoadPage: Observable<(GroupCreate, ImageFile)>
@@ -138,8 +134,6 @@ class GroupCreateViewModel {
             imageFilled,
             maxMemberFilled,
             tagCountValidState,
-            tagLengthValidState,
-            tagSpecialCharValidState,
             tagDuplicateValidState
         ]).map { list in
             guard let _ = list.first(where: { !$0 }) else { return true }
@@ -153,8 +147,6 @@ class GroupCreateViewModel {
             maxCountFilled: maxMemberFilled,
             didChangedTitleImage: titleImage.map { $0?.data }.asObservable(),
             tagCountValidState: tagCountValidState.asObservable(),
-            tagCharCountValidState: tagLengthValidState.asObservable(),
-            tagSpecialCharValidState: tagSpecialCharValidState.asObservable(),
             tagDuplicateValidState: tagDuplicateValidState.asObservable(),
             isCreateButtonEnabled: isCreateButtonEnabled,
             showCreateLoadPage: showGroupCreateLoadPage.asObservable(),
@@ -165,13 +157,9 @@ class GroupCreateViewModel {
     
     func checkTagValidation() {
         let tagCountState = tagList.count <= 5 && tagList.count > 0
-        let tagLengthState = tagCountState && tagList.filter { $0.count > 7 }.count == 0
-        let tagSpecialCharState = tagCountState && tagList.filter { $0.checkRegex(regex: "^(?=.*[\\s!@#$%0-9])") }.count == 0
         let tagDuplicateState = tagCountState && Set(tagList).count == tagList.count
         
         self.tagCountValidState.onNext(tagCountState)
-        self.tagLengthValidState.onNext(tagLengthState)
-        self.tagSpecialCharValidState.onNext(tagSpecialCharState)
         self.tagDuplicateValidState.onNext(tagDuplicateState)
     }
     

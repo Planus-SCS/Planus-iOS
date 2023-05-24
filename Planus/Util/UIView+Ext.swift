@@ -30,3 +30,29 @@ extension UIView {
     }
 }
 
+extension UIView {
+    
+    func setAnimatedIsHidden(_ isHidden: Bool, duration: TimeInterval = 0.4, onCompletion: (() -> Void)? = nil) {
+        if isHidden {
+            UIView.animate(
+                withDuration: duration,
+                animations: { self.alpha = 0 },
+                completion: { (value: Bool) in
+                    self.isHidden = true
+                    if let complete = onCompletion { complete() }
+                }
+            )
+        } else {
+            self.isHidden = false
+            self.alpha = 0
+            UIView.animate(
+                withDuration: duration,
+                animations: { self.alpha = 1 },
+                completion: { (value: Bool) in
+                    if let complete = onCompletion { complete() }
+                }
+            )
+        }
+    }
+}
+

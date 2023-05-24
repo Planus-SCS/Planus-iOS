@@ -73,7 +73,7 @@ class MyGroupInfoEditViewController: UIViewController {
         super.viewWillAppear(animated)
         
         self.navigationItem.setLeftBarButton(backButton, animated: false)
-        self.navigationItem.title = "그룹 생성"
+        self.navigationItem.title = "그룹 편집"
     }
     
     func bind() {
@@ -122,20 +122,11 @@ class MyGroupInfoEditViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .tagCharCountValidState
+            .tagDuplicateValidState
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, validation in
-                vc.tagView.stringCountCheckView.isValid(validation)
-            })
-            .disposed(by: bag)
-        
-        output
-            .tagSpecialCharValidState
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, validation in
-                vc.tagView.charValidateCheckView.isValid(validation)
+                vc.tagView.duplicateValidateCheckView.isValid(validation)
             })
             .disposed(by: bag)
         
@@ -217,6 +208,8 @@ class MyGroupInfoEditViewController: UIViewController {
     func configureView() {
         tagView.tagCollectionView.dataSource = self
         tagView.tagCollectionView.delegate = self
+        
+        createButtonView.wideButton.setTitle("저장하기", for: .normal)
         
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(scrollView)
