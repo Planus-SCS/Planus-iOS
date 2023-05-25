@@ -15,5 +15,5 @@ struct UnJoinedGroupSummary {
     var limitCount: Int
     var leaderId: Int
     var leaderName: String
-    var groupTags: GroupTag
+    var groupTags: [GroupTag]
 }

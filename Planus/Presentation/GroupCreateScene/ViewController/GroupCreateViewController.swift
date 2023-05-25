@@ -153,6 +153,8 @@ class GroupCreateViewController: UIViewController {
             })
             .disposed(by: bag)
         
+        viewModel.checkTagValidation()
+        
         output
             .tagCountValidState
             .observe(on: MainScheduler.asyncInstance)

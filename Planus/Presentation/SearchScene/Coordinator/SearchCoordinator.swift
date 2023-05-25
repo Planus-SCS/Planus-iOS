@@ -26,7 +26,9 @@ class SearchCoordinator: Coordinator {
     }
     
     lazy var showInitialSearchPage: () -> Void = { [weak self] in
-        let vm = SearchViewModel()
+        let vm = SearchViewModel(
+            getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())),
+            fetchSearchHomeUseCase: DefaultFetchSearchHomeUseCase(groupRepository: DefaultGroupRepository(apiProvider: NetworkManager())), fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared))
         vm.setActions(actions: SearchViewModelActions(
             showSearchResultPage: self?.showSearchResultPage,
             showGroupIntroducePage: self?.showGroupIntroducePage,

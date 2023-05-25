@@ -16,9 +16,12 @@ class SearchViewController: UIViewController {
     
     var viewModel: SearchViewModel?
     
+    var isLoading: Bool = true
+    var isEnded: Bool = false
     var tappedItemAt = PublishSubject<Int>()
     var refreshRequired = PublishSubject<Void>()
     var searchBtnTapped = PublishSubject<Void>()
+    var needLoadNextData = PublishSubject<Void>()
     
     lazy var refreshControl: UIRefreshControl = {
         let rc = UIRefreshControl(frame: .zero)
@@ -126,38 +129,48 @@ class SearchViewController: UIViewController {
             refreshRequired: refreshRequired.asObservable(),
             keywordChanged: searchBarField.rx.text.asObservable(),
             searchBtnTapped: searchBtnTapped.asObservable(),
-            createBtnTapped: createGroupButton.rx.tap.asObservable()
+            createBtnTapped: createGroupButton.rx.tap.asObservable(),
+            needLoadNextData: needLoadNextData.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
         output
-            .didFinishFetchResult
-            .compactMap { $0 }
+            .didFetchAdditionalResult
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.resultCollectionView.reloadData()
+            .subscribe(onNext: { vc, range in
+                let indexList = Array(range).map { IndexPath(item: $0, section: 0) }
+                vc.resultCollectionView.performBatchUpdates({
+                    vc.resultCollectionView.insertItems(at: indexList)
+                }, completion: { _ in
+                    vc.isLoading = false
+                })
             })
             .disposed(by: bag)
         
         output
-            .fetchResultProcessing
+            .didFetchInitialResult
+            .observe(on: MainScheduler.asyncInstance)
             .compactMap { $0 }
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                /*
-                 로딩 인디케이터 or 스켈레톤뷰
-                 */
+                vc.resultCollectionView.performBatchUpdates({
+                    vc.resultCollectionView.reloadData()
+                }, completion: { _ in
+                    if vc.refreshControl.isRefreshing {
+                        vc.refreshControl.endRefreshing()
+                    }
+                    vc.isLoading = false
+                })
             })
             .disposed(by: bag)
         
         output
-            .didAddResult
+            .resultEnded
             .withUnretained(self)
-            .subscribe(onNext: { count in
-                /*
-                 insert
-                 */
+            .subscribe(onNext: { vc, _ in
+                vc.isEnded = true
             })
             .disposed(by: bag)
     }
@@ -196,7 +209,9 @@ class SearchViewController: UIViewController {
     }
     
     @objc func refresh(_ sender: UIRefreshControl) {
-        self.resultCollectionView.reloadData()
+        refreshRequired.onNext(())
+        isEnded = false
+        isLoading = true
     }
 }
 
@@ -220,21 +235,29 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
               let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
         
-        cell.fill(title: item.title, tag: item.tag, memCount: item.memCount, captin: item.captin)
-        let image = UIImage(named: item.imageName) ?? UIImage()
+        cell.fill(
+            title: item.name,
+            tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
+            memCount: "\(item.memberCount)/\(item.limitCount)",
+            captin: item.leaderName
+        )
         
-        let width = (self.view.frame.width - 22)/2
-        let height = width*1.3
-        let resizedImage = UIImage.resizeImage(image: image, targetSize: CGSize(width: width, height: height))
-        cell.fill(image: resizedImage)
+        viewModel?.fetchImage(key: item.groupImageUrl)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { data in
+                cell.fill(image: UIImage(data: data))
+            })
+            .disposed(by: bag)
         
         return cell
     }
     
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if (refreshControl.isRefreshing) {
-            self.refreshControl.endRefreshing()
-            refreshRequired.onNext(())
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if !isLoading,
+           !isEnded,
+           scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height {
+            isLoading = true
+            needLoadNextData.onNext(())
         }
     }
     

@@ -53,7 +53,7 @@ class GroupIntroduceCoordinator: Coordinator {
             popCurrentPage: self?.popCurrentPage,
             didPop: self?.didPop)
         )
-        vm.setGroupId(id: 1)
+        vm.setGroupId(id: id)
         let vc = GroupIntroduceViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
 

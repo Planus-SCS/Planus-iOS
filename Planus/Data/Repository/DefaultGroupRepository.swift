@@ -15,7 +15,7 @@ class DefaultGroupRepository: GroupRepository {
         self.apiProvider = apiProvider
     }
     
-    func fetchSearchHome(page: Int, size: Int) -> Single<ResponseDTO<[UnJoinedGroupSummaryResponseDTO]>> {
+    func fetchSearchHome(token: String, page: Int, size: Int) -> Single<ResponseDTO<[UnJoinedGroupSummaryResponseDTO]>> {
         let endPoint = APIEndPoint(
             url: URLPool.groups,
             requestType: .get,
@@ -24,7 +24,7 @@ class DefaultGroupRepository: GroupRepository {
                 "page": String(page),
                 "size": String(size)
             ],
-            header: nil
+            header: ["Authorization": "Bearer \(token)"]
         )
         
         return apiProvider.requestCodable(

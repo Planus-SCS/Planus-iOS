@@ -20,20 +20,18 @@ class SearchViewModel {
     
     var actions: SearchViewModelActions?
     
-    var result: [GroupSearchResultViewModel] = [
-        GroupSearchResultViewModel(id: 1, title: "네카라쿠베가보자",imageName: "groupTest1", tag: "#취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발", memCount: "1/2121212121212", captin: "이상민1ddfdfdfdfdfdfdf"),
-        GroupSearchResultViewModel(id: 2, title: "당토직야도가야지",imageName: "groupTest2", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민2"),
-        GroupSearchResultViewModel(id: 3, title: "우끼끼",imageName: "groupTest3", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "1/2", captin: "이상민3"),
-        GroupSearchResultViewModel(id: 4, title: "에헤헤",imageName: "groupTest4", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민4"),
-        GroupSearchResultViewModel(id: 5, title: "이히히",imageName: "groupTest1", tag: "#취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발 #취준 #공대 #코딩 #IT #개발", memCount: "1/2121212121212", captin: "이상민5"),
-        GroupSearchResultViewModel(id: 6, title: "우히히",imageName: "groupTest2", tag: "#취준 #공대 #코딩 #IT #개발", memCount: "3/4", captin: "이상민6"),
-    ]
+    var result: [UnJoinedGroupSummary] = []
     
     var keyword = BehaviorSubject<String?>(value: nil)
     
-    var fetchResultProcessing = BehaviorSubject<Void?>(value: nil)
-    var didFinishFetchResult = BehaviorSubject<Void?>(value: nil)
-    var didAddResult = PublishSubject<Int>()
+    var isLoading: Bool = false
+    
+    var didFetchInitialResult = BehaviorSubject<Void?>(value: nil)
+    var didFetchAdditionalResult = PublishSubject<Range<Int>>()
+    var resultEnded = PublishSubject<Void>()
+    
+    var page: Int = 0
+    var size: Int = 5
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -42,12 +40,30 @@ class SearchViewModel {
         var keywordChanged: Observable<String?>
         var searchBtnTapped: Observable<Void>
         var createBtnTapped: Observable<Void>
+        var needLoadNextData: Observable<Void>
     }
     
     struct Output {
-        var fetchResultProcessing: Observable<Void?>
-        var didFinishFetchResult: Observable<Void?>
-        var didAddResult: Observable<Int> //amount를 전달해서 insert
+        var didFetchInitialResult: Observable<Void?>
+        var didFetchAdditionalResult: Observable<Range<Int>>
+        var resultEnded: Observable<Void>
+    }
+    
+    let getTokenUseCase: GetTokenUseCase
+    let refreshTokenUseCase: RefreshTokenUseCase
+    let fetchSearchHomeUseCase: FetchSearchHomeUseCase
+    let fetchImageUseCase: FetchImageUseCase
+    
+    init(
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase,
+        fetchSearchHomeUseCase: FetchSearchHomeUseCase,
+        fetchImageUseCase: FetchImageUseCase
+    ) {
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
+        self.fetchSearchHomeUseCase = fetchSearchHomeUseCase
+        self.fetchImageUseCase = fetchImageUseCase
     }
     
     func setActions(actions: SearchViewModelActions) {
@@ -59,10 +75,7 @@ class SearchViewModel {
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                /*
-                 여기서 이제 최초로 받아올 놈들을 가져오면 된다
-                 */
-                vm.fetchSearchResult(from: 0, amount: 0)
+                vm.fetchInitialresult()
             })
             .disposed(by: bag)
         
@@ -70,15 +83,16 @@ class SearchViewModel {
             .tappedItemAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                let groupId = vm.result[index].id
+                let groupId = vm.result[index].groupId
                 vm.actions?.showGroupIntroducePage?(groupId)
             })
             .disposed(by: bag)
         
         input
             .refreshRequired
-            .subscribe(onNext: {
-                print("refresh required!")
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchInitialresult()
             })
             .disposed(by: bag)
         
@@ -102,15 +116,59 @@ class SearchViewModel {
             })
             .disposed(by: bag)
         
+        input.needLoadNextData
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchResult(isInitial: false)
+            })
+            .disposed(by: bag)
         
         return Output(
-            fetchResultProcessing: fetchResultProcessing.asObservable(),
-            didFinishFetchResult: didFinishFetchResult.asObservable(),
-            didAddResult: didAddResult.asObservable()
+            didFetchInitialResult: didFetchInitialResult.asObservable(),
+            didFetchAdditionalResult: didFetchAdditionalResult.asObservable(),
+            resultEnded: resultEnded.asObservable()
         )
     }
     
-    func fetchSearchResult(from: Int, amount: Int) { //나중에 페이지네이션 생각해서 from amount 추가
-        didFinishFetchResult.onNext(())
+    func fetchInitialresult() {
+        page = 0
+        result.removeAll()
+        fetchResult(isInitial: true)
+    }
+    
+    func fetchResult(isInitial: Bool) {
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[UnJoinedGroupSummary]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchSearchHomeUseCase
+                    .execute(token: token, page: self.page, size: self.size)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] list in
+                guard let self else { return }
+                print(self.page, self.size, list.count)
+                self.result += list
+                if isInitial {
+                    self.didFetchInitialResult.onNext(())
+                } else {
+                    self.didFetchAdditionalResult.onNext((self.page * self.size..<self.page * self.size+list.count))
+                }
+                if list.count != self.size { //이럼 끝에 달한거임. 막아야함..!
+                    self.resultEnded.onNext(())
+                }
+                self.page += 1
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchImage(key: String) -> Single<Data> {
+        fetchImageUseCase
+            .execute(key: key)
     }
 }

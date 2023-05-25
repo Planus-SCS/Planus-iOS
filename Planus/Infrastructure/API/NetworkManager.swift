@@ -36,7 +36,7 @@ class NetworkManager: APIProvider {
             guard let self else {
                 return Disposables.create()
             }
-            // 이 Single을 만든 클로저가 다시실행되는거니까,,, 클래스를 만들던 해서 여기에서 불러와야함,,,,,,,,
+            
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
                     emitter(.failure(error))
@@ -47,6 +47,7 @@ class NetworkManager: APIProvider {
                     emitter(.failure(NetworkError.nilDataError))
                     return
                 }
+
                 if let reqData = request.httpBody {
                     print(String(decoding: reqData, as: UTF8.self))
                 }
