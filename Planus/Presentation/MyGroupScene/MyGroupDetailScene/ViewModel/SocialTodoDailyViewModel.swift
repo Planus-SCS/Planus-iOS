@@ -8,6 +8,11 @@
 import Foundation
 import RxSwift
 
+enum SocialTodoViewModelType {
+    case member
+    case group
+}
+
 class SocialTodoDailyViewModel {
     var bag = DisposeBag()
 
@@ -19,6 +24,8 @@ class SocialTodoDailyViewModel {
         
     var currentDate: Date?
     var currentDateText: String?
+    
+    var type: SocialTodoViewModelType
     
     lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
