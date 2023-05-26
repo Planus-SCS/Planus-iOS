@@ -106,7 +106,6 @@ class DailyCalendarCell: UICollectionViewCell {
         stackView.snp.makeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
             $0.leading.trailing.equalToSuperview()
-//            $0.bottom.lessThanOrEqualToSuperview().inset(3)
         }
     }
     
@@ -144,6 +143,19 @@ class DailyCalendarCell: UICollectionViewCell {
             } else {
                 todoView = SmallTodoView(text: $0.title, categoryColor: .none)
             }
+            
+            todoView.snp.makeConstraints {
+                $0.height.equalTo(16)
+            }
+            stackView.addArrangedSubview(todoView)
+            views.append(todoView)
+        }
+    }
+    
+    func fill(socialTodoList: [SocialTodoSummary]) {
+        socialTodoList.forEach {
+            var todoView: SmallTodoView
+            todoView = SmallTodoView(text: $0.title, categoryColor: $0.categoryColor)
             
             todoView.snp.makeConstraints {
                 $0.height.equalTo(16)

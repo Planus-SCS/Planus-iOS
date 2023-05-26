@@ -70,7 +70,16 @@ class JoinedGroupCalendarViewModel {
         mainDayList = createMonthlyCalendarUseCase.execute(date: date)
     }
     
+    func getMaxInWeek(index: Int) -> DayViewModel {
+        let maxItem = ((index-index%7)..<(index+7-index%7)).max(by: { (a,b) in
+            mainDayList[a].todoList.count < mainDayList[b].todoList.count
+        }) ?? Int()
+
+        return mainDayList[maxItem]
+    }
+    
     func fetchTodo() {
         // 패치하는 메서드 추후 추가하기
+        
     }
 }
