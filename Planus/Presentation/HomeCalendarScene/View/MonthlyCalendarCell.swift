@@ -118,15 +118,13 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         if let filterGroupId = try? viewModel?.filteredGroupId.value() {
             filteredTodoList = filteredTodoList.filter( { $0.groupId == filterGroupId })
         }
-        
+        cell.delegate = self
         cell.fill(
-            delegate: self,
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
             state: dayViewModel.state,
-            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
-            todoList: filteredTodoList
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!
         ) //카테고리색을 어케하지??? 싱글턴 딕셔너리 개마렵다 ㅋㅋㅋ,,,,,,,,........
-
+        cell.fill(todoList: filteredTodoList)
         return cell
     }
     

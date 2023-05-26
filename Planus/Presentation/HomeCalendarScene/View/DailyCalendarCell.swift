@@ -109,8 +109,7 @@ class DailyCalendarCell: UICollectionViewCell {
         }
     }
     
-    func fill(delegate: DailyCalendarCellDelegate, day: String, state: MonthStateOfDay, weekDay: WeekDay, todoList: [Todo]) {
-        self.delegate = delegate
+    func fill(day: String, state: MonthStateOfDay, weekDay: WeekDay) {
         numberLabel.text = day
         
         var alpha: Double
@@ -130,9 +129,7 @@ class DailyCalendarCell: UICollectionViewCell {
             numberLabel.textColor = UIColor(hex: 0xEA4335, a: alpha)
         default:
             numberLabel.textColor = UIColor(hex: 0x000000, a: alpha)
-        }
-        
-        fill(todoList: todoList)
+        }        
     }
     
     func fill(todoList: [Todo]) {

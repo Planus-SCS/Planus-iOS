@@ -85,13 +85,14 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
             return UICollectionViewCell()
         }
         
+        cell.delegate = self
         cell.fill(
-            delegate: self,
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
             state: dayViewModel.state,
-            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
-            todoList: dayViewModel.todoList
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!
         )
+        
+        cell.fill(todoList: dayViewModel.todoList)
 
         return cell
     }

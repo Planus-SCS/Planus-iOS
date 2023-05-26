@@ -6,9 +6,13 @@
 //
 
 import UIKit
+import RxSwift
 
 class JoinedGroupDetailCalendarHeaderView: UICollectionReusableView {
     static let reuseIdentifier = "joined-group-detail-calendar-header-view"
+    
+    var bag: DisposeBag?
+    
     lazy var yearMonthButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setTitle("2020년 0월", for: .normal)

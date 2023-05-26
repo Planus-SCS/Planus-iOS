@@ -14,7 +14,8 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
     var viewModel: JoinedGroupCalendarViewModel?
     
     var didChangedMonth = PublishSubject<Date>()
-    var didSelectedAt = PublishSubject<Int>()
+    
+    var spinner = UIActivityIndicatorView(style: .medium)
     
     lazy var calendarCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -57,22 +58,23 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
     
     func bind() {
         guard let viewModel else { return }
-        
+        spinner.isHidden = false
+        spinner.startAnimating()
+                
         let input = JoinedGroupCalendarViewModel.Input(
             viewDidLoad: Observable.just(()),
             didChangedMonth: didChangedMonth.asObservable(),
-            didSelectedAt: didSelectedAt.asObservable()
+            didSelectedAt: calendarCollectionView.rx.itemSelected.map { $0.item }.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
-        output
-            .didCreateCalendar
-            .compactMap { $0 }
+        didChangedMonth
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.calendarCollectionView.reloadData()
+                vc.spinner.isHidden = false
+                vc.spinner.startAnimating()
             })
             .disposed(by: bag)
         
@@ -82,18 +84,39 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.calendarCollectionView.reloadData()
+                vc.calendarCollectionView.performBatchUpdates({
+                    vc.calendarCollectionView.reloadSections(IndexSet(0...0))
+                }, completion: { _ in
+                    vc.spinner.stopAnimating()
+                    vc.spinner.isHidden = true
+                })
+            })
+            .disposed(by: bag)
+        
+        output
+            .showDaily
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                
             })
             .disposed(by: bag)
     }
     
     func configureView() {
         self.view.addSubview(calendarCollectionView)
+        self.view.addSubview(spinner)
+        spinner.isHidden = true
     }
     
     func configureLayout() {
         calendarCollectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
+        }
+        
+        spinner.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().inset(50)
         }
     }
     
@@ -113,7 +136,7 @@ extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout 
             
         } else {
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
-            mockCell.fill(todoList: maxTodoViewModel.todoList)
+            mockCell.fill(socialTodoList: maxTodoViewModel.todoList)
             mockCell.layoutIfNeeded()
             
             let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
@@ -148,35 +171,51 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell,
               let dayViewModel = viewModel?.mainDayList[indexPath.item] else {
-            print("여긴가1?")
             return UICollectionViewCell()
         }
-        
         cell.fill(
-            delegate: self,
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
             state: dayViewModel.state,
-            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
-            todoList: dayViewModel.todoList
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!
         )
+        
+        cell.fill(socialTodoList: dayViewModel.todoList)
 
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier, for: indexPath) as? JoinedGroupDetailCalendarHeaderView else { return UICollectionReusableView() }
+        let bag = DisposeBag()
+        view.yearMonthButton.setTitle(viewModel?.currentDateText, for: .normal)
+        view.yearMonthButton.rx.tap
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                let dateMonth = vc.viewModel?.currentDate ?? Date()
+                let firstMonth = Calendar.current.date(byAdding: DateComponents(month: -100), to: dateMonth) ?? Date()
+                let lastMonth = Calendar.current.date(byAdding: DateComponents(month: 500), to: dateMonth) ?? Date()
+                
+                let vc = MonthPickerViewController(firstYear: firstMonth, lastYear: lastMonth, currentDate: dateMonth) { [weak self] date in
+                    self?.didChangedMonth.onNext(date)
+                }
+
+                vc.preferredContentSize = CGSize(width: 320, height: 290)
+                vc.modalPresentationStyle = .popover
+                let popover: UIPopoverPresentationController = vc.popoverPresentationController!
+                popover.delegate = self
+                popover.sourceView = self.view
+                popover.sourceItem = view.yearMonthButton
+                
+                self.present(vc, animated: true, completion:nil)
+            })
+            .disposed(by: bag)
+        view.bag = bag
         return view
     }
 }
 
-extension JoinedGroupCalendarViewController: DailyCalendarCellDelegate {
-    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor? {
-        // 컬러담당하는 놈이 필요하다..! 뷰모델에서 갖고오자..!
-        // 원래 데일리는 이걸 썼음. 근데 지금은 id로 넘겨주질 않고있음. 즉 아에 싹바뀐거임..!
-        return CategoryColor.blue
+extension JoinedGroupCalendarViewController: UIPopoverPresentationControllerDelegate {
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
     }
 }
-
-/*
- 업데이트를 어떻게 해야하지???
- */
