@@ -15,7 +15,7 @@ struct SocialTodoSummary {
     var endDate: Date
 }
 
-struct SocialTodoDetail {
+struct SocialTodoDaily {
     var todoId: Int
     var categoryColor: CategoryColor
     var title: String

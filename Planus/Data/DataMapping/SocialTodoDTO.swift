@@ -27,7 +27,12 @@ extension SocialTodoSummaryResponseDTO {
     }
 }
 
-struct SocialTodoDetailResponseDTO: Codable {
+struct SocialTodoDailyListResponseDTO: Codable {
+    var dailySchedules: [SocialTodoDailyResponseDTO]
+    var dailyTodos: [SocialTodoDailyResponseDTO]
+}
+
+struct SocialTodoDailyResponseDTO: Codable {
     var todoId: Int
     var categoryColor: String
     var title: String
@@ -38,9 +43,9 @@ struct SocialTodoDetailResponseDTO: Codable {
     var isCompleted: Bool
 }
 
-extension SocialTodoDetailResponseDTO {
-    func toDomain() -> SocialTodoDetail {
-        return SocialTodoDetail(
+extension SocialTodoDailyResponseDTO {
+    func toDomain() -> SocialTodoDaily {
+        return SocialTodoDaily(
             todoId: todoId,
             categoryColor: CategoryColor(rawValue: categoryColor) ?? .none,
             title: title,
