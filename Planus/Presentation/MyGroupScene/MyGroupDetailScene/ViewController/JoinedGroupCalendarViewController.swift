@@ -109,13 +109,14 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
                 let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
                 let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
                 let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyTodoListUseCase(groupCalendarRepository: gcr)
+                let fetchMemberDailyCalendarUseCase = DefaultFetchMemberDailyCalendarUseCase(memberCalendarRepository: DefaultMemberCalendarRepository(apiProvider: nm))
                 let viewModel = SocialTodoDailyViewModel(
                     getTokenUseCase: getTokenUseCase,
                     refreshTokenUseCase: refTokenUseCase,
-                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase
+                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
+                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase
                 )
-                viewModel.setGroup(id: groupId, isOwner: isOwner, date: date)
-                
+                viewModel.setGroup(groupId: groupId, type: .group(isLeader: isOwner), date: date)
                 let viewController = SocialTodoDailyViewController(viewModel: viewModel)
                 
                 let nav = UINavigationController(rootViewController: viewController)

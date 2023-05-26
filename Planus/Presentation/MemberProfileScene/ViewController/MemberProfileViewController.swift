@@ -122,7 +122,31 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, dayViewModel in
-
+                guard let groupId = vc.viewModel?.groupId,
+                      let memberId = vc.viewModel?.member?.memberId else { return }
+                let nm = NetworkManager()
+                let kc = KeyChainManager()
+                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyChainManager: kc)
+                let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
+                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+                let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyTodoListUseCase(groupCalendarRepository: gcr)
+                let fetchMemberDailyCalendarUseCase = DefaultFetchMemberDailyCalendarUseCase(memberCalendarRepository: DefaultMemberCalendarRepository(apiProvider: nm))
+                let viewModel = SocialTodoDailyViewModel(
+                    getTokenUseCase: getTokenUseCase,
+                    refreshTokenUseCase: refTokenUseCase,
+                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
+                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase
+                )
+                viewModel.setGroup(groupId: groupId, type: .member(id: memberId), date: dayViewModel.date)
+                let viewController = SocialTodoDailyViewController(viewModel: viewModel)
+                
+                let nav = UINavigationController(rootViewController: viewController)
+                nav.modalPresentationStyle = .pageSheet
+                if let sheet = nav.sheetPresentationController {
+                    sheet.detents = [.medium(), .large()]
+                }
+                vc.present(nav, animated: true)
             })
             .disposed(by: bag)
         
@@ -132,7 +156,7 @@ class MemberProfileViewController: UIViewController {
                 let vc = MonthPickerViewController(firstYear: first, lastYear: last, currentDate: current) { [weak self] date in
                     self?.isMonthChanged.onNext(date)
                 }
-                // 여기서 앞뒤로 범위까지 전달할 수 있어야함. 즉, 저걸 열면 현재날짜에서 월별로 앞뒤로를 만들어서 한번에 데이터소스에 집어넣는게 맞을듯하다..!아이구야,,,
+
                 vc.preferredContentSize = CGSize(width: 320, height: 290)
                 vc.modalPresentationStyle = .popover
                 let popover: UIPopoverPresentationController = vc.popoverPresentationController!

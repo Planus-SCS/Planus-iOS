@@ -76,10 +76,7 @@ class SocialTodoDailyViewController: UIViewController {
         )
         
         let output = viewModel.transform(input: input)
-        
-        addTodoButton.isHidden = !(output.isOwner ?? true)
-        dateTitleButton.setTitle(output.currentDateText, for: .normal)
-        
+                
         spinner.isHidden = false
         spinner.startAnimating()
         collectionView.setAnimatedIsHidden(true, duration: 0)
@@ -101,7 +98,15 @@ class SocialTodoDailyViewController: UIViewController {
             .disposed(by: bag)
         
         dateTitleButton.setTitle(output.currentDateText, for: .normal)
-        addTodoButton.isHidden = !(output.isOwner ?? false)
+
+        guard let type = output.socialType else { return }
+        
+        switch type {
+        case .member(let id):
+            addTodoButton.isHidden = true
+        case .group(let isLeader):
+            addTodoButton.isHidden = !(isLeader ?? false)
+        }
     }
     
     func configureView() {
@@ -270,64 +275,64 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        var todoId: Int?
-        switch indexPath.section {
-        case 0:
-            if viewModel?.scheduledTodoList?.count == 0 {
-                return false
-            } else {
-                todoId = viewModel?.scheduledTodoList?[indexPath.item].todoId
-            }
-        case 1:
-            if viewModel?.unscheduledTodoList?.count == 0 {
-                return false
-            } else {
-                todoId = viewModel?.unscheduledTodoList?[indexPath.item].todoId
-            }
-        default:
-            return false
-        }
-        guard let todoId,
-              let isOwner = viewModel?.isOwner else { return false }
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
-        
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
-
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        
-//        let vm = TodoDetailViewModel(
-//            getTokenUseCase: getTokenUseCase,
-//            refreshTokenUseCase: refreshTokenUseCase,
-//            createTodoUseCase: createTodoUseCase,
-//            updateTodoUseCase: updateTodoUseCase,
-//            deleteTodoUseCase: deleteTodoUseCase,
-//            createCategoryUseCase: createCategoryUseCase,
-//            updateCategoryUseCase: updateCategoryUseCase,
-//            deleteCategoryUseCase: deleteCategoryUseCase,
-//            readCategoryUseCase: readCateogryUseCase
-//        )
-//
-//        guard let groupDict = viewModel?.groupDict else { return false }
-//        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-//        vm.setGroup(groupList: groupList)
-//        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
-//        var groupName: GroupName?
-//        if let groupId = item.groupId {
-//            groupName = groupDict[groupId]
+//        var todoId: Int?
+//        switch indexPath.section {
+//        case 0:
+//            if viewModel?.scheduledTodoList?.count == 0 {
+//                return false
+//            } else {
+//                todoId = viewModel?.scheduledTodoList?[indexPath.item].todoId
+//            }
+//        case 1:
+//            if viewModel?.unscheduledTodoList?.count == 0 {
+//                return false
+//            } else {
+//                todoId = viewModel?.unscheduledTodoList?[indexPath.item].todoId
+//            }
+//        default:
+//            return false
 //        }
+//        guard let todoId,
+//              let isOwner = viewModel?.isOwner else { return false }
+//        let api = NetworkManager()
+//        let keyChain = KeyChainManager()
+//        
+//        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
 //
-//        if isOwner {
-//            vm.setForEdit(todo: item, category: category, groupName: groupName)
-//        } else {
-//            vm.setForOthers(todo: item, category: category, groupName: groupName)
-//        }
-//        vm.todoStartDay.onNext(viewModel?.currentDate)
-//        let vc = TodoDetailViewController(viewModel: vm)
-//        vc.modalPresentationStyle = .overFullScreen
-//        self.present(vc, animated: false, completion: nil)
-        
+//        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+//        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+//
+////        let vm = TodoDetailViewModel(
+////            getTokenUseCase: getTokenUseCase,
+////            refreshTokenUseCase: refreshTokenUseCase,
+////            createTodoUseCase: createTodoUseCase,
+////            updateTodoUseCase: updateTodoUseCase,
+////            deleteTodoUseCase: deleteTodoUseCase,
+////            createCategoryUseCase: createCategoryUseCase,
+////            updateCategoryUseCase: updateCategoryUseCase,
+////            deleteCategoryUseCase: deleteCategoryUseCase,
+////            readCategoryUseCase: readCateogryUseCase
+////        )
+////
+////        guard let groupDict = viewModel?.groupDict else { return false }
+////        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+////        vm.setGroup(groupList: groupList)
+////        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+////        var groupName: GroupName?
+////        if let groupId = item.groupId {
+////            groupName = groupDict[groupId]
+////        }
+////
+////        if isOwner {
+////            vm.setForEdit(todo: item, category: category, groupName: groupName)
+////        } else {
+////            vm.setForOthers(todo: item, category: category, groupName: groupName)
+////        }
+////        vm.todoStartDay.onNext(viewModel?.currentDate)
+////        let vc = TodoDetailViewController(viewModel: vm)
+////        vc.modalPresentationStyle = .overFullScreen
+////        self.present(vc, animated: false, completion: nil)
+//
         return false
     }
 
