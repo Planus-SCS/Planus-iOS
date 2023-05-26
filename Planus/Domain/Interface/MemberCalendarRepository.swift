@@ -9,17 +9,18 @@ import Foundation
 import RxSwift
 
 protocol MemberCalendarRepository {
-    func fetchMemberTodoList(
+    func fetchMemberCalendar(
         token: String,
         groupId: Int,
         memberId: Int,
         from: Date,
         to: Date
-    ) -> Single<ResponseDTO<[TodoEntityResponseDTO]>>
+    ) -> Single<ResponseDTO<[SocialTodoSummaryResponseDTO]>>
     
-    func fetchMemberCategoryList(
+    func fetchMemberDailyCalendar(
         token: String,
         groupId: Int,
-        memberId: Int
-    ) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>>
+        memberId: Int,
+        date: Date
+    ) -> Single<ResponseDTO<SocialTodoDailyListResponseDTO>>
 }

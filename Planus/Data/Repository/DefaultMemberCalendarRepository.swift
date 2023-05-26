@@ -15,13 +15,13 @@ class DefaultMemberCalendarRepository: MemberCalendarRepository {
         self.apiProvider = apiProvider
     }
     
-    func fetchMemberTodoList(
+    func fetchMemberCalendar(
         token: String,
         groupId: Int,
         memberId: Int,
         from: Date,
         to: Date
-    ) -> Single<ResponseDTO<[TodoEntityResponseDTO]>> {
+    ) -> Single<ResponseDTO<[SocialTodoSummaryResponseDTO]>> {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.timeZone = .current
@@ -39,27 +39,32 @@ class DefaultMemberCalendarRepository: MemberCalendarRepository {
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: ResponseDTO<[TodoEntityResponseDTO]>.self
+            type: ResponseDTO<[SocialTodoSummaryResponseDTO]>.self
         )
     }
     
-    func fetchMemberCategoryList(
+    func fetchMemberDailyCalendar(
         token: String,
         groupId: Int,
-        memberId: Int
-    ) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>> {
+        memberId: Int,
+        date: Date
+    ) -> Single<ResponseDTO<SocialTodoDailyListResponseDTO>> {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = .current
+        
         let endPoint = APIEndPoint(
-            url: URLPool.myGroup+"/\(groupId)/members/\(memberId)/categories",
+            url: URLPool.myGroup+"/\(groupId)/members/\(memberId)/calendar/daily",
             requestType: .get,
             body: nil,
-            query: nil,
+            query: ["date": dateFormatter.string(from: date)],
             header: ["Authorization": "Bearer \(token)"]
         )
         
         return apiProvider
             .requestCodable(
                 endPoint: endPoint,
-                type: ResponseDTO<[CategoryEntityResponseDTO]>.self
+                type: ResponseDTO<SocialTodoDailyListResponseDTO>.self
             )
     }
 }
