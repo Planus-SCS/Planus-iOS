@@ -37,7 +37,7 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
     
     var viewModel: JoinedGroupNoticeViewModel?
     
-    weak var noticeDelegate: JoinedGroupNoticeViewControllerDelegate?
+    weak var delegate: JoinedGroupNoticeViewControllerDelegate?
     
     var memberRefreshRequired = PublishSubject<Void>()
     var noticeEditButtonTapped = PublishSubject<Void>()
@@ -102,9 +102,10 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.spinner.stopAnimating()
-                vc.noticeCollectionView.isHidden = false
-
-                vc.noticeCollectionView.reloadSections(IndexSet(0...0))
+                vc.spinner.setAnimatedIsHidden(true, duration: 0, onCompletion: {
+                    vc.noticeCollectionView.reloadSections(IndexSet(0...0))
+                    vc.noticeCollectionView.setAnimatedIsHidden(false, duration: 0.2)
+                })
             })
             .disposed(by: bag)
         
@@ -115,9 +116,10 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.spinner.stopAnimating()
-                vc.noticeCollectionView.isHidden = false
-
-                vc.noticeCollectionView.reloadSections(IndexSet(1...1))
+                vc.spinner.setAnimatedIsHidden(true, duration: 0, onCompletion: {
+                    vc.noticeCollectionView.reloadSections(IndexSet(1...1))
+                    vc.noticeCollectionView.setAnimatedIsHidden(false, duration: 0.2)
+                })
             })
             .disposed(by: bag)
         
@@ -149,7 +151,7 @@ class JoinedGroupNoticeViewController: NestedScrollableViewController {
     }
     
     @objc func refresh(_ sender: UIRefreshControl) {
-        noticeDelegate?.refreshRequested(self)
+        delegate?.refreshRequested(self)
         memberRefreshRequired.onNext(())
     }
 }

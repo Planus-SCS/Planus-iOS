@@ -36,7 +36,7 @@ struct SocialTodoDailyResponseDTO: Codable {
     var todoId: Int
     var categoryColor: String
     var title: String
-    var startTime: String
+    var startTime: String?
     var hasGroup: Bool
     var isPeriodTodo: Bool
     var hasDescription: Bool

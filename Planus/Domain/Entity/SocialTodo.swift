@@ -19,7 +19,7 @@ struct SocialTodoDaily {
     var todoId: Int
     var categoryColor: CategoryColor
     var title: String
-    var startTime: String
+    var startTime: String?
     var hasGroup: Bool
     var isPeriodTodo: Bool
     var hasDescription: Bool

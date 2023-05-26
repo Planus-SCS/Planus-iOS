@@ -20,7 +20,7 @@ enum DragDirection {
 }
 
 class NestedScrollableViewController: UIViewController {
-    weak var delegate: NestedScrollableViewScrollDelegate?
+    weak var scrollDelegate: NestedScrollableViewScrollDelegate?
     
     //MARK:- Stored Properties for Scroll Delegate
     
@@ -33,7 +33,7 @@ extension NestedScrollableViewController: UIScrollViewDelegate {
         
         let delta = scrollView.contentOffset.y - oldContentOffset.y
         
-        let topViewCurrentHeightConst = delegate?.currentHeaderHeight
+        let topViewCurrentHeightConst = scrollDelegate?.currentHeaderHeight
         
         if let topViewUnwrappedHeight = topViewCurrentHeightConst {
  
@@ -41,14 +41,14 @@ extension NestedScrollableViewController: UIScrollViewDelegate {
                 topViewUnwrappedHeight > joinedGroupTopViewHeightConstraintRange.lowerBound,
                 scrollView.contentOffset.y > 0 {
                 dragDirection = .Up
-                delegate?.innerTableViewDidScroll(withDistance: delta)
+                scrollDelegate?.innerTableViewDidScroll(withDistance: delta)
                 scrollView.contentOffset.y -= delta
             }
             
             if delta < 0,
                 scrollView.contentOffset.y < 0 {
                 dragDirection = .Down
-                delegate?.innerTableViewDidScroll(withDistance: delta)
+                scrollDelegate?.innerTableViewDidScroll(withDistance: delta)
             }
         }
         
@@ -58,14 +58,14 @@ extension NestedScrollableViewController: UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 
         if scrollView.contentOffset.y <= 0 {
-            delegate?.innerTableViewScrollEnded(withScrollDirection: dragDirection)
+            scrollDelegate?.innerTableViewScrollEnded(withScrollDirection: dragDirection)
         }
     }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 
         if scrollView.contentOffset.y <= 0 {
-            delegate?.innerTableViewScrollEnded(withScrollDirection: dragDirection)
+            scrollDelegate?.innerTableViewScrollEnded(withScrollDirection: dragDirection)
         }
     }
 }

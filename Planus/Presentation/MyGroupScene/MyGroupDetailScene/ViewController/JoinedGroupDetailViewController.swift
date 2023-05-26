@@ -336,8 +336,8 @@ class JoinedGroupDetailViewController: UIViewController {
         )
         noticeViewModel.setGroupId(id: groupId)
         let noticeViewController = JoinedGroupNoticeViewController(viewModel: noticeViewModel)
-        noticeViewController.noticeDelegate = self
         noticeViewController.delegate = self
+        noticeViewController.scrollDelegate = self
         self.noticeViewController = noticeViewController
         
         let createMonthlyCalendarUseCase = DefaultCreateSocialMonthlyCalendarUseCase()
@@ -351,10 +351,11 @@ class JoinedGroupDetailViewController: UIViewController {
         calendarViewModel.setGroupId(id: groupId)
         let calendarViewController = JoinedGroupCalendarViewController(viewModel: calendarViewModel)
         calendarViewController.delegate = self
+        calendarViewController.scrollDelegate = self
         self.calendarViewController = calendarViewController
         
         let chattingViewController = JoinedGroupChattingViewController(nibName: nil, bundle: nil)
-        chattingViewController.delegate = self
+        chattingViewController.scrollDelegate = self
         self.chatViewController = chattingViewController
         
         childList.append(noticeViewController)
@@ -532,5 +533,11 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
 //
 //            self.view.layoutIfNeeded()
 //        })
+    }
+}
+
+extension JoinedGroupDetailViewController: JoinedGroupCalendarViewControllerDelegate {
+    func isLeader() -> Bool? {
+        return viewModel?.isLeader
     }
 }

@@ -246,16 +246,18 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         var todoItem: Todo?
         switch indexPath.section {
         case 0:
-            if viewModel?.scheduledTodoList?.count == 0 {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+            if let scheduledList = viewModel?.scheduledTodoList,
+               !scheduledList.isEmpty {
+                todoItem = scheduledList[indexPath.item]
             } else {
-                todoItem = viewModel?.scheduledTodoList?[indexPath.item]
+                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
         case 1:
-            if viewModel?.unscheduledTodoList?.count == 0 {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+            if let unscheduledList = viewModel?.unscheduledTodoList,
+               !unscheduledList.isEmpty {
+                todoItem = unscheduledList[indexPath.item]
             } else {
-                todoItem = viewModel?.unscheduledTodoList?[indexPath.item]
+                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
         default:
             return UICollectionViewCell()
@@ -301,24 +303,18 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         print("a")
         switch indexPath.section {
         case 0:
-            var filteredScheduledTodoList = viewModel?.scheduledTodoList
-            if let groupId = viewModel?.filteringGroupId {
-                filteredScheduledTodoList = filteredScheduledTodoList?.filter { $0.groupId == groupId }
-            }
-            if filteredScheduledTodoList?.count == 0 {
-                return false
+            if let scheduledList = viewModel?.scheduledTodoList,
+               !scheduledList.isEmpty {
+                item = scheduledList[indexPath.item]
             } else {
-                item = filteredScheduledTodoList?[indexPath.item]
+                return false
             }
         case 1:
-            var filteredUnscheduledTodoList = viewModel?.unscheduledTodoList
-            if let groupId = viewModel?.filteringGroupId {
-                filteredUnscheduledTodoList = filteredUnscheduledTodoList?.filter { $0.groupId == groupId }
-            }
-            if filteredUnscheduledTodoList?.count == 0 {
-                return false
+            if let unscheduledList = viewModel?.unscheduledTodoList,
+               !unscheduledList.isEmpty {
+                item = unscheduledList[indexPath.item]
             } else {
-                item = filteredUnscheduledTodoList?[indexPath.item]
+                return false
             }
         default:
             return false

@@ -30,6 +30,7 @@ class JoinedGroupCalendarViewModel {
     var mainDayList = [SocialDayViewModel]()
     var cachedCellHeightForTodoCount = [Int: Double]()
         
+    var showDaily = PublishSubject<Date>()
     var didFetchTodo = BehaviorSubject<Void?>(value: nil)
     
     let getTokenUseCase: GetTokenUseCase
@@ -78,13 +79,16 @@ class JoinedGroupCalendarViewModel {
         
         input
             .didSelectedAt
-            .subscribe(onNext: { index in
-                print(index)
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                let date = vm.mainDayList[index].date
+                vm.showDaily.onNext(date)
             })
             .disposed(by: bag)
         
         return Output(
-            didFetchTodo: didFetchTodo
+            didFetchTodo: didFetchTodo.asObservable(),
+            showDaily: showDaily.asObservable()
         )
     }
     

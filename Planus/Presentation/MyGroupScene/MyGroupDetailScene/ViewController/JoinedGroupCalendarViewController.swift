@@ -13,7 +13,10 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
     var bag = DisposeBag()
     var viewModel: JoinedGroupCalendarViewModel?
     
+    weak var delegate: JoinedGroupCalendarViewControllerDelegate?
+    
     var didChangedMonth = PublishSubject<Date>()
+    var didTappedItemAt = PublishSubject<Int>()
     
     var spinner = UIActivityIndicatorView(style: .medium)
     
@@ -64,9 +67,8 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
         let input = JoinedGroupCalendarViewModel.Input(
             viewDidLoad: Observable.just(()),
             didChangedMonth: didChangedMonth.asObservable(),
-            didSelectedAt: calendarCollectionView.rx.itemSelected.map { $0.item }.asObservable()
+            didSelectedAt: didTappedItemAt.asObservable()
         )
-        
         let output = viewModel.transform(input: input)
         
         didChangedMonth
@@ -97,8 +99,31 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
             .showDaily
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
+            .subscribe(onNext: { vc, date in
+                guard let groupId = vc.viewModel?.groupId,
+                      let isOwner = vc.delegate?.isLeader() else { return }
+                let nm = NetworkManager()
+                let kc = KeyChainManager()
+                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyChainManager: kc)
+                let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
+                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+                let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyTodoListUseCase(groupCalendarRepository: gcr)
+                let viewModel = SocialTodoDailyViewModel(
+                    getTokenUseCase: getTokenUseCase,
+                    refreshTokenUseCase: refTokenUseCase,
+                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase
+                )
+                viewModel.setGroup(id: groupId, isOwner: isOwner, date: date)
                 
+                let viewController = SocialTodoDailyViewController(viewModel: viewModel)
+                
+                let nav = UINavigationController(rootViewController: viewController)
+                nav.modalPresentationStyle = .pageSheet
+                if let sheet = nav.sheetPresentationController {
+                    sheet.detents = [.medium(), .large()]
+                }
+                vc.present(nav, animated: true)
             })
             .disposed(by: bag)
     }
@@ -122,7 +147,7 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
     
 }
 
-extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout {
+extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         guard let maxTodoViewModel = viewModel?.getMaxInWeek(index: indexPath.item) else { return CGSize() }
@@ -154,6 +179,11 @@ extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout 
             }
             
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        didTappedItemAt.onNext(indexPath.item)
+        return false
     }
     
 
@@ -218,4 +248,8 @@ extension JoinedGroupCalendarViewController: UIPopoverPresentationControllerDele
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
     }
+}
+
+protocol JoinedGroupCalendarViewControllerDelegate: AnyObject {
+    func isLeader() -> Bool?
 }

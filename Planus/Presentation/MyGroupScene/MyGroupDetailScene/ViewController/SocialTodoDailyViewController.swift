@@ -15,6 +15,8 @@ class SocialTodoDailyViewController: UIViewController {
     
     var didDeleteTodoAt = PublishSubject<IndexPath>()
     
+    var spinner = UIActivityIndicatorView(style: .medium)
+
     lazy var dateTitleButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
@@ -58,7 +60,6 @@ class SocialTodoDailyViewController: UIViewController {
         
         bind()
         
-        collectionView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -70,8 +71,8 @@ class SocialTodoDailyViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
-        let input = TodoDailyViewModel.Input(
-            deleteTodoAt: didDeleteTodoAt.asObservable()
+        let input = SocialTodoDailyViewModel.Input(
+            viewDidLoad: Observable.just(())
         )
         
         let output = viewModel.transform(input: input)
@@ -79,70 +80,34 @@ class SocialTodoDailyViewController: UIViewController {
         addTodoButton.isHidden = !(output.isOwner ?? true)
         dateTitleButton.setTitle(output.currentDateText, for: .normal)
         
-        output
-            .needReloadItem
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.reloadItems(at: [indexPath])
-            })
-            .disposed(by: bag)
+        spinner.isHidden = false
+        spinner.startAnimating()
+        collectionView.setAnimatedIsHidden(true, duration: 0)
+        print("load")
         
         output
-            .needInsertItem
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vm, indexPath in
-                if indexPath.section == 0 {
-                    if vm.viewModel?.scheduledTodoList?.count == 1 {
-                        vm.collectionView.deleteItems(at: [indexPath])
-                        print("removed!")
-                    }
-                } else if indexPath.section == 1 {
-                    if vm.viewModel?.unscheduledTodoList?.count == 1 {
-                        vm.collectionView.deleteItems(at: [indexPath])
-                    }
-                }
-                
-                vm.collectionView.insertItems(at: [indexPath])
-            })
-            .disposed(by: bag)
-            
-        output
-            .needDeleteItem
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.performBatchUpdates {
-                    vm.collectionView.deleteItems(at: [indexPath])
-                }
-                if indexPath.section == 0 {
-                    if vm.viewModel?.scheduledTodoList?.count == 0 {
-                        vm.collectionView.insertItems(at: [indexPath])
-                        print("removed!")
-                    }
-                } else if indexPath.section == 1 {
-                    if vm.viewModel?.unscheduledTodoList?.count == 0 {
-                        vm.collectionView.insertItems(at: [indexPath])
-                    }
-                }
-            })
-            .disposed(by: bag)
-        
-        output
-            .needReloadData
+            .didFetchTodoList
+            .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                print("fetched")
                 vc.collectionView.reloadData()
+                vc.spinner.setAnimatedIsHidden(true, duration: 0.2, onCompletion: {
+                    vc.spinner.stopAnimating()
+                    vc.collectionView.setAnimatedIsHidden(false, duration: 0.2)
+                })
             })
             .disposed(by: bag)
         
+        dateTitleButton.setTitle(output.currentDateText, for: .normal)
+        addTodoButton.isHidden = !(output.isOwner ?? false)
     }
     
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(collectionView)
+        self.view.addSubview(spinner)
     }
     
     func configureLayout() {
@@ -154,44 +119,49 @@ class SocialTodoDailyViewController: UIViewController {
             $0.top.equalTo(self.view.safeAreaLayoutGuide)
             $0.leading.trailing.bottom.equalToSuperview()
         }
+        
+        spinner.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().inset(50)
+        }
     }
     
     @objc func addTodoTapped(_ sender: UIButton) {
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
-        
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
-        let todoRepo = TestTodoDetailRepository(apiProvider: api)
-        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
-        
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let createTodoUseCase = DefaultCreateTodoUseCase.shared
-        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
-        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
-        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
-        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
-        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
-        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
-        
-        let vm = TodoDetailViewModel(
-            getTokenUseCase: getTokenUseCase,
-            refreshTokenUseCase: refreshTokenUseCase,
-            createTodoUseCase: createTodoUseCase,
-            updateTodoUseCase: updateTodoUseCase,
-            deleteTodoUseCase: deleteTodoUseCase,
-            createCategoryUseCase: createCategoryUseCase,
-            updateCategoryUseCase: updateCategoryUseCase,
-            deleteCategoryUseCase: deleteCategoryUseCase,
-            readCategoryUseCase: readCateogryUseCase
-        )
-        guard let groupDict = viewModel?.groupDict else { return }
-        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-        vm.setGroup(groupList: groupList)
-        vm.todoStartDay.onNext(viewModel?.currentDate)
-        let vc = TodoDetailViewController(viewModel: vm)
-        vc.modalPresentationStyle = .overFullScreen
-        self.present(vc, animated: false, completion: nil)
+//        let api = NetworkManager()
+//        let keyChain = KeyChainManager()
+//
+//        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+//        let todoRepo = TestTodoDetailRepository(apiProvider: api)
+//        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
+//
+//        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+//        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+//        let createTodoUseCase = DefaultCreateTodoUseCase.shared
+//        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
+//        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
+//        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
+//        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
+//        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
+//        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
+//
+//        let vm = TodoDetailViewModel(
+//            getTokenUseCase: getTokenUseCase,
+//            refreshTokenUseCase: refreshTokenUseCase,
+//            createTodoUseCase: createTodoUseCase,
+//            updateTodoUseCase: updateTodoUseCase,
+//            deleteTodoUseCase: deleteTodoUseCase,
+//            createCategoryUseCase: createCategoryUseCase,
+//            updateCategoryUseCase: updateCategoryUseCase,
+//            deleteCategoryUseCase: deleteCategoryUseCase,
+//            readCategoryUseCase: readCateogryUseCase
+//        )
+//        guard let groupDict = viewModel?.groupDict else { return }
+//        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+//        vm.setGroup(groupList: groupList)
+//        vm.todoStartDay.onNext(viewModel?.currentDate)
+//        let vc = TodoDetailViewController(viewModel: vm)
+//        vc.modalPresentationStyle = .overFullScreen
+//        self.present(vc, animated: false, completion: nil)
     }
     
 //    @objc func dateTitleBtnTapped(_ sender: UIButton) {
@@ -242,33 +212,36 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        var todoItem: SocialTodoDaily?
         
-        var todoItem: Todo?
         switch indexPath.section {
         case 0:
-            if viewModel?.scheduledTodoList?.count == 0 {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+            if let scheduledList = viewModel?.scheduledTodoList,
+               !scheduledList.isEmpty {
+                todoItem = scheduledList[indexPath.item]
             } else {
-                todoItem = viewModel?.scheduledTodoList?[indexPath.item]
+                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
         case 1:
-            if viewModel?.unscheduledTodoList?.count == 0 {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+            if let unscheduledList = viewModel?.unscheduledTodoList,
+               !unscheduledList.isEmpty {
+                todoItem = unscheduledList[indexPath.item]
             } else {
-                todoItem = viewModel?.unscheduledTodoList?[indexPath.item]
+                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
         default:
+            print("4")
             return UICollectionViewCell()
         }
         guard let todoItem else {
+            print("5")
             return UICollectionViewCell()
         }
 
-        guard let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
-        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
+        cell.fill(title: todoItem.title, time: todoItem.startTime, category: todoItem.categoryColor, isGroup: todoItem.hasGroup, isScheduled: todoItem.isPeriodTodo, isMemo: todoItem.hasDescription, completion: todoItem.isCompleted)
         return cell
         
 
@@ -297,80 +270,63 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        var item: Todo?
+        var todoId: Int?
         switch indexPath.section {
         case 0:
-            var filteredScheduledTodoList = viewModel?.scheduledTodoList
-            if let groupId = viewModel?.filteringGroupId {
-                filteredScheduledTodoList = filteredScheduledTodoList?.filter { $0.groupId == groupId }
-            }
-            if filteredScheduledTodoList?.count == 0 {
+            if viewModel?.scheduledTodoList?.count == 0 {
                 return false
             } else {
-                item = filteredScheduledTodoList?[indexPath.item]
+                todoId = viewModel?.scheduledTodoList?[indexPath.item].todoId
             }
         case 1:
-            var filteredUnscheduledTodoList = viewModel?.unscheduledTodoList
-            if let groupId = viewModel?.filteringGroupId {
-                filteredUnscheduledTodoList = filteredUnscheduledTodoList?.filter { $0.groupId == groupId }
-            }
-            if filteredUnscheduledTodoList?.count == 0 {
+            if viewModel?.unscheduledTodoList?.count == 0 {
                 return false
             } else {
-                item = filteredUnscheduledTodoList?[indexPath.item]
+                todoId = viewModel?.unscheduledTodoList?[indexPath.item].todoId
             }
         default:
             return false
         }
-        guard let item,
+        guard let todoId,
               let isOwner = viewModel?.isOwner else { return false }
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
-        let todoRepo = TestTodoDetailRepository(apiProvider: api)
-        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
-        
+
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let createTodoUseCase = DefaultCreateTodoUseCase.shared
-        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
-        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
-        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
-        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
-        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
-        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
         
-        let vm = TodoDetailViewModel(
-            getTokenUseCase: getTokenUseCase,
-            refreshTokenUseCase: refreshTokenUseCase,
-            createTodoUseCase: createTodoUseCase,
-            updateTodoUseCase: updateTodoUseCase,
-            deleteTodoUseCase: deleteTodoUseCase,
-            createCategoryUseCase: createCategoryUseCase,
-            updateCategoryUseCase: updateCategoryUseCase,
-            deleteCategoryUseCase: deleteCategoryUseCase,
-            readCategoryUseCase: readCateogryUseCase
-        )
-        
-        guard let groupDict = viewModel?.groupDict else { return false }
-        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-        vm.setGroup(groupList: groupList)
-        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
-        var groupName: GroupName?
-        if let groupId = item.groupId {
-            groupName = groupDict[groupId]
-        }
-        
-        if isOwner {
-            vm.setForEdit(todo: item, category: category, groupName: groupName)
-        } else {
-            vm.setForOthers(todo: item, category: category, groupName: groupName)
-        }
-        vm.todoStartDay.onNext(viewModel?.currentDate)
-        let vc = TodoDetailViewController(viewModel: vm)
-        vc.modalPresentationStyle = .overFullScreen
-        self.present(vc, animated: false, completion: nil)
+//        let vm = TodoDetailViewModel(
+//            getTokenUseCase: getTokenUseCase,
+//            refreshTokenUseCase: refreshTokenUseCase,
+//            createTodoUseCase: createTodoUseCase,
+//            updateTodoUseCase: updateTodoUseCase,
+//            deleteTodoUseCase: deleteTodoUseCase,
+//            createCategoryUseCase: createCategoryUseCase,
+//            updateCategoryUseCase: updateCategoryUseCase,
+//            deleteCategoryUseCase: deleteCategoryUseCase,
+//            readCategoryUseCase: readCateogryUseCase
+//        )
+//
+//        guard let groupDict = viewModel?.groupDict else { return false }
+//        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+//        vm.setGroup(groupList: groupList)
+//        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+//        var groupName: GroupName?
+//        if let groupId = item.groupId {
+//            groupName = groupDict[groupId]
+//        }
+//
+//        if isOwner {
+//            vm.setForEdit(todo: item, category: category, groupName: groupName)
+//        } else {
+//            vm.setForOthers(todo: item, category: category, groupName: groupName)
+//        }
+//        vm.todoStartDay.onNext(viewModel?.currentDate)
+//        let vc = TodoDetailViewController(viewModel: vm)
+//        vc.modalPresentationStyle = .overFullScreen
+//        self.present(vc, animated: false, completion: nil)
         
         return false
     }
