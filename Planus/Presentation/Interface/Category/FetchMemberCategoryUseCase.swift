@@ -8,6 +8,6 @@
 import Foundation
 import RxSwift
 
-protocol FetchMemberCategoryUseCase {
-    func execute(token: Token, groupId: Int, memberId: Int) -> Single<[Category]>
-}
+//protocol FetchMemberCategoryUseCase {
+//    func execute(token: Token, groupId: Int, memberId: Int) -> Single<[Category]>
+//}

@@ -7,23 +7,9 @@
 
 import UIKit
 
-class SearchResultCell: UICollectionViewCell {
+class SearchResultCell: SpringableCollectionViewCell {
     
     static let reuseIdentifier = "search-result-cell"
-    
-    override var isHighlighted: Bool {
-        didSet {
-            if isHighlighted {
-                UIView.animate(withDuration: 0.07, delay: 0, options: .curveEaseIn, animations: {
-                    self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-                })
-            } else {
-                UIView.animate(withDuration: 0.07, delay: 0, options: .curveEaseOut, animations: {
-                    self.transform = CGAffineTransform(scaleX: 1, y: 1)
-                })
-            }
-        }
-    }
     
     var titleImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)

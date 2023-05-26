@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MonthPickerCell: UICollectionViewCell {
+class MonthPickerCell: SpringableCollectionViewCell {
     
     static let reuseIdentifier = "month-picker-cell"
     

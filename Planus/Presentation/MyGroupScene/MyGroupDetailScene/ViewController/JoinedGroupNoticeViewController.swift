@@ -212,9 +212,8 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
               let member = viewModel?.memberList?[indexPath.item] else { return false }
         let api = NetworkManager()
         let memberCalendarRepo = DefaultMemberCalendarRepository(apiProvider: api)
-        let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-        let fetchMemberTodoUseCase = DefaultFetchMemberTodoListUseCase(memberCalendarRepository: memberCalendarRepo)
-        let fetchMemberCategoryUseCase = DefaultFetchMemberCategoryUseCase(memberCalendarRepository: memberCalendarRepo)
+        let createMonthlyCalendarUseCase = DefaultCreateSocialMonthlyCalendarUseCase()
+        let fetchMemberTodoUseCase = DefaultFetchMemberCalendarUseCase(memberCalendarRepository: memberCalendarRepo)
         let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
         let keyChainManager = KeyChainManager()
         
@@ -223,13 +222,12 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         
         let vm = MemberProfileViewModel(
-            createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
-            fetchMemberTodoUseCase: fetchMemberTodoUseCase,
+            createSocialMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
             dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
-            fetchMemberCategoryUseCase: fetchMemberCategoryUseCase,
-            fetchImageUseCase: DefaultFetchImageUseCase.init(imageRepository: DefaultImageRepository.shared)
+            fetchMemberCalendarUseCase: fetchMemberTodoUseCase,
+            fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
         )
         
         vm.setMember(groupId: groupId, member: member)

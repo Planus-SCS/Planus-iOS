@@ -7,7 +7,7 @@
 
 import UIKit
 
-class GroupIntroduceMemberCell: UICollectionViewCell {
+class GroupIntroduceMemberCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "group-introduce-member-cell"
 
     var memberImageView: UIImageView = {

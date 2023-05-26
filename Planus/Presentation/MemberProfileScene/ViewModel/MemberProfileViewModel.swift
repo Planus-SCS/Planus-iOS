@@ -29,15 +29,14 @@ class MemberProfileViewModel {
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
-    var categoryDict = [Int: Category]()
-    var mainDayList = [[DayViewModel]]()
+    var mainDayList = [[SocialDayViewModel]]()
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
     var categoryFetched = BehaviorSubject<Void?>(value: nil)
     var needReloadSection = BehaviorSubject<IndexSet?>(value: nil)
     
-    var showDailyTodoPage = PublishSubject<DayViewModel>()
+    var showDailyTodoPage = PublishSubject<SocialDayViewModel>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
     
@@ -56,7 +55,7 @@ class MemberProfileViewModel {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var needReloadSectionInRange: Observable<IndexSet?> // a부터 b까지 리로드 해라!
-        var showDailyTodoPage: Observable<DayViewModel>
+        var showDailyTodoPage: Observable<SocialDayViewModel>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var memberName: String?
@@ -64,29 +63,26 @@ class MemberProfileViewModel {
         var memberImageUrl: String?
     }
     
-    let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
+    let createSocialMonthlyCalendarUseCase: CreateSocialMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     let getTokenUseCase: GetTokenUseCase
     let refreshTokenUseCase: RefreshTokenUseCase
-    let fetchMemberTodoUseCase: FetchMemberTodoListUseCase
-    let fetchMemberCategoryUseCase: FetchMemberCategoryUseCase
+    let fetchMemberCalendarUseCase: FetchMemberCalendarUseCase
     let fetchImageUseCase: FetchImageUseCase
     
     init(
-        createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        fetchMemberTodoUseCase: FetchMemberTodoListUseCase,
+        createSocialMonthlyCalendarUseCase: CreateSocialMonthlyCalendarUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
-        fetchMemberCategoryUseCase: FetchMemberCategoryUseCase,
+        fetchMemberCalendarUseCase: FetchMemberCalendarUseCase,
         fetchImageUseCase: FetchImageUseCase
     ) {
-        self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
-        self.fetchMemberTodoUseCase = fetchMemberTodoUseCase
+        self.createSocialMonthlyCalendarUseCase = createSocialMonthlyCalendarUseCase
         self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
-        self.fetchMemberCategoryUseCase = fetchMemberCategoryUseCase
+        self.fetchMemberCalendarUseCase = fetchMemberCalendarUseCase
         self.fetchImageUseCase = fetchImageUseCase
     }
     
@@ -110,7 +106,6 @@ class MemberProfileViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, date in
                 vm.initCalendar(date: date)
-                vm.fetchCategoryList()
                 vm.initTodoList(date: date)
             })
             .disposed(by: bag)
@@ -201,9 +196,9 @@ class MemberProfileViewModel {
     }
     
     func initCalendar(date: Date) {
-        mainDayList = (endOfFirstIndex...endOfLastIndex).map { difference -> [DayViewModel] in
+        mainDayList = (endOfFirstIndex...endOfLastIndex).map { difference -> [SocialDayViewModel] in
             let calendarDate = self.calendar.date(byAdding: DateComponents(month: difference), to: date) ?? Date()
-            return createMonthlyCalendarUseCase.execute(date: calendarDate)
+            return createSocialMonthlyCalendarUseCase.execute(date: calendarDate)
         }
         currentIndex = -endOfFirstIndex
         latestPrevCacheRequestedIndex = currentIndex
@@ -265,7 +260,6 @@ class MemberProfileViewModel {
     
     func fetch(from fromIndex: Int, to toIndex: Int) {
         fetchTodoList(from: fromIndex, to: toIndex)
-        fetchCategoryList()
     }
     
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
@@ -283,11 +277,11 @@ class MemberProfileViewModel {
         
         getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<[Date: [Todo]]> in
+            .flatMap { [weak self] token -> Single<[SocialTodoSummary]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.fetchMemberTodoUseCase
+                return self.fetchMemberCalendarUseCase
                     .execute(
                         token: token,
                         groupId: groupId,
@@ -300,7 +294,15 @@ class MemberProfileViewModel {
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: TokenError.noTokenExist
             )
-            .subscribe(onSuccess: { [weak self] todoDict in
+            .subscribe(onSuccess: { [weak self] todoList in
+                var todoDict = [Date: [SocialTodoSummary]]()
+                todoList.forEach {
+                    if todoDict[$0.startDate] == nil {
+                        todoDict[$0.startDate] = []
+                    }
+                    todoDict[$0.startDate]?.append($0)
+                }
+                
                 guard let self else { return }
                 (fromIndex..<toIndex).forEach { index in
                     self.mainDayList[index] = self.mainDayList[index].map {
@@ -317,34 +319,7 @@ class MemberProfileViewModel {
             .disposed(by: bag)
     }
     
-    func fetchCategoryList() {
-        guard let groupId,
-              let memberId = member?.memberId else { return }
-        
-        let fetchMemberCategoryUseCase = fetchMemberCategoryUseCase
-        
-        getTokenUseCase
-            .execute()
-            .flatMap { token -> Single<[Category]> in
-                fetchMemberCategoryUseCase
-                    .execute(token: token, groupId: groupId, memberId: memberId)
-            }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
-            )
-            .subscribe(onSuccess: { [weak self] list in
-                self?.categoryDict.removeAll()
-                list.forEach {
-                    guard let id = $0.id else { return }
-                    self?.categoryDict[id] = $0
-                }
-                self?.categoryFetched.onNext(())
-            })
-            .disposed(by: bag)
-    }
-    
-    func getMaxInWeek(indexPath: IndexPath) -> DayViewModel {
+    func getMaxInWeek(indexPath: IndexPath) -> SocialDayViewModel {
         let item = indexPath.item
         let section = indexPath.section
         

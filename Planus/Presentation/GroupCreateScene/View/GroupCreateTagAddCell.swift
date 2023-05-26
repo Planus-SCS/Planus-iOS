@@ -7,22 +7,8 @@
 
 import UIKit
 
-class GroupCreateTagAddCell: UICollectionViewCell {
+class GroupCreateTagAddCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "group-create-tag-add-cell"
-    
-    override var isHighlighted: Bool {
-        didSet {
-            if isHighlighted {
-                UIView.animate(withDuration: 0.07, delay: 0, options: .curveEaseIn, animations: {
-                    self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-                })
-            } else {
-                UIView.animate(withDuration: 0.07, delay: 0, options: .curveEaseOut, animations: {
-                    self.transform = CGAffineTransform(scaleX: 1, y: 1)
-                })
-            }
-        }
-    }
     
     var imageView: UIImageView = {
         let image = UIImage(named: "whitePlusBtn")

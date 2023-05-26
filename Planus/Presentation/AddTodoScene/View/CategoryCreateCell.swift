@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CategoryCreateCell: UICollectionViewCell {
+class CategoryCreateCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "category-create-cell"
     
     let checkImageView: UIImageView = {

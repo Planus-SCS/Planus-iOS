@@ -85,14 +85,13 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
             return UICollectionViewCell()
         }
         
-        cell.delegate = self
         cell.fill(
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
             state: dayViewModel.state,
             weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!
         )
         
-        cell.fill(todoList: dayViewModel.todoList)
+        cell.fill(socialTodoList: dayViewModel.todoList)
 
         return cell
     }
@@ -110,7 +109,7 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
             
         } else {
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
-            mockCell.fill(todoList: maxTodoViewModel.todoList)
+            mockCell.fill(socialTodoList: maxTodoViewModel.todoList)
             mockCell.layoutIfNeeded()
             
             let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
@@ -135,11 +134,5 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
             isSingleSelected?.onNext(IndexPath(item: indexPath.item, section: section))
         }
         return false
-    }
-}
-
-extension NestedScrollableMonthlyCalendarCell: DailyCalendarCellDelegate {
-    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId id: Int) -> CategoryColor? {
-        return viewModel?.categoryDict[id]?.color
     }
 }
