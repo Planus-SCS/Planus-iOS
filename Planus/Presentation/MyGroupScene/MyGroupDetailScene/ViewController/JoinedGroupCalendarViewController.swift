@@ -33,7 +33,8 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
         cv.dataSource = self
         cv.delegate = self
         cv.alwaysBounceVertical = true
-        
+        cv.showsVerticalScrollIndicator = false
+
         return cv
     }()
     
