@@ -1,20 +1,20 @@
 //
-//  SearchViewController.swift
+//  SearchResultViewController.swift
 //  Planus
 //
-//  Created by Sangmin Lee on 2023/03/30.
+//  Created by Sangmin Lee on 2023/05/27.
 //
 
 import UIKit
 import RxSwift
 import RxCocoa
 
-class SearchViewController: UIViewController {
+class SearchResultViewController: UIViewController {
     
     // 필요한거 화면에 뿌려줄 컬렉션 뷰, 근데 검색 결과를 보여줄 땐 한 뎁스를 타고 들어가야 한다!
     var bag = DisposeBag()
     
-    var viewModel: SearchViewModel?
+    var viewModel: SearchResultViewModel?
     
     var isLoading: Bool = true
     var isEnded: Bool = false
@@ -92,7 +92,7 @@ class SearchViewController: UIViewController {
         return view
     }()
     
-    convenience init(viewModel: SearchViewModel) {
+    convenience init(viewModel: SearchResultViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
@@ -123,7 +123,7 @@ class SearchViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
-        let input = SearchViewModel.Input(
+        let input = SearchResultViewModel.Input(
             viewDidLoad: Observable.just(()),
             tappedItemAt: tappedItemAt.asObservable(),
             refreshRequired: refreshRequired.asObservable(),
@@ -215,14 +215,14 @@ class SearchViewController: UIViewController {
     }
 }
 
-extension SearchViewController: UITextFieldDelegate {
+extension SearchResultViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         searchBtnTapped.onNext(())
         return true
     }
 }
 
-extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension SearchResultViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
@@ -266,7 +266,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     }
 }
 
-extension SearchViewController {
+extension SearchResultViewController {
     private func createSection() -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/2), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)

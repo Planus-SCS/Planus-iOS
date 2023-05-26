@@ -26,15 +26,15 @@ class SearchCoordinator: Coordinator {
     }
     
     lazy var showInitialSearchPage: () -> Void = { [weak self] in
-        let vm = SearchViewModel(
+        let vm = SearchHomeViewModel(
             getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())),
             fetchSearchHomeUseCase: DefaultFetchSearchHomeUseCase(groupRepository: DefaultGroupRepository(apiProvider: NetworkManager())), fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared))
-        vm.setActions(actions: SearchViewModelActions(
+        vm.setActions(actions: SearchHomeViewModelActions(
             showSearchResultPage: self?.showSearchResultPage,
             showGroupIntroducePage: self?.showGroupIntroducePage,
             showGroupCreatePage: self?.showGroupCreatePage
         ))
-        let vc = SearchViewController(viewModel: vm)
+        let vc = SearchHomeViewController(viewModel: vm)
         self?.navigationController.pushViewController(vc, animated: false)
     }
 

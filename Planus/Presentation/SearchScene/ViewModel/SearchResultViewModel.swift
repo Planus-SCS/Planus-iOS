@@ -1,5 +1,5 @@
 //
-//  SearchViewModel.swift
+//  SearchResultViewModel.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/30.
@@ -8,17 +8,11 @@
 import Foundation
 import RxSwift
 
-struct SearchViewModelActions {
-    var showSearchResultPage: ((String) -> Void)?
-    var showGroupIntroducePage: ((Int) -> Void)?
-    var showGroupCreatePage: (() -> Void)?
-}
-
-class SearchViewModel {
+class SearchResultViewModel {
     
     var bag = DisposeBag()
     
-    var actions: SearchViewModelActions?
+    var actions: SearchHomeViewModelActions?
     
     var result: [UnJoinedGroupSummary] = []
     
@@ -66,7 +60,7 @@ class SearchViewModel {
         self.fetchImageUseCase = fetchImageUseCase
     }
     
-    func setActions(actions: SearchViewModelActions) {
+    func setActions(actions: SearchHomeViewModelActions) {
         self.actions = actions
     }
     
@@ -172,3 +166,4 @@ class SearchViewModel {
             .execute(key: key)
     }
 }
+
