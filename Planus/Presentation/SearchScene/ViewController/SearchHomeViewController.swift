@@ -214,7 +214,7 @@ class SearchHomeViewController: UIViewController {
     @objc func searchBtnTapped(_ sender: UIBarButtonItem) {
         let vm = SearchResultViewModel(
             getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())),
-            fetchSearchHomeUseCase: DefaultFetchSearchHomeUseCase(groupRepository: DefaultGroupRepository(apiProvider: NetworkManager())), fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared))
+            fetchSearchResultUseCase: DefaultFetchSearchResultUseCase(groupRepository: DefaultGroupRepository(apiProvider: NetworkManager())), fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared))
 
         let vc = SearchResultViewController(viewModel: vm)
         self.navigationController?.pushViewController(vc, animated: false)

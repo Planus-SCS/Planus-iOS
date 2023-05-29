@@ -29,7 +29,26 @@ class SearchResultViewController: UIViewController {
         return rc
     }()
     
-    var historyView: SearchHistoryView?
+    var spinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.hidesWhenStopped = true
+        return spinner
+    }()
+    
+    lazy var historyView: SearchHistoryView = {
+        let historyView = SearchHistoryView(frame: .zero)
+        historyView.collectionView.dataSource = self
+        historyView.collectionView.delegate = self
+        historyView.isHidden = true
+        historyView.alpha = 0
+        return historyView
+    }()
+    
+    var emptyResultView: EmptyResultView = {
+        let view = EmptyResultView(text: "검색 결과가 존재하지 않습니다.")
+        view.isHidden = true
+        return view
+    }()
     
     lazy var resultCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createSection())
@@ -76,7 +95,8 @@ class SearchResultViewController: UIViewController {
         if let image = UIImage(named: "searchBarIcon") {
             textField.addleftimage(image: image, padding: 12)
         }
-        
+        textField.enablesReturnKeyAutomatically = true
+        textField.returnKeyType = .search
         textField.attributedPlaceholder = NSAttributedString(
             string: "그룹명 또는 태그를 검색해보세요.",
             attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
@@ -140,17 +160,6 @@ class SearchResultViewController: UIViewController {
     }
     
     @objc func keyboardEvent(notification: Notification){
-        let historyView = SearchHistoryView(frame: .zero)
-        self.historyView = historyView
-        
-        historyView.collectionView.dataSource = self
-        historyView.collectionView.delegate = self
-        historyView.alpha = 0
-        self.view.insertSubview(historyView, belowSubview: headerView)
-        historyView.snp.makeConstraints {
-            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
-        }
-        
         historyView.setAnimatedIsHidden(false, duration: 0.1)
     }
     
@@ -158,7 +167,6 @@ class SearchResultViewController: UIViewController {
         guard let viewModel else { return }
         
         let input = SearchResultViewModel.Input(
-            viewDidLoad: Observable.just(()),
             tappedItemAt: tappedItemAt.asObservable(),
             refreshRequired: refreshRequired.asObservable(),
             keywordChanged: searchBarField.rx.text.asObservable(),
@@ -184,13 +192,26 @@ class SearchResultViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .didFetchInitialResult
+            .didStartFetching
             .observe(on: MainScheduler.asyncInstance)
-            .compactMap { $0 }
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                vc.historyView.isHidden = true
+                vc.resultCollectionView.isHidden = true
+                vc.spinner.startAnimating()
+            })
+            .disposed(by: bag)
+        
+        output
+            .didFetchInitialResult
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.resultCollectionView.setAnimatedIsHidden(viewModel.result.count == 0)
+                vc.emptyResultView.setAnimatedIsHidden(viewModel.result.count != 0)
+                print("reload!")
                 vc.resultCollectionView.performBatchUpdates({
-                    vc.resultCollectionView.reloadData()
+                    vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
                 }, completion: { _ in
                     if vc.refreshControl.isRefreshing {
                         vc.refreshControl.endRefreshing()
@@ -213,6 +234,9 @@ class SearchResultViewController: UIViewController {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(resultCollectionView)
         self.view.addSubview(createGroupButton)
+        self.view.addSubview(historyView)
+        self.view.addSubview(spinner)
+        self.view.addSubview(emptyResultView)
     }
     
     func configureLayout() {
@@ -223,6 +247,19 @@ class SearchResultViewController: UIViewController {
         createGroupButton.snp.makeConstraints {
             $0.bottom.trailing.equalToSuperview().inset(16)
             $0.width.height.equalTo(50)
+        }
+        
+        historyView.snp.makeConstraints {
+            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
+        }
+        
+        spinner.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().inset(50)
+        }
+        
+        emptyResultView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
     }
     
@@ -236,6 +273,7 @@ class SearchResultViewController: UIViewController {
 extension SearchResultViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         searchBtnTapped.onNext(())
+        textField.resignFirstResponder()
         return true
     }
 }
@@ -246,7 +284,7 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
         switch collectionView {
         case self.resultCollectionView:
             return 1
-        case historyView?.collectionView:
+        case historyView.collectionView:
             return 1
         default:
             return Int()
@@ -257,7 +295,7 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
         switch collectionView {
         case self.resultCollectionView:
             return viewModel?.result.count ?? Int()
-        case historyView?.collectionView:
+        case historyView.collectionView:
             return viewModel?.history.count ?? Int()
         default:
             return Int()
@@ -285,7 +323,7 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
                 .disposed(by: bag)
             
             return cell
-        case historyView?.collectionView:
+        case historyView.collectionView:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchHistoryCell.reuseIdentifier, for: indexPath) as? SearchHistoryCell,
                   let item = viewModel?.history[indexPath.item] else { return UICollectionViewCell() }
             cell.fill(keyWord: item)
@@ -309,7 +347,7 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
         switch collectionView {
         case self.resultCollectionView:
             tappedItemAt.onNext(indexPath.item)
-        case historyView?.collectionView:
+        case historyView.collectionView:
             return
         default:
             return
@@ -318,7 +356,7 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         switch collectionView {
-        case historyView?.collectionView:
+        case historyView.collectionView:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SearchHistoryHeaderView.reuseIdentifier, for: indexPath) as? SearchHistoryHeaderView else { return UICollectionReusableView() }
             return view
         default:

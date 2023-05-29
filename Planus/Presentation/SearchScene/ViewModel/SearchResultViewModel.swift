@@ -21,9 +21,11 @@ class SearchResultViewModel {
     
     var isLoading: Bool = false
     
-    var didFetchInitialResult = BehaviorSubject<Void?>(value: nil)
+    var didStartFetching = PublishSubject<Void>()
+    var didFetchInitialResult = PublishSubject<Void>()
     var didFetchAdditionalResult = PublishSubject<Range<Int>>()
     var resultEnded = PublishSubject<Void>()
+    var nonKeyword = PublishSubject<Void>()
     
     var page: Int = 0
     var size: Int = 5
@@ -38,25 +40,27 @@ class SearchResultViewModel {
     }
     
     struct Output {
-        var didFetchInitialResult: Observable<Void?>
+        var didStartFetching: Observable<Void>
+        var didFetchInitialResult: Observable<Void>
         var didFetchAdditionalResult: Observable<Range<Int>>
         var resultEnded: Observable<Void>
+        var nonKeyword: Observable<Void>
     }
     
     let getTokenUseCase: GetTokenUseCase
     let refreshTokenUseCase: RefreshTokenUseCase
-    let fetchSearchHomeUseCase: FetchSearchHomeUseCase
+    let fetchSearchResultUseCase: FetchSearchResultUseCase
     let fetchImageUseCase: FetchImageUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
-        fetchSearchHomeUseCase: FetchSearchHomeUseCase,
+        fetchSearchResultUseCase: FetchSearchResultUseCase,
         fetchImageUseCase: FetchImageUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
-        self.fetchSearchHomeUseCase = fetchSearchHomeUseCase
+        self.fetchSearchResultUseCase = fetchSearchResultUseCase
         self.fetchImageUseCase = fetchImageUseCase
     }
     
@@ -79,7 +83,11 @@ class SearchResultViewModel {
             .refreshRequired
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchInitialresult()
+                guard let keyword = try? vm.keyword.value(),
+                      !keyword.isEmpty else {
+                    return
+                }
+                vm.fetchInitialresult(keyword: keyword)
             })
             .disposed(by: bag)
         
@@ -91,8 +99,11 @@ class SearchResultViewModel {
         input.searchBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                guard let keyword = try? vm.keyword.value() else { return }
-                vm.actions?.showSearchResultPage?(keyword)
+                guard let keyword = try? vm.keyword.value(),
+                      !keyword.isEmpty else {
+                    return
+                }
+                vm.fetchInitialresult(keyword: keyword)
             })
             .disposed(by: bag)
         
@@ -106,32 +117,39 @@ class SearchResultViewModel {
         input.needLoadNextData
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchResult(isInitial: false)
+                guard let keyword = try? vm.keyword.value(),
+                      !keyword.isEmpty else {
+                    return
+                }
+                vm.fetchResult(keyword: keyword, isInitial: false)
             })
             .disposed(by: bag)
         
         return Output(
+            didStartFetching: didStartFetching.asObservable(),
             didFetchInitialResult: didFetchInitialResult.asObservable(),
             didFetchAdditionalResult: didFetchAdditionalResult.asObservable(),
-            resultEnded: resultEnded.asObservable()
+            resultEnded: resultEnded.asObservable(),
+            nonKeyword: nonKeyword.asObservable()
         )
     }
     
-    func fetchInitialresult() {
+    func fetchInitialresult(keyword: String) {
+        didStartFetching.onNext(())
         page = 0
         result.removeAll()
-        fetchResult(isInitial: true)
+        fetchResult(keyword: keyword, isInitial: true)
     }
     
-    func fetchResult(isInitial: Bool) {
+    func fetchResult(keyword: String, isInitial: Bool) {
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[UnJoinedGroupSummary]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.fetchSearchHomeUseCase
-                    .execute(token: token, page: self.page, size: self.size)
+                return self.fetchSearchResultUseCase
+                    .execute(token: token, keyWord: keyword, page: self.page, size: self.size)
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
@@ -141,6 +159,7 @@ class SearchResultViewModel {
                 guard let self else { return }
                 print(self.page, self.size, list.count)
                 self.result += list
+                print(self.result)
                 if isInitial {
                     self.didFetchInitialResult.onNext(())
                 } else {

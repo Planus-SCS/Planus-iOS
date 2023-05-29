@@ -32,7 +32,7 @@ extension UIView {
 
 extension UIView {
     
-    func setAnimatedIsHidden(_ isHidden: Bool, duration: TimeInterval = 0.4, onCompletion: (() -> Void)? = nil) {
+    func setAnimatedIsHidden(_ isHidden: Bool, duration: TimeInterval = 0.2, onCompletion: (() -> Void)? = nil) {
         if isHidden {
             UIView.animate(
                 withDuration: duration,

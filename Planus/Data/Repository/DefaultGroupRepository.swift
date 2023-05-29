@@ -35,7 +35,7 @@ class DefaultGroupRepository: GroupRepository {
     
     func fetchSearchResult(token: String, keyWord: String, page: Int, size: Int) -> Single<ResponseDTO<[UnJoinedGroupSummaryResponseDTO]>> {
         let endPoint = APIEndPoint(
-            url: URLPool.groups,
+            url: URLPool.search,
             requestType: .get,
             body: nil,
             query: [
