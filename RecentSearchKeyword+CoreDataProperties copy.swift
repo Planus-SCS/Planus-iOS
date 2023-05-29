@@ -20,3 +20,9 @@ extension RecentSearchKeyword {
     @NSManaged public var keyword: String?
 
 }
+
+extension RecentSearchKeyword {
+    func toDomain() -> RecentSearchQuery {
+        return RecentSearchQuery(date: date, keyword: keyword)
+    }
+}

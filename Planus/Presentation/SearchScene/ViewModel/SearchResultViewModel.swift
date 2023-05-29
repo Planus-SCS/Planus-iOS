@@ -27,6 +27,8 @@ class SearchResultViewModel {
     var resultEnded = PublishSubject<Void>()
     var nonKeyword = PublishSubject<Void>()
     
+    var didFetchHistory = BehaviorSubject<Void?>(value: nil)
+    
     var page: Int = 0
     var size: Int = 5
     
@@ -38,6 +40,9 @@ class SearchResultViewModel {
         var searchBtnTapped: Observable<Void>
         var createBtnTapped: Observable<Void>
         var needLoadNextData: Observable<Void>
+        var needFetchHistory: Observable<Void>
+        var removeHistoryAt: Observable<Int>
+        var removeAllHistory: Observable<Void>
     }
     
     struct Output {
@@ -46,7 +51,10 @@ class SearchResultViewModel {
         var didFetchAdditionalResult: Observable<Range<Int>>
         var resultEnded: Observable<Void>
         var keywordChanged: Observable<String?>
+        var didFetchHistory: Observable<Void?>
     }
+    
+    let recentQueryRepository: RecentQueryRepository
     
     let getTokenUseCase: GetTokenUseCase
     let refreshTokenUseCase: RefreshTokenUseCase
@@ -54,11 +62,13 @@ class SearchResultViewModel {
     let fetchImageUseCase: FetchImageUseCase
     
     init(
+        recentQueryRepository: RecentQueryRepository,
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         fetchSearchResultUseCase: FetchSearchResultUseCase,
         fetchImageUseCase: FetchImageUseCase
     ) {
+        self.recentQueryRepository = recentQueryRepository
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.fetchSearchResultUseCase = fetchSearchResultUseCase
@@ -144,8 +154,22 @@ class SearchResultViewModel {
             didFetchInitialResult: didFetchInitialResult.asObservable(),
             didFetchAdditionalResult: didFetchAdditionalResult.asObservable(),
             resultEnded: resultEnded.asObservable(),
-            keywordChanged: keyword.asObservable()
+            keywordChanged: keyword.asObservable(),
+            didFetchHistory: didFetchHistory.asObservable()
         )
+    }
+    
+    func fetchRecentQueries() {
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            let queryList = try? self.recentQueryRepository
+                .fetchRecentsQueries()
+                .map { $0.keyword }
+                .compactMap { $0 }
+            guard let queryList else { return }
+            self.history = queryList
+            self.didFetchHistory.onNext(())
+        }
     }
     
     func fetchInitialresult(keyword: String) {

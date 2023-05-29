@@ -23,6 +23,9 @@ class SearchResultViewController: UIViewController {
     var searchBtnTapped = PublishSubject<Void>()
     var needLoadNextData = PublishSubject<Void>()
     var tappedHistoryAt = PublishSubject<Int>()
+    var needFetchHistory = PublishSubject<Void>()
+    var removeHistoryAt = PublishSubject<Int>()
+    var removeAllHistory = PublishSubject<Void>()
     
     lazy var refreshControl: UIRefreshControl = {
         let rc = UIRefreshControl(frame: .zero)
@@ -161,7 +164,8 @@ class SearchResultViewController: UIViewController {
     }
     
     @objc func keyboardEvent(notification: Notification){
-        if notification.name == UIResponder.keyboardWillShowNotification {
+        if notification.name == UIResponder.keyboardWillShowNotification { // 여기서 히스토리 받아오기
+            needFetchHistory.onNext(())
             historyView.setAnimatedIsHidden(false, duration: 0.1, onCompletion: { [weak self] in
                 self?.resultCollectionView.isHidden = true
                 self?.emptyResultView.isHidden = true
@@ -180,7 +184,10 @@ class SearchResultViewController: UIViewController {
             keywordChanged: searchBarField.rx.text.asObservable(),
             searchBtnTapped: searchBtnTapped.asObservable(),
             createBtnTapped: createGroupButton.rx.tap.asObservable(),
-            needLoadNextData: needLoadNextData.asObservable()
+            needLoadNextData: needLoadNextData.asObservable(),
+            needFetchHistory: needFetchHistory.asObservable(),
+            removeHistoryAt: removeHistoryAt.asObservable(),
+            removeAllHistory: removeAllHistory.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -241,6 +248,16 @@ class SearchResultViewController: UIViewController {
             .keywordChanged
             .distinctUntilChanged()
             .bind(to: searchBarField.rx.text)
+            .disposed(by: bag)
+        
+        output
+            .didFetchHistory
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.historyView.collectionView.reloadSections(IndexSet(integer: 0))
+            })
             .disposed(by: bag)
     }
     
@@ -341,7 +358,7 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
                 .disposed(by: bag)
             
             return cell
-        case historyView.collectionView:
+        case historyView.collectionView: // 삭제버튼 핸들러도 같이 넘기자
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchHistoryCell.reuseIdentifier, for: indexPath) as? SearchHistoryCell,
                   let item = viewModel?.history[indexPath.item] else { return UICollectionViewCell() }
             cell.fill(keyWord: item)
