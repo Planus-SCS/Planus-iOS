@@ -18,11 +18,12 @@ class HomeCalendarViewController: UIViewController {
     var isMultipleSelecting = PublishSubject<Bool>()
     var isMultipleSelected = PublishSubject<(Int, (Int, Int))>()
     var isSingleSelected = PublishSubject<(Int, Int)>()
+    var isGroupSelectedWithId = PublishSubject<Int?>()
     
     let scrolledTo = PublishSubject<ScrollDirection>()
     
-    lazy var yearMonthButton: UIButton = {
-        let button = UIButton(frame: .zero)
+    lazy var yearMonthButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
         button.setImage(UIImage(named: "downButton"), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
@@ -33,18 +34,7 @@ class HomeCalendarViewController: UIViewController {
         return button
     }()
     
-    var groupListButton: UIBarButtonItem = {
-        let image = UIImage(named: "groupCalendarList")
-        
-        let all = UIAction(title: "모아 보기", handler: { _ in print("전체 캘린더 조회") })
-        let groupA = UIAction(title: "ios 스터디", handler: { _ in print("스터디 캘린더 조회") })
-        
-        let buttonMenu = UIMenu(options: .displayInline, children: [all, groupA])
-        
-        let item = UIBarButtonItem(image: image, menu: buttonMenu)
-        item.tintColor = UIColor(hex: 0x000000)
-        return item
-    }()
+    var groupListButton: UIBarButtonItem?
     
 //    var profileButton
     lazy var profileButton: ProfileButton = {
@@ -58,7 +48,21 @@ class HomeCalendarViewController: UIViewController {
         return item
     }()
     
-    var weekStackView = UIStackView()
+    var weekStackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.distribution = .fillEqually
+
+        let dayOfTheWeek = ["월", "화", "수", "목", "금", "토", "일"]
+        for i in 0..<7 {
+            let label = UILabel()
+            label.text = dayOfTheWeek[i]
+            label.textAlignment = .center
+            label.font = UIFont(name: "Pretendard-Regular", size: 12)
+            stackView.addArrangedSubview(label)
+        }
+        stackView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        return stackView
+    }()
     
     lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
@@ -108,7 +112,8 @@ class HomeCalendarViewController: UIViewController {
             didSelectItem: isSingleSelected.asObservable(),
             didMultipleSelectItemsInRange: isMultipleSelected.asObservable(),
             didTappedTitleButton: yearMonthButton.rx.tap.asObservable(),
-            didSelectMonth: isMonthChanged.asObservable()
+            didSelectMonth: isMonthChanged.asObservable(),
+            filterGroupWithId: isGroupSelectedWithId.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -174,9 +179,10 @@ class HomeCalendarViewController: UIViewController {
                 viewModel.setTodoList(
                     todoList: dayViewModel.todoList ?? [],
                     categoryDict: vc.viewModel?.categoryDict ?? [:],
-                    groupDict: vc.viewModel?.groupDict ?? [:]
-                )
-
+                    groupDict: vc.viewModel?.groupDict ?? [:],
+                    filteringGroupId: try? vc.viewModel?.filteredGroupId.value()
+                ) //투두리스트를 필터링해야함..! 아니 걍 다 올리고 저짝에서 필터링하자 그게 편하다..!
+                viewModel.setOwnership(isOwner: true)
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)
                 nav.modalPresentationStyle = .pageSheet
@@ -199,7 +205,7 @@ class HomeCalendarViewController: UIViewController {
                 let vc = MonthPickerViewController(firstYear: first, lastYear: last, currentDate: current) { [weak self] date in
                     self?.isMonthChanged.onNext(date)
                 }
-                // 여기서 앞뒤로 범위까지 전달할 수 있어야함. 즉, 저걸 열면 현재날짜에서 월별로 앞뒤로를 만들어서 한번에 데이터소스에 집어넣는게 맞을듯하다..!아이구야,,,
+
                 vc.preferredContentSize = CGSize(width: 320, height: 290)
                 vc.modalPresentationStyle = .popover
                 let popover: UIPopoverPresentationController = vc.popoverPresentationController!
@@ -251,14 +257,75 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, data in
-                print("홈화면에 업댓된게 전해짐!", data)
                 vc.profileButton.fill(with: data)
             })
             .disposed(by: bag)
+        
+        output.needWelcome
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message, type: .normal)
+            })
+            .disposed(by: bag)
+        
+        output
+            .groupListFetched
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                print("fetched!!!")
+                vc.setGroupButton()
+            })
+            .disposed(by: bag)
+        
+        output
+            .needFilterGroupWithId
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.collectionView.reloadData()
+            })
+            .disposed(by: bag)
+            
+    }
+    
+    func setGroupButton() {
+        let image = UIImage(named: "groupCalendarList")
+        var children = [UIMenuElement]()
+        let all = UIAction(title: "모아 보기", handler: { [weak self] _ in
+            self?.groupSelected(id: nil)
+        })
+        children.append(all)
+        if let groupDict = viewModel?.groupDict {
+            let groupList = Array(groupDict.values)
+            let sortedList = groupList.sorted(by: { $0.groupId < $1.groupId })
+            
+            sortedList.enumerated().forEach { index, groupName in
+                let group = UIAction(title: groupName.groupName, handler: { [weak self] _ in
+                    self?.groupSelected(id: groupName.groupId)
+                })
+                children.append(group)
+            }
+        }
+        
+        let buttonMenu = UIMenu(options: .displayInline, children: children)
+        
+        let item = UIBarButtonItem(image: image, menu: buttonMenu)
+        item.tintColor = UIColor(hex: 0x000000)
+        navigationItem.setLeftBarButton(item, animated: true)
+        self.groupListButton = item
+    }
+    
+    func groupSelected(id: Int?) {
+        isGroupSelectedWithId.onNext(id)
     }
     
 
     @objc func profileButtonTapped() {
+        guard let profile = viewModel?.profile else { return }
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
@@ -269,7 +336,8 @@ class HomeCalendarViewController: UIViewController {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        let vm = MyPageMainViewModel(readProfileUseCase: readProfileUseCase, updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, fetchImageUseCase: fetchImageUseCase)
+        let vm = MyPageMainViewModel(updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, fetchImageUseCase: fetchImageUseCase)
+        vm.setProfile(profile: profile)
         let vc = MyPageMainViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(vc, animated: true)
@@ -348,19 +416,8 @@ extension HomeCalendarViewController {
     func configureView() {
         self.navigationItem.setLeftBarButton(groupListButton, animated: false)
         self.navigationItem.setRightBarButton(profileBarButton, animated: false)
-
-        self.view.addSubview(weekStackView)
-        weekStackView.distribution = .fillEqually
-
-        let dayOfTheWeek = ["월", "화", "수", "목", "금", "토", "일"]
-        for i in 0..<7 {
-            let label = UILabel()
-            label.text = dayOfTheWeek[i]
-            label.textAlignment = .center
-            label.font = UIFont(name: "Pretendard-Regular", size: 12)
-            self.weekStackView.addArrangedSubview(label)
-        }
         self.view.addSubview(collectionView)
+        self.view.addSubview(weekStackView)
     }
 }
 

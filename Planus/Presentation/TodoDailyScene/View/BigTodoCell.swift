@@ -7,9 +7,9 @@
 
 import UIKit
 
-class BigTodoCell: UICollectionViewCell {
+class BigTodoCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "big-todo-cell"
-
+    
     var buttonClosure: (() -> Void)?
     
     var titleLabel: UILabel = {

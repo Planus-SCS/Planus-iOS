@@ -176,7 +176,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         self.captinNameLabel.text = captin
     }
     
-    func fill(image: UIImage) {
+    func fill(image: UIImage?) {
         self.titleImageView.image = image
     }
 }

@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import RxSwift
 
-final class MyPageMainSelectableCell: UICollectionViewCell {
+final class MyPageMainSelectableCell: SpringableCollectionViewCell {
     
     static let reuseIdentifier = "my-page-main-selectable-cell"
     

@@ -33,7 +33,6 @@ class MemberProfileHeaderView: UIView {
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 35
         imageView.layer.cornerCurve = .continuous
-        imageView.image = UIImage(named: "DefaultProfileMedium")
 
         return imageView
     }()
@@ -46,13 +45,16 @@ class MemberProfileHeaderView: UIView {
         return label
     }()
     
-    var introduceLabel: UILabel = {
-        let label = UILabel(frame: .zero)
-        label.textColor = UIColor(hex: 0x6F81A9)
-        label.font = UIFont(name: "Pretendard-Regular", size: 14)
-        label.numberOfLines = 3
-        label.textAlignment = .center
-        return label
+    var introduceLabel: UITextView = {
+        let textView = UITextView(frame: .zero)
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.font = UIFont(name: "Pretendard-Regular", size: 14)
+        textView.textColor = UIColor(hex: 0x6F81A9)
+        textView.backgroundColor = UIColor(hex: 0xF5F5FB)
+
+        textView.textAlignment = .center
+        return textView
     }()
     
     var separateView: UIView = {
@@ -66,14 +68,19 @@ class MemberProfileHeaderView: UIView {
         return view
     }()
     
-    convenience init(mockFrame: CGRect) {
-        self.init(frame: mockFrame)
+    convenience init(mockName: String?, mockDesc: String?) {
+        self.init(frame: .zero)
         
         introduceLabel.snp.remakeConstraints {
             $0.leading.trailing.equalToSuperview().inset(48)
             $0.top.equalTo(nameLabel.snp.bottom).offset(16)
-            $0.bottom.equalTo(separateView.snp.top).inset(-22)
+            $0.bottom.equalToSuperview().offset(-25)
         }
+        
+        nameLabel.text = mockName
+        introduceLabel.text = mockDesc
+        
+        self.layoutIfNeeded()
     }
     
     override init(frame: CGRect) {

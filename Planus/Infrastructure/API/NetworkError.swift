@@ -19,4 +19,9 @@ public enum NetworkError: Error, Equatable {
 
 enum TokenError: Error, Equatable {
     case tokenExpired
+    case noTokenExist
+}
+
+enum DefaultError: Error {
+    case noCapturedSelf
 }

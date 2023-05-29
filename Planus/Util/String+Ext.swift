@@ -35,4 +35,8 @@ extension String {
         
         return "\(apm) \(hour):\(strMinute)"
     }
+    
+    func checkRegex(regex: String) -> Bool {
+        return self.range(of: regex, options: .regularExpression) != nil
+    }
 }

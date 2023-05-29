@@ -28,4 +28,5 @@ extension ProfileResponseDataDTO {
 struct ProfileRequestDTO: Codable {
     var nickname: String
     var description: String?
+    var profileImageRemove: Bool
 }

@@ -15,11 +15,13 @@ class DefaultRefreshTokenUseCase: RefreshTokenUseCase {
         self.tokenRepository = tokenRepository
     }
     
-    func execute() -> Single<Token>? {
+    func execute() -> Single<Token> {
         return tokenRepository
-            .refresh()?
-            .map {
-                return $0.data.toDomain()
+            .refresh()
+            .map { [weak self] dto in
+                let token = dto.data.toDomain()
+                self?.tokenRepository.set(token: token)
+                return token
             }
     }
 }

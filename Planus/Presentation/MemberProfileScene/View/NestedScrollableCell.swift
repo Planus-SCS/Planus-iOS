@@ -7,23 +7,27 @@
 
 import UIKit
 
-var memberProfileTopViewInitialHeight : CGFloat = 208
-
-let memberProfileTopViewFinalHeight : CGFloat = 98 //navigation hieght
-
-let memberProfileTopViewHeightConstraintRange = memberProfileTopViewFinalHeight..<memberProfileTopViewInitialHeight
-
 class NestedScrollableCell: UICollectionViewCell {
+    var topViewInitialHeight: CGFloat?
+    var topViewFinalHeight: CGFloat?
+    var topViewHeightConstraintRange: Range<CGFloat> {
+        (topViewFinalHeight ?? 0)..<(topViewInitialHeight ?? 0)
+    }
+    
     weak var nestedScrollableCellDelegate: NestedScrollableCellDelegate?
     
     private var dragDirection: DragDirection = .Up
     private var oldContentOffset = CGPoint.zero
+    
+    func fill(headerInitialHeight: CGFloat?, headerFinalHeight: CGFloat?) {
+        self.topViewInitialHeight = headerInitialHeight
+        self.topViewFinalHeight = headerFinalHeight
+    }
 }
 
 extension NestedScrollableCell: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        
         let delta = scrollView.contentOffset.y - oldContentOffset.y
         
         let topViewCurrentHeightConst = nestedScrollableCellDelegate?.currentHeaderHeight
@@ -31,7 +35,7 @@ extension NestedScrollableCell: UIScrollViewDelegate {
         if let topViewUnwrappedHeight = topViewCurrentHeightConst {
  
             if delta > 0,
-                topViewUnwrappedHeight > memberProfileTopViewHeightConstraintRange.lowerBound,
+                topViewUnwrappedHeight > topViewHeightConstraintRange.lowerBound,
                 scrollView.contentOffset.y > 0 {
                 dragDirection = .Up
                 nestedScrollableCellDelegate?.innerTableViewDidScroll(withDistance: delta)
@@ -44,7 +48,6 @@ extension NestedScrollableCell: UIScrollViewDelegate {
                 nestedScrollableCellDelegate?.innerTableViewDidScroll(withDistance: delta)
             }
         }
-        
         oldContentOffset = scrollView.contentOffset
     }
     

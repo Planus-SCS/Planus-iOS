@@ -39,10 +39,11 @@ enum GroupIntroduceSectionKind: Int, CaseIterable {
 }
 
 struct Member {
-    var imageName: String
+    var id: Int
     var name: String
-    var isCap: Bool
-    var desc: String
+    var isLeader: Bool
+    var description: String?
+    var profileImageUrl: String?
 }
 
 class GroupIntroduceViewController: UIViewController {
@@ -88,9 +89,9 @@ class GroupIntroduceViewController: UIViewController {
         return view
     }()
     
-    var joinButton: UIButton = {
-        let button = UIButton(frame: .zero)
-        button.setTitle("그룹 참여 신청하기", for: .normal)
+    var joinButton: SpringableButton = {
+        let button = SpringableButton(frame: .zero)
+        button.setTitle("로딩중", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = UIColor(hex: 0x6495F4)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
@@ -130,20 +131,43 @@ class GroupIntroduceViewController: UIViewController {
         configureLayout()
         
         bind()
-        self.navigationItem.setLeftBarButton(backButton, animated: false)
-        self.navigationItem.setRightBarButton(shareButton, animated: false)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+//        self.navigationItem.setLeftBarButton(backButton, animated: false)
+//        self.navigationItem.setRightBarButton(shareButton, animated: false)
+//        self.navigationItem.title = "dkssddd"
+        navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationItem.setRightBarButton(shareButton, animated: false)
         
-
+        let initialAppearance = UINavigationBarAppearance()
+        let scrollingAppearance = UINavigationBarAppearance()
+        scrollingAppearance.configureWithOpaqueBackground()
+        scrollingAppearance.backgroundColor = UIColor(hex: 0xF5F5FB)
+        let initialBarButtonAppearance = UIBarButtonItemAppearance()
+        initialBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white]
+        initialAppearance.configureWithTransparentBackground()
+        initialAppearance.buttonAppearance = initialBarButtonAppearance
+        
+        let scrollingBarButtonAppearance = UIBarButtonItemAppearance()
+        scrollingBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.black]
+        scrollingAppearance.buttonAppearance = scrollingBarButtonAppearance
+        self.navigationItem.standardAppearance = scrollingAppearance
+        self.navigationItem.scrollEdgeAppearance = initialAppearance
+        
+        self.navigationController?.navigationBar.standardAppearance = scrollingAppearance
+        self.navigationController?.navigationBar.scrollEdgeAppearance = initialAppearance
     }
+    
+    var co: JoinedGroupDetailCoordinator?
     
     func bind() {
         guard let viewModel else { return }
         
         let input = GroupIntroduceViewModel.Input(
+            viewDidLoad: Observable.just(()),
             didTappedJoinBtn: joinButton.rx.tap.asObservable(),
             didTappedBackBtn: backButtonTapped.asObservable()
         )
@@ -156,7 +180,45 @@ class GroupIntroduceViewController: UIViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vc, _ in
-                vc.collectionView.reloadData()
+                UIView.performWithoutAnimation {
+                    vc.collectionView.reloadSections(IndexSet(0...1))
+                }
+            })
+            .disposed(by: bag)
+        
+        output
+            .didGroupMemberFetched
+            .compactMap { $0 }
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, _ in
+                UIView.performWithoutAnimation {
+                    vc.collectionView.reloadSections(IndexSet(2...2))
+                }
+            })
+            .disposed(by: bag)
+        
+        output
+            .isJoinableGroup
+            .compactMap { $0 }
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, isJoined in
+                if isJoined {
+                    vc.joinButton.setTitle("그룹 페이지로 이동하기", for: .normal)
+                } else {
+                    vc.joinButton.setTitle("그룹가입 신청하기", for: .normal)
+                }
+            })
+            .disposed(by: bag)
+        
+        output
+            .showGroupDetailPage
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { vc, id in
+                vc.co = JoinedGroupDetailCoordinator(navigationController: vc.navigationController!)
+                vc.co?.start(id: id)
             })
             .disposed(by: bag)
     }
@@ -181,8 +243,8 @@ class GroupIntroduceViewController: UIViewController {
         }
         
         collectionView.snp.makeConstraints {
-            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.bottom.equalToSuperview()
+//            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
+            $0.top.leading.trailing.bottom.equalToSuperview()
         }
     }
     
@@ -226,8 +288,19 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier, for: indexPath) as? GroupIntroduceMemberCell,
                   let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
 
-            cell.fill(name: item.name, introduce: item.desc, isCaptin: item.isCap)
-            cell.fill(image: UIImage(named: "DefaultProfileMedium")!)
+            cell.fill(name: item.name, introduce: item.description, isCaptin: item.isLeader)
+            
+            if let url = item.profileImageUrl {
+                viewModel?.fetchImage(key: url)
+                    .observe(on: MainScheduler.asyncInstance)
+                    .subscribe(onSuccess: { data in
+                        cell.fill(image: UIImage(data: data))
+                    })
+                    .disposed(by: bag)
+            } else {
+                cell.fill(image: UIImage(named: "DefaultProfileMedium"))
+            }
+            
             return cell
         }
     }
@@ -241,12 +314,25 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
         case .info:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceInfoHeaderView else { return UICollectionReusableView() }
             // 이부분 아무래도 셀로 만들어야할거같다.. 네트워크 받아오면 업댓해야되서 그전까지 비워놔야한다,,, 그냥 빈화면으로 보여줄까? 것도 낫베드긴한디
-            view.fill(title: viewModel?.groupTitle ?? "", tag: viewModel?.tag ?? "", memCount: viewModel?.memberCount ?? "", captin: viewModel?.captin ?? "")
-            view.fill(image: UIImage(named: "groupTest1")!)
+            view.fill(
+                title: viewModel?.groupTitle ?? "",
+                tag: viewModel?.tag ?? "",
+                memCount: viewModel?.memberCount ?? "",
+                captin: viewModel?.captin ?? ""
+            )
+            
+            if let url = viewModel?.groupImageUrl {
+                viewModel?.fetchImage(key: url)
+                    .observe(on: MainScheduler.asyncInstance)
+                    .subscribe(onSuccess: { data in
+                        view.fill(image: UIImage(data: data))
+                    })
+                    .disposed(by: bag)
+            }
             return view
         case .notice, .member:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
-            view.fill(title: sectionKind.title, description: sectionKind.desc, isCaptin: false)
+            view.fill(title: sectionKind.title, description: sectionKind.desc)
             return view
         }
     }
@@ -289,7 +375,7 @@ extension GroupIntroduceViewController {
         group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = .init(top: 0, leading: 0, bottom: 50, trailing: 0)
+        section.contentInsets = .init(top: 0, leading: 0, bottom: 30, trailing: 0)
         let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                        heightDimension: .absolute(70))
         

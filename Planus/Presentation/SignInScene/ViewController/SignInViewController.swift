@@ -44,21 +44,22 @@ class SignInViewController: UIViewController {
         return label
     }()
     
-    var kakaoSignButton: UIButton = {
+    var kakaoSignButton: SpringableButton = {
         let image = UIImage(named: "kakaoBtn")
-        let button = UIButton(frame: CGRect(
+        let button = SpringableButton(frame: CGRect(
             x: 0,
             y: 0,
             width: image?.size.width ?? 0,
             height: image?.size.height ?? 0
         ))
         button.setImage(image, for: .normal)
+        button.clipsToBounds = true
         return button
     }()
     
-    var googleSigninButton: UIButton = {
+    var googleSigninButton: SpringableButton = {
         let image = UIImage(named: "googleBtn")
-        let button = UIButton(frame: CGRect(
+        let button = SpringableButton(frame: CGRect(
             x: 0,
             y: 0,
             width: image?.size.width ?? 0,
@@ -68,9 +69,9 @@ class SignInViewController: UIViewController {
         return button
     }()
     
-    var appleSigninButton: UIButton = {
+    var appleSigninButton: SpringableButton = {
         let image = UIImage(named: "appleBtn")
-        let button = UIButton(frame: CGRect(
+        let button = SpringableButton(frame: CGRect(
             x: 0,
             y: 0,
             width: image?.size.width ?? 0,
@@ -100,6 +101,10 @@ class SignInViewController: UIViewController {
         configureLayout()
 
         bind()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)        
     }
     
     func bind() {

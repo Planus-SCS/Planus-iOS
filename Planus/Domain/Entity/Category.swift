@@ -7,16 +7,16 @@
 
 import Foundation
 
+enum CategoryStatus: String {
+    case active = "ACTIVE"
+    case inactive = "INACTIVE"
+}
+
 struct Category {
     var id: Int?
     var title: String
     var color: CategoryColor
-    
-    init(id: Int?, title: String, color: CategoryColor) {
-        self.id = id
-        self.title = title
-        self.color = color
-    }
+    var status: CategoryStatus?
 }
 
 extension Category {

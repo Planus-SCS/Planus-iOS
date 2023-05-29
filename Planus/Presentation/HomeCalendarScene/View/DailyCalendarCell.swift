@@ -7,31 +7,29 @@
 
 import UIKit
 
-class DailyCalendarCell: UICollectionViewCell {
+class DailyCalendarCell: SpringableCollectionViewCell {
     
     static let identifier = "daily-calendar-cell"
     
     weak var delegate: DailyCalendarCellDelegate?
     
     override var isSelected: Bool {
-      didSet {
-        if isSelected {
-            UIView.animate(withDuration: 0.01,
-                           animations: {
-                self.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-                self.alpha = 0.5
-                self.backgroundColor = UIColor(hex: 0xDBDAFF)
-            })
-        } else {
-            UIView.animate(withDuration: 0.01,
-                           animations: {
-                self.transform = CGAffineTransform(scaleX: 1, y: 1)
-                self.alpha = 1
-                self.backgroundColor = nil
-                
-            })
+        didSet {
+            if isSelected {
+                UIView.animate(withDuration: 0.01,
+                               animations: {
+                    self.alpha = 0.5
+                    self.backgroundColor = UIColor(hex: 0xDBDAFF)
+                })
+            } else {
+                UIView.animate(withDuration: 0.01,
+                               animations: {
+                    self.alpha = 1
+                    self.backgroundColor = nil
+                    
+                })
+            }
         }
-      }
     }
     
     var views: [UIView] = []
@@ -39,7 +37,6 @@ class DailyCalendarCell: UICollectionViewCell {
     lazy var stackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .vertical
-//        stackView.distribution = .
         stackView.spacing = 2
         stackView.alignment = .fill
         return stackView
@@ -95,12 +92,10 @@ class DailyCalendarCell: UICollectionViewCell {
         stackView.snp.makeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
             $0.leading.trailing.equalToSuperview()
-//            $0.bottom.lessThanOrEqualToSuperview().inset(3)
         }
     }
     
-    func fill(delegate: DailyCalendarCellDelegate, day: String, state: MonthStateOfDay, weekDay: WeekDay, todoList: [Todo]) {
-        self.delegate = delegate
+    func fill(day: String, state: MonthStateOfDay, weekDay: WeekDay) {
         numberLabel.text = day
         
         var alpha: Double
@@ -120,9 +115,7 @@ class DailyCalendarCell: UICollectionViewCell {
             numberLabel.textColor = UIColor(hex: 0xEA4335, a: alpha)
         default:
             numberLabel.textColor = UIColor(hex: 0x000000, a: alpha)
-        }
-        
-        fill(todoList: todoList)
+        }        
     }
     
     func fill(todoList: [Todo]) {
@@ -133,6 +126,19 @@ class DailyCalendarCell: UICollectionViewCell {
             } else {
                 todoView = SmallTodoView(text: $0.title, categoryColor: .none)
             }
+            
+            todoView.snp.makeConstraints {
+                $0.height.equalTo(16)
+            }
+            stackView.addArrangedSubview(todoView)
+            views.append(todoView)
+        }
+    }
+    
+    func fill(socialTodoList: [SocialTodoSummary]) {
+        socialTodoList.forEach {
+            var todoView: SmallTodoView
+            todoView = SmallTodoView(text: $0.title, categoryColor: $0.categoryColor)
             
             todoView.snp.makeConstraints {
                 $0.height.equalTo(16)

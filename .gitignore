@@ -21,6 +21,9 @@ Pods/
 build/
 DerivedData/
 
+## URL
+Planus/Util/URL/BaseURL.swift
+
 ## Various settings
 *.pbxuser
 !default.pbxuser

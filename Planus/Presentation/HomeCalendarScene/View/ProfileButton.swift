@@ -11,6 +11,7 @@ class ProfileButton: UIButton {
     let profileImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.clipsToBounds = true
+        imageView.layer.cornerCurve = .continuous
         return imageView
     }()
     
@@ -28,7 +29,6 @@ class ProfileButton: UIButton {
     override func layoutSubviews() {
         super.layoutSubviews()
         profileImageView.layer.cornerRadius = profileImageView.bounds.height/2
-        profileImageView.layer.cornerCurve = .continuous
     }
     
     func configureView() {
@@ -37,12 +37,12 @@ class ProfileButton: UIButton {
     
     func configureLayout() {
         profileImageView.snp.makeConstraints {
-            $0.height.width.equalTo(self.snp.height).offset(-16)
+            $0.height.width.equalTo(25)
             $0.center.equalToSuperview()
         }
     }
     
     func fill(with data: Data?) {
-        self.profileImageView.image = (data != nil) ? UIImage(data: data!) : UIImage(named: "userDefaultIconSmall")
+        self.profileImageView.image = (data != nil) ? UIImage(data: data!) : UIImage(named: "DefaultProfileSmall")
     }
 }

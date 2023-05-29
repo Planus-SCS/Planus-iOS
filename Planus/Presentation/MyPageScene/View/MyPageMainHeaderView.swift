@@ -33,4 +33,10 @@ class MyPageMainHeaderView: UICollectionReusableView {
         }
     }
     
+    override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
+        super.apply(layoutAttributes)
+        UIView.animate(withDuration: 1, delay: 0, animations: {
+            self.layoutIfNeeded()
+        })
+    }
 }

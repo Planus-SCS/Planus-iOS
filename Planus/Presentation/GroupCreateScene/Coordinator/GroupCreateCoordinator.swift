@@ -27,7 +27,22 @@ class GroupCreateCoordinator: Coordinator {
     
     // 뷰모델 연결 시급
     lazy var showGroupCreatePage: () -> Void = { [weak self] in
-        let vc = GroupCreateViewController(nibName: nil, bundle: nil)
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        
+        let tokenRepository = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepository)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepository)
+        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepository)
+        let groupCreateUseCase = DefaultGroupCreateUseCase.shared
+        let vm = GroupCreateViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            setTokenUseCase: setTokenUseCase,
+            groupCreateUseCase: groupCreateUseCase
+        )
+        let vc = GroupCreateViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
 
         self?.navigationController.pushViewController(vc, animated: true)

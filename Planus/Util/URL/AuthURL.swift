@@ -9,12 +9,12 @@ import Foundation
 
 struct KakaoAuthURL {
     static let kakaoAuthCodeURL = "https://kauth.kakao.com/oauth/authorize?client_id=e3db77b879bd944542d59883a7d1f448&redirect_uri=\(redirectURI)&response_type=code"
-    static let redirectURI = "http://localhost:8080/app/oauth/kakao"
+    static let redirectURI = "http://43.200.117.212:8080/app/oauth/kakao"
 }
 
 struct GoogleAuthURL {
     static let googleAuthCodeURL = "https://accounts.google.com/o/oauth2/v2/auth?client_id=7772745345-82ah7rvqp7fttqh3eaoih7el6rtikvqu.apps.googleusercontent.com&redirect_uri=\(Self.redirectURI)&response_type=code&scope=profile+email"
-    static let redirectURI = "http://localhost:8080/app/oauth/google"
+    static let redirectURI = "http://ec2-43-200-117-212.ap-northeast-2.compute.amazonaws.com:8080/app/oauth/google"
 }
 
 struct WebViewCustomUserAgent {

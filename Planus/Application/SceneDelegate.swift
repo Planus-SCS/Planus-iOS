@@ -21,14 +21,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         guard let window = window else { return }
-//        let vm = SearchViewModel()
-        
-//        let useCase1 = DefaultCreateMonthlyCalendarUseCase()
-//        let useCase2 = DefaultFetchTodoListUseCase(todoRepository: TestTodoRepository())
-//        let useCase3 = DefaultDateFormatYYYYMMUseCase()
-//
-//        let vm = MyPageMainViewModel()
-//        let vc = MyPageMainViewController(viewModel: vm)
+
+//        let vm = GroupCreateViewModel(getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), setTokenUseCase: DefaultSetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), groupCreateUseCase: DefaultGroupCreateUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager())))
+//        let vc = GroupCreateViewController(viewModel: vm)
 //        let navi = UINavigationController(rootViewController: vc)
 //        window.rootViewController = navi
 //
@@ -37,7 +32,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         self.appCoordinator = AppCoordinator(window: window)
         self.appCoordinator?.start()
-        
+////
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

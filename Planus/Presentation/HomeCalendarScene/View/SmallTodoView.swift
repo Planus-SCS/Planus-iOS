@@ -37,6 +37,9 @@ class SmallTodoView: UIView {
     }
     
     func configureView() {
+        self.layer.cornerRadius = 3
+        self.layer.cornerCurve = .continuous
+        self.clipsToBounds = true
         self.addSubview(leadingView)
         self.addSubview(toDoLabel)
     }

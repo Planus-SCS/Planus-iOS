@@ -36,7 +36,7 @@ class NetworkManager: APIProvider {
             guard let self else {
                 return Disposables.create()
             }
-
+            
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
                     emitter(.failure(error))
@@ -47,6 +47,15 @@ class NetworkManager: APIProvider {
                     emitter(.failure(NetworkError.nilDataError))
                     return
                 }
+
+                if let reqData = request.httpBody {
+                    print(String(decoding: reqData, as: UTF8.self))
+                }
+                let str = String(decoding: data, as: UTF8.self)
+                if str.count <= 3000 {
+                    print(str)
+                }
+                
                 guard let httpResponse = response as? HTTPURLResponse else { return }
                 switch httpResponse.statusCode {
                 case (200..<300):

@@ -13,11 +13,10 @@ class NestedScrollableMonthlyCalendarCell: NestedScrollableCell {
     static let reuseIdentifier = "nested-scrollable-monthly-calendar-cell"
     
     var section: Int?
+    var viewModel: MemberProfileViewModel?
     
     var isSingleSelected: PublishSubject<IndexPath>?
-    
-    weak var delegate: NestedScrollableMonthlyCalendarCellDelegate?
-    
+        
     var bag: DisposeBag?
     
     lazy var collectionView: UICollectionView = {
@@ -55,10 +54,9 @@ class NestedScrollableMonthlyCalendarCell: NestedScrollableCell {
         collectionView.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
     }
     
-    func fill(section: Int, delegate: NestedScrollableMonthlyCalendarCellDelegate, nestedScrollableCellDelegate: NestedScrollableCellDelegate) {
+    func fill(section: Int, viewModel: MemberProfileViewModel?) {
         self.section = section
-        self.delegate = delegate
-        self.nestedScrollableCellDelegate = nestedScrollableCellDelegate
+        self.viewModel = viewModel
         collectionView.reloadData()
     }
     
@@ -70,47 +68,63 @@ class NestedScrollableMonthlyCalendarCell: NestedScrollableCell {
 }
 
 extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
+    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return delegate?.numberOfItems(self, in: self.section ?? Int()) ?? Int()
+        guard let section = self.section else { return Int() }
+        return viewModel?.mainDayList[section].count ?? Int()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell,
-              let dayViewModel = delegate?.monthlyCalendarCell(self, at: IndexPath(item: indexPath.item, section: self.section ?? Int()))  else {
+        guard let section,
+              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell,
+              let dayViewModel = viewModel?.mainDayList[section][indexPath.item] else {
             return UICollectionViewCell()
         }
         
-        cell.fill(delegate: self, day: "\(Calendar.current.component(.day, from: dayViewModel.date))", state: dayViewModel.state, weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!, todoList: dayViewModel.todoList)
+        cell.fill(
+            day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
+            state: dayViewModel.state,
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!
+        )
+        
+        cell.fill(socialTodoList: dayViewModel.todoList)
 
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let delegate,
-              let section,
-              let maxTodoViewModel = delegate.monthlyCalendarCell(self, maxCountOfTodoInWeek: IndexPath(item: indexPath.item, section: section)) else { return CGSize() }
+        guard let section,
+              let maxTodoViewModel = viewModel?.getMaxInWeek(indexPath: IndexPath(item: indexPath.item, section: section)) else { return CGSize() }
         
-        let frameSize = delegate.frameWidth(self)
-        
+        let screenWidth = UIScreen.main.bounds.width
+                
         var todoCount = maxTodoViewModel.todoList.count
         
-        if let height = delegate.findCachedHeight(self, todoCount: todoCount) {
-            return CGSize(width: Double(1)/Double(7) * Double(frameSize.width), height: Double(height))
+        if let height = viewModel?.cachedCellHeightForTodoCount[todoCount] {
+            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: Double(height))
             
         } else {
-            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * frameSize.width, height: 116))
-            mockCell.fill(todoList: maxTodoViewModel.todoList)
-
+            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
+            mockCell.fill(socialTodoList: maxTodoViewModel.todoList)
             mockCell.layoutIfNeeded()
             
-            let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(width: Double(1)/Double(7) * frameSize.width, height: 116))
-            delegate.cacheHeight(self, count: todoCount, height: estimatedSize.height)
+            let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
+                width: Double(1)/Double(7) * screenWidth,
+                height: UIView.layoutFittingCompressedSize.height
+            ))
+
+            if estimatedSize.height <= 116 {
+                viewModel?.cachedCellHeightForTodoCount[todoCount] = 116
+                return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: 116)
+            } else {
+                viewModel?.cachedCellHeightForTodoCount[todoCount] = estimatedSize.height
             
-            return CGSize(width: Double(1)/Double(7) * frameSize.width, height: estimatedSize.height)
+                return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: estimatedSize.height)
+            }
             
         }
     }
@@ -120,22 +134,5 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
             isSingleSelected?.onNext(IndexPath(item: indexPath.item, section: section))
         }
         return false
-    }
-}
-
-
-// 내부의 콜렉션뷰를 위해 델리게이트로 뷰컨쪽에서 정보 받아오기
-protocol NestedScrollableMonthlyCalendarCellDelegate: NSObject {
-    func monthlyCalendarCell(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, at indexPath: IndexPath) -> DayViewModel?
-    func monthlyCalendarCell(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, maxCountOfTodoInWeek indexPath: IndexPath) -> DayViewModel?
-    func numberOfItems(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, in section: Int) -> Int?
-    func findCachedHeight(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, todoCount: Int) -> Double?
-    func cacheHeight(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell, count: Int, height: Double)
-    func frameWidth(_ monthlyCalendarCell: NestedScrollableMonthlyCalendarCell) -> CGSize
-}
-
-extension NestedScrollableMonthlyCalendarCell: DailyCalendarCellDelegate {
-    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor? {
-        return CategoryColor.blue
     }
 }

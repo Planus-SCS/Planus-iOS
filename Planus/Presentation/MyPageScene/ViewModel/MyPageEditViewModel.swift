@@ -15,6 +15,9 @@ class MyPageEditViewModel {
     var introduce = BehaviorSubject<String?>(value: nil)
     var profileImage = BehaviorSubject<ImageFile?>(value: nil)
     
+    var imageChangeChecker: Bool = false
+    var isInitialValueNil: Bool = false
+    
     var didUpdateProfile = PublishSubject<Void>()
     
     struct Input {
@@ -87,6 +90,17 @@ class MyPageEditViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .didChangeImage
+            .take(1)
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                print("changed")
+                vm.imageChangeChecker = true
+            })
+            .disposed(by: bag)
+            
+        
         let saveBtnEnabled = name
             .compactMap { $0 }
             .map {
@@ -104,16 +118,30 @@ class MyPageEditViewModel {
     }
     
     func fetchProfile() {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        readProfileUseCase.execute(token: token)
+
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Profile> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.readProfileUseCase.execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] profile in
                 guard let self else { return }
 
                 self.name.onNext(profile.nickName)
                 self.introduce.onNext(profile.description)
                 
-                guard let key = profile.imageUrl else { return }
+                guard let key = profile.imageUrl else {
+                    self.isInitialValueNil = true
+                    return
+                }
+                self.isInitialValueNil = false
                 self.fetchImage(key: key)
                     .subscribe(onSuccess: { data in
                         self.profileImage.onNext(ImageFile(filename: "originalProfile", data: data, type: "png"))
@@ -124,18 +152,39 @@ class MyPageEditViewModel {
     }
     
     func updateProfile() {
-        guard let token = getTokenUseCase.execute(),
-              let name = try? name.value() else { return }
+        guard let name = try? name.value() else { return }
+        
+        var isImageRemoved: Bool = false
+        var image: ImageFile?
 
-        updateProfileUseCase.execute(
-            token: token,
-            name: name,
-            introduce: try? introduce.value(),
-            image: try? profileImage.value()
-        ).subscribe(onSuccess: { [weak self] _ in
-            self?.didUpdateProfile.onNext(())
-        })
-        .disposed(by: bag)
+        if let imageValue = try? profileImage.value() {
+            image = (imageChangeChecker) ? imageValue : nil
+        } else {
+            isImageRemoved = !isInitialValueNil
+        }
+
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.updateProfileUseCase.execute(
+                    token: token,
+                    name: name,
+                    introduce: try? self.introduce.value(),
+                    isImageRemoved: isImageRemoved,
+                    image: image
+                )
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.didUpdateProfile.onNext(())
+            })
+            .disposed(by: bag)
     }
     
     func fetchImage(key: String) -> Single<Data> {

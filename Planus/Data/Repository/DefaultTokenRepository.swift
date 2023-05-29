@@ -21,8 +21,8 @@ class DefaultTokenRepository: TokenRepository {
         self.apiProvider = apiProvider
     }
     
-    func refresh() -> Single<ResponseDTO<TokenRefreshResponseDataDTO>>? {
-        guard let token = get() else { return nil }
+    func refresh() -> Single<ResponseDTO<TokenRefreshResponseDataDTO>> {
+        let token = get()!
                 
         let endPoint = APIEndPoint(
             url: URLPool.refreshToken,

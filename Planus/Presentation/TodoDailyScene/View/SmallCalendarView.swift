@@ -8,9 +8,9 @@
 import UIKit
 
 final class SmallCalendarView: UIView {
-    lazy var prevButton: UIButton = {
+    lazy var prevButton: SpringableButton = {
         let image = UIImage(named: "pickerLeft")
-        let button = UIButton(frame: CGRect(
+        let button = SpringableButton(frame: CGRect(
             x: 0,
             y: 0,
             width: image?.size.width ?? 0,
@@ -20,9 +20,9 @@ final class SmallCalendarView: UIView {
         return button
     }()
     
-    lazy var nextButton: UIButton = {
+    lazy var nextButton: SpringableButton = {
         let image = UIImage(named: "pickerRight")
-        let button = UIButton(frame: CGRect(
+        let button = SpringableButton(frame: CGRect(
             x: 0,
             y: 0,
             width: image?.size.width ?? 0,

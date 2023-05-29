@@ -86,13 +86,7 @@ class MyPageEditViewController: UIViewController {
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
         textView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         textView.delegate = self
-//        let style = NSMutableParagraphStyle()
-//        style.lineSpacing = 10
-//
-//        let attributedString = NSMutableAttributedString(string: textView.text)
-//        attributedString.addAttribute(NSAttributedString.Key.paragraphStyle, value: style, range: NSRange(location: 0, length: attributedString.length))
-//
-//        textView.attributedText = attributedString
+
         textView.text = "자기소개를 입력하세요."
         textView.textColor = UIColor(hex: 0xBFC7D7)
         return textView
@@ -179,6 +173,7 @@ class MyPageEditViewController: UIViewController {
         output
             .didFetchIntroduce
             .map {
+                
                 guard let str = $0 else { return nil }
                 guard !str.isEmpty else { return nil }
                 return str

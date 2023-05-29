@@ -80,7 +80,6 @@ class MonthPickerViewController: UIViewController, UICollectionViewDataSource, U
         let currentComponents = Calendar.current.dateComponents([.year, .month], from: currentDate)
         self.currentYear = currentComponents.year
         self.currentMonth = currentComponents.month
-
         self.centeredYear = currentComponents.year
         
         let firstComponents = Calendar.current.dateComponents([.year, .month], from: firstYear)
@@ -106,6 +105,13 @@ class MonthPickerViewController: UIViewController, UICollectionViewDataSource, U
         
         configureView()
         configureLayout()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        DispatchQueue.main.async {
+            self.collectionView.setContentOffset(CGPoint(x: 290, y: 0), animated: false)
+        }
     }
     
     func configureView() {
@@ -139,10 +145,6 @@ class MonthPickerViewController: UIViewController, UICollectionViewDataSource, U
             $0.leading.trailing.equalToSuperview().inset(15)
             $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(-20)
         }
-        
-        DispatchQueue.main.async {
-            self.collectionView.setContentOffset(CGPoint(x: 290, y: 0), animated: false)
-        }
     }
     
     @objc func prevTapped(_ sender: UIButton) {
@@ -158,7 +160,6 @@ class MonthPickerViewController: UIViewController, UICollectionViewDataSource, U
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("hi")
         guard let centeredYear,
               let completion else { return }
         
@@ -214,7 +215,6 @@ class MonthPickerViewController: UIViewController, UICollectionViewDataSource, U
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let index = Double(scrollView.contentOffset.x)/Double(290)
-        
         if index < 1 && ceil(index) == 0 {
             scrollView.setContentOffset(CGPoint(x: 290, y: 0), animated: false) //이때 앞으로 전진한거임. year를 하나 앞으로 바꾸고 리로드해야함
             centeredYear?-=1

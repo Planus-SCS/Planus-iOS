@@ -24,7 +24,7 @@ extension CategoryColor {
             return UIColor(hex: 0x6B68D1, a: 0.3)
         case .red:
             return UIColor(hex: 0xE57D6D, a: 0.3)
-        case .yello:
+        case .yellow:
             return UIColor(hex: 0xF5CC5A, a: 0.3)
         case .none:
             return UIColor(hex: 0x111111, a: 0)
@@ -47,7 +47,7 @@ extension CategoryColor {
             return UIColor(hex: 0x6B68D1)
         case .red:
             return UIColor(hex: 0xE57D6D)
-        case .yello:
+        case .yellow:
             return UIColor(hex: 0xF5CC5A)
         case .none:
             return UIColor(hex: 0x111111, a: 0)
@@ -70,7 +70,7 @@ extension CategoryColor {
             return UIColor(hex: 0x3F3D7D)
         case .red:
             return UIColor(hex: 0x8F473C)
-        case .yello:
+        case .yellow:
             return UIColor(hex: 0xBD9525)
         case .none:
             return UIColor(hex: 0x000000)
@@ -99,7 +99,7 @@ extension CategoryColor {
         case .red:
             return UIColor(hex: 0xF8D8D4)
 
-        case .yello:
+        case .yellow:
             return UIColor(hex: 0xFCF0CE)
 
         case .none:

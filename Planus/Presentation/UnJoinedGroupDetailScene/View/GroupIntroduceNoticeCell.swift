@@ -60,5 +60,6 @@ class GroupIntroduceNoticeCell: UICollectionViewCell {
     
     func fill(notice: String) {
         self.noticeTextView.text = notice
+        self.noticeTextView.sizeToFit()
     }
 }

@@ -6,7 +6,8 @@
 //
 
 import Foundation
+import RxSwift
 
 protocol GetTokenUseCase {
-    func execute() -> Token?
+    func execute() -> Single<Token>
 }

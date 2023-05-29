@@ -16,6 +16,7 @@ enum CategoryCreateState {
 enum TodoCreateState {
     case new
     case edit(Todo)
+    case others(Todo)
 }
 
 final class TodoDetailViewModel {
@@ -26,7 +27,7 @@ final class TodoDetailViewModel {
     var categoryColorList: [CategoryColor] = Array(CategoryColor.allCases[0..<CategoryColor.allCases.count-1])
     
     var categorys: [Category] = []
-    var groups: [Group] = []
+    var groups: [GroupName] = []
     
     var todoCreateState: TodoCreateState = .new
     var categoryCreatingState: CategoryCreateState = .new
@@ -36,7 +37,7 @@ final class TodoDetailViewModel {
     var todoStartDay = BehaviorSubject<Date?>(value: nil)
     var todoEndDay: Date?
     var todoTime = BehaviorSubject<String?>(value: nil)
-    var todoGroup = BehaviorSubject<Group?>(value: nil)
+    var todoGroup = BehaviorSubject<GroupName?>(value: nil)
     var todoMemo = BehaviorSubject<String?>(value: nil)
     
     var needDismiss = PublishSubject<Void>()
@@ -64,6 +65,7 @@ final class TodoDetailViewModel {
         var memoChanged: Observable<String?>
         var newCategoryNameChanged: Observable<String?>
         var newCategoryColorChanged: Observable<CategoryColor?>
+        var didRemoveCategory: Observable<Int>
         
         // MARK: Control Event
         var categoryEditRequested: Observable<Int>
@@ -80,6 +82,7 @@ final class TodoDetailViewModel {
     
     struct Output {
         var categoryChanged: Observable<Category?>
+        var groupChanged: Observable<GroupName?>
         var todoSaveBtnEnabled: Observable<Bool>
         var newCategorySaveBtnEnabled: Observable<Bool>
         var newCategorySaved: Observable<Void>
@@ -168,10 +171,14 @@ final class TodoDetailViewModel {
         
         input
             .groupSelected
-            .compactMap { $0 }
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                vm.todoGroup.onNext(vm.groups[index])
+                if let index {
+                    vm.todoGroup.onNext(vm.groups[index])
+                } else {
+                    vm.todoGroup.onNext(nil)
+                }
+                
             })
             .disposed(by: bag)
         
@@ -189,6 +196,14 @@ final class TodoDetailViewModel {
         input
             .newCategoryColorChanged
             .bind(to: newCategoryColor)
+            .disposed(by: bag)
+        
+        input
+            .didRemoveCategory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, id in
+                vm.deleteCategory(id: id)
+            })
             .disposed(by: bag)
         
         input
@@ -221,16 +236,19 @@ final class TodoDetailViewModel {
                       let categoryId = (try? vm.todoCategory.value())?.id else { return }
                 let memo = try? vm.todoMemo.value()
                 let time = try? vm.todoTime.value()
+                let groupName = try? vm.todoGroup.value()
                 var todo = Todo(
                     id: nil,
                     title: title,
                     startDate: startDate,
                     endDate: vm.todoEndDay ?? startDate,
                     memo: memo,
-                    groupId: nil,
+                    groupId: groupName?.groupId,
                     categoryId: categoryId,
                     startTime: ((time?.isEmpty) ?? true) ? nil : time
                 )
+                
+                print(todo)
                 
                 switch vm.todoCreateState {
                 case .new:
@@ -238,6 +256,8 @@ final class TodoDetailViewModel {
                 case .edit(let exTodo):
                     todo.id = exTodo.id
                     vm.updateTodo(todoUpdate: TodoUpdateComparator(before: exTodo, after: todo))
+                default:
+                    return
                 }
                 
             })
@@ -340,6 +360,7 @@ final class TodoDetailViewModel {
         
         return Output(
             categoryChanged: todoCategory.asObservable(),
+            groupChanged: todoGroup.asObservable(),
             todoSaveBtnEnabled: todoSaveBtnEnabled.asObservable(),
             newCategorySaveBtnEnabled: newCategorySaveBtnEnabled.asObservable(),
             newCategorySaved: needReloadCategoryList.asObservable(),
@@ -352,7 +373,28 @@ final class TodoDetailViewModel {
         )
     }
     
-    func setForEdit(todo: Todo, category: Category) {
+    func setGroup(groupList: [GroupName]) {
+        self.groups = groupList
+    }
+    
+    func setForEdit(todo: Todo, category: Category, groupName: GroupName?) {
+        guard let id = todo.id else { return }
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = .current
+        dateFormatter.dateFormat = "yyyy.MM.dd"
+        self.todoTitle.onNext(todo.title)
+        self.todoCategory.onNext(category)
+        self.todoGroup.onNext(groupName)
+        self.todoStartDay.onNext(todo.startDate)
+        // FIXME: endDate는 설정 안함 아직
+        self.todoTime.onNext(todo.startTime)
+        self.todoMemo.onNext(todo.memo)
+        self.todoCreateState = .edit(todo)
+        
+        print(todo)
+    }
+    
+    func setForOthers(todo: Todo, category: Category, groupName: GroupName?) {
         guard let id = todo.id else { return }
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = .current
@@ -363,30 +405,49 @@ final class TodoDetailViewModel {
         // FIXME: endDate는 설정 안함 아직
         self.todoTime.onNext(todo.startTime)
         self.todoMemo.onNext(todo.memo)
-        self.todoCreateState = .edit(todo)
+        self.todoCreateState = .others(todo)
+        self.todoGroup.onNext(groupName)
     }
     
     func fetchCategoryList() {
-        guard let token = getTokenUseCase.execute() else { return }
-        readCategoryUseCase
-            .execute(token: token)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[Category]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.readCategoryUseCase
+                    .execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] list in
-                self?.categorys = list
+                self?.categorys = list.filter { $0.status == .active }
                 self?.needReloadCategoryList.onNext(())
             })
             .disposed(by: bag)
     }
     
     func fetchGroupList() {
-        guard let token = getTokenUseCase.execute() else { return }
         
     }
     
     func createTodo(todo: Todo) {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        createTodoUseCase
-            .execute(token: token, todo: todo)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Int> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.createTodoUseCase
+                    .execute(token: token, todo: todo)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] id in
                 var todoWithId = todo
                 todoWithId.id = id
@@ -396,10 +457,19 @@ final class TodoDetailViewModel {
     }
     
     func updateTodo(todoUpdate: TodoUpdateComparator) {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        updateTodoUseCase
-            .execute(token: token, todoUpdate: todoUpdate)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.updateTodoUseCase
+                    .execute(token: token, todoUpdate: todoUpdate)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.needDismiss.onNext(())
             })
@@ -407,10 +477,19 @@ final class TodoDetailViewModel {
     }
     
     func deleteTodo(todo: Todo) {
-        guard let token = getTokenUseCase.execute() else { return }
-        
-        deleteTodoUseCase
-            .execute(token: token, todo: todo)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.deleteTodoUseCase
+                    .execute(token: token, todo: todo)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.needDismiss.onNext(())
             })
@@ -418,9 +497,19 @@ final class TodoDetailViewModel {
     }
 
     func saveNewCategory(category: Category) {
-        guard let token = getTokenUseCase.execute() else { return }
-        createCategoryUseCase
-            .execute(token: token, category: category)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Int> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.createCategoryUseCase
+                    .execute(token: token, category: category)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] id in
                 var categoryWithId = category
                 categoryWithId.id = id
@@ -433,11 +522,21 @@ final class TodoDetailViewModel {
     }
     
     func updateCategory(category: Category) {
-        guard let token = getTokenUseCase.execute(),
-              let id = category.id else { return }
+        guard let id = category.id else { return }
         
-        updateCategoryUseCase
-            .execute(token: token, id: id, category: category)
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Int> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.updateCategoryUseCase
+                    .execute(token: token, id: id, category: category)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] id in
                 guard let index = self?.categorys.firstIndex(where: { $0.id == id }) else { return }
                 self?.categorys[index] = category
@@ -449,14 +548,22 @@ final class TodoDetailViewModel {
             .disposed(by: bag)
     }
     
-    func deleteCategory(category: Category) {
-        guard let id = category.id,
-              let token = getTokenUseCase.execute() else { return }
-        
-        deleteCategoryUseCase
-            .execute(token: token, id: id)
+    func deleteCategory(id: Int) {
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.deleteCategoryUseCase
+                    .execute(token: token, id: id)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
             .subscribe(onSuccess: { [weak self] in
-                
+                print("removed!!")
             })
             .disposed(by: bag)
     }

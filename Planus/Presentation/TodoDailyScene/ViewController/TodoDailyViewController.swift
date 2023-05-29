@@ -96,6 +96,7 @@ class TodoDailyViewController: UIViewController {
                 if indexPath.section == 0 {
                     if vm.viewModel?.scheduledTodoList?.count == 1 {
                         vm.collectionView.deleteItems(at: [indexPath])
+                        print("removed!")
                     }
                 } else if indexPath.section == 1 {
                     if vm.viewModel?.unscheduledTodoList?.count == 1 {
@@ -103,9 +104,7 @@ class TodoDailyViewController: UIViewController {
                     }
                 }
                 
-//                vm.collectionView.performBatchUpdates {
-                    vm.collectionView.insertItems(at: [indexPath])
-//                }
+                vm.collectionView.insertItems(at: [indexPath])
             })
             .disposed(by: bag)
             
@@ -116,6 +115,16 @@ class TodoDailyViewController: UIViewController {
             .subscribe(onNext: { vm, indexPath in
                 vm.collectionView.performBatchUpdates {
                     vm.collectionView.deleteItems(at: [indexPath])
+                }
+                if indexPath.section == 0 {
+                    if vm.viewModel?.scheduledTodoList?.count == 0 {
+                        vm.collectionView.insertItems(at: [indexPath])
+                        print("removed!")
+                    }
+                } else if indexPath.section == 1 {
+                    if vm.viewModel?.unscheduledTodoList?.count == 0 {
+                        vm.collectionView.insertItems(at: [indexPath])
+                    }
                 }
             })
             .disposed(by: bag)
@@ -128,7 +137,7 @@ class TodoDailyViewController: UIViewController {
                 vc.collectionView.reloadData()
             })
             .disposed(by: bag)
-
+        
     }
     
     func configureView() {
@@ -176,6 +185,9 @@ class TodoDailyViewController: UIViewController {
             deleteCategoryUseCase: deleteCategoryUseCase,
             readCategoryUseCase: readCateogryUseCase
         )
+        guard let groupDict = viewModel?.groupDict else { return }
+        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+        vm.setGroup(groupList: groupList)
         vm.todoStartDay.onNext(viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
@@ -234,33 +246,34 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         var todoItem: Todo?
         switch indexPath.section {
         case 0:
-            if viewModel?.scheduledTodoList?.count == 0 {
-                print("mock")
-                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+            if let scheduledList = viewModel?.scheduledTodoList,
+               !scheduledList.isEmpty {
+                todoItem = scheduledList[indexPath.item]
             } else {
-                print("real")
-                todoItem = viewModel?.scheduledTodoList?[indexPath.item]
+                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
         case 1:
-            if viewModel?.unscheduledTodoList?.count == 0 {
-                print("mock")
-                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+            if let unscheduledList = viewModel?.unscheduledTodoList,
+               !unscheduledList.isEmpty {
+                todoItem = unscheduledList[indexPath.item]
             } else {
-                print("real")
-                todoItem = viewModel?.unscheduledTodoList?[indexPath.item]
+                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
         default:
             return UICollectionViewCell()
         }
-        guard let todoItem,
-              let category = viewModel?.categoryDict[todoItem.categoryId] else {
+        guard let todoItem else {
             return UICollectionViewCell()
         }
+
+        guard let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
         cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
         return cell
+        
+
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -287,24 +300,29 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         var item: Todo?
+        print("a")
         switch indexPath.section {
         case 0:
-            if viewModel?.scheduledTodoList?.count == 0 {
-                return false
+            if let scheduledList = viewModel?.scheduledTodoList,
+               !scheduledList.isEmpty {
+                item = scheduledList[indexPath.item]
             } else {
-                item = viewModel?.scheduledTodoList?[indexPath.item]
+                return false
             }
         case 1:
-            if viewModel?.unscheduledTodoList?.count == 0 {
-                return false
+            if let unscheduledList = viewModel?.unscheduledTodoList,
+               !unscheduledList.isEmpty {
+                item = unscheduledList[indexPath.item]
             } else {
-                item = viewModel?.unscheduledTodoList?[indexPath.item]
+                return false
             }
         default:
             return false
         }
-        guard let item else { return false }
-        
+        print("b")
+        guard let item,
+              let isOwner = viewModel?.isOwner else { return false }
+        print("c")
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         
@@ -333,8 +351,23 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             deleteCategoryUseCase: deleteCategoryUseCase,
             readCategoryUseCase: readCateogryUseCase
         )
+        
+        guard let groupDict = viewModel?.groupDict else { return false }
+        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+        vm.setGroup(groupList: groupList)
         guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
-        vm.setForEdit(todo: item, category: category)
+        var groupName: GroupName?
+        if let groupId = item.groupId {
+            groupName = groupDict[groupId]
+        }
+        
+        if isOwner {
+            
+
+            vm.setForEdit(todo: item, category: category, groupName: groupName)
+        } else {
+            vm.setForOthers(todo: item, category: category, groupName: groupName)
+        }
         vm.todoStartDay.onNext(viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
@@ -342,6 +375,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         
         return false
     }
+
 }
 
 extension TodoDailyViewController: UIPopoverPresentationControllerDelegate {

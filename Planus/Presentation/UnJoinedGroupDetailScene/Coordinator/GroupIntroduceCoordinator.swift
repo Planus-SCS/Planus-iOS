@@ -21,16 +21,39 @@ class GroupIntroduceCoordinator: Coordinator {
         self.navigationController = navigationController
     }
     
-    func start() {
-        showGroupIntroducePage()
+    func start(id: Int) {
+        showGroupIntroducePage(id)
     }
     
-    lazy var showGroupIntroducePage: () -> Void = { [weak self] in
-        let vm = GroupIntroduceViewModel()
+    lazy var showGroupIntroducePage: (Int) -> Void = { [weak self] id in
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
+        let profileRepo = DefaultProfileRepository(apiProvider: api)
+        let imageRepo = DefaultImageRepository(apiProvider: api)
+        let groupRepo = DefaultGroupRepository(apiProvider: api)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
+        let fetchUnjoinedGroupUseCase = DefaultFetchUnJoinedGroupUseCase(groupRepository: groupRepo)
+        let fetchMemberListUseCase = DefaultFetchMemberListUseCase(groupRepository: groupRepo)
+        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
+        let applyGroupJoinUseCase = DefaultApplyGroupJoinUseCase(groupRepository: groupRepo)
+        let vm = GroupIntroduceViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            setTokenUseCase: setTokenUseCase,
+            fetchUnjoinedGroupUseCase: fetchUnjoinedGroupUseCase,
+            fetchMemberListUseCase: fetchMemberListUseCase,
+            fetchImageUseCase: fetchImageUseCase,
+            applyGroupJoinUseCase: applyGroupJoinUseCase
+        )
         vm.setActions(actions: GroupIntroduceViewModelActions(
             popCurrentPage: self?.popCurrentPage,
             didPop: self?.didPop)
         )
+        vm.setGroupId(id: id)
         let vc = GroupIntroduceViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
 
