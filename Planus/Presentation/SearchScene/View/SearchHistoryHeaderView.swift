@@ -10,6 +10,7 @@ import UIKit
 class SearchHistoryHeaderView: UICollectionReusableView {
     static let reuseIdentifier = "search-history-header-view"
     
+    var closure: (() -> Void)?
     var label: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-SemiBold", size: 14)
@@ -18,13 +19,19 @@ class SearchHistoryHeaderView: UICollectionReusableView {
         return label
     }()
     
-    var removeAllBtn: UIButton = {
-        let button = UIButton(frame: .zero)
+    lazy var removeAllBtn: UIButton = {
+        let button = SpringableButton(frame: .zero)
         button.setTitle("모두 지우기", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Regular", size: 14)
         button.setTitleColor(.darkGray, for: .normal)
+        button.addTarget(self, action: #selector(removeAllBtnTapped), for: .touchUpInside)
         return button
     }()
+    
+    @objc func removeAllBtnTapped(_ sender: UIButton) {
+        print("rem")
+        closure?()
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)

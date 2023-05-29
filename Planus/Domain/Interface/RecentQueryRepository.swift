@@ -12,4 +12,5 @@ protocol RecentQueryRepository {
     func fetchRecentsQueries() throws -> [RecentSearchQuery]
     func saveRecentsQuery(query: RecentSearchQuery) throws
     func removeQuery(keyword: String) throws
+    func removeAllQueries() throws
 }

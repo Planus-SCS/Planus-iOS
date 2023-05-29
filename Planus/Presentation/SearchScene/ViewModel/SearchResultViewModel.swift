@@ -14,7 +14,7 @@ class SearchResultViewModel {
     
     var actions: SearchHomeViewModelActions?
     
-    var history: [String] = ["판교", "개발자", "스위프트", "건대", "N수"]
+    var history: [String] = []
     var result: [UnJoinedGroupSummary] = []
     
     var keyword = BehaviorSubject<String?>(value: nil)
@@ -33,6 +33,7 @@ class SearchResultViewModel {
     var size: Int = 5
     
     struct Input {
+        var viewDidLoad: Observable<Void>
         var tappedItemAt: Observable<Int>
         var tappedHistoryAt: Observable<Int>
         var refreshRequired: Observable<Void>
@@ -80,6 +81,13 @@ class SearchResultViewModel {
     }
     
     func transform(input: Input) -> Output {
+        input
+            .viewDidLoad
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchRecentQueries()
+            })
+            .disposed(by: bag)
         
         input
             .tappedItemAt
@@ -121,7 +129,6 @@ class SearchResultViewModel {
         input.searchBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                print(try? vm.keyword.value())
                 guard let keyword = try? vm.keyword.value(),
                       !keyword.isEmpty else {
                     return
@@ -149,6 +156,35 @@ class SearchResultViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .needFetchHistory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchRecentQueries()
+            })
+            .disposed(by: bag)
+        
+        input
+            .removeHistoryAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                vm.removeRecentQuery(keyword: vm.history[index])
+                vm.history.remove(at: index)
+                vm.didFetchHistory.onNext(())
+            })
+            .disposed(by: bag)
+        
+        input
+            .removeAllHistory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                print("here!!!!1111")
+                vm.removeAllQueries()
+                vm.history.removeAll()
+                vm.didFetchHistory.onNext(())
+            })
+            .disposed(by: bag)
+        
         return Output(
             didStartFetching: didStartFetching.asObservable(),
             didFetchInitialResult: didFetchInitialResult.asObservable(),
@@ -172,7 +208,29 @@ class SearchResultViewModel {
         }
     }
     
+    func saveRecentQuery(keyword: String) {
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            try? self.recentQueryRepository.saveRecentsQuery(query: RecentSearchQuery(date: Date(), keyword: keyword))
+        }
+    }
+    
+    func removeRecentQuery(keyword: String) {
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            try? self.recentQueryRepository.removeQuery(keyword: keyword)
+        }
+    }
+    
+    func removeAllQueries() {
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            try? self.recentQueryRepository.removeAllQueries()
+        }
+    }
+    
     func fetchInitialresult(keyword: String) {
+        saveRecentQuery(keyword: keyword)
         didStartFetching.onNext(())
         page = 0
         result.removeAll()

@@ -10,7 +10,7 @@ import CoreData
 
 class DefaultRecentQueryRepository: RecentQueryRepository {
     
-    let maxStorageLimit: Int = 3
+    let maxStorageLimit: Int = 20
     let persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "RecentSearch")
         container.loadPersistentStores(completionHandler: { (storeDesc, error) in
@@ -55,7 +55,17 @@ class DefaultRecentQueryRepository: RecentQueryRepository {
         let request = RecentSearchKeyword.fetchRequest()
         
         var result = try context.fetch(request)
-        result.removeAll(where: { $0.keyword == keyword })
+        result.filter({ $0.keyword == keyword }).forEach { context.delete($0) }
+        try context.save()
+    }
+    
+    func removeAllQueries() throws {
+        let context = persistentContainer.viewContext
+        
+        let request = RecentSearchKeyword.fetchRequest()
+        
+        var result = try context.fetch(request)
+        result.forEach { context.delete($0) }
         try context.save()
     }
     

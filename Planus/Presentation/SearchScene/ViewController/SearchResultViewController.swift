@@ -163,14 +163,15 @@ class SearchResultViewController: UIViewController {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    @objc func keyboardEvent(notification: Notification){
+    @objc func keyboardEvent(notification: Notification) {
         if notification.name == UIResponder.keyboardWillShowNotification { // 여기서 히스토리 받아오기
-            needFetchHistory.onNext(())
-            historyView.setAnimatedIsHidden(false, duration: 0.1, onCompletion: { [weak self] in
-                self?.resultCollectionView.isHidden = true
-                self?.emptyResultView.isHidden = true
-                print("key")
-            })
+            if historyView.isHidden {
+                historyView.setAnimatedIsHidden(false, duration: 0.1, onCompletion: { [weak self] in
+                    self?.resultCollectionView.isHidden = true
+                    self?.emptyResultView.isHidden = true
+                    print("key")
+                })
+            }
         }
     }
     
@@ -178,6 +179,7 @@ class SearchResultViewController: UIViewController {
         guard let viewModel else { return }
 
         let input = SearchResultViewModel.Input(
+            viewDidLoad: Observable.just(()),
             tappedItemAt: tappedItemAt.asObservable(),
             tappedHistoryAt: tappedHistoryAt.asObservable(),
             refreshRequired: refreshRequired.asObservable(),
@@ -213,6 +215,7 @@ class SearchResultViewController: UIViewController {
             .subscribe(onNext: { vc, _ in
                 vc.historyView.isHidden = true
                 vc.spinner.startAnimating()
+                vc.needFetchHistory.onNext(())
             })
             .disposed(by: bag)
         
@@ -362,6 +365,10 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchHistoryCell.reuseIdentifier, for: indexPath) as? SearchHistoryCell,
                   let item = viewModel?.history[indexPath.item] else { return UICollectionViewCell() }
             cell.fill(keyWord: item)
+            
+            cell.closure = { [weak self] in
+                self?.removeHistoryAt.onNext(indexPath.item)
+            }
             return cell
         default:
             return UICollectionViewCell()
@@ -394,6 +401,9 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
         switch collectionView {
         case historyView.collectionView:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SearchHistoryHeaderView.reuseIdentifier, for: indexPath) as? SearchHistoryHeaderView else { return UICollectionReusableView() }
+            view.closure = { [weak self] in
+                self?.removeAllHistory.onNext(())
+            }
             return view
         default:
             return UICollectionReusableView()

@@ -6,9 +6,12 @@
 //
 
 import UIKit
+import RxSwift
 
-class SearchHistoryCell: UICollectionViewCell {
+class SearchHistoryCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "search-history-cell"
+    
+    var closure: (() -> Void)?
     
     var label: UILabel = {
         let label = UILabel(frame: .zero)
@@ -17,13 +20,18 @@ class SearchHistoryCell: UICollectionViewCell {
         return label
     }()
     
-    var removeBtn: UIButton = {
+    lazy var removeBtn: UIButton = {
         let image = UIImage(named: "removeBtn")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
         button.setImage(image, for: .normal)
         button.tintColor = .black
+        button.addTarget(self, action: #selector(removeBtnTapped), for: .touchUpInside)
         return button
     }()
+    
+    @objc func removeBtnTapped(_ sender: UIButton) {
+        closure?()
+    }
     
     var separateView: UIView = {
         let view = UIView(frame: .zero)
