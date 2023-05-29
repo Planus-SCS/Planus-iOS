@@ -246,7 +246,7 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
-        cell.fill(title: todoItem.title, time: todoItem.startTime, category: todoItem.categoryColor, isGroup: todoItem.hasGroup, isScheduled: todoItem.isPeriodTodo, isMemo: todoItem.hasDescription, completion: todoItem.isCompleted)
+        cell.fill(title: todoItem.title, time: todoItem.startTime, category: todoItem.categoryColor, isGroup: todoItem.isGroupTodo, isScheduled: todoItem.isPeriodTodo, isMemo: todoItem.hasDescription, completion: todoItem.isCompleted)
         return cell
         
 

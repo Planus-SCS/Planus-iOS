@@ -21,6 +21,7 @@ class MyGroupInfoEditViewModel {
     let tagDuplicateValidState = PublishSubject<Bool>()
     
     var infoUpdateCompleted = PublishSubject<Void>()
+    var groupDeleted = PublishSubject<Void>()
     
     struct Input {
         var titleImageChanged: Observable<ImageFile?>
@@ -40,23 +41,27 @@ class MyGroupInfoEditViewModel {
         var infoUpdateCompleted: Observable<Void>
         var insertTagAt: Observable<Int>
         var removeTagAt: Observable<Int>
+        var groupDeleted: Observable<Void>
     }
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
     var fetchImageUseCase: FetchImageUseCase
     var updateGroupInfoUseCase: UpdateGroupInfoUseCase
+    var deleteGroupUseCase: DeleteGroupUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         fetchImageUseCase: FetchImageUseCase,
-        updateGroupInfoUseCase: UpdateGroupInfoUseCase
+        updateGroupInfoUseCase: UpdateGroupInfoUseCase,
+        deleteGroupUseCase: DeleteGroupUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.fetchImageUseCase = fetchImageUseCase
         self.updateGroupInfoUseCase = updateGroupInfoUseCase
+        self.deleteGroupUseCase = deleteGroupUseCase
     }
     
     public func setGroup(
@@ -149,7 +154,8 @@ class MyGroupInfoEditViewModel {
             isUpdateButtonEnabled: isCreateButtonEnabled,
             infoUpdateCompleted: infoUpdateCompleted.asObservable(),
             insertTagAt: insertAt.asObservable(),
-            removeTagAt: removeAt.asObservable()
+            removeTagAt: removeAt.asObservable(),
+            groupDeleted: groupDeleted.asObserver()
         )
     }
     
@@ -183,5 +189,28 @@ class MyGroupInfoEditViewModel {
             })
             .disposed(by: bag)
             
+    }
+    
+    func deleteGroup() {
+        guard let groupId else { return }
+        
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.deleteGroupUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] _ in
+                // 아에 앞에 있던 네비게이션을 싹다 없애고 첫 씬으로 돌아가야함..!
+                self?.groupDeleted.onNext(())
+            })
+            .disposed(by: bag)
     }
 }

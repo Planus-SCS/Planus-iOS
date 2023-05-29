@@ -20,8 +20,8 @@ struct SocialTodoDaily {
     var categoryColor: CategoryColor
     var title: String
     var startTime: String?
-    var hasGroup: Bool
+    var isGroupTodo: Bool
     var isPeriodTodo: Bool
     var hasDescription: Bool
-    var isCompleted: Bool
+    var isCompleted: Bool?
 }

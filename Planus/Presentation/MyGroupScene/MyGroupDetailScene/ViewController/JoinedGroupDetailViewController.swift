@@ -262,7 +262,8 @@ class JoinedGroupDetailViewController: UIViewController {
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: imageRepo),
-            updateGroupInfoUseCase: updateGroupInfoUseCase
+            updateGroupInfoUseCase: updateGroupInfoUseCase,
+            deleteGroupUseCase: DefaultDeleteGroupUseCase.shared
         )
         guard let id = self?.viewModel?.groupId,
               let title = self?.viewModel?.groupTitle,

@@ -48,7 +48,8 @@ class GroupCoordinator: Coordinator {
             groupCreateUseCase: groupCreateUseCase,
             setOnlineUseCase: setOnlineUseCase,
             updateGroupInfoUseCase: DefaultUpdateGroupInfoUseCase.shared,
-            withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared
+            withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared,
+            deleteGroupUseCase: DefaultDeleteGroupUseCase.shared
         )
         
         vm.setActions(actions: GroupListViewModelActions(showJoinedGroupDetail: self?.showGroupDetailPage))

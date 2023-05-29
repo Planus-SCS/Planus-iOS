@@ -33,7 +33,12 @@ class MyGroupInfoEditViewController: UIViewController {
     var infoView: GroupEditInfoView = .init(frame: .zero)
     var tagView: GroupCreateTagView = .init(frame: .zero)
     var limitView: GroupCreateLimitView = .init(frame: .zero)
-    var createButtonView: WideButtonView = .init(frame: .zero)
+    var createButtonView: WideButtonView = {
+        let view = WideButtonView.init(frame: .zero)
+        view.wideButton.backgroundColor = .systemPink
+        view.wideButton.setTitle("그룹 삭제하기", for: .normal)
+        return view
+    }()
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
@@ -41,6 +46,14 @@ class MyGroupInfoEditViewController: UIViewController {
         item.tintColor = .black
         return item
     }()
+    
+    lazy var saveButton: UIBarButtonItem = {
+        let item = UIBarButtonItem(title: "저장", style: .plain, target: self, action: #selector(saveBtnTapped))
+        item.tintColor = UIColor(hex: 0x6495F4)
+        return item
+    }()
+    
+    @objc func saveBtnTapped(_ sender: UIBarButtonItem) {}
     
     @objc func backBtnAction() {
         navigationController?.popViewController(animated: true)
@@ -73,6 +86,7 @@ class MyGroupInfoEditViewController: UIViewController {
         super.viewWillAppear(animated)
         
         self.navigationItem.setLeftBarButton(backButton, animated: false)
+        self.navigationItem.setRightBarButton(saveButton, animated: false)
         self.navigationItem.title = "그룹 편집"
     }
     
@@ -81,13 +95,25 @@ class MyGroupInfoEditViewController: UIViewController {
         
         infoView.groupNameField.text = viewModel.title
         limitView.limitField.text = "\((try? viewModel.maxMember.value()) ?? 0)"
+        
+        createButtonView
+            .wideButton.rx.tap
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.showPopUp(title: "그룹 삭제하기", message: "삭제된 그룹은 추후 복구할 수 없습니다.", leftActionTitle: "취소", rightActionTitle: "삭제", leftActionCompletion: {
+                    return
+                }, rightActionCompletion: {
+                    viewModel.deleteGroup()
+                })
+            })
+            .disposed(by: bag)
 
         let input = MyGroupInfoEditViewModel.Input(
             titleImageChanged: titleImageChanged.asObservable(),
             tagAdded: tagAdded.asObservable(),
             tagRemovedAt: tagRemovedAt.asObservable(),
             maxMemberChanged: limitView.limitField.rx.text.asObservable(),
-            saveBtnTapped: createButtonView.wideButton.rx.tap.asObservable()
+            saveBtnTapped: saveButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -202,15 +228,21 @@ class MyGroupInfoEditViewController: UIViewController {
             })
             .disposed(by: bag)
             
+        output
+            .groupDeleted
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.navigationController?.popToRootViewController(animated: true)
+            })
+            .disposed(by: bag)
             
     }
     
     func configureView() {
         tagView.tagCollectionView.dataSource = self
         tagView.tagCollectionView.delegate = self
-        
-        createButtonView.wideButton.setTitle("저장하기", for: .normal)
-        
+                
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(scrollView)
         scrollView.addSubview(contentStackView)

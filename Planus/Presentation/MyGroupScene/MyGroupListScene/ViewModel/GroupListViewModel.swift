@@ -46,6 +46,7 @@ class GroupListViewModel {
     var setOnlineUseCase: SetOnlineUseCase
     var updateGroupInfoUseCase: UpdateGroupInfoUseCase
     var withdrawGroupUseCase: WithdrawGroupUseCase
+    var deleteGroupUseCase: DeleteGroupUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
@@ -56,7 +57,8 @@ class GroupListViewModel {
         groupCreateUseCase: GroupCreateUseCase,
         setOnlineUseCase: SetOnlineUseCase,
         updateGroupInfoUseCase: UpdateGroupInfoUseCase,
-        withdrawGroupUseCase: WithdrawGroupUseCase
+        withdrawGroupUseCase: WithdrawGroupUseCase,
+        deleteGroupUseCase: DeleteGroupUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUsecase = refreshTokenUsecase
@@ -67,6 +69,7 @@ class GroupListViewModel {
         self.setOnlineUseCase = setOnlineUseCase
         self.updateGroupInfoUseCase = updateGroupInfoUseCase
         self.withdrawGroupUseCase = withdrawGroupUseCase
+        self.deleteGroupUseCase = deleteGroupUseCase
     }
     
     func setActions(actions: GroupListViewModelActions) {
@@ -164,6 +167,16 @@ class GroupListViewModel {
                 guard let index = vm.groupList?.firstIndex(where: { $0.groupId == id }) else { return }
                 vm.groupList?.remove(at: index)
                 vm.fetchMyGroupList(fetchType: .remove("성공적으로 탈퇴하였습니다."))
+            })
+            .disposed(by: bag)
+        
+        deleteGroupUseCase
+            .didDeleteGroupWithId
+            .withUnretained(self)
+            .subscribe(onNext: { vm, id in
+                guard let index = vm.groupList?.firstIndex(where: { $0.groupId == id }) else { return }
+                vm.groupList?.remove(at: index)
+                vm.fetchMyGroupList(fetchType: .remove("그룹이 성공적으로 삭제되었습니다."))
             })
             .disposed(by: bag)
     }
