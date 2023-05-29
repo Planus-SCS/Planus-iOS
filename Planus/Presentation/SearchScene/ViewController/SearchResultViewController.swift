@@ -83,7 +83,7 @@ class SearchResultViewController: UIViewController {
     }()
     
     @objc func backBtnAction() {
-        navigationController?.popViewController(animated: true)
+        viewModel?.actions?.pop?()
     }
     
     lazy var searchBarField: UITextField = {
@@ -142,6 +142,8 @@ class SearchResultViewController: UIViewController {
         configureLayout()
         
         bind()
+        
+        searchBarField.becomeFirstResponder()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -153,7 +155,6 @@ class SearchResultViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardEvent), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardEvent), name: UIResponder.keyboardWillHideNotification, object: nil)
         
-        searchBarField.becomeFirstResponder()
     }
     
     override func viewWillDisappear(_ animated: Bool) {

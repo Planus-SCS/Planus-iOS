@@ -135,7 +135,8 @@ class SearchHomeViewController: UIViewController {
             tappedItemAt: tappedItemAt.asObservable(),
             refreshRequired: refreshRequired.asObservable(),
             createBtnTapped: createGroupButton.rx.tap.asObservable(),
-            needLoadNextData: needLoadNextData.asObservable()
+            needLoadNextData: needLoadNextData.asObservable(),
+            searchBtnTapped: searchButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -211,15 +212,7 @@ class SearchHomeViewController: UIViewController {
         }
     }
     
-    @objc func searchBtnTapped(_ sender: UIBarButtonItem) {
-        let vm = SearchResultViewModel(
-            recentQueryRepository: DefaultRecentQueryRepository(),
-            getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())),
-            fetchSearchResultUseCase: DefaultFetchSearchResultUseCase(groupRepository: DefaultGroupRepository(apiProvider: NetworkManager())), fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared))
-
-        let vc = SearchResultViewController(viewModel: vm)
-        self.navigationController?.pushViewController(vc, animated: false)
-    }
+    @objc func searchBtnTapped(_ sender: UIBarButtonItem) {}
     
     @objc func refresh(_ sender: UIRefreshControl) {
         refreshRequired.onNext(())

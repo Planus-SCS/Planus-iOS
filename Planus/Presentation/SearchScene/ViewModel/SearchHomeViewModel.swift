@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 struct SearchHomeViewModelActions {
-    var showSearchResultPage: ((String) -> Void)?
+    var showSearchResultPage: (() -> Void)?
     var showGroupIntroducePage: ((Int) -> Void)?
     var showGroupCreatePage: (() -> Void)?
 }
@@ -39,6 +39,7 @@ class SearchHomeViewModel {
         var refreshRequired: Observable<Void>
         var createBtnTapped: Observable<Void>
         var needLoadNextData: Observable<Void>
+        var searchBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -74,6 +75,14 @@ class SearchHomeViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.fetchInitialresult()
+            })
+            .disposed(by: bag)
+        
+        input
+            .searchBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions?.showSearchResultPage?()
             })
             .disposed(by: bag)
         

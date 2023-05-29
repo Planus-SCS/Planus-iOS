@@ -38,8 +38,21 @@ class SearchCoordinator: Coordinator {
         self?.navigationController.pushViewController(vc, animated: false)
     }
 
-    lazy var showSearchResultPage: (String) -> Void = { [weak self] keyword in
+    lazy var showSearchResultPage: () -> Void = { [weak self] in
+        let vm = SearchResultViewModel(
+            recentQueryRepository: DefaultRecentQueryRepository(),
+            getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())),
+            fetchSearchResultUseCase: DefaultFetchSearchResultUseCase(groupRepository: DefaultGroupRepository(apiProvider: NetworkManager())), fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
+        )
+
+        vm.setActions(actions: SearchResultViewModelActions(
+            pop: self?.popCurrentPage,
+            showGroupIntroducePage: self?.showGroupIntroducePage,
+            showGroupCreatePage: self?.showGroupCreatePage
+        ))
         
+        let vc = SearchResultViewController(viewModel: vm)
+        self?.navigationController.pushViewController(vc, animated: false)
     }
     
     lazy var showGroupIntroducePage: (Int) -> Void = { [weak self] groupId in
@@ -56,6 +69,10 @@ class SearchCoordinator: Coordinator {
         groupCreateCoordinator.finishDelegate = self
         self.childCoordinators.append(groupCreateCoordinator)
         groupCreateCoordinator.start()
+    }
+    
+    lazy var popCurrentPage: () -> Void = { [weak self] in
+        self?.navigationController.popViewController(animated: true)
     }
 }
 

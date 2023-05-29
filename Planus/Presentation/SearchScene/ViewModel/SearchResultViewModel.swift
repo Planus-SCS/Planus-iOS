@@ -8,12 +8,17 @@
 import Foundation
 import RxSwift
 
+struct SearchResultViewModelActions {
+    var pop: (() -> Void)?
+    var showGroupIntroducePage: ((Int) -> Void)?
+    var showGroupCreatePage: (() -> Void)?
+}
+
 class SearchResultViewModel {
     
     var bag = DisposeBag()
-    
-    var actions: SearchHomeViewModelActions?
-    
+    var actions: SearchResultViewModelActions?
+        
     var history: [String] = []
     var result: [UnJoinedGroupSummary] = []
     
@@ -76,7 +81,7 @@ class SearchResultViewModel {
         self.fetchImageUseCase = fetchImageUseCase
     }
     
-    func setActions(actions: SearchHomeViewModelActions) {
+    func setActions(actions: SearchResultViewModelActions) {
         self.actions = actions
     }
     
@@ -91,6 +96,7 @@ class SearchResultViewModel {
         
         input
             .tappedItemAt
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 let groupId = vm.result[index].groupId
@@ -139,12 +145,13 @@ class SearchResultViewModel {
             .disposed(by: bag)
         
         input.createBtnTapped
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.actions?.showGroupCreatePage?()
             })
             .disposed(by: bag)
-        
+//
         input.needLoadNextData
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
@@ -178,7 +185,6 @@ class SearchResultViewModel {
             .removeAllHistory
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                print("here!!!!1111")
                 vm.removeAllQueries()
                 vm.history.removeAll()
                 vm.didFetchHistory.onNext(())
