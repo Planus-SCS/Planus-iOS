@@ -185,12 +185,20 @@ class JoinedGroupDetailViewController: UIViewController {
             menuChild.append(editInfo)
             menuChild.append(editNotice)
             menuChild.append(editMember)
+        } else {
+            let withdraw = UIAction(title: "그룹 탈퇴하기", handler: { [weak self] _ in
+                self?.withdrawGroup()
+            })
         }
         
         let menu = UIMenu(options: .displayInline, children: menuChild)
         item = UIBarButtonItem(image: image, menu: menu)
         item.tintColor = UIColor(hex: 0x000000)
         navigationItem.setRightBarButton(item, animated: true)
+    }
+    
+    func withdrawGroup() {
+        
     }
     
     lazy var editNotice: () -> Void = { [weak self] () -> Void in

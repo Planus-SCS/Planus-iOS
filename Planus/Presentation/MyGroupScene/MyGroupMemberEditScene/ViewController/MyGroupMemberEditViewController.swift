@@ -147,7 +147,17 @@ extension MyGroupMemberEditViewController: UICollectionViewDataSource {
             cell.fill(image: UIImage(named: "DefaultProfileMedium"))
         }
         cell.fill { [weak self] in
-            self?.didTappedResignButton.onNext(indexPath.item)
+            self?.showPopUp(
+                title: "[\(item.nickname)] 를 강제 탈퇴 하시겠습니까?",
+                message: "멤버 탈퇴는 이후에 취소가 불가능합니다",
+                leftActionTitle: "취소",
+                rightActionTitle: "탈퇴",
+                leftActionCompletion: {
+                    return
+                }, rightActionCompletion: {
+                    self?.didTappedResignButton.onNext(indexPath.item)
+                }
+            )
         }
         return cell
     }
