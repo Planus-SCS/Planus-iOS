@@ -19,7 +19,7 @@ struct URLPool {
     static let oauthKakao = Base.main + Path.app + Path.oauth + Path.kakao
     static let oauthGoogle = Base.main + Path.app + Path.oauth + Path.google
     static let groups = Base.main + Path.app + Path.groups
-    static let groupJoin = Self.groups + Path.joins
+    static let groupJoin = Base.main + Path.app + Path.joins
     static let myGroup = Base.main + Path.app + Path.myGroups
     static let search = Base.main + Path.app + Path.groups + Path.search
 }
