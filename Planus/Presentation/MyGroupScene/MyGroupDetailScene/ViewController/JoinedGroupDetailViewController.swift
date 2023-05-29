@@ -198,7 +198,7 @@ class JoinedGroupDetailViewController: UIViewController {
     }
     
     func withdrawGroup() {
-        
+        // 그룹 탈퇴 로직 호출
     }
     
     lazy var editNotice: () -> Void = { [weak self] () -> Void in
