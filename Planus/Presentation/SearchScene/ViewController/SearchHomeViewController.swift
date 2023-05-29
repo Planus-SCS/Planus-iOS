@@ -161,7 +161,7 @@ class SearchHomeViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.resultCollectionView.performBatchUpdates({
-                    vc.resultCollectionView.reloadData()
+                    vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
                 }, completion: { _ in
                     if vc.refreshControl.isRefreshing {
                         vc.refreshControl.endRefreshing()

@@ -32,6 +32,7 @@ class SearchResultViewModel {
     
     struct Input {
         var tappedItemAt: Observable<Int>
+        var tappedHistoryAt: Observable<Int>
         var refreshRequired: Observable<Void>
         var keywordChanged: Observable<String?>
         var searchBtnTapped: Observable<Void>
@@ -44,7 +45,7 @@ class SearchResultViewModel {
         var didFetchInitialResult: Observable<Void>
         var didFetchAdditionalResult: Observable<Range<Int>>
         var resultEnded: Observable<Void>
-        var nonKeyword: Observable<Void>
+        var keywordChanged: Observable<String?>
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -80,6 +81,16 @@ class SearchResultViewModel {
             .disposed(by: bag)
         
         input
+            .tappedHistoryAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                let keyword = vm.history[index]
+                vm.keyword.onNext(keyword)
+                vm.fetchInitialresult(keyword: keyword)
+            })
+            .disposed(by: bag)
+        
+        input
             .refreshRequired
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
@@ -93,16 +104,19 @@ class SearchResultViewModel {
         
         input
             .keywordChanged
+            .distinctUntilChanged()
             .bind(to: keyword)
             .disposed(by: bag)
         
         input.searchBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
+                print(try? vm.keyword.value())
                 guard let keyword = try? vm.keyword.value(),
                       !keyword.isEmpty else {
                     return
                 }
+
                 vm.fetchInitialresult(keyword: keyword)
             })
             .disposed(by: bag)
@@ -130,7 +144,7 @@ class SearchResultViewModel {
             didFetchInitialResult: didFetchInitialResult.asObservable(),
             didFetchAdditionalResult: didFetchAdditionalResult.asObservable(),
             resultEnded: resultEnded.asObservable(),
-            nonKeyword: nonKeyword.asObservable()
+            keywordChanged: keyword.asObservable()
         )
     }
     
@@ -159,7 +173,6 @@ class SearchResultViewModel {
                 guard let self else { return }
                 print(self.page, self.size, list.count)
                 self.result += list
-                print(self.result)
                 if isInitial {
                     self.didFetchInitialResult.onNext(())
                 } else {

@@ -22,6 +22,7 @@ class SearchResultViewController: UIViewController {
     var refreshRequired = PublishSubject<Void>()
     var searchBtnTapped = PublishSubject<Void>()
     var needLoadNextData = PublishSubject<Void>()
+    var tappedHistoryAt = PublishSubject<Int>()
     
     lazy var refreshControl: UIRefreshControl = {
         let rc = UIRefreshControl(frame: .zero)
@@ -160,14 +161,21 @@ class SearchResultViewController: UIViewController {
     }
     
     @objc func keyboardEvent(notification: Notification){
-        historyView.setAnimatedIsHidden(false, duration: 0.1)
+        if notification.name == UIResponder.keyboardWillShowNotification {
+            historyView.setAnimatedIsHidden(false, duration: 0.1, onCompletion: { [weak self] in
+                self?.resultCollectionView.isHidden = true
+                self?.emptyResultView.isHidden = true
+                print("key")
+            })
+        }
     }
     
     func bind() {
         guard let viewModel else { return }
-        
+
         let input = SearchResultViewModel.Input(
             tappedItemAt: tappedItemAt.asObservable(),
+            tappedHistoryAt: tappedHistoryAt.asObservable(),
             refreshRequired: refreshRequired.asObservable(),
             keywordChanged: searchBarField.rx.text.asObservable(),
             searchBtnTapped: searchBtnTapped.asObservable(),
@@ -197,7 +205,6 @@ class SearchResultViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.historyView.isHidden = true
-                vc.resultCollectionView.isHidden = true
                 vc.spinner.startAnimating()
             })
             .disposed(by: bag)
@@ -207,8 +214,6 @@ class SearchResultViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.resultCollectionView.setAnimatedIsHidden(viewModel.result.count == 0)
-                vc.emptyResultView.setAnimatedIsHidden(viewModel.result.count != 0)
                 print("reload!")
                 vc.resultCollectionView.performBatchUpdates({
                     vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
@@ -217,6 +222,9 @@ class SearchResultViewController: UIViewController {
                         vc.refreshControl.endRefreshing()
                     }
                     vc.isLoading = false
+                    print(viewModel.result.count == 0)
+                    vc.resultCollectionView.setAnimatedIsHidden(viewModel.result.count == 0)
+                    vc.emptyResultView.setAnimatedIsHidden(viewModel.result.count != 0)
                 })
             })
             .disposed(by: bag)
@@ -228,15 +236,21 @@ class SearchResultViewController: UIViewController {
                 vc.isEnded = true
             })
             .disposed(by: bag)
+        
+        output
+            .keywordChanged
+            .distinctUntilChanged()
+            .bind(to: searchBarField.rx.text)
+            .disposed(by: bag)
     }
     
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(resultCollectionView)
-        self.view.addSubview(createGroupButton)
-        self.view.addSubview(historyView)
-        self.view.addSubview(spinner)
         self.view.addSubview(emptyResultView)
+        self.view.addSubview(spinner)
+        self.view.addSubview(historyView)
+        self.view.addSubview(createGroupButton)
     }
     
     func configureLayout() {
@@ -268,12 +282,16 @@ class SearchResultViewController: UIViewController {
         isEnded = false
         isLoading = true
     }
+    
+    func searchBtnTapAction() {
+        searchBtnTapped.onNext(())
+        searchBarField.resignFirstResponder()
+    }
 }
 
 extension SearchResultViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        searchBtnTapped.onNext(())
-        textField.resignFirstResponder()
+        searchBtnTapAction()
         return true
     }
 }
@@ -348,7 +366,8 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
         case self.resultCollectionView:
             tappedItemAt.onNext(indexPath.item)
         case historyView.collectionView:
-            return
+            searchBarField.resignFirstResponder()
+            tappedHistoryAt.onNext(indexPath.item)
         default:
             return
         }
