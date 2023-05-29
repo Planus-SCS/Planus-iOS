@@ -112,12 +112,14 @@ class NotificationViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc.resultCollectionView.performBatchUpdates {
+                vc.resultCollectionView.performBatchUpdates ({
                     vc.resultCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-                }
-                if viewModel.joinAppliedList?.count == 0 {
-                    vc.emptyResultView.isHidden = false
-                }
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
+                    }
+                })
+                vc.emptyResultView.setAnimatedIsHidden(!(viewModel.joinAppliedList?.count == 0))
             })
             .disposed(by: bag)
     }
