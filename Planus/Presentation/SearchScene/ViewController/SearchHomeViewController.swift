@@ -20,7 +20,6 @@ class SearchHomeViewController: UIViewController {
     var isEnded: Bool = false
     var tappedItemAt = PublishSubject<Int>()
     var refreshRequired = PublishSubject<Void>()
-    var searchBtnTapped = PublishSubject<Void>()
     var needLoadNextData = PublishSubject<Void>()
     
     lazy var refreshControl: UIRefreshControl = {
@@ -39,38 +38,45 @@ class SearchHomeViewController: UIViewController {
         return collectionView
     }()
     
-    var headerView: UIView = {
-        let view = UIView(frame: .zero)
-        view.backgroundColor = UIColor(hex: 0xF5F5FB)
-        view.layer.masksToBounds = false
-        view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
-        view.layer.shadowOpacity = 1
-        view.layer.shadowOffset = CGSize(width: 0, height: 1)
-        view.layer.shadowRadius = 2
-        return view
+    lazy var searchButton: UIBarButtonItem = {
+        let image = UIImage(named: "searchBarIcon")?.withRenderingMode(.alwaysTemplate)
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(searchBtnTapped))
+        item.tintColor = .black
+        return item
     }()
     
-    lazy var searchBarField: UITextField = {
-        let textField = UITextField(frame: .zero)
-        textField.textColor = .black
-        textField.font = UIFont(name: "Pretendard-Medium", size: 12)
-        
-        textField.backgroundColor = .white
-        textField.layer.cornerRadius = 10
-        textField.clipsToBounds = true
-        textField.clearButtonMode = .whileEditing
-        textField.delegate = self
-        if let image = UIImage(named: "searchBarIcon") {
-            textField.addleftimage(image: image, padding: 12)
-        }
-        
-        textField.attributedPlaceholder = NSAttributedString(
-            string: "그룹명 또는 태그를 검색해보세요.",
-            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
-        )
-
-        return textField
-    }()
+//    var headerView: UIView = {
+//        let view = UIView(frame: .zero)
+//        view.backgroundColor = UIColor(hex: 0xF5F5FB)
+//        view.layer.masksToBounds = false
+//        view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
+//        view.layer.shadowOpacity = 1
+//        view.layer.shadowOffset = CGSize(width: 0, height: 1)
+//        view.layer.shadowRadius = 2
+//        return view
+//    }()
+//
+//    lazy var searchBarField: UITextField = {
+//        let textField = UITextField(frame: .zero)
+//        textField.textColor = .black
+//        textField.font = UIFont(name: "Pretendard-Medium", size: 12)
+//
+//        textField.backgroundColor = .white
+//        textField.layer.cornerRadius = 10
+//        textField.clipsToBounds = true
+//        textField.clearButtonMode = .whileEditing
+//        textField.delegate = self
+//        if let image = UIImage(named: "searchBarIcon") {
+//            textField.addleftimage(image: image, padding: 12)
+//        }
+//
+//        textField.attributedPlaceholder = NSAttributedString(
+//            string: "그룹명 또는 태그를 검색해보세요.",
+//            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
+//        )
+//
+//        return textField
+//    }()
     
     var createGroupButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
@@ -118,6 +124,7 @@ class SearchHomeViewController: UIViewController {
         super.viewWillAppear(animated)
         
         self.navigationItem.titleView = navigationTitleView
+        self.navigationItem.setRightBarButton(searchButton, animated: false)
     }
     
     func bind() {
@@ -127,8 +134,6 @@ class SearchHomeViewController: UIViewController {
             viewDidLoad: Observable.just(()),
             tappedItemAt: tappedItemAt.asObservable(),
             refreshRequired: refreshRequired.asObservable(),
-            keywordChanged: searchBarField.rx.text.asObservable(),
-            searchBtnTapped: searchBtnTapped.asObservable(),
             createBtnTapped: createGroupButton.rx.tap.asObservable(),
             needLoadNextData: needLoadNextData.asObservable()
         )
@@ -178,34 +183,41 @@ class SearchHomeViewController: UIViewController {
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(resultCollectionView)
-        self.view.addSubview(headerView)
-        headerView.addSubview(searchBarField)
+//        self.view.addSubview(headerView)
+//        headerView.addSubview(searchBarField)
         self.view.addSubview(createGroupButton)
     }
     
     func configureLayout() {
-        headerView.snp.makeConstraints {
-            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(60)
-        }
+//        headerView.snp.makeConstraints {
+//            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
+//            $0.leading.trailing.equalToSuperview()
+//            $0.height.equalTo(60)
+//        }
         
         resultCollectionView.snp.makeConstraints {
-            $0.top.equalTo(headerView.snp.bottom)
-            $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
+            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
         
-        searchBarField.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.leading.trailing.equalToSuperview().inset(12)
-            $0.height.equalTo(40)
-        }
+//        searchBarField.snp.makeConstraints {
+//            $0.centerY.equalToSuperview()
+//            $0.leading.trailing.equalToSuperview().inset(12)
+//            $0.height.equalTo(40)
+//        }
         
         createGroupButton.snp.makeConstraints {
             $0.bottom.trailing.equalToSuperview().inset(16)
             $0.width.height.equalTo(50)
         }
+    }
+    
+    @objc func searchBtnTapped(_ sender: UIBarButtonItem) {
+        let vm = SearchResultViewModel(
+            getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())),
+            fetchSearchHomeUseCase: DefaultFetchSearchHomeUseCase(groupRepository: DefaultGroupRepository(apiProvider: NetworkManager())), fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared))
+
+        let vc = SearchResultViewController(viewModel: vm)
+        self.navigationController?.pushViewController(vc, animated: false)
     }
     
     @objc func refresh(_ sender: UIRefreshControl) {
@@ -215,12 +227,6 @@ class SearchHomeViewController: UIViewController {
     }
 }
 
-extension SearchHomeViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        searchBtnTapped.onNext(())
-        return true
-    }
-}
 
 extension SearchHomeViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     

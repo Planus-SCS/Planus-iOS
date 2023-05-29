@@ -64,7 +64,7 @@ class GroupCreateInfoView: UIView {
     
     lazy var groupNoticeTextView: UITextView = {
         let textView = UITextView(frame: .zero)
-        textView.isScrollEnabled = false
+        textView.isScrollEnabled = true
         textView.text = "간단한 그룹소개 및 공지사항을 입력해주세요"
         textView.textColor = UIColor(hex: 0xBFC7D7)
         textView.backgroundColor = .white

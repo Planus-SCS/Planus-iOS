@@ -29,6 +29,8 @@ class SearchResultViewController: UIViewController {
         return rc
     }()
     
+    var historyView: SearchHistoryView?
+    
     lazy var resultCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createSection())
         collectionView.register(SearchResultCell.self, forCellWithReuseIdentifier: SearchResultCell.reuseIdentifier)
@@ -50,8 +52,19 @@ class SearchResultViewController: UIViewController {
         return view
     }()
     
+    lazy var backButton: UIBarButtonItem = {
+        let image = UIImage(named: "back")
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        item.tintColor = .black
+        return item
+    }()
+    
+    @objc func backBtnAction() {
+        navigationController?.popViewController(animated: true)
+    }
+    
     lazy var searchBarField: UITextField = {
-        let textField = UITextField(frame: .zero)
+        let textField = UITextField(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 55, height: 40))
         textField.textColor = .black
         textField.font = UIFont(name: "Pretendard-Medium", size: 12)
         
@@ -85,13 +98,6 @@ class SearchResultViewController: UIViewController {
         return button
     }()
     
-    var navigationTitleView: UIImageView = {
-        let image = UIImage(named: "PlanusGroup")
-        let view = UIImageView(image: image)
-        view.clipsToBounds = true
-        return view
-    }()
-    
     convenience init(viewModel: SearchResultViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
@@ -117,7 +123,35 @@ class SearchResultViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        self.navigationItem.titleView = navigationTitleView
+        self.navigationItem.setLeftBarButton(backButton, animated: true)
+        self.navigationItem.setRightBarButton(UIBarButtonItem(customView: searchBarField), animated: true)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardEvent), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardEvent), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+        searchBarField.becomeFirstResponder()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardEvent(notification: Notification){
+        let historyView = SearchHistoryView(frame: .zero)
+        self.historyView = historyView
+        
+        historyView.collectionView.dataSource = self
+        historyView.collectionView.delegate = self
+        historyView.alpha = 0
+        self.view.insertSubview(historyView, belowSubview: headerView)
+        historyView.snp.makeConstraints {
+            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
+        }
+        
+        historyView.setAnimatedIsHidden(false, duration: 0.1)
     }
     
     func bind() {
@@ -178,28 +212,12 @@ class SearchResultViewController: UIViewController {
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(resultCollectionView)
-        self.view.addSubview(headerView)
-        headerView.addSubview(searchBarField)
         self.view.addSubview(createGroupButton)
     }
     
     func configureLayout() {
-        headerView.snp.makeConstraints {
-            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(60)
-        }
-        
         resultCollectionView.snp.makeConstraints {
-            $0.top.equalTo(headerView.snp.bottom)
-            $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
-        }
-        
-        searchBarField.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.leading.trailing.equalToSuperview().inset(12)
-            $0.height.equalTo(40)
+            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
         
         createGroupButton.snp.makeConstraints {
@@ -225,35 +243,61 @@ extension SearchResultViewController: UITextFieldDelegate {
 extension SearchResultViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        1
+        switch collectionView {
+        case self.resultCollectionView:
+            return 1
+        case historyView?.collectionView:
+            return 1
+        default:
+            return Int()
+        }
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel?.result.count ?? Int()
+        
+        switch collectionView {
+        case self.resultCollectionView:
+            return viewModel?.result.count ?? Int()
+        case historyView?.collectionView:
+            return viewModel?.history.count ?? Int()
+        default:
+            return Int()
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
-              let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
-        
-        cell.fill(
-            title: item.name,
-            tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
-            memCount: "\(item.memberCount)/\(item.limitCount)",
-            captin: item.leaderName
-        )
-        
-        viewModel?.fetchImage(key: item.groupImageUrl)
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onSuccess: { data in
-                cell.fill(image: UIImage(data: data))
-            })
-            .disposed(by: bag)
-        
-        return cell
+        switch collectionView {
+        case self.resultCollectionView:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
+                  let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
+            
+            cell.fill(
+                title: item.name,
+                tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
+                memCount: "\(item.memberCount)/\(item.limitCount)",
+                captin: item.leaderName
+            )
+            
+            viewModel?.fetchImage(key: item.groupImageUrl)
+                .observe(on: MainScheduler.asyncInstance)
+                .subscribe(onSuccess: { data in
+                    cell.fill(image: UIImage(data: data))
+                })
+                .disposed(by: bag)
+            
+            return cell
+        case historyView?.collectionView:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchHistoryCell.reuseIdentifier, for: indexPath) as? SearchHistoryCell,
+                  let item = viewModel?.history[indexPath.item] else { return UICollectionViewCell() }
+            cell.fill(keyWord: item)
+            return cell
+        default:
+            return UICollectionViewCell()
+        }
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if !isLoading,
+        if scrollView == self.resultCollectionView,
+           !isLoading,
            !isEnded,
            scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height {
             isLoading = true
@@ -262,7 +306,24 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        tappedItemAt.onNext(indexPath.item)
+        switch collectionView {
+        case self.resultCollectionView:
+            tappedItemAt.onNext(indexPath.item)
+        case historyView?.collectionView:
+            return
+        default:
+            return
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        switch collectionView {
+        case historyView?.collectionView:
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SearchHistoryHeaderView.reuseIdentifier, for: indexPath) as? SearchHistoryHeaderView else { return UICollectionReusableView() }
+            return view
+        default:
+            return UICollectionReusableView()
+        }
     }
 }
 
@@ -277,12 +338,12 @@ extension SearchResultViewController {
         
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 2)
         group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
-
+        
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
         
         let layout = UICollectionViewCompositionalLayout(section: section)
-
+        
         return layout
     }
 }

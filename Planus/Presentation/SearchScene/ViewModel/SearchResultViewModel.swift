@@ -14,6 +14,7 @@ class SearchResultViewModel {
     
     var actions: SearchHomeViewModelActions?
     
+    var history: [String] = ["판교", "개발자", "스위프트", "건대", "N수"]
     var result: [UnJoinedGroupSummary] = []
     
     var keyword = BehaviorSubject<String?>(value: nil)
@@ -28,7 +29,6 @@ class SearchResultViewModel {
     var size: Int = 5
     
     struct Input {
-        var viewDidLoad: Observable<Void>
         var tappedItemAt: Observable<Int>
         var refreshRequired: Observable<Void>
         var keywordChanged: Observable<String?>
@@ -65,13 +65,6 @@ class SearchResultViewModel {
     }
     
     func transform(input: Input) -> Output {
-        input
-            .viewDidLoad
-            .withUnretained(self)
-            .subscribe(onNext: { vm, _ in
-                vm.fetchInitialresult()
-            })
-            .disposed(by: bag)
         
         input
             .tappedItemAt

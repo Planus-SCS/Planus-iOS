@@ -27,7 +27,7 @@ class SearchHistoryCell: UICollectionViewCell {
     
     var separateView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = .black
+        view.backgroundColor = .lightGray
         return view
     }()
     
@@ -51,18 +51,18 @@ class SearchHistoryCell: UICollectionViewCell {
     func configureLayout() {
         removeBtn.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.trailing.equalToSuperview().inset(10)
+            $0.trailing.equalToSuperview().inset(8)
         }
         label.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.leading.equalToSuperview().inset(10)
+            $0.leading.equalToSuperview().inset(8)
             $0.trailing.lessThanOrEqualTo(removeBtn.snp.leading).offset(-10)
         }
         
         separateView.snp.makeConstraints {
             $0.bottom.equalToSuperview()
-            $0.height.equalTo(0.5)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.height.equalTo(0.3)
+            $0.leading.trailing.equalToSuperview()
         }
     }
     

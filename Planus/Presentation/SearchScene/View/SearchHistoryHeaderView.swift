@@ -12,8 +12,9 @@ class SearchHistoryHeaderView: UICollectionReusableView {
     
     var label: UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont(name: "Pretendard-Bold", size: 16)
+        label.font = UIFont(name: "Pretendard-SemiBold", size: 14)
         label.textColor = .black
+        label.text = "최근 검색어"
         return label
     }()
     
@@ -21,11 +22,15 @@ class SearchHistoryHeaderView: UICollectionReusableView {
         let button = UIButton(frame: .zero)
         button.setTitle("모두 지우기", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Regular", size: 14)
+        button.setTitleColor(.darkGray, for: .normal)
         return button
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        configureView()
+        configureLayout()
     }
     
     required init?(coder: NSCoder) {
@@ -40,12 +45,12 @@ class SearchHistoryHeaderView: UICollectionReusableView {
     func configureLayout() {
         label.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.leading.equalToSuperview().inset(16)
+            $0.leading.equalToSuperview()
         }
         
         removeAllBtn.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.trailing.equalToSuperview().inset(16)
+            $0.trailing.equalToSuperview()
         }
     }
 }

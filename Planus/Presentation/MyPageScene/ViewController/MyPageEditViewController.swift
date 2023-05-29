@@ -173,6 +173,7 @@ class MyPageEditViewController: UIViewController {
         output
             .didFetchIntroduce
             .map {
+                
                 guard let str = $0 else { return nil }
                 guard !str.isEmpty else { return nil }
                 return str

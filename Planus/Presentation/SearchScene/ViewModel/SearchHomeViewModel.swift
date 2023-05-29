@@ -37,8 +37,6 @@ class SearchHomeViewModel {
         var viewDidLoad: Observable<Void>
         var tappedItemAt: Observable<Int>
         var refreshRequired: Observable<Void>
-        var keywordChanged: Observable<String?>
-        var searchBtnTapped: Observable<Void>
         var createBtnTapped: Observable<Void>
         var needLoadNextData: Observable<Void>
     }
@@ -93,19 +91,6 @@ class SearchHomeViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.fetchInitialresult()
-            })
-            .disposed(by: bag)
-        
-        input
-            .keywordChanged
-            .bind(to: keyword)
-            .disposed(by: bag)
-        
-        input.searchBtnTapped
-            .withUnretained(self)
-            .subscribe(onNext: { vm, _ in
-                guard let keyword = try? vm.keyword.value() else { return }
-                vm.actions?.showSearchResultPage?(keyword)
             })
             .disposed(by: bag)
         
