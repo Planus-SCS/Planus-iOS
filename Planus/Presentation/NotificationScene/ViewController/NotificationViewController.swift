@@ -101,8 +101,12 @@ class NotificationViewController: UIViewController {
                 }
                 vc.resultCollectionView.reloadData()
                 vc.emptyResultView.isHidden = !(viewModel.joinAppliedList?.count == 0)
-                if type == .refresh {
+
+                switch type {
+                case .refresh:
                     vc.showToast(message: "새로고침을 성공하였습니다.", type: .normal)
+                default:
+                    return
                 }
             })
             .disposed(by: bag)

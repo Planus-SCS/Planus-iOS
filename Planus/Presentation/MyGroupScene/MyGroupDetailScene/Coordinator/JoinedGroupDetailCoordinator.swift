@@ -43,7 +43,8 @@ class JoinedGroupDetailCoordinator: Coordinator {
             fetchImageUseCase: fetchImageUseCase,
             setOnlineUseCase: setOnlineStateUseCase,
             updateNoticeUseCase: DefaultUpdateNoticeUseCase.shared,
-            updateInfoUseCase: DefaultUpdateGroupInfoUseCase.shared
+            updateInfoUseCase: DefaultUpdateGroupInfoUseCase.shared,
+            withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared
         )
         vm.setGroupId(id: id)
         vm.setActions(actions: JoinedGroupDetailViewModelActions(pop: self?.popCurrentPage))
@@ -57,13 +58,8 @@ class JoinedGroupDetailCoordinator: Coordinator {
     lazy var popCurrentPage: () -> Void = { [weak self] in
         print(self)
         self?.navigationController.popViewController(animated: true)
-        self?.didPop()
     }
-    
-    lazy var didPop: () -> Void = { [weak self] in
-        guard let self else { return }
-        self.finishDelegate?.coordinatorDidFinish(childCoordinator: self)
-    }
+
 }
 
 extension JoinedGroupDetailCoordinator: CoordinatorFinishDelegate {

@@ -189,6 +189,7 @@ class JoinedGroupDetailViewController: UIViewController {
             let withdraw = UIAction(title: "그룹 탈퇴하기", handler: { [weak self] _ in
                 self?.withdrawGroup()
             })
+            menuChild.append(withdraw)
         }
         
         let menu = UIMenu(options: .displayInline, children: menuChild)
@@ -198,7 +199,7 @@ class JoinedGroupDetailViewController: UIViewController {
     }
     
     func withdrawGroup() {
-        // 그룹 탈퇴 로직 호출
+        showPopUp(title: "그룹 탈퇴하기", message: "정말로 그룹을 탈퇴하시겠습니까?", leftActionTitle: "취소", rightActionTitle: "탈퇴", leftActionCompletion: { return }, rightActionCompletion: { [weak self] in self?.viewModel?.withdrawGroup() })
     }
     
     lazy var editNotice: () -> Void = { [weak self] () -> Void in

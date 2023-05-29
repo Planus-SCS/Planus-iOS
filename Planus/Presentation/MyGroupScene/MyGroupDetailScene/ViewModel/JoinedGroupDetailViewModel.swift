@@ -53,7 +53,8 @@ class JoinedGroupDetailViewModel {
     var setOnlineUseCase: SetOnlineUseCase
     var updateNoticeUseCase: UpdateNoticeUseCase
     var updateInfoUseCase: UpdateGroupInfoUseCase
-
+    var withdrawGroupUseCase: WithdrawGroupUseCase
+    
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
@@ -61,7 +62,8 @@ class JoinedGroupDetailViewModel {
         fetchImageUseCase: FetchImageUseCase,
         setOnlineUseCase: SetOnlineUseCase,
         updateNoticeUseCase: UpdateNoticeUseCase,
-        updateInfoUseCase: UpdateGroupInfoUseCase
+        updateInfoUseCase: UpdateGroupInfoUseCase,
+        withdrawGroupUseCase: WithdrawGroupUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -70,6 +72,7 @@ class JoinedGroupDetailViewModel {
         self.setOnlineUseCase = setOnlineUseCase
         self.updateNoticeUseCase = updateNoticeUseCase
         self.updateInfoUseCase = updateInfoUseCase
+        self.withdrawGroupUseCase = withdrawGroupUseCase
     }
     
     func setGroupId(id: Int) {
@@ -212,6 +215,31 @@ class JoinedGroupDetailViewModel {
             )
             .subscribe(onError: { [weak self] _ in
                 self?.isOnline.onNext(try? self?.isOnline.value())
+            })
+            .disposed(by: bag)
+    }
+    
+    func withdrawGroup() {
+        guard let groupId else { return }
+        
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.withdrawGroupUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.actions?.pop?()
+            }, onError: {
+                print($0)
             })
             .disposed(by: bag)
     }

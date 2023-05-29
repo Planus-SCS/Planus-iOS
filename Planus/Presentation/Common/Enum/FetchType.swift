@@ -11,4 +11,5 @@ enum FetchType {
     case initail
     case refresh
     case update
+    case remove(String)
 }

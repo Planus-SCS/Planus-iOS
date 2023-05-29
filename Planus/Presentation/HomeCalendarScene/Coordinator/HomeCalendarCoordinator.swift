@@ -68,7 +68,8 @@ class HomeCalendarCoordinator: Coordinator {
             dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
             readProfileUseCase: readProfileUseCase,
             updateProfileUseCase: updateProfileUseCase,
-            fetchImageUseCase: fetchImageUseCase
+            fetchImageUseCase: fetchImageUseCase,
+            withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared
         )
 
         let vc = HomeCalendarViewController(viewModel: vm)

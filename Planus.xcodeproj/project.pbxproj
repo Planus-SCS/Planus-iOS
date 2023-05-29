@@ -420,6 +420,8 @@
 		6AA3BAD52A24D75B00E5B8A2 /* CustomAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BAD42A24D75B00E5B8A2 /* CustomAlertViewController.swift */; };
 		6AA3BAD72A24E3F500E5B8A2 /* GroupWithdrawResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BAD62A24E3F500E5B8A2 /* GroupWithdrawResponseDTO.swift */; };
 		6AA3BAD92A24E46400E5B8A2 /* GroupRemoveDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BAD82A24E46400E5B8A2 /* GroupRemoveDTO.swift */; };
+		6AA3BADB2A24E7F100E5B8A2 /* DefaultWithdrawGroupUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BADA2A24E7F100E5B8A2 /* DefaultWithdrawGroupUseCase.swift */; };
+		6AA3BADD2A24E86E00E5B8A2 /* WithdrawGroupUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BADC2A24E86E00E5B8A2 /* WithdrawGroupUseCase.swift */; };
 		6AC078DE2A0287FF007ACDB8 /* TodoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078DD2A0287FF007ACDB8 /* TodoViewModel.swift */; };
 		6AC078E02A0373EC007ACDB8 /* PathURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078DF2A0373EC007ACDB8 /* PathURL.swift */; };
 		6AC078E22A0373F3007ACDB8 /* BaseURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078E12A0373F3007ACDB8 /* BaseURL.swift */; };
@@ -914,6 +916,8 @@
 		6AA3BAD42A24D75B00E5B8A2 /* CustomAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertViewController.swift; sourceTree = "<group>"; };
 		6AA3BAD62A24E3F500E5B8A2 /* GroupWithdrawResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupWithdrawResponseDTO.swift; sourceTree = "<group>"; };
 		6AA3BAD82A24E46400E5B8A2 /* GroupRemoveDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRemoveDTO.swift; sourceTree = "<group>"; };
+		6AA3BADA2A24E7F100E5B8A2 /* DefaultWithdrawGroupUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultWithdrawGroupUseCase.swift; sourceTree = "<group>"; };
+		6AA3BADC2A24E86E00E5B8A2 /* WithdrawGroupUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithdrawGroupUseCase.swift; sourceTree = "<group>"; };
 		6AC078DD2A0287FF007ACDB8 /* TodoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoViewModel.swift; sourceTree = "<group>"; };
 		6AC078DF2A0373EC007ACDB8 /* PathURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathURL.swift; sourceTree = "<group>"; };
 		6AC078E12A0373F3007ACDB8 /* BaseURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseURL.swift; sourceTree = "<group>"; };
@@ -2463,6 +2467,7 @@
 				6A9199852A1247B700108BF4 /* DefaultUpdateGroupInfoUseCase.swift */,
 				6A9199C22A14E6A500108BF4 /* DefaultFetchMyGroupNameListUseCase.swift */,
 				6A9199EC2A20958500108BF4 /* DefaultFetchMyGroupCalendarUseCase.swift */,
+				6AA3BADA2A24E7F100E5B8A2 /* DefaultWithdrawGroupUseCase.swift */,
 			);
 			path = MyGroup;
 			sourceTree = "<group>";
@@ -2483,6 +2488,7 @@
 				6A9199872A1248B000108BF4 /* UpdateGroupInfoUseCase.swift */,
 				6A9199C42A14E71E00108BF4 /* FetchMyGroupNameListUseCase.swift */,
 				6A9199EE2A20960300108BF4 /* FetchMyGroupCalendarUseCase.swift */,
+				6AA3BADC2A24E86E00E5B8A2 /* WithdrawGroupUseCase.swift */,
 			);
 			path = MyGroup;
 			sourceTree = "<group>";
@@ -2971,6 +2977,7 @@
 				6AA3BAC72A24A27000E5B8A2 /* RecentSearch.xcdatamodeld in Sources */,
 				6A9199BD2A14A3F600108BF4 /* UIView+Ext.swift in Sources */,
 				6A9199BF2A14E5E200108BF4 /* GroupName.swift in Sources */,
+				6AA3BADB2A24E7F100E5B8A2 /* DefaultWithdrawGroupUseCase.swift in Sources */,
 				6AC079242A08EC4A007ACDB8 /* UpdateProfileUseCase.swift in Sources */,
 				6A9AAB0B29F901CF002A6DAF /* TodoDTO.swift in Sources */,
 				6A2BB1C529E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift in Sources */,
@@ -3077,6 +3084,7 @@
 				6A9AAB0D29F906A3002A6DAF /* DefaultCreateCategoryUseCase.swift in Sources */,
 				6A24F8EE29D1D5510000FD64 /* MonthPickerViewController.swift in Sources */,
 				6A9AAB0929F8FFD6002A6DAF /* Category.swift in Sources */,
+				6AA3BADD2A24E86E00E5B8A2 /* WithdrawGroupUseCase.swift in Sources */,
 				6AC078E02A0373EC007ACDB8 /* PathURL.swift in Sources */,
 				6A9AAB4529FAC1AD002A6DAF /* SetTokenUseCase.swift in Sources */,
 				6A95DFD529D50913009017D8 /* SearchResultViewModel.swift in Sources */,

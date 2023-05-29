@@ -121,9 +121,14 @@ class GroupListViewController: UIViewController {
                 }
                 vc.resultCollectionView.reloadData()
                 vc.emptyResultView.isHidden = !((viewModel.groupList?.count == 0) ?? true)
-                
-                if type == .refresh {
+
+                switch type {
+                case .refresh:
                     vc.showToast(message: "새로고침을 성공하였습니다.", type: .normal)
+                case .remove(let message):
+                    vc.showToast(message: message, type: .normal)
+                default:
+                    return
                 }
             })
             .disposed(by: bag)

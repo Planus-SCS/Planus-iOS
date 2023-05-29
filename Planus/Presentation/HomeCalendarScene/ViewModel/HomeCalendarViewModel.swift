@@ -113,6 +113,7 @@ class HomeCalendarViewModel {
     
     let fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase
     let groupCreateUseCase: GroupCreateUseCase
+    let withdrawGroupUseCase: WithdrawGroupUseCase
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
@@ -138,7 +139,8 @@ class HomeCalendarViewModel {
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
         readProfileUseCase: ReadProfileUseCase,
         updateProfileUseCase: UpdateProfileUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        fetchImageUseCase: FetchImageUseCase,
+        withdrawGroupUseCase: WithdrawGroupUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -158,6 +160,7 @@ class HomeCalendarViewModel {
         self.readProfileUseCase = readProfileUseCase
         self.updateProfileUseCase = updateProfileUseCase
         self.fetchImageUseCase = fetchImageUseCase
+        self.withdrawGroupUseCase = withdrawGroupUseCase
     }
     
     func bind() {
@@ -300,6 +303,21 @@ class HomeCalendarViewModel {
     func bindGroupUseCase() {
         groupCreateUseCase
             .didCreateGroup
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchGroup()
+                vm.fetchCategory()
+                
+                vm.categoryAndGroupZip
+                    .subscribe(onNext: { _ in
+                        vm.initTodoList()
+                    })
+                    .disposed(by: vm.bag)
+            })
+            .disposed(by: bag)
+        
+        withdrawGroupUseCase
+            .didWithdrawGroup
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.fetchGroup()
