@@ -17,4 +17,5 @@ struct URLPathComponent {
     static let tokenReissue = "/token-reissue"
     static let kakao = "/kakao"
     static let google = "/google"
+    static let members = "/members"
 }

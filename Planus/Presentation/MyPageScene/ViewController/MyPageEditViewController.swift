@@ -6,8 +6,16 @@
 //
 
 import UIKit
+import RxSwift
+import PhotosUI
 
 class MyPageEditViewController: UIViewController {
+    
+    var bag = DisposeBag()
+    var viewModel: MyPageEditViewModel?
+    var didChangedImage = PublishSubject<ImageFile?>()
+    var descEditing = false
+    
     var contentView: UIView = {
         let view = UIView(frame: .zero)
         view.backgroundColor = UIColor(hex: 0xB2CAFA)
@@ -44,9 +52,10 @@ class MyPageEditViewController: UIViewController {
         return imageView
     }()
     
-    var imageEditButton: UIButton = {
+    lazy var imageEditButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setImage(UIImage(named: "cameraBtn"), for: .normal)
+        button.addTarget(self, action: #selector(editBtnTapped), for: .touchUpInside)
         return button
     }()
     
@@ -102,27 +111,24 @@ class MyPageEditViewController: UIViewController {
         return item
     }()
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+    convenience init(viewModel: MyPageEditViewModel) {
+        self.init(nibName: nil, bundle: nil)
+        self.viewModel = viewModel
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureView()
         configureLayout()
         
-        navigationItem.setLeftBarButton(backButton, animated: false)
-        navigationItem.setRightBarButton(saveButton, animated: false)
+        bind()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationItem.setRightBarButton(saveButton, animated: false)
         navigationItem.title = "프로필 수정"
     }
     
@@ -132,6 +138,92 @@ class MyPageEditViewController: UIViewController {
     
     @objc func saveBtnAction() {
         
+    }
+    
+    @objc func editBtnTapped() {
+        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        //블로그 방문하기 버튼 - 스타일(default)
+        actionSheet.addAction(UIAlertAction(title: "변경하기", style: .default, handler: {(ACTION:UIAlertAction) in
+            self.presentPhotoPicker()
+        }))
+        
+        //이웃 끊기 버튼 - 스타일(destructive)
+        actionSheet.addAction(UIAlertAction(title: "제거", style: .destructive, handler: {(ACTION:UIAlertAction) in
+            self.didChangedImage.onNext(nil)
+        }))
+        
+        actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+    
+    func bind() {
+        guard let viewModel else { return }
+        
+        let input = MyPageEditViewModel.Input(
+            viewDidLoad: Observable.just(()),
+            didChangeName: nameField.rx.text.asObservable(),
+            didChangeIntroduce: introduceField.rx.text.asObservable().map { (self.descEditing) ? $0 : nil},
+            didChangeImage: didChangedImage.asObservable(),
+            saveBtnTapped: saveButton.rx.tap.asObservable()
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        output
+            .didFetchName
+            .distinctUntilChanged()
+            .bind(to: nameField.rx.text)
+            .disposed(by: bag)
+        
+        output
+            .didFetchIntroduce
+            .map {
+                guard let str = $0 else { return nil }
+                guard !str.isEmpty else { return nil }
+                return str
+            }
+            .compactMap { $0 }
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] text in
+                self?.introduceField.text = text
+                self?.introduceField.textColor = .black
+                self?.descEditing = true
+            })
+            .disposed(by: bag)
+        
+        output
+            .didFetchImage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, data in
+                if let data = data {
+                    vc.profileImageView.image = UIImage(data: data)
+                } else {
+                    vc.profileImageView.image = UIImage(named: "DefaultProfileMedium")
+                }
+            })
+            .disposed(by: bag)
+        
+        output
+            .saveBtnEnabled
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, isEnabled in
+                vc.saveButton.isEnabled = isEnabled
+                vc.saveButton.tintColor = (isEnabled) ? UIColor(hex: 0x6495F4) : UIColor(hex: 0x6495F4).withAlphaComponent(0.5)
+            })
+            .disposed(by: bag)
+        
+        output
+            .didUpdateProfile
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {
@@ -185,20 +277,47 @@ class MyPageEditViewController: UIViewController {
         
     }
     
+    func presentPhotoPicker() {
+        var phPickerConfiguration = PHPickerConfiguration()
+        phPickerConfiguration.selectionLimit = 1
+        phPickerConfiguration.filter = .images
+        phPickerConfiguration.preferredAssetRepresentationMode = .current
+
+        let phPicker = PHPickerViewController(configuration: phPickerConfiguration)
+        phPicker.delegate = self
+        self.present(phPicker, animated: true)
+    }
 }
+
+extension MyPageEditViewController: PHPickerViewControllerDelegate { //PHPicker 델리게이트
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+
+        results.first?.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (image, error) in
+            guard let fileName = results.first?.itemProvider.suggestedName else { return }
+            if let data = (image as? UIImage)?.pngData() {
+                self?.didChangedImage.onNext(ImageFile(filename: fileName, data: data, type: "png"))
+                print(data)
+            }
+        }
+    }
+}
+                                    
 
 extension MyPageEditViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
             textView.text = "자기소개를 입력하세요."
             textView.textColor = UIColor(hex: 0xBFC7D7)
+            descEditing = false
         }
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == UIColor(hex: 0xBFC7D7) {
+        if !descEditing {
             textView.text = nil
             textView.textColor = .black
+            descEditing = true
         }
     }
 }

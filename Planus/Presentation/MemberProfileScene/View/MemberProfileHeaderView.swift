@@ -43,7 +43,6 @@ class MemberProfileHeaderView: UIView {
         label.textColor = .black
         label.font = UIFont(name: "Pretendard-Bold", size: 16)
         label.textAlignment = .center
-        label.text = "이름름"
         return label
     }()
     
@@ -52,8 +51,7 @@ class MemberProfileHeaderView: UIView {
         label.textColor = UIColor(hex: 0x6F81A9)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
         label.numberOfLines = 3
-        label.textAlignment = .left
-        label.text = "자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개..."
+        label.textAlignment = .center
         return label
     }()
     
@@ -67,6 +65,16 @@ class MemberProfileHeaderView: UIView {
         view.layer.shadowRadius = 2
         return view
     }()
+    
+    convenience init(mockFrame: CGRect) {
+        self.init(frame: mockFrame)
+        
+        introduceLabel.snp.remakeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(48)
+            $0.top.equalTo(nameLabel.snp.bottom).offset(16)
+            $0.bottom.equalTo(separateView.snp.top).inset(-22)
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)

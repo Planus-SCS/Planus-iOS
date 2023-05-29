@@ -12,8 +12,8 @@ class MyPageMainViewModel {
     var bag = DisposeBag()
     
     var imageURL: String?
-    var name: String? = "오수"
-    var introduce: String? = "오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!! 오수생이라고 무시하지 마라!!"
+    var name: String?
+    var introduce: String?
     lazy var isPushOn: BehaviorSubject<Bool> = {
         // 원래는 유즈케이스에서 바로 가져오자
         return BehaviorSubject<Bool>(value: false)
@@ -32,6 +32,7 @@ class MyPageMainViewModel {
     ]
     
     struct Input {
+        var viewDidLoad: Observable<Void>
         var didSelectedAt: Observable<Int>
     }
     
@@ -39,15 +40,37 @@ class MyPageMainViewModel {
         var didFetchUserProfile: Observable<Void?>
     }
     
-    init() {
-        /*
-         멤버 프로필만 가져오는 유즈케이스,
-         푸시에 대한 정보 가져올 유즈케이스 필요함
-         */
-
+    var readProfileUseCase: ReadProfileUseCase
+    var updateProfileUseCase: UpdateProfileUseCase
+    var getTokenUseCase: GetTokenUseCase
+    var refreshTokenUseCase: RefreshTokenUseCase
+    var fetchImageUseCase: FetchImageUseCase
+    
+    init(
+        readProfileUseCase: ReadProfileUseCase,
+        updateProfileUseCase: UpdateProfileUseCase,
+        getTokenUseCase: GetTokenUseCase,
+        refreshTokenUseCase: RefreshTokenUseCase,
+        fetchImageUseCase: FetchImageUseCase
+    ) {
+        self.readProfileUseCase = readProfileUseCase
+        self.updateProfileUseCase = DefaultUpdateProfileUseCase.shared
+        self.getTokenUseCase = getTokenUseCase
+        self.refreshTokenUseCase = refreshTokenUseCase
+        self.fetchImageUseCase = fetchImageUseCase
     }
     
     func transform(input: Input) -> Output {
+        
+        input
+            .viewDidLoad
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.bindUseCase()
+                vm.fetchUserProfile()
+            })
+            .disposed(by: bag)
+        
         input
             .didSelectedAt
             .subscribe(onNext: { index in
@@ -58,8 +81,35 @@ class MyPageMainViewModel {
         return Output(didFetchUserProfile: didFetchUserProfile.asObservable())
     }
     
+    func bindUseCase() {
+        updateProfileUseCase
+            .didUpdateProfile
+            .withUnretained(self)
+            .subscribe(onNext: { vm, profile in
+                vm.name = profile.nickName
+                vm.introduce = profile.description
+                vm.imageURL = profile.imageUrl
+                vm.didFetchUserProfile.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
     func fetchUserProfile() {
+        guard let token = getTokenUseCase.execute() else { return }
         
+        readProfileUseCase
+            .execute(token: token)
+            .subscribe(onSuccess: { [weak self] profile in
+                self?.name = profile.nickName
+                self?.introduce = profile.description
+                self?.imageURL = profile.imageUrl
+                self?.didFetchUserProfile.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchImage(key: String) -> Single<Data> {
+        return fetchImageUseCase.execute(key: key)
     }
 
 }

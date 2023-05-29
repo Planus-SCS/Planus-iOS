@@ -31,6 +31,7 @@ class TodoDailyCollectionView: UICollectionView {
         self.backgroundColor = UIColor(hex: 0xF5F5FB)
         
         self.register(BigTodoCell.self, forCellWithReuseIdentifier: BigTodoCell.reuseIdentifier)
+        self.register(EmptyTodoMockCell.self, forCellWithReuseIdentifier: EmptyTodoMockCell.reuseIdentifier)
         self.register(TodoSectionHeaderSupplementaryView.self, forSupplementaryViewOfKind: Self.headerKind, withReuseIdentifier: TodoSectionHeaderSupplementaryView.reuseIdentifier)
     }
     

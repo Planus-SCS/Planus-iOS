@@ -341,6 +341,24 @@
 		6AC079002A053677007ACDB8 /* EmptyTodoMockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078FF2A053677007ACDB8 /* EmptyTodoMockCell.swift */; };
 		6AC079022A07D464007ACDB8 /* TodoUpdateComparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079012A07D464007ACDB8 /* TodoUpdateComparator.swift */; };
 		6AC079042A07DC45007ACDB8 /* Array+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079032A07DC45007ACDB8 /* Array+Ext.swift */; };
+		6AC079062A08C28B007ACDB8 /* DefaultProfileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079052A08C28B007ACDB8 /* DefaultProfileRepository.swift */; };
+		6AC079082A08C74A007ACDB8 /* ProfileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079072A08C74A007ACDB8 /* ProfileRepository.swift */; };
+		6AC0790A2A08C799007ACDB8 /* ProfileDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079092A08C799007ACDB8 /* ProfileDTO.swift */; };
+		6AC0790D2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0790C2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift */; };
+		6AC0790F2A08C9C9007ACDB8 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0790E2A08C9C9007ACDB8 /* Profile.swift */; };
+		6AC079122A08CCF9007ACDB8 /* ReadProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079112A08CCF9007ACDB8 /* ReadProfileUseCase.swift */; };
+		6AC079152A08D770007ACDB8 /* DefaultFetchImageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079142A08D770007ACDB8 /* DefaultFetchImageUseCase.swift */; };
+		6AC079172A08D788007ACDB8 /* DefaultImageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079162A08D788007ACDB8 /* DefaultImageRepository.swift */; };
+		6AC079192A08D9DB007ACDB8 /* ImageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079182A08D9DB007ACDB8 /* ImageRepository.swift */; };
+		6AC0791C2A08DA42007ACDB8 /* FetchImageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0791B2A08DA42007ACDB8 /* FetchImageUseCase.swift */; };
+		6AC0791E2A08DE41007ACDB8 /* MyPageEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0791D2A08DE41007ACDB8 /* MyPageEditViewModel.swift */; };
+		6AC079202A08E381007ACDB8 /* ImageFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0791F2A08E381007ACDB8 /* ImageFile.swift */; };
+		6AC079222A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079212A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift */; };
+		6AC079242A08EC4A007ACDB8 /* UpdateProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079232A08EC4A007ACDB8 /* UpdateProfileUseCase.swift */; };
+		6AC079262A092C4E007ACDB8 /* ProfileButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079252A092C4E007ACDB8 /* ProfileButton.swift */; };
+		6AC0792A2A093AD2007ACDB8 /* cloud@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079272A093AD2007ACDB8 /* cloud@2x.png */; };
+		6AC0792B2A093AD2007ACDB8 /* cloud@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079282A093AD2007ACDB8 /* cloud@3x.png */; };
+		6AC0792C2A093AD2007ACDB8 /* cloud.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AC079292A093AD2007ACDB8 /* cloud.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -681,6 +699,24 @@
 		6AC078FF2A053677007ACDB8 /* EmptyTodoMockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyTodoMockCell.swift; sourceTree = "<group>"; };
 		6AC079012A07D464007ACDB8 /* TodoUpdateComparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoUpdateComparator.swift; sourceTree = "<group>"; };
 		6AC079032A07DC45007ACDB8 /* Array+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ext.swift"; sourceTree = "<group>"; };
+		6AC079052A08C28B007ACDB8 /* DefaultProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultProfileRepository.swift; sourceTree = "<group>"; };
+		6AC079072A08C74A007ACDB8 /* ProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileRepository.swift; sourceTree = "<group>"; };
+		6AC079092A08C799007ACDB8 /* ProfileDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDTO.swift; sourceTree = "<group>"; };
+		6AC0790C2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultReadProfileUseCase.swift; sourceTree = "<group>"; };
+		6AC0790E2A08C9C9007ACDB8 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		6AC079112A08CCF9007ACDB8 /* ReadProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadProfileUseCase.swift; sourceTree = "<group>"; };
+		6AC079142A08D770007ACDB8 /* DefaultFetchImageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchImageUseCase.swift; sourceTree = "<group>"; };
+		6AC079162A08D788007ACDB8 /* DefaultImageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultImageRepository.swift; sourceTree = "<group>"; };
+		6AC079182A08D9DB007ACDB8 /* ImageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRepository.swift; sourceTree = "<group>"; };
+		6AC0791B2A08DA42007ACDB8 /* FetchImageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchImageUseCase.swift; sourceTree = "<group>"; };
+		6AC0791D2A08DE41007ACDB8 /* MyPageEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageEditViewModel.swift; sourceTree = "<group>"; };
+		6AC0791F2A08E381007ACDB8 /* ImageFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFile.swift; sourceTree = "<group>"; };
+		6AC079212A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultUpdateProfileUseCase.swift; sourceTree = "<group>"; };
+		6AC079232A08EC4A007ACDB8 /* UpdateProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateProfileUseCase.swift; sourceTree = "<group>"; };
+		6AC079252A092C4E007ACDB8 /* ProfileButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileButton.swift; sourceTree = "<group>"; };
+		6AC079272A093AD2007ACDB8 /* cloud@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cloud@2x.png"; sourceTree = "<group>"; };
+		6AC079282A093AD2007ACDB8 /* cloud@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cloud@3x.png"; sourceTree = "<group>"; };
+		6AC079292A093AD2007ACDB8 /* cloud.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cloud.png; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -836,6 +872,9 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6AC079292A093AD2007ACDB8 /* cloud.png */,
+				6AC079272A093AD2007ACDB8 /* cloud@2x.png */,
+				6AC079282A093AD2007ACDB8 /* cloud@3x.png */,
 				6A9AAAF129F8151A002A6DAF /* todoCheck.png */,
 				6A9AAAF229F8151A002A6DAF /* todoCheck@2x.png */,
 				6A9AAAF329F8151A002A6DAF /* todoCheck@3x.png */,
@@ -1009,6 +1048,7 @@
 				6A24F89A29CE299A0000FD64 /* SmallTodoView.swift */,
 				6A24F8BD29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift */,
 				6A24F8EF29D1D5F80000FD64 /* MonthPickerViewCell.swift */,
+				6AC079252A092C4E007ACDB8 /* ProfileButton.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1109,6 +1149,8 @@
 				6A24F85F29CB8A6B0000FD64 /* DefaultTodoRepository.swift */,
 				6A9AAB0129F8E442002A6DAF /* DefaultCategoryRepository.swift */,
 				6A9AAB0E29F9071F002A6DAF /* DefaultTokenRepository.swift */,
+				6AC079052A08C28B007ACDB8 /* DefaultProfileRepository.swift */,
+				6AC079162A08D788007ACDB8 /* DefaultImageRepository.swift */,
 			);
 			path = Repository;
 			sourceTree = "<group>";
@@ -1116,6 +1158,8 @@
 		6A08ADDA29C8D5A9005947D2 /* UseCase */ = {
 			isa = PBXGroup;
 			children = (
+				6AC079132A08D75F007ACDB8 /* Image */,
+				6AC0790B2A08C97F007ACDB8 /* Profile */,
 				6A9AAB2A29FA5CBC002A6DAF /* SignIn */,
 				6A9AAB2B29FA5CC6002A6DAF /* Calendar */,
 				6A9AAB2C29FA5CE1002A6DAF /* Todo */,
@@ -1132,6 +1176,8 @@
 				6A24F86129CC5C400000FD64 /* TodoRepository.swift */,
 				6A9AAB0329F8FE48002A6DAF /* CategoryRepository.swift */,
 				6A9AAB1529F90AD5002A6DAF /* TokenRepository.swift */,
+				6AC079072A08C74A007ACDB8 /* ProfileRepository.swift */,
+				6AC079182A08D9DB007ACDB8 /* ImageRepository.swift */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -1139,6 +1185,8 @@
 		6A08ADDE29C8D6B6005947D2 /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				6AC0791A2A08DA31007ACDB8 /* Image */,
+				6AC079102A08CCE2007ACDB8 /* Profile */,
 				6A9AAB2F29FA5D19002A6DAF /* SignIn */,
 				6A9AAB3029FA5D22002A6DAF /* Calendar */,
 				6A9AAB3129FA5D29002A6DAF /* Todo */,
@@ -1379,6 +1427,7 @@
 				6A2BB1B629E41EC40053C5CA /* MyPageMainTitleViewModel.swift */,
 				6A2BB1BA29E429D50053C5CA /* MyPageReadableViewModel.swift */,
 				6A2BB1BE29E431F90053C5CA /* MyPageEnquireViewModel.swift */,
+				6AC0791D2A08DE41007ACDB8 /* MyPageEditViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1404,6 +1453,8 @@
 				6A9AAB1329F90A1F002A6DAF /* Token.swift */,
 				6AC078DD2A0287FF007ACDB8 /* TodoViewModel.swift */,
 				6AC079012A07D464007ACDB8 /* TodoUpdateComparator.swift */,
+				6AC0790E2A08C9C9007ACDB8 /* Profile.swift */,
+				6AC0791F2A08E381007ACDB8 /* ImageFile.swift */,
 			);
 			path = Entity;
 			sourceTree = "<group>";
@@ -1780,6 +1831,7 @@
 				6A9AAB0A29F901CF002A6DAF /* TodoDTO.swift */,
 				6A9AAB3E29FA5F87002A6DAF /* BaseResponseDTO.swift */,
 				6A9AAB4029FA98A3002A6DAF /* TokenDTO.swift */,
+				6AC079092A08C799007ACDB8 /* ProfileDTO.swift */,
 			);
 			path = DataMapping;
 			sourceTree = "<group>";
@@ -1913,6 +1965,40 @@
 			path = RxSwift;
 			sourceTree = "<group>";
 		};
+		6AC0790B2A08C97F007ACDB8 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				6AC0790C2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift */,
+				6AC079212A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		6AC079102A08CCE2007ACDB8 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				6AC079112A08CCF9007ACDB8 /* ReadProfileUseCase.swift */,
+				6AC079232A08EC4A007ACDB8 /* UpdateProfileUseCase.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		6AC079132A08D75F007ACDB8 /* Image */ = {
+			isa = PBXGroup;
+			children = (
+				6AC079142A08D770007ACDB8 /* DefaultFetchImageUseCase.swift */,
+			);
+			path = Image;
+			sourceTree = "<group>";
+		};
+		6AC0791A2A08DA31007ACDB8 /* Image */ = {
+			isa = PBXGroup;
+			children = (
+				6AC0791B2A08DA42007ACDB8 /* FetchImageUseCase.swift */,
+			);
+			path = Image;
+			sourceTree = "<group>";
+		};
 		974AE7300BB25B96DF1DF093 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -1982,6 +2068,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6AC0792A2A093AD2007ACDB8 /* cloud@2x.png in Resources */,
 				6A1B3F0E29D7192A00BFB3A6 /* onlineIcon@3x.png in Resources */,
 				6A08AD8C29C892E0005947D2 /* search-sm.png in Resources */,
 				6A987A6C29DEE44D00C27D09 /* DefaultProfileMedium2@2x.png in Resources */,
@@ -2044,6 +2131,7 @@
 				6A9AAAD129F809EF002A6DAF /* todoCalendar@3x.png in Resources */,
 				6A9AAACA29F809CC002A6DAF /* todoGroup@2x.png in Resources */,
 				6A95DFBD29D4E2E6009017D8 /* searchBarIcon.png in Resources */,
+				6AC0792C2A093AD2007ACDB8 /* cloud.png in Resources */,
 				6A0BF76529D35D2C006F2604 /* edit_swipe@2x.png in Resources */,
 				6A95E00429D5B756009017D8 /* GroupAddBtn@3x.png in Resources */,
 				6A1B3F1029D7192A00BFB3A6 /* onlineIcon.png in Resources */,
@@ -2070,6 +2158,7 @@
 				6A95E00029D5B5A9009017D8 /* PlanusGroup@3x.png in Resources */,
 				6A1B3F0829D7192100BFB3A6 /* messageIcon.png in Resources */,
 				6A1B3F0929D7192100BFB3A6 /* messageIcon@2x.png in Resources */,
+				6AC0792B2A093AD2007ACDB8 /* cloud@3x.png in Resources */,
 				6A08AD5D29C87C63005947D2 /* LaunchScreen.storyboard in Resources */,
 				6A9AAAD229F809EF002A6DAF /* todoCalendar.png in Resources */,
 				6A95DFCB29D4EC8D009017D8 /* captinSmall@3x.png in Resources */,
@@ -2191,8 +2280,10 @@
 				6A24F85629CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift in Sources */,
 				6A987A1F29DC268E00C27D09 /* GroupListViewModel.swift in Sources */,
 				6A987A2D29DCFDEF00C27D09 /* NestedScrollableViewController.swift in Sources */,
+				6AC0790F2A08C9C9007ACDB8 /* Profile.swift in Sources */,
 				6A9AAB0429F8FE48002A6DAF /* CategoryRepository.swift in Sources */,
 				6A9AAB2729FA595B002A6DAF /* DefaultReadCategoryListUseCase.swift in Sources */,
+				6AC079172A08D788007ACDB8 /* DefaultImageRepository.swift in Sources */,
 				6A9AAB2129FA5775002A6DAF /* GetTokenRepository.swift in Sources */,
 				6A9AAAC629F808FB002A6DAF /* TodoCheckButton.swift in Sources */,
 				6A2BB1CB29E55EBE0053C5CA /* UpdateTodoUseCase.swift in Sources */,
@@ -2203,13 +2294,16 @@
 				6A987A5029DE4A1400C27D09 /* MemberProfileViewController.swift in Sources */,
 				6A9A07F129D40B3C0051AD43 /* DayPickerViewController.swift in Sources */,
 				6A2BB1A729E404DA0053C5CA /* MyPageMainViewController.swift in Sources */,
+				6AC079222A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift in Sources */,
 				6A987A2529DCFC4500C27D09 /* JoinedGroupChattingViewController.swift in Sources */,
 				6A24F86029CB8A6B0000FD64 /* DefaultTodoRepository.swift in Sources */,
 				6A24F83629CB46640000FD64 /* GroupCoordinator.swift in Sources */,
 				6A9AAB3B29FA5DE2002A6DAF /* ReadCategoryListUseCase.swift in Sources */,
 				6A987A2929DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift in Sources */,
 				6A24F84629CB4AED0000FD64 /* MonthStateOfDay.swift in Sources */,
+				6AC0791C2A08DA42007ACDB8 /* FetchImageUseCase.swift in Sources */,
 				6AC078E22A0373F3007ACDB8 /* BaseURL.swift in Sources */,
+				6AC0790A2A08C799007ACDB8 /* ProfileDTO.swift in Sources */,
 				6A2BB1BD29E431740053C5CA /* MyPageEnquireViewController.swift in Sources */,
 				6A95DFE229D53BA1009017D8 /* GroupIntroduceDefaultHeaderView.swift in Sources */,
 				6A987A8F29DF119300C27D09 /* SmallCalendarView.swift in Sources */,
@@ -2222,6 +2316,7 @@
 				6A9A080229D40C130051AD43 /* TodoDetailViewController.swift in Sources */,
 				6A08ADCF29C8C231005947D2 /* APIProvider.swift in Sources */,
 				6A9AAB1229F907B0002A6DAF /* KeyChainManager.swift in Sources */,
+				6AC079082A08C74A007ACDB8 /* ProfileRepository.swift in Sources */,
 				6A08AD7429C89143005947D2 /* MainTabCoordinator.swift in Sources */,
 				6A24F88C29CE26540000FD64 /* HomeCalendarViewController.swift in Sources */,
 				6A987A9029DF119300C27D09 /* SmallCalendarDayCell.swift in Sources */,
@@ -2264,7 +2359,10 @@
 				6A9A07C829D3D83B0051AD43 /* AddTodoControllerPageType.swift in Sources */,
 				6A9AAB2329FA57E0002A6DAF /* RefreshTokenUseCase.swift in Sources */,
 				6A24F8BC29CE50DC0000FD64 /* ScrollDirection.swift in Sources */,
+				6AC079062A08C28B007ACDB8 /* DefaultProfileRepository.swift in Sources */,
+				6AC079152A08D770007ACDB8 /* DefaultFetchImageUseCase.swift in Sources */,
 				6A08AD7029C889D6005947D2 /* AppCoordinator.swift in Sources */,
+				6AC079262A092C4E007ACDB8 /* ProfileButton.swift in Sources */,
 				6A24F83A29CB49BD0000FD64 /* DayViewModel.swift in Sources */,
 				6A24F8F029D1D5F80000FD64 /* MonthPickerViewCell.swift in Sources */,
 				6A08ADB429C8A064005947D2 /* SignInCoordinator.swift in Sources */,
@@ -2272,6 +2370,8 @@
 				6A24F86629CC84150000FD64 /* DateFormatYYYYMMUseCase.swift in Sources */,
 				6A9A07F529D40B700051AD43 /* DayPickerCollectionView.swift in Sources */,
 				6A2BB1C729E55E8F0053C5CA /* DefaultDeleteTodoUseCase.swift in Sources */,
+				6AC0791E2A08DE41007ACDB8 /* MyPageEditViewModel.swift in Sources */,
+				6AC079242A08EC4A007ACDB8 /* UpdateProfileUseCase.swift in Sources */,
 				6A9AAB0B29F901CF002A6DAF /* TodoDTO.swift in Sources */,
 				6A2BB1C529E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift in Sources */,
 				6A9AAB3629FA5D8E002A6DAF /* DeleteCategoryUseCase.swift in Sources */,
@@ -2280,6 +2380,7 @@
 				6A9A07F729D40B820051AD43 /* DayPickerCollectionViewCell.swift in Sources */,
 				6A987A3729DD9F3400C27D09 /* MyGroupNoticeEditViewController.swift in Sources */,
 				6A95DFD029D50053009017D8 /* UIImage+Ext.swift in Sources */,
+				6AC079202A08E381007ACDB8 /* ImageFile.swift in Sources */,
 				6A08ADD329C8C26F005947D2 /* NetworkError.swift in Sources */,
 				6A9AAB2929FA5A6C002A6DAF /* DefaultDeleteCategoryUseCase.swift in Sources */,
 				6A08AD9E29C89D93005947D2 /* SignInViewController.swift in Sources */,
@@ -2320,6 +2421,7 @@
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,
 				6A987A8E29DF119300C27D09 /* SmallCalendarCollectionView.swift in Sources */,
 				6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */,
+				6AC079192A08D9DB007ACDB8 /* ImageRepository.swift in Sources */,
 				6A987A8829DF118000C27D09 /* SmallCalendarViewModel.swift in Sources */,
 				6A9A07F929D40B970051AD43 /* DayPickerViewControllerDelegate.swift in Sources */,
 				6A95DFB529D4DD33009017D8 /* SearchViewController.swift in Sources */,
@@ -2336,6 +2438,7 @@
 				6A9AAB3F29FA5F87002A6DAF /* BaseResponseDTO.swift in Sources */,
 				6A24F86429CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift in Sources */,
 				6A24F91929D22D080000FD64 /* TodoDailyCollectionView.swift in Sources */,
+				6AC079122A08CCF9007ACDB8 /* ReadProfileUseCase.swift in Sources */,
 				6A24F83C29CB49F10000FD64 /* WeekDay.swift in Sources */,
 				6A9A07FB29D40BA90051AD43 /* DayPickerViewController+DataSource.swift in Sources */,
 				6A9AAB0D29F906A3002A6DAF /* DefaultCreateCategoryUseCase.swift in Sources */,
@@ -2345,6 +2448,7 @@
 				6A9AAB4529FAC1AD002A6DAF /* SetTokenUseCase.swift in Sources */,
 				6A95DFD529D50913009017D8 /* SearchGroupResultViewModel.swift in Sources */,
 				6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */,
+				6AC0790D2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift in Sources */,
 				6A987A7429DEED1600C27D09 /* TodoDailyViewController.swift in Sources */,
 				6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */,
 				6A1B3F1829D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift in Sources */,

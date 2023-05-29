@@ -93,9 +93,19 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.performBatchUpdates {
-                    vm.collectionView.insertItems(at: [indexPath])
+                if indexPath.section == 0 {
+                    if vm.viewModel?.scheduledTodoList?.count == 1 {
+                        vm.collectionView.deleteItems(at: [indexPath])
+                    }
+                } else if indexPath.section == 1 {
+                    if vm.viewModel?.unscheduledTodoList?.count == 1 {
+                        vm.collectionView.deleteItems(at: [indexPath])
+                    }
                 }
+                
+//                vm.collectionView.performBatchUpdates {
+                    vm.collectionView.insertItems(at: [indexPath])
+//                }
             })
             .disposed(by: bag)
             
@@ -209,25 +219,36 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch section {
         case 0:
-            return viewModel?.scheduledTodoList?.count ?? 0
+            let count = viewModel?.scheduledTodoList?.count ?? 0
+            return count == 0 ? 1 : count
         case 1:
-            return viewModel?.unscheduledTodoList?.count ?? 0
+            let count = viewModel?.unscheduledTodoList?.count ?? 0
+            return count == 0 ? 1 : count
         default:
             return 0
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
-            return UICollectionViewCell()
-        }
         
         var todoItem: Todo?
         switch indexPath.section {
         case 0:
-            todoItem = viewModel?.scheduledTodoList?[indexPath.item]
+            if viewModel?.scheduledTodoList?.count == 0 {
+                print("mock")
+                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+            } else {
+                print("real")
+                todoItem = viewModel?.scheduledTodoList?[indexPath.item]
+            }
         case 1:
-            todoItem = viewModel?.unscheduledTodoList?[indexPath.item]
+            if viewModel?.unscheduledTodoList?.count == 0 {
+                print("mock")
+                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+            } else {
+                print("real")
+                todoItem = viewModel?.unscheduledTodoList?[indexPath.item]
+            }
         default:
             return UICollectionViewCell()
         }
@@ -235,7 +256,9 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
               let category = viewModel?.categoryDict[todoItem.categoryId] else {
             return UICollectionViewCell()
         }
-        
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
+            return UICollectionViewCell()
+        }
         cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
         return cell
     }
@@ -266,9 +289,17 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         var item: Todo?
         switch indexPath.section {
         case 0:
-            item = viewModel?.scheduledTodoList?[indexPath.item]
+            if viewModel?.scheduledTodoList?.count == 0 {
+                return false
+            } else {
+                item = viewModel?.scheduledTodoList?[indexPath.item]
+            }
         case 1:
-            item = viewModel?.unscheduledTodoList?[indexPath.item]
+            if viewModel?.unscheduledTodoList?.count == 0 {
+                return false
+            } else {
+                item = viewModel?.unscheduledTodoList?[indexPath.item]
+            }
         default:
             return false
         }
