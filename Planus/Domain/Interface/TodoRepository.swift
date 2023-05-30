@@ -13,4 +13,6 @@ protocol TodoRepository {
     func readTodo(token: String, from: Date, to: Date) -> Single<ResponseDTO<TodoListResponseDTO>>
     func updateTodo(token: String, id: Int, todo: TodoRequestDTO) -> Single<Int>
     func deleteTodo(token: String, id: Int) -> Single<Void>
+    func memberCompletion(token: String, groupId: Int, todoId: Int) -> Single<ResponseDTO<TodoResponseDataDTO>>
+    func groupCompletion(token: String, groupId: Int, todoId: Int) -> Single<ResponseDTO<TodoResponseDataDTO>>
 }

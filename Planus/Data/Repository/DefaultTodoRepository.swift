@@ -103,4 +103,38 @@ class TestTodoDetailRepository: TodoRepository {
             return ()
         }
     }
+    
+    func memberCompletion(token: String, todoId: Int) -> Single<ResponseDTO<TodoResponseDataDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.todo + "/\(todoId)/completion",
+            requestType: .patch,
+            body: nil,
+            query: nil,
+            header: [
+                "Authorization": "Bearer \(token)"
+            ]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<TodoResponseDataDTO>.self
+        )
+    }
+    
+    func groupCompletion(token: String, groupId: Int, todoId: Int) -> Single<ResponseDTO<TodoResponseDataDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.myGroup + "/\(groupId)/todos/\(todoId)/completion",
+            requestType: .patch,
+            body: nil,
+            query: nil,
+            header: [
+                "Authorization": "Bearer \(token)"
+            ]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<TodoResponseDataDTO>.self
+        )
+    }
 }
