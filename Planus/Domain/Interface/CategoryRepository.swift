@@ -9,6 +9,7 @@ import Foundation
 import RxSwift
 
 protocol CategoryRepository {
+    func fetchAllGroupCategory(token: String) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>>
     func read(token: String) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>>
     func create(token: String, category: CategoryRequestDTO) -> Single<ResponseDTO<CategoryResponseDataDTO>>
     func update(token: String, id: Int, category: CategoryRequestDTO) -> Single<ResponseDTO<CategoryResponseDataDTO>>

@@ -33,19 +33,6 @@ class HomeCalendarViewModel {
     
     var groupDict = [Int: GroupName]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
     var categoryDict = [Int: Category]()
-    
-    
-    //투두는 왜 투두용 뷰모델을 쓰지 않았는가?? -> 카테고리를 채워넣기엔 이거 업댓할때 카테고리까지 싹다 업뎃되면 머리아프니까.. 일단 하던대로 하자
-    // 이거 일단 받아오는순서
-    /*
-     1. 그룹, 카테고리 받아오기
-     2. 달력 그리기(이건 1이랑 같이 그려도 되고 투두 다받아오면 그때 보여줘도 상관없을듯
-     3. 투두받아오는건 무적권 그룹, 카테고리 받아오는게 끝나있어야한다!
-     근데 그룹, 카테고리를 subject로 할까 그냥할까? behavior로 일단 하자...!!!
-     그럼 두개 받아오는거의 combinelatest써서 첫 1회만 투두 받아오는걸 시작하자..!!!
-     그다음부터는.... 카테고리가 업댓될때마다 리로드
-     그리고 그룹이 업데이트(가입하거나 탈퇴하거나)할때마다,,, 그룹 탈퇴는 아에 투두목록에서 싹다 해당 그룹을 지워야함... 그룹가입도 비슷함,,,
-     */
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)

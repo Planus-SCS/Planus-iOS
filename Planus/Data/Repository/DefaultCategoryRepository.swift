@@ -15,6 +15,23 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
         self.apiProvider = apiProvider
     }
     
+    func fetchAllGroupCategory(token: String) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.categories + URLPathComponent.groups,
+            requestType: .get,
+            body: nil,
+            query: nil,
+            header: [
+                "Authorization": "Bearer \(token)"
+            ]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<[CategoryEntityResponseDTO]>.self
+        )
+    }
+    
     func read(token: String) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>> {
         let endPoint = APIEndPoint(
             url: URLPool.categories,
