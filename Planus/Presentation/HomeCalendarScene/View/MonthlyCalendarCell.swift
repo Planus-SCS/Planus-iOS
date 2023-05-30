@@ -298,4 +298,8 @@ extension MonthlyCalendarCell: DailyCalendarCellDelegate {
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId id: Int) -> CategoryColor? {
         return viewModel?.categoryDict[id]?.color
     }
+    
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfGroupCategoryId id: Int) -> CategoryColor? {
+        return viewModel?.groupCategoryDict[id]?.color
+    }
 }

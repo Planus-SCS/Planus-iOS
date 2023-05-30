@@ -245,7 +245,9 @@ final class TodoDetailViewModel {
                     memo: memo,
                     groupId: groupName?.groupId,
                     categoryId: categoryId,
-                    startTime: ((time?.isEmpty) ?? true) ? nil : time
+                    startTime: ((time?.isEmpty) ?? true) ? nil : time,
+                    isCompleted: nil,
+                    isGroupTodo: false
                 )
                 
                 print(todo)
@@ -255,6 +257,8 @@ final class TodoDetailViewModel {
                     vm.createTodo(todo: todo)
                 case .edit(let exTodo):
                     todo.id = exTodo.id
+                    todo.isCompleted = exTodo.isCompleted
+                    todo.isGroupTodo = exTodo.isGroupTodo
                     vm.updateTodo(todoUpdate: TodoUpdateComparator(before: exTodo, after: todo))
                 default:
                     return

@@ -121,7 +121,9 @@ class DailyCalendarCell: SpringableCollectionViewCell {
     func fill(todoList: [Todo]) {
         todoList.forEach {
             var todoView: SmallTodoView
-            if let color = self.delegate?.dailyCalendarCell(self, colorOfCategoryId: $0.categoryId) {
+            if let color = $0.isGroupTodo ?
+                self.delegate?.dailyCalendarCell(self, colorOfGroupCategoryId: $0.categoryId)
+                : self.delegate?.dailyCalendarCell(self, colorOfCategoryId: $0.categoryId) {
                 todoView = SmallTodoView(text: $0.title, categoryColor: color)
             } else {
                 todoView = SmallTodoView(text: $0.title, categoryColor: .none)
@@ -151,4 +153,5 @@ class DailyCalendarCell: SpringableCollectionViewCell {
 
 protocol DailyCalendarCellDelegate: NSObject {
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor?
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfGroupCategoryId id: Int) -> CategoryColor?
 }

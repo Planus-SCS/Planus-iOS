@@ -10,7 +10,7 @@ import RxSwift
 
 protocol TodoRepository {
     func createTodo(token: String, todo: TodoRequestDTO) -> Single<Int>
-    func readTodo(token: String, from: Date, to: Date) -> Single<ResponseDTO<[TodoEntityResponseDTO]>>
+    func readTodo(token: String, from: Date, to: Date) -> Single<ResponseDTO<TodoListResponseDTO>>
     func updateTodo(token: String, id: Int, todo: TodoRequestDTO) -> Single<Int>
     func deleteTodo(token: String, id: Int) -> Single<Void>
 }

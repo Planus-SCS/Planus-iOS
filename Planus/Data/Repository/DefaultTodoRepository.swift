@@ -37,7 +37,7 @@ class TestTodoDetailRepository: TodoRepository {
         }
     }
     
-    func readTodo(token: String, from: Date, to: Date) -> Single<ResponseDTO<[TodoEntityResponseDTO]>> { //어케올지 모름!
+    func readTodo(token: String, from: Date, to: Date) -> Single<ResponseDTO<TodoListResponseDTO>> { //어케올지 모름!
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.timeZone = .current
@@ -57,7 +57,7 @@ class TestTodoDetailRepository: TodoRepository {
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: ResponseDTO<[TodoEntityResponseDTO]>.self
+            type: ResponseDTO<TodoListResponseDTO>.self
         )
     }
     

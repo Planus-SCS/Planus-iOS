@@ -16,6 +16,8 @@ struct Todo {
     var groupId: Int?
     var categoryId: Int
     var startTime: String?
+    var isCompleted: Bool?
+    var isGroupTodo: Bool
     
     init(
         id: Int?,
@@ -25,7 +27,9 @@ struct Todo {
         memo: String?,
         groupId: Int?,
         categoryId: Int,
-        startTime: String?
+        startTime: String?,
+        isCompleted: Bool?,
+        isGroupTodo: Bool
     ) {
         self.id = id
         self.title = title
@@ -35,6 +39,8 @@ struct Todo {
         self.groupId = groupId
         self.categoryId = categoryId
         self.startTime = startTime
+        self.isCompleted = isCompleted
+        self.isGroupTodo = isGroupTodo
     }
 }
 

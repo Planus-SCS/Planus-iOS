@@ -157,7 +157,6 @@ class BigTodoCell: SpringableCollectionViewCell {
         
         if let completion {
             checkButton.isHidden = false
-            checkButton.isUserInteractionEnabled = false
             checkButton.isOn = completion
         } else {
             checkButton.isHidden = true

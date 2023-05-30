@@ -265,12 +265,17 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         guard let todoItem else {
             return UICollectionViewCell()
         }
-
-        guard let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
+        var category: Category?
+        category = todoItem.isGroupTodo ?
+        viewModel?.groupCategoryDict[todoItem.categoryId]
+        : viewModel?.categoryDict[todoItem.categoryId]
+        
+        guard let category else { return UICollectionViewCell() }
+        
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
-        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
+        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.isGroupTodo, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: todoItem.isCompleted)
         return cell
         
 

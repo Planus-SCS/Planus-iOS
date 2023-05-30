@@ -180,6 +180,7 @@ class HomeCalendarViewController: UIViewController {
                     todoList: dayViewModel.todoList ?? [],
                     categoryDict: vc.viewModel?.categoryDict ?? [:],
                     groupDict: vc.viewModel?.groupDict ?? [:],
+                    groupCategoryDict: vc.viewModel?.groupCategoryDict ?? [:],
                     filteringGroupId: try? vc.viewModel?.filteredGroupId.value()
                 ) //투두리스트를 필터링해야함..! 아니 걍 다 올리고 저짝에서 필터링하자 그게 편하다..!
                 viewModel.setOwnership(isOwner: true)

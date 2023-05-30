@@ -51,6 +51,7 @@ class HomeCalendarCoordinator: Coordinator {
         let updateProfileUseCase = DefaultUpdateProfileUseCase.shared
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
         let fetchMyGroupNameListUseCase = DefaultFetchMyGroupNameListUseCase(myGroupRepo: myGroupRepository)
+        let fetchGroupCategoryListUseCase = DefaultFetchGroupCategoryListUseCase(categoryRepository: categoryRepository)
         let vm = HomeCalendarViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
@@ -62,6 +63,7 @@ class HomeCalendarCoordinator: Coordinator {
             readCategoryListUseCase: readCategoryUseCase,
             updateCategoryUseCase: updateCategoryUseCase,
             deleteCategoryUseCase: deleteCategoryUseCase,
+            fetchGroupCategoryListUseCase: fetchGroupCategoryListUseCase,
             fetchMyGroupNameListUseCase: fetchMyGroupNameListUseCase,
             groupCreateUseCase: DefaultGroupCreateUseCase.shared,
             createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,

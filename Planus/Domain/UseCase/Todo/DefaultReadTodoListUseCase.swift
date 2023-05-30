@@ -22,13 +22,21 @@ class DefaultReadTodoListUseCase: ReadTodoListUseCase {
             .map { return $0.data }
             .map { list in
                 var dict = [Date: [Todo]]()
-                list.forEach { dto in
-                    let todo = dto.toDomain()
+                list.groupTodos.forEach { entity in
+                    let todo = entity.toDomain(isGroup: true)
                     if dict[todo.startDate] == nil {
                         dict[todo.startDate] = []
                     }
                     dict[todo.startDate]?.append(todo)
                 }
+                list.memberTodos.forEach { entity in
+                    let todo = entity.toDomain(isGroup: false)
+                    if dict[todo.startDate] == nil {
+                        dict[todo.startDate] = []
+                    }
+                    dict[todo.startDate]?.append(todo)
+                }
+
                 return dict
             }
     }
