@@ -95,6 +95,7 @@ class HomeCalendarViewModel {
     let readTodoListUseCase: ReadTodoListUseCase
     let updateTodoUseCase: UpdateTodoUseCase
     let deleteTodoUseCase: DeleteTodoUseCase
+    let todoCompleteUseCase: TodoCompleteUseCase
     
     let createCategoryUseCase: CreateCategoryUseCase
     let readCategoryListUseCase: ReadCategoryListUseCase
@@ -121,6 +122,7 @@ class HomeCalendarViewModel {
         readTodoListUseCase: ReadTodoListUseCase,
         updateTodoUseCase: UpdateTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
+        todoCompleteUseCase: TodoCompleteUseCase,
         createCategoryUseCase: CreateCategoryUseCase,
         readCategoryListUseCase: ReadCategoryListUseCase,
         updateCategoryUseCase: UpdateCategoryUseCase,
@@ -143,6 +145,7 @@ class HomeCalendarViewModel {
         self.readTodoListUseCase = readTodoListUseCase
         self.updateTodoUseCase = updateTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
+        self.todoCompleteUseCase = todoCompleteUseCase
         
         self.createCategoryUseCase = createCategoryUseCase
         self.readCategoryListUseCase = readCategoryListUseCase
@@ -187,7 +190,6 @@ class HomeCalendarViewModel {
                 vm.categoryAndGroupZip
                     .take(1)
                     .subscribe(onNext: { _ in
-                        print("11111111")
                         vm.initTodoList()
                     })
                     .disposed(by: vm.bag)
@@ -420,6 +422,14 @@ class HomeCalendarViewModel {
                 vm.deleteTodo(firstDate: firstDate, todo: todo)
             })
             .disposed(by: bag)
+        
+        todoCompleteUseCase
+            .didCompleteTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                vm.completeTodo(firstDate: firstDate, todo: todo)
+            })
+            .disposed(by: bag)
     }
     
     func initTodoList() {
@@ -639,6 +649,34 @@ class HomeCalendarViewModel {
         if monthIndex < mainDayList.count - 1,
            let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}) {
             mainDayList[monthIndex + 1][followingDayIndex].todoList.append(todo)
+            sectionSet.insert(monthIndex + 1)
+        }
+        
+        needReloadSectionSet.onNext(sectionSet)
+    }
+    
+    func completeTodo(firstDate: Date, todo: Todo) {
+        var sectionSet = IndexSet()
+        
+        let monthIndex = calendar.dateComponents([.month], from: firstDate, to: todo.startDate).month ?? 0
+        
+        if monthIndex > 0,
+           let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == todo.startDate }),
+           let todoIndex = mainDayList[monthIndex - 1][prevDayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex - 1][prevDayIndex].todoList[todoIndex] = todo
+            sectionSet.insert(monthIndex - 1)
+        }
+        
+        if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == todo.startDate }),
+           let todoIndex = mainDayList[monthIndex][dayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex][dayIndex].todoList[todoIndex] = todo
+            sectionSet.insert(monthIndex)
+        }
+        
+        if monthIndex < mainDayList.count - 1,
+           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == todo.startDate}),
+           let todoIndex = mainDayList[monthIndex + 1][followingDayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
+            mainDayList[monthIndex + 1][followingDayIndex].todoList[todoIndex] = todo
             sectionSet.insert(monthIndex + 1)
         }
         

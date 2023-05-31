@@ -14,5 +14,6 @@ enum TodoCompletionType {
 }
 
 protocol TodoCompleteUseCase {
-    func execute(token: Token, todoId: Int, type: TodoCompletionType) -> Single<Void>
+    var didCompleteTodo: PublishSubject<Todo> { get }
+    func execute(token: Token, todo: Todo) -> Single<Void>
 }

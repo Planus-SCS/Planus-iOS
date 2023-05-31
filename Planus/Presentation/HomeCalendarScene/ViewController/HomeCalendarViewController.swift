@@ -169,6 +169,7 @@ class HomeCalendarViewController: UIViewController {
                     createTodoUseCase: createTodoUseCase,
                     updateTodoUseCase: updateTodoUseCase,
                     deleteTodoUseCase: deleteTodoUseCase,
+                    todoCompleteUseCase: DefaultTodoCompleteUseCase.shared,
                     createCategoryUseCase: createCategoryUseCase,
                     updateCategoryUseCase: updateCategoryUseCase,
                     deleteCategoryUseCase: deleteCategoryUseCase,

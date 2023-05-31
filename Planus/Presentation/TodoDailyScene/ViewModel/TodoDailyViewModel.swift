@@ -33,6 +33,7 @@ class TodoDailyViewModel {
     
     struct Input {
         var deleteTodoAt: Observable<IndexPath>
+        var completeTodoAt: Observable<IndexPath>
     }
     
     struct Output {
@@ -56,6 +57,8 @@ class TodoDailyViewModel {
     var updateTodoUseCase: UpdateTodoUseCase
     var deleteTodoUseCase: DeleteTodoUseCase
     
+    var todoCompleteUseCase: TodoCompleteUseCase
+    
     var createCategoryUseCase: CreateCategoryUseCase
     var updateCategoryUseCase: UpdateCategoryUseCase
     var deleteCategoryUseCase: DeleteCategoryUseCase
@@ -67,6 +70,7 @@ class TodoDailyViewModel {
         createTodoUseCase: CreateTodoUseCase,
         updateTodoUseCase: UpdateTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
+        todoCompleteUseCase: TodoCompleteUseCase,
         createCategoryUseCase: CreateCategoryUseCase,
         updateCategoryUseCase: UpdateCategoryUseCase,
         deleteCategoryUseCase: DeleteCategoryUseCase,
@@ -77,6 +81,7 @@ class TodoDailyViewModel {
         self.createTodoUseCase = createTodoUseCase
         self.updateTodoUseCase = updateTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
+        self.todoCompleteUseCase = todoCompleteUseCase
         self.createCategoryUseCase = createCategoryUseCase
         self.updateCategoryUseCase = updateCategoryUseCase
         self.deleteCategoryUseCase = deleteCategoryUseCase
@@ -307,7 +312,6 @@ class TodoDailyViewModel {
                         }
                     }
                 }
-            
             })
             .disposed(by: bag)
         
@@ -335,6 +339,31 @@ class TodoDailyViewModel {
         bindTodoUseCase()
         bindCategoryUseCase()
         
+        input
+            .completeTodoAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, indexPath in
+                switch indexPath.section {
+                case 0:
+                    guard var todo = vm.scheduledTodoList?[indexPath.item],
+                          var isCompleted = todo.isCompleted else { return }
+                    isCompleted = !isCompleted
+                    todo.isCompleted = isCompleted
+                    vm.scheduledTodoList?[indexPath.item] = todo
+                    vm.updateCompletionState(todo: todo)
+                case 1:
+                    guard var todo = vm.unscheduledTodoList?[indexPath.item],
+                          var isCompleted = todo.isCompleted else { return }
+                    isCompleted = !isCompleted
+                    todo.isCompleted = isCompleted
+                    vm.unscheduledTodoList?[indexPath.item] = todo
+                    vm.updateCompletionState(todo: todo)
+                default:
+                    return
+                }
+            })
+            .disposed(by: bag)
+        
         return Output(
             currentDateText: currentDateText,
             isOwner: isOwner,
@@ -343,6 +372,27 @@ class TodoDailyViewModel {
             needDeleteItem: needDeleteItem.asObservable(),
             needReloadData: needReloadData.asObservable()
         )
+    }
+    
+    func updateCompletionState(todo: Todo) {
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.todoCompleteUseCase
+                    .execute(token: token, todo: todo)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onFailure: { _ in
+                // 처리 실패하면 버튼을 다시 원래대로 돌리면서 토스트 띄워야함..!
+                
+            })
+            .disposed(by: bag)
     }
 
 }

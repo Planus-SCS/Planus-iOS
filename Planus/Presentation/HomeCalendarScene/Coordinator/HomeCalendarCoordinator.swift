@@ -59,6 +59,7 @@ class HomeCalendarCoordinator: Coordinator {
             readTodoListUseCase: readTodoListUseCase,
             updateTodoUseCase: updateTodoUseCase,
             deleteTodoUseCase: deleteTodoUseCase,
+            todoCompleteUseCase: DefaultTodoCompleteUseCase.shared,
             createCategoryUseCase: createCategoryUseCase,
             readCategoryListUseCase: readCategoryUseCase,
             updateCategoryUseCase: updateCategoryUseCase,
