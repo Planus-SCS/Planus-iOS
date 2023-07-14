@@ -128,18 +128,54 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         if indexPath.item%7 == 0 {
             viewModel.blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 15), count: 7)
         }
+    
+        var periodList = filteredTodoList.filter { $0.startDate != $0.endDate }
+        var singleList = filteredTodoList.filter { $0.startDate == $0.endDate }
         
-//        viewModel?.blockMemo[indexPath.item] = [(Int, Bool)?](repeating: nil, count: 15)
-//         만약 월요일인 경우? 이전 투두들에서 차감할게 있는지 확인하고 가져옴. indexPath.item == 0 이면 그런거 없으니 패스
-//         오늘 일자에 시작하는 것들을 채운다...!!!!
-//
-        let a = filteredTodoList
-            .filter { $0.startDate != $0.endDate && $0.startDate == dayViewModel.date }
-            .sorted { (a, b) in
-                return a.endDate < b.endDate
-            }
+        // 확인할 케이스
+        // 우선 기간투두의 시작에서 확인할거: 주차를 넘어가는지? 이걸 어떻게 판단할까? 일단 이걸로 1차로 짤라야함
         
-        for todo in a {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2
+        
+        if indexPath.item % 7 != 0 { // 만약 월요일이 아닐 경우, 오늘 시작하는것들만, 월요일이면 포함되는 전체 다!
+            periodList = periodList.filter { $0.startDate == dayViewModel.date }
+                .sorted { $0.endDate < $1.endDate }
+        } else { //월요일 중에 오늘이 startDate가 아닌 놈들만 startDate로 정렬, 그 뒤에는 전부다 endDate로 정렬하고, 이걸 다시 endDate를 업댓해줘야함!
+            var continuousPeriodList = periodList
+                .filter { $0.startDate != dayViewModel.date }
+                .sorted{ ($0.startDate == $1.startDate) ? $0.endDate < $1.endDate : $0.startDate < $1.startDate }
+                .map { todo in
+                    var tmpTodo = todo
+                    tmpTodo.startDate = dayViewModel.date
+                    return tmpTodo
+                }
+            
+            var initialPeriodList = periodList
+                .filter { $0.startDate == dayViewModel.date } //이걸 바로 end로 정렬해도 되나? -> 애를 바로 end로 정렬할 경우?
+                .sorted{ $0.endDate < $1.endDate }
+            
+            periodList = continuousPeriodList + initialPeriodList
+        }
+        
+        // 이제 위에서 짤린놈들로 다시 길이를 정돈해야한다..! 내 끝이 내보다 다음주인가? 를 확인해아한다...!!!
+        periodList = periodList.map { todo in
+            // 날짜는 dayViewModel의 date를 사용하고, todo.endDate랑 비교를 해서 이게 같은주에 포함되는지 아닌지를 판단해야함..!
+            let currentWeek = calendar.component(.weekOfYear, from: dayViewModel.date)
+            let endWeek = calendar.component(.weekOfYear, from: todo.endDate)
+            
+            if currentWeek != endWeek {
+                let firstDayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: dayViewModel.date))
+                let lastDayOfWeek = calendar.date(byAdding: .day, value: 6, to: firstDayOfWeek!) //이게 이번주 일요일임.
+                var tmpTodo = todo
+                tmpTodo.endDate = lastDayOfWeek!
+                return tmpTodo
+            } else { return todo }
+        } //endDate를 금욜로 짜른것!, 월욜에는 짜르고 정렬해야하나?
+
+
+        for todo in periodList {
+            print(todo.title, todo.startDate, todo.endDate)
             for i in (0..<viewModel.blockMemo[indexPath.item%7].count) {
                 if viewModel.blockMemo[indexPath.item%7][i] == nil,
                    let period = Calendar.current.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
@@ -151,11 +187,8 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 }
             }
         }
-
-
-
         
-        cell.fill(todoList: filteredTodoList.filter { $0.startDate == dayViewModel.date }, item: indexPath.item)
+        cell.fill(periodTodoList: periodList, singleTodoList: singleList, item: indexPath.item)
         
         
         return cell

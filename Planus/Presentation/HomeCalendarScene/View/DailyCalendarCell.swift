@@ -118,9 +118,13 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         }        
     }
     
-    func fill(todoList: [Todo], item: Int) {
+    func fill(periodTodoList: [Todo], singleTodoList: [Todo], item: Int) {
         var currentIndex = 0
-        todoList.filter { $0.startDate != $0.endDate }.sorted { $0.endDate < $1.endDate }.forEach { todo in
+
+        periodTodoList.forEach { todo in
+            if todo.title == "이거 ㄹㅇ" {
+                print("dot")
+            }
             let todoView = generateSmallTodoView(todo: todo)
             guard let index = self.delegate?.dailyCalendarCell(self, item: item, idToFindIndex: todo.id!, isGroupTodo: todo.isGroupTodo) else { return }
             for _ in (currentIndex..<index) {
@@ -133,6 +137,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
             views.append(todoView)
             currentIndex = index + 1
         }
+
         let startIndex = delegate!.startIndexOfDailyTodo(self, item: item)
 
         for _ in (currentIndex..<startIndex) {
@@ -141,16 +146,12 @@ class DailyCalendarCell: SpringableCollectionViewCell {
             views.append(clearView)
         }
 
-        todoList.filter { $0.startDate == $0.endDate }.forEach { todo in
+        singleTodoList.forEach { todo in
             let view = generateSmallTodoView(todo: todo)
             stackView.addArrangedSubview(view)
             views.append(view)
         }
-//        todoList.forEach { todo in
-//            let view = generateSmallTodoView(todo: todo)
-//            stackView.addArrangedSubview(view)
-//            views.append(view)
-//        }
+
     }
     
     func fill(socialTodoList: [SocialTodoSummary]) {
