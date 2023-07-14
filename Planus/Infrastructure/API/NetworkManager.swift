@@ -52,7 +52,7 @@ class NetworkManager: APIProvider {
                     print(String(decoding: reqData, as: UTF8.self))
                 }
                 let str = String(decoding: data, as: UTF8.self)
-                if str.count <= 3000 {
+                if str.count <= 10000 {
                     print(str)
                 }
                 

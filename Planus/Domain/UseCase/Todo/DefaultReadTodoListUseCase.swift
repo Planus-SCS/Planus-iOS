@@ -24,17 +24,33 @@ class DefaultReadTodoListUseCase: ReadTodoListUseCase {
                 var dict = [Date: [Todo]]()
                 list.groupTodos.forEach { entity in
                     let todo = entity.toDomain(isGroup: true)
-                    if dict[todo.startDate] == nil {
-                        dict[todo.startDate] = []
+
+                    var dateItr = todo.startDate
+                    while dateItr <= todo.endDate {
+                        if dict[dateItr] == nil {
+                            dict[dateItr] = []
+                        }
+                        dict[dateItr]?.append(todo)
+                        guard let next = Calendar.current.date(
+                            byAdding: DateComponents(day: 1),
+                            to: dateItr) else { break }
+                        dateItr = next
                     }
-                    dict[todo.startDate]?.append(todo)
                 }
                 list.memberTodos.forEach { entity in
                     let todo = entity.toDomain(isGroup: false)
-                    if dict[todo.startDate] == nil {
-                        dict[todo.startDate] = []
+                    
+                    var dateItr = todo.startDate
+                    while dateItr <= todo.endDate {
+                        if dict[dateItr] == nil {
+                            dict[dateItr] = []
+                        }
+                        dict[dateItr]?.append(todo)
+                        guard let next = Calendar.current.date(
+                            byAdding: DateComponents(day: 1),
+                            to: dateItr) else { break }
+                        dateItr = next
                     }
-                    dict[todo.startDate]?.append(todo)
                 }
 
                 return dict

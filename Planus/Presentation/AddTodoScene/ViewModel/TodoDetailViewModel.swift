@@ -159,6 +159,7 @@ final class TodoDetailViewModel {
             .endDayChanged
             .withUnretained(self)
             .subscribe(onNext: { vm, date in
+                print(date)
                 vm.todoEndDay = date
             })
             .disposed(by: bag)

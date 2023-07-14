@@ -377,7 +377,7 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
             isMultipleSelected: isMultipleSelected,
             isSingleSelected: isSingleSelected
         )
-        
+                
         return cell
     }
     

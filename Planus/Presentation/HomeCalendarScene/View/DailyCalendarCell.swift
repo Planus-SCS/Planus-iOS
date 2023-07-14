@@ -38,7 +38,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .vertical
         stackView.spacing = 2
-        stackView.alignment = .fill
+        stackView.alignment = .leading
         return stackView
     }()
     
@@ -64,7 +64,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
 
         stackView.snp.remakeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
-            $0.leading.trailing.equalToSuperview()
+            $0.leading.equalToSuperview().inset(1)
             $0.bottom.equalToSuperview().inset(3)
         }
     }
@@ -82,16 +82,16 @@ class DailyCalendarCell: SpringableCollectionViewCell {
     }
     
     func configureView() {
-        self.contentView.addSubview(numberLabel)
+        self.addSubview(numberLabel)
         numberLabel.snp.makeConstraints {
-            $0.top.equalTo(self.contentView.snp.top).offset(5)
-            $0.centerX.equalTo(self.contentView.snp.centerX)
+            $0.top.equalTo(self.snp.top).offset(5)
+            $0.centerX.equalTo(self.snp.centerX)
         }
         
-        self.contentView.addSubview(stackView)
+        self.addSubview(stackView)
         stackView.snp.makeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
-            $0.leading.trailing.equalToSuperview()
+            $0.leading.equalToSuperview()
         }
     }
     
@@ -118,23 +118,39 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         }        
     }
     
-    func fill(todoList: [Todo]) {
-        todoList.forEach {
-            var todoView: SmallTodoView
-            if let color = $0.isGroupTodo ?
-                self.delegate?.dailyCalendarCell(self, colorOfGroupCategoryId: $0.categoryId)
-                : self.delegate?.dailyCalendarCell(self, colorOfCategoryId: $0.categoryId) {
-                todoView = SmallTodoView(text: $0.title, categoryColor: color)
-            } else {
-                todoView = SmallTodoView(text: $0.title, categoryColor: .none)
+    func fill(todoList: [Todo], item: Int) {
+        var currentIndex = 0
+        todoList.filter { $0.startDate != $0.endDate }.sorted { $0.endDate < $1.endDate }.forEach { todo in
+            let todoView = generateSmallTodoView(todo: todo)
+            guard let index = self.delegate?.dailyCalendarCell(self, item: item, idToFindIndex: todo.id!, isGroupTodo: todo.isGroupTodo) else { return }
+            for _ in (currentIndex..<index) {
+                let clearView = generateClearView()
+                stackView.addArrangedSubview(clearView)
+                views.append(clearView)
             }
-            
-            todoView.snp.makeConstraints {
-                $0.height.equalTo(16)
-            }
+
             stackView.addArrangedSubview(todoView)
             views.append(todoView)
+            currentIndex = index + 1
         }
+        let startIndex = delegate!.startIndexOfDailyTodo(self, item: item)
+
+        for _ in (currentIndex..<startIndex) {
+            let clearView = generateClearView()
+            stackView.addArrangedSubview(clearView)
+            views.append(clearView)
+        }
+
+        todoList.filter { $0.startDate == $0.endDate }.forEach { todo in
+            let view = generateSmallTodoView(todo: todo)
+            stackView.addArrangedSubview(view)
+            views.append(view)
+        }
+//        todoList.forEach { todo in
+//            let view = generateSmallTodoView(todo: todo)
+//            stackView.addArrangedSubview(view)
+//            views.append(view)
+//        }
     }
     
     func fill(socialTodoList: [SocialTodoSummary]) {
@@ -149,9 +165,44 @@ class DailyCalendarCell: SpringableCollectionViewCell {
             views.append(todoView)
         }
     }
+    
+    func generateSmallTodoView(todo: Todo) -> SmallTodoView {
+        var todoView: SmallTodoView
+        if let color = todo.isGroupTodo ?
+            self.delegate?.dailyCalendarCell(self, colorOfGroupCategoryId: todo.categoryId)
+            : self.delegate?.dailyCalendarCell(self, colorOfCategoryId: todo.categoryId) {
+            todoView = SmallTodoView(text: todo.title, categoryColor: color)
+        } else {
+            todoView = SmallTodoView(text: todo.title, categoryColor: .none)
+        }
+        let diff = (Calendar.current.dateComponents([.day], from: todo.startDate, to: todo.endDate).day ?? 0) + 1
+        todoView.snp.makeConstraints {
+            $0.height.equalTo(16)
+            $0.width.equalTo((UIScreen.main.bounds.width/7)*CGFloat(diff) - 1)
+        }
+        return todoView
+    }
+    
+    func generateClearView() -> UIView {
+        let view = UIView(frame: .zero)
+        view.backgroundColor = .clear
+        view.snp.makeConstraints {
+            $0.height.equalTo(16)
+            $0.width.equalTo((UIScreen.main.bounds.width/7) - 1)
+        }
+        return view
+    }
 }
 
 protocol DailyCalendarCellDelegate: NSObject {
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor?
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfGroupCategoryId id: Int) -> CategoryColor?
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, item: Int, idToFindIndex id: Int, isGroupTodo: Bool) -> Int?
+    func startIndexOfDailyTodo(_ dayCalendarCell: DailyCalendarCell, item: Int) -> Int
 }
+
+/*
+ 1. 그 주차의 기간 todo 중 나와 기간이 겹치는 놈이 있는지 탐색 -> 없으면 0번
+ 2. 겹치는 놈 있는데 그놈이 나보다 빨리 시작해서 빨리끝나거나 같이 끝나면? 그중  -> 그놈 재귀로 들어가서 인덱스 구해오기 ->
+ 3. 겹치는 놈이
+ */

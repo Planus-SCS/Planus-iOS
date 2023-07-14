@@ -108,14 +108,14 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let section,
-              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell,
-              let dayViewModel = viewModel?.mainDayList[section][indexPath.item] else {
-            print("여긴가1?")
+              let viewModel,
+              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
             return UICollectionViewCell()
         }
+        let dayViewModel = viewModel.mainDayList[section][indexPath.item]
         
         var filteredTodoList = dayViewModel.todoList
-        if let filterGroupId = try? viewModel?.filteredGroupId.value() {
+        if let filterGroupId = try? viewModel.filteredGroupId.value() {
             filteredTodoList = filteredTodoList.filter( { $0.groupId == filterGroupId })
         }
         cell.delegate = self
@@ -123,8 +123,41 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
             state: dayViewModel.state,
             weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!
-        ) //카테고리색을 어케하지??? 싱글턴 딕셔너리 개마렵다 ㅋㅋㅋ,,,,,,,,........
-        cell.fill(todoList: filteredTodoList)
+        )
+        
+        if indexPath.item%7 == 0 {
+            viewModel.blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 15), count: 7)
+        }
+        
+//        viewModel?.blockMemo[indexPath.item] = [(Int, Bool)?](repeating: nil, count: 15)
+//         만약 월요일인 경우? 이전 투두들에서 차감할게 있는지 확인하고 가져옴. indexPath.item == 0 이면 그런거 없으니 패스
+//         오늘 일자에 시작하는 것들을 채운다...!!!!
+//
+        let a = filteredTodoList
+            .filter { $0.startDate != $0.endDate && $0.startDate == dayViewModel.date }
+            .sorted { (a, b) in
+                return a.endDate < b.endDate
+            }
+        
+        for todo in a {
+            for i in (0..<viewModel.blockMemo[indexPath.item%7].count) {
+                if viewModel.blockMemo[indexPath.item%7][i] == nil,
+                   let period = Calendar.current.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
+                    for j in (0...period) {
+                        print(indexPath.item%7+j, i)
+                        viewModel.blockMemo[indexPath.item%7+j][i] = (todo.id!, todo.isGroupTodo)
+                    }
+                    break
+                }
+            }
+        }
+
+
+
+        
+        cell.fill(todoList: filteredTodoList.filter { $0.startDate == dayViewModel.date }, item: indexPath.item)
+        
+        
         return cell
     }
     
@@ -141,7 +174,8 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             
         } else {
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
-            mockCell.fill(todoList: maxTodoViewModel.todoList)
+//            mockCell.delegate = self
+//            mockCell.fill(todoList: maxTodoViewModel.todoList, item: indexPath.item)
             mockCell.layoutIfNeeded()
             
             let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
@@ -295,6 +329,25 @@ extension MonthlyCalendarCell: UIGestureRecognizerDelegate {
 }
 
 extension MonthlyCalendarCell: DailyCalendarCellDelegate {
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, item: Int, idToFindIndex id: Int, isGroupTodo: Bool) -> Int? {
+        viewModel?.blockMemo[item%7].firstIndex { tuple in
+            guard let tuple else {
+                return false
+            }
+            return tuple.0 == id && tuple.1 == isGroupTodo
+        }
+    }
+    
+    func startIndexOfDailyTodo(_ dayCalendarCell: DailyCalendarCell, item: Int) -> Int {
+        var ret = 0
+        viewModel?.blockMemo[item%7].enumerated().forEach { (index, tuple) in
+            if tuple != nil {
+                ret = index + 1
+            }
+        }
+        return ret
+    }
+    
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId id: Int) -> CategoryColor? {
         return viewModel?.categoryDict[id]?.color
     }
