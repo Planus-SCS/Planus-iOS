@@ -346,7 +346,8 @@ class TodoDetailViewController: UIViewController {
             return
         }
         addTodoView.titleField.text = try? viewModel.todoTitle.value()
-        dayPickerViewController.setDate(date: startDate)
+        dayPickerViewController.setDate(date: startDate, endDate: try? viewModel.todoEndDay.value())
+        
         addTodoView.memoTextView.text = try? viewModel.todoMemo.value()
         addTodoView.isMemoFilled = (try? viewModel.todoMemo.value()) != nil
         addTodoView.memoTextView.textColor = ((try? viewModel.todoMemo.value()) != nil) ? .black : UIColor(hex: 0xBFC7D7)

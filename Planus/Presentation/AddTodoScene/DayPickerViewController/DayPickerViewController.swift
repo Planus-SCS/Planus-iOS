@@ -78,7 +78,7 @@ class DayPickerViewController: UIViewController {
         dayPickerView?.nextButton.addTarget(self, action: #selector(nextBtnTapped), for: .touchUpInside)
     }
     
-    public func setDate(date: Date) {
+    public func setDate(date: Date, endDate: Date?) {
         let components = self.calendar.dateComponents(
             [.year, .month],
             from: date
@@ -94,9 +94,19 @@ class DayPickerViewController: UIViewController {
         self.reloadAndMove(to: CGPoint(x: frameWidth * CGFloat(halfOfInitAmount), y: 0))
         
         guard let dateIndex = days[halfOfInitAmount].firstIndex(where: { $0.date == date }) else { return }
-        
-        self.collectionView(dayPickerView?.dayPickerCollectionView ?? UICollectionView(), didSelectItemAt: IndexPath(item: dateIndex, section: halfOfInitAmount))
 
+        if let endDate,
+           let endDateIndex = days[halfOfInitAmount].firstIndex(where: { $0.date == endDate }) {
+            selectMultipleDateAt(
+                first: IndexPath(item: dateIndex, section: self.halfOfInitAmount),
+                indexPath: IndexPath(item: endDateIndex, section: self.halfOfInitAmount)
+            )
+        } else {
+            selectStartDateAt(indexPath: IndexPath(item: dateIndex, section: self.halfOfInitAmount))
+        }
+        UIView.performWithoutAnimation {
+            dayPickerView?.dayPickerCollectionView.reloadSections(IndexSet(integer: self.halfOfInitAmount))
+        }
     }
     
     public func selectDate(date: Date) {

@@ -197,7 +197,43 @@ class HomeCalendarViewController: UIViewController {
         
         output.showCreateMultipleTodo
             .subscribe(onNext: { dateRange in
-                print(dateRange)
+                
+                let api = NetworkManager()
+                let keyChain = KeyChainManager()
+                
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+                let todoRepo = TestTodoDetailRepository(apiProvider: api)
+                let categoryRepo = DefaultCategoryRepository(apiProvider: api)
+                
+                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+                let createTodoUseCase = DefaultCreateTodoUseCase.shared
+                let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
+                let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
+                let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
+                let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
+                let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
+                let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
+                
+                let vm = TodoDetailViewModel(
+                    getTokenUseCase: getTokenUseCase,
+                    refreshTokenUseCase: refreshTokenUseCase,
+                    createTodoUseCase: createTodoUseCase,
+                    updateTodoUseCase: updateTodoUseCase,
+                    deleteTodoUseCase: deleteTodoUseCase,
+                    createCategoryUseCase: createCategoryUseCase,
+                    updateCategoryUseCase: updateCategoryUseCase,
+                    deleteCategoryUseCase: deleteCategoryUseCase,
+                    readCategoryUseCase: readCateogryUseCase
+                )
+                
+                let groupList = Array(viewModel.groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+                vm.setGroup(groupList: groupList)
+                vm.todoStartDay.onNext(dateRange.0)
+                vm.todoEndDay.onNext(dateRange.1)
+                let vc = TodoDetailViewController(viewModel: vm)
+                vc.modalPresentationStyle = .overFullScreen
+                self.present(vc, animated: false, completion: nil)
             })
             .disposed(by: bag)
         

@@ -35,7 +35,7 @@ final class TodoDetailViewModel {
     var todoTitle = BehaviorSubject<String?>(value: nil)
     var todoCategory = BehaviorSubject<Category?>(value: nil)
     var todoStartDay = BehaviorSubject<Date?>(value: nil)
-    var todoEndDay: Date?
+    var todoEndDay = BehaviorSubject<Date?>(value: nil)
     var todoTime = BehaviorSubject<String?>(value: nil)
     var todoGroup = BehaviorSubject<GroupName?>(value: nil)
     var todoMemo = BehaviorSubject<String?>(value: nil)
@@ -157,11 +157,8 @@ final class TodoDetailViewModel {
         
         input
             .endDayChanged
-            .withUnretained(self)
-            .subscribe(onNext: { vm, date in
-                print(date)
-                vm.todoEndDay = date
-            })
+            .distinctUntilChanged()
+            .bind(to: todoEndDay)
             .disposed(by: bag)
         
         input
@@ -235,6 +232,11 @@ final class TodoDetailViewModel {
                 guard let title = try? vm.todoTitle.value(),
                       let startDate = try? vm.todoStartDay.value(),
                       let categoryId = (try? vm.todoCategory.value())?.id else { return }
+                
+                var endDate = startDate
+                if let todoEndDay = try? vm.todoEndDay.value() {
+                    endDate = todoEndDay
+                }
                 let memo = try? vm.todoMemo.value()
                 let time = try? vm.todoTime.value()
                 let groupName = try? vm.todoGroup.value()
@@ -242,7 +244,7 @@ final class TodoDetailViewModel {
                     id: nil,
                     title: title,
                     startDate: startDate,
-                    endDate: vm.todoEndDay ?? startDate,
+                    endDate: endDate,
                     memo: memo,
                     groupId: groupName?.groupId,
                     categoryId: categoryId,
@@ -250,9 +252,7 @@ final class TodoDetailViewModel {
                     isCompleted: nil,
                     isGroupTodo: false
                 )
-                
-                print(todo)
-                
+                                
                 switch vm.todoCreateState {
                 case .new:
                     vm.createTodo(todo: todo)
