@@ -158,7 +158,6 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             periodList = continuousPeriodList + initialPeriodList
         }
         
-        // 이제 위에서 짤린놈들로 다시 길이를 정돈해야한다..! 내 끝이 내보다 다음주인가? 를 확인해아한다...!!!
         periodList = periodList.map { todo in
             // 날짜는 dayViewModel의 date를 사용하고, todo.endDate랑 비교를 해서 이게 같은주에 포함되는지 아닌지를 판단해야함..!
             let currentWeek = calendar.component(.weekOfYear, from: dayViewModel.date)
@@ -171,7 +170,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 tmpTodo.endDate = lastDayOfWeek!
                 return tmpTodo
             } else { return todo }
-        } //endDate를 금욜로 짜른것!, 월욜에는 짜르고 정렬해야하나?
+        }
 
 
         for todo in periodList {
@@ -180,7 +179,6 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 if viewModel.blockMemo[indexPath.item%7][i] == nil,
                    let period = Calendar.current.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
                     for j in (0...period) {
-                        print(indexPath.item%7+j, i)
                         viewModel.blockMemo[indexPath.item%7+j][i] = (todo.id!, todo.isGroupTodo)
                     }
                     break

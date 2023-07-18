@@ -634,15 +634,17 @@ class HomeCalendarViewModel {
         let startDate = todo.startDate
         let endDate = todo.endDate
         
-        guard let period = Calendar.current.dateComponents([.day], from: startDate, to: endDate).day else { return }
+        guard var period = Calendar.current.dateComponents([.day], from: startDate, to: endDate).day else { return }
         let monthIndex = calendar.dateComponents([.month], from: firstDate, to: startDate).month ?? 0
         
         var sectionSet = IndexSet()
         
         if monthIndex > 0,
            let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == startDate }) {
-            for i in 0...period {
+            var i = 0
+            while i <= period && prevDayIndex + i < mainDayList[monthIndex - 1].count {
                 mainDayList[monthIndex - 1][prevDayIndex + i].todoList.append(todo)
+                i += 1
             }
             sectionSet.insert(monthIndex - 1)
         }
@@ -653,9 +655,11 @@ class HomeCalendarViewModel {
             sectionSet.insert(monthIndex)
         }
         if monthIndex < mainDayList.count - 1,
-           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == startDate}) {
-            for i in 0...period {
-                mainDayList[monthIndex+1][followingDayIndex + i].todoList.append(todo)
+           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == endDate}) {
+            var i = 0
+            while i <= period && followingDayIndex - i >= 0 {
+                mainDayList[monthIndex+1][followingDayIndex - i].todoList.append(todo)
+                i += 1
             }
             sectionSet.insert(monthIndex + 1)
         }
@@ -671,12 +675,12 @@ class HomeCalendarViewModel {
         
         if monthIndex > 0,
            let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == todo.startDate }) {
-            
-            for i in 0...period {
+            var i = 0
+            while i <= period && prevDayIndex + i < mainDayList[monthIndex - 1].count {
                 guard let todoIndex = mainDayList[monthIndex - 1][prevDayIndex + i].todoList.firstIndex(where: { $0.id == todo.id && $0.isGroupTodo == todo.isGroupTodo }) else { break }
                 mainDayList[monthIndex - 1][prevDayIndex + i].todoList[todoIndex] = todo
+                i += 1
             }
-            
             sectionSet.insert(monthIndex - 1)
         }
         
@@ -689,10 +693,11 @@ class HomeCalendarViewModel {
         }
         
         if monthIndex < mainDayList.count - 1,
-           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == todo.startDate}) {
-            for i in 0...period {
-                guard let todoIndex = mainDayList[monthIndex + 1][followingDayIndex + i].todoList.firstIndex(where: { $0.id == todo.id && $0.isGroupTodo == todo.isGroupTodo}) else { break }
-                mainDayList[monthIndex + 1][followingDayIndex + i].todoList[todoIndex] = todo
+           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == todo.endDate}) {
+            var i = 0
+            while i <= period && followingDayIndex - i >= 0 {
+                mainDayList[monthIndex+1][followingDayIndex - i].todoList.append(todo)
+                i += 1
             }
             sectionSet.insert(monthIndex + 1)
         }
@@ -809,9 +814,11 @@ class HomeCalendarViewModel {
 
         if monthIndex > 0,
            let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }) {
-            for i in 0...period {
-                guard let todoIndex = mainDayList[monthIndex - 1][prevDayIndex + i].todoList.firstIndex(where: { $0.id == todo.id }) else { break }
-                mainDayList[monthIndex - 1][prevDayIndex + i].todoList.remove(at: todoIndex)
+            var i = 0
+            while i <= period && prevDayIndex + i < mainDayList[monthIndex - 1].count {
+                guard let todoIndex = mainDayList[monthIndex - 1][prevDayIndex + i].todoList.firstIndex(where: { $0.id == todo.id && $0.isGroupTodo == todo.isGroupTodo }) else { break }
+                mainDayList[monthIndex - 1][prevDayIndex + i].todoList[todoIndex] = todo
+                i += 1
             }
             sectionSet.insert(monthIndex - 1)
         }
@@ -825,10 +832,12 @@ class HomeCalendarViewModel {
         }
         
         if monthIndex < mainDayList.count - 1,
-           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}) {
-            for i in 0...period {
+           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == todo.endDate}) {
+            var i = 0
+            while i <= period && followingDayIndex - i >= 0 {
                 guard let todoIndex = mainDayList[monthIndex + 1][followingDayIndex + i].todoList.firstIndex(where: { $0.id == todo.id }) else { break }
                 mainDayList[monthIndex + 1][followingDayIndex + i].todoList.remove(at: todoIndex)
+                i += 1
             }
             sectionSet.insert(monthIndex + 1)
         }
