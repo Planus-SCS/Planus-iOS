@@ -8,6 +8,11 @@
 import Foundation
 import RxSwift
 
+struct FilteredSocialTodoViewModel {
+    var periodTodo: [(Int, SocialTodoSummary)] //offset, Todo
+    var singleTodo: [(Int, SocialTodoSummary)] //offset, Todo
+}
+
 class MemberProfileViewModel {
     var bag = DisposeBag()
         
@@ -26,10 +31,23 @@ class MemberProfileViewModel {
     var latestPrevCacheRequestedIndex = 0
     var latestFollowingCacheRequestedIndex = 0
     
+    var today: Date = {
+        let components = Calendar.current.dateComponents(
+            [.year, .month, .day],
+            from: Date()
+        )
+        
+        return Calendar.current.date(from: components) ?? Date()
+    }()
+    
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
     var mainDayList = [[SocialDayViewModel]]()
+    
+    var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 20), count: 42) //todoId
+    var filteredTodoCache = [FilteredSocialTodoViewModel](repeating: FilteredSocialTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
+    var cachedCellHeightForTodoCount = [Int: Double]()
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
@@ -41,7 +59,6 @@ class MemberProfileViewModel {
     var didSelectMonth = PublishSubject<Int>()
     
     var currentIndex = Int()
-    var cachedCellHeightForTodoCount = [Int: Double]()
     
     struct Input {
         var didScrollTo: Observable<ScrollDirection>
@@ -277,7 +294,7 @@ class MemberProfileViewModel {
         
         getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<[SocialTodoSummary]> in
+            .flatMap { [weak self] token -> Single<[Date: [SocialTodoSummary]]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
@@ -294,15 +311,7 @@ class MemberProfileViewModel {
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: TokenError.noTokenExist
             )
-            .subscribe(onSuccess: { [weak self] todoList in
-                var todoDict = [Date: [SocialTodoSummary]]()
-                todoList.forEach {
-                    if todoDict[$0.startDate] == nil {
-                        todoDict[$0.startDate] = []
-                    }
-                    todoDict[$0.startDate]?.append($0)
-                }
-                
+            .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 (fromIndex..<toIndex).forEach { index in
                     self.mainDayList[index] = self.mainDayList[index].map {

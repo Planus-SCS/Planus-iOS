@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol FetchMyGroupCalendarUseCase {
-    func execute(token: Token, groupId: Int, from: Date, to: Date) -> Single<[SocialTodoSummary]>
+    func execute(token: Token, groupId: Int, from: Date, to: Date) -> Single<[Date: [SocialTodoSummary]]>
 }

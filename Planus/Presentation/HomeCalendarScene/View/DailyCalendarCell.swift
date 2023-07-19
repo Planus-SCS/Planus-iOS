@@ -95,7 +95,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         }
     }
     
-    func fill(day: String, state: MonthStateOfDay, weekDay: WeekDay) {
+    func fill(day: String, state: MonthStateOfDay, weekDay: WeekDay, isToday: Bool) {
         numberLabel.text = day
         
         var alpha: Double
@@ -115,14 +115,18 @@ class DailyCalendarCell: SpringableCollectionViewCell {
             numberLabel.textColor = UIColor(hex: 0xEA4335, a: alpha)
         default:
             numberLabel.textColor = UIColor(hex: 0x000000, a: alpha)
-        }        
+        }
     }
         
     func fill(periodTodoList: [(Int, Todo)], singleTodoList: [(Int, Todo)]) {
         var currentIndex = 0
 
         periodTodoList.forEach { (index, todo) in
-            let todoView = generateSmallTodoView(todo: todo)
+            guard let color = todo.isGroupTodo ?
+                    self.delegate?.dailyCalendarCell(self, colorOfGroupCategoryId: todo.categoryId)
+                    : self.delegate?.dailyCalendarCell(self, colorOfCategoryId: todo.categoryId) else { return }
+            
+            let todoView = generateSmallTodoView(title: todo.title, color: color, startDate: todo.startDate, endDate: todo.endDate)
 
             for _ in (currentIndex..<index) {
                 let clearView = generateClearView()
@@ -144,22 +148,45 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         }
 
         singleTodoList.forEach { (index, todo) in
-            let view = generateSmallTodoView(todo: todo)
-            stackView.addArrangedSubview(view)
-            views.append(view)
+            guard let color = todo.isGroupTodo ?
+                    self.delegate?.dailyCalendarCell(self, colorOfGroupCategoryId: todo.categoryId)
+                    : self.delegate?.dailyCalendarCell(self, colorOfCategoryId: todo.categoryId) else { return }
+            
+            let todoView = generateSmallTodoView(title: todo.title, color: color, startDate: todo.startDate, endDate: todo.endDate)
+            stackView.addArrangedSubview(todoView)
+            views.append(todoView)
         }
         
-        // views.count가 총 높이가 되는거임!!!
     }
     
-    func fill(socialTodoList: [SocialTodoSummary]) {
-        socialTodoList.forEach {
-            var todoView: SmallTodoView
-            todoView = SmallTodoView(text: $0.title, categoryColor: $0.categoryColor)
-            
-            todoView.snp.makeConstraints {
-                $0.height.equalTo(16)
+    func socialFill(periodTodoList: [(Int, SocialTodoSummary)], singleTodoList: [(Int, SocialTodoSummary)]) {
+        var currentIndex = 0
+
+        periodTodoList.forEach { (index, todo) in
+
+            let todoView = generateSmallTodoView(title: todo.title, color: todo.categoryColor, startDate: todo.startDate, endDate: todo.endDate)
+
+            for _ in (currentIndex..<index) {
+                let clearView = generateClearView()
+                stackView.addArrangedSubview(clearView)
+                views.append(clearView)
             }
+
+            stackView.addArrangedSubview(todoView)
+            views.append(todoView)
+            currentIndex = index + 1
+        }
+
+        guard let startIndex = singleTodoList.first?.0 else { return }
+
+        for _ in (currentIndex..<startIndex) {
+            let clearView = generateClearView()
+            stackView.addArrangedSubview(clearView)
+            views.append(clearView)
+        }
+
+        singleTodoList.forEach { (index, todo) in
+            let todoView = generateSmallTodoView(title: todo.title, color: todo.categoryColor, startDate: todo.startDate, endDate: todo.endDate)
             stackView.addArrangedSubview(todoView)
             views.append(todoView)
         }
@@ -169,23 +196,16 @@ class DailyCalendarCell: SpringableCollectionViewCell {
 }
 
 extension DailyCalendarCell {
-    func generateSmallTodoView(todo: Todo) -> SmallTodoView {
-        var todoView: SmallTodoView
-        if let color = todo.isGroupTodo ?
-            self.delegate?.dailyCalendarCell(self, colorOfGroupCategoryId: todo.categoryId)
-            : self.delegate?.dailyCalendarCell(self, colorOfCategoryId: todo.categoryId) {
-            todoView = SmallTodoView(text: todo.title, categoryColor: color)
-        } else {
-            todoView = SmallTodoView(text: todo.title, categoryColor: .none)
-        }
-        let diff = (Calendar.current.dateComponents([.day], from: todo.startDate, to: todo.endDate).day ?? 0) + 1
+    func generateSmallTodoView(title: String, color: CategoryColor, startDate: Date, endDate: Date) -> SmallTodoView {
+        var todoView = SmallTodoView(text: title, categoryColor: color)
+        let diff = (Calendar.current.dateComponents([.day], from: startDate, to: endDate).day ?? 0) + 1
         todoView.snp.makeConstraints {
             $0.height.equalTo(16)
             $0.width.equalTo((UIScreen.main.bounds.width/7)*CGFloat(diff) - 1)
         }
         return todoView
     }
-    
+        
     func generateClearView() -> UIView {
         let view = UIView(frame: .zero)
         view.backgroundColor = .clear
@@ -195,23 +215,9 @@ extension DailyCalendarCell {
         }
         return view
     }
-    
-    func mockFill(todoCount: Int) {
-        (0..<todoCount).forEach { _ in
-            var todoView = generateClearView()
-            stackView.addArrangedSubview(todoView)
-            views.append(todoView)
-        }
-    }
 }
 
 protocol DailyCalendarCellDelegate: NSObject {
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor?
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfGroupCategoryId id: Int) -> CategoryColor?
 }
-
-/*
- 1. 그 주차의 기간 todo 중 나와 기간이 겹치는 놈이 있는지 탐색 -> 없으면 0번
- 2. 겹치는 놈 있는데 그놈이 나보다 빨리 시작해서 빨리끝나거나 같이 끝나면? 그중  -> 그놈 재귀로 들어가서 인덱스 구해오기 ->
- 3. 겹치는 놈이
- */

@@ -25,9 +25,21 @@ class JoinedGroupCalendarViewModel {
         var showDaily: Observable<Date>
     }
     
+    var today: Date = {
+        let components = Calendar.current.dateComponents(
+            [.year, .month, .day],
+            from: Date()
+        )
+        
+        return Calendar.current.date(from: components) ?? Date()
+    }()
+    
     var currentDate: Date?
     var currentDateText: String?
     var mainDayList = [SocialDayViewModel]()
+    
+    var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 20), count: 42) //todoId
+    var filteredTodoCache = [FilteredSocialTodoViewModel](repeating: FilteredSocialTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
     var cachedCellHeightForTodoCount = [Int: Double]()
         
     var showDaily = PublishSubject<Date>()
@@ -121,7 +133,7 @@ class JoinedGroupCalendarViewModel {
         guard let groupId else { return }
         getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<[SocialTodoSummary]> in
+            .flatMap { [weak self] token -> Single<[Date: [SocialTodoSummary]]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
@@ -132,17 +144,9 @@ class JoinedGroupCalendarViewModel {
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: TokenError.noTokenExist
             )
-            .subscribe(onSuccess: { [weak self] list in
+            .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
-                
-                var todoDict = [Date: [SocialTodoSummary]]()
-                list.forEach { todo in
-                    if todoDict[todo.startDate] == nil {
-                        todoDict[todo.startDate] = []
-                    }
-                    todoDict[todo.startDate]?.append(todo)
-                }
-                
+
                 self.mainDayList = self.mainDayList.map {
                     guard let todoList = todoDict[$0.date] else {
                         return $0

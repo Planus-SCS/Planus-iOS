@@ -123,11 +123,11 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         cell.fill(
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
             state: dayViewModel.state,
-            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
+            isToday: dayViewModel.date == viewModel.today
         )
 
         cell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo)
-        print("cellForItemAt section, item", section, indexPath.item)
         // 여기서 총 높이를 구해서 viewModel에다가 저장해둬야함..! fill 메서드에서 계산하니까 저기서 직접 해줘도 될거같은데?
         
         return cell
@@ -136,7 +136,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         guard let section,
               let viewModel else { return CGSize() }
-        print("layout section, item", section, indexPath.item)
+
         let screenWidth = UIScreen.main.bounds.width
         
         if indexPath.item%7 == 0 {
@@ -216,14 +216,26 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 
                 viewModel.filteredTodoCache[item] = FilteredTodoViewModel(periodTodo: periodTodo, singleTodo: singleTodo)
             }
-            
-            guard let maxItem = Array(viewModel.mainDayList[section].enumerated())[indexPath.item..<indexPath.item + 7].max(by: { a, b in
+        }
+        
+        let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
+        guard let maxItem = Array(viewModel.mainDayList[section].enumerated())[weekRange]
+            .max(by: { a, b in
                 a.element.todoList.count < b.element.todoList.count
             }) else { return CGSize() }
-            
+        
+        let filteredTodo = viewModel.filteredTodoCache[maxItem.offset]
+        
+        guard let todosHeight = (filteredTodo.singleTodo.count != 0) ?
+                filteredTodo.singleTodo.last?.0 : (filteredTodo.periodTodo.count != 0) ?
+                filteredTodo.periodTodo.last?.0 : 0 else { return CGSize() }
+        
+        if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
+            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: cellHeight)
+        } else {
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
             mockCell.delegate = self
-            mockCell.fill(periodTodoList: viewModel.filteredTodoCache[maxItem.offset].periodTodo, singleTodoList: viewModel.filteredTodoCache[maxItem.offset].singleTodo)
+            mockCell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo)
             
             mockCell.layoutIfNeeded()
             
@@ -232,17 +244,11 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 height: UIView.layoutFittingCompressedSize.height
             ))
             
-            if estimatedSize.height <= 116 {
-                viewModel.weekTodoHeightCache[indexPath.item/7] = 116
-                return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: 116)
-            } else {
-                viewModel.weekTodoHeightCache[indexPath.item/7] = estimatedSize.height
-                return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: estimatedSize.height)
-            }
-        } else {
-            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: viewModel.weekTodoHeightCache[indexPath.item/7])
+            let targetHeight = (estimatedSize.height > 116) ? estimatedSize.height : 116
+            viewModel.cachedCellHeightForTodoCount[todosHeight] = targetHeight
+            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: targetHeight)
         }
-        
+
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {

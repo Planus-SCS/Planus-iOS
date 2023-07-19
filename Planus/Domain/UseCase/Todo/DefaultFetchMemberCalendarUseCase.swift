@@ -15,7 +15,7 @@ class DefaultFetchMemberCalendarUseCase: FetchMemberCalendarUseCase {
         self.memberCalendarRepository = memberCalendarRepository
     }
     
-    func execute(token: Token, groupId: Int, memberId: Int, from: Date, to: Date) -> Single<[SocialTodoSummary]> {
+    func execute(token: Token, groupId: Int, memberId: Int, from: Date, to: Date) -> Single<[Date: [SocialTodoSummary]]> {
         return memberCalendarRepository
             .fetchMemberCalendar(
                 token: token.accessToken,
@@ -24,10 +24,24 @@ class DefaultFetchMemberCalendarUseCase: FetchMemberCalendarUseCase {
                 from: from,
                 to: to
             )
-            .map {
-                $0.data.map {
-                    $0.toDomain()
+            .map { $0.data.map { $0.toDomain() } }
+            .map { list in
+                var dict = [Date: [SocialTodoSummary]]()
+                list.forEach { todo in
+                    
+                    var dateItr = todo.startDate
+                    while dateItr <= todo.endDate {
+                        if dict[dateItr] == nil {
+                            dict[dateItr] = []
+                        }
+                        dict[dateItr]?.append(todo)
+                        guard let next = Calendar.current.date(
+                            byAdding: DateComponents(day: 1),
+                            to: dateItr) else { break }
+                        dateItr = next
+                    }
                 }
+                return dict
             }
     }
 }

@@ -31,13 +31,22 @@ class HomeCalendarViewModel {
     var latestPrevCacheRequestedIndex = 0
     var latestFollowingCacheRequestedIndex = 0
     
+    lazy var today: Date = {
+        let components = self.calendar.dateComponents(
+            [.year, .month, .day],
+            from: Date()
+        )
+        
+        return self.calendar.date(from: components) ?? Date()
+    }()
+    
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
     var mainDayList = [[DayViewModel]]()
     var blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 20), count: 42) //todoId, groupTodo인가?
     var filteredTodoCache = [FilteredTodoViewModel](repeating: FilteredTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
-    var weekTodoHeightCache = [Double](repeating: 0, count: 6)
+    var cachedCellHeightForTodoCount = [Int: Double]()
     
     var groupDict = [Int: GroupName]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
     var categoryDict = [Int: Category]()
@@ -67,8 +76,6 @@ class HomeCalendarViewModel {
     var initialReadGroup = BehaviorSubject<Void?>(value: nil)
     
     var currentIndex = Int()
-    var cachedCellHeightForTodoCount = [Int: Double]()
-    
     
     struct Input {
         var didScrollTo: Observable<ScrollDirection>
@@ -713,7 +720,7 @@ class HomeCalendarViewModel {
     }
 
     func updateTodo(firstDate: Date, todoUpdate: TodoUpdateComparator) {
-        
+        // 지금 방식 너무 복잡함..! 그냥 무조건 삭제하고 다시 추가하는 방식으로 가자..!
         let todoBeforeUpdate = todoUpdate.before
         let todoAfterUpdate = todoUpdate.after
                 
