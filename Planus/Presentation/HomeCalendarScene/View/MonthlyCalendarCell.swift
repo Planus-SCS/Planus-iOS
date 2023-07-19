@@ -65,6 +65,8 @@ class MonthlyCalendarCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+        
+        collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
     }
     
     func configureView() {
@@ -112,118 +114,135 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
               let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
             return UICollectionViewCell()
         }
-        let dayViewModel = viewModel.mainDayList[section][indexPath.item]
         
-        var filteredTodoList = dayViewModel.todoList
-        if let filterGroupId = try? viewModel.filteredGroupId.value() {
-            filteredTodoList = filteredTodoList.filter( { $0.groupId == filterGroupId })
-        }
+        
+        let dayViewModel = viewModel.mainDayList[section][indexPath.item]
+        let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
+
         cell.delegate = self
         cell.fill(
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
             state: dayViewModel.state,
             weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!
         )
-        
-        if indexPath.item%7 == 0 {
-            viewModel.blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 15), count: 7)
-        }
-    
-        var periodList = filteredTodoList.filter { $0.startDate != $0.endDate }
-        var singleList = filteredTodoList.filter { $0.startDate == $0.endDate }
-        
-        // 확인할 케이스
-        // 우선 기간투두의 시작에서 확인할거: 주차를 넘어가는지? 이걸 어떻게 판단할까? 일단 이걸로 1차로 짤라야함
-        
-        var calendar = Calendar.current
-        calendar.firstWeekday = 2
-        
-        if indexPath.item % 7 != 0 { // 만약 월요일이 아닐 경우, 오늘 시작하는것들만, 월요일이면 포함되는 전체 다!
-            periodList = periodList.filter { $0.startDate == dayViewModel.date }
-                .sorted { $0.endDate < $1.endDate }
-        } else { //월요일 중에 오늘이 startDate가 아닌 놈들만 startDate로 정렬, 그 뒤에는 전부다 endDate로 정렬하고, 이걸 다시 endDate를 업댓해줘야함!
-            var continuousPeriodList = periodList
-                .filter { $0.startDate != dayViewModel.date }
-                .sorted{ ($0.startDate == $1.startDate) ? $0.endDate < $1.endDate : $0.startDate < $1.startDate }
-                .map { todo in
-                    var tmpTodo = todo
-                    tmpTodo.startDate = dayViewModel.date
-                    return tmpTodo
-                }
-            
-            var initialPeriodList = periodList
-                .filter { $0.startDate == dayViewModel.date } //이걸 바로 end로 정렬해도 되나? -> 애를 바로 end로 정렬할 경우?
-                .sorted{ $0.endDate < $1.endDate }
-            
-            periodList = continuousPeriodList + initialPeriodList
-        }
-        
-        periodList = periodList.map { todo in
-            // 날짜는 dayViewModel의 date를 사용하고, todo.endDate랑 비교를 해서 이게 같은주에 포함되는지 아닌지를 판단해야함..!
-            let currentWeek = calendar.component(.weekOfYear, from: dayViewModel.date)
-            let endWeek = calendar.component(.weekOfYear, from: todo.endDate)
-            
-            if currentWeek != endWeek {
-                let firstDayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: dayViewModel.date))
-                let lastDayOfWeek = calendar.date(byAdding: .day, value: 6, to: firstDayOfWeek!) //이게 이번주 일요일임.
-                var tmpTodo = todo
-                tmpTodo.endDate = lastDayOfWeek!
-                return tmpTodo
-            } else { return todo }
-        }
 
-
-        for todo in periodList {
-            print(todo.title, todo.startDate, todo.endDate)
-            for i in (0..<viewModel.blockMemo[indexPath.item%7].count) {
-                if viewModel.blockMemo[indexPath.item%7][i] == nil,
-                   let period = Calendar.current.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
-                    for j in (0...period) {
-                        viewModel.blockMemo[indexPath.item%7+j][i] = (todo.id!, todo.isGroupTodo)
-                    }
-                    break
-                }
-            }
-        }
-        
-        cell.fill(periodTodoList: periodList, singleTodoList: singleList, item: indexPath.item)
-        
+        cell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo)
+        print("cellForItemAt section, item", section, indexPath.item)
+        // 여기서 총 높이를 구해서 viewModel에다가 저장해둬야함..! fill 메서드에서 계산하니까 저기서 직접 해줘도 될거같은데?
         
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         guard let section,
-              let maxTodoViewModel = viewModel?.getMaxInWeek(indexPath: IndexPath(item: indexPath.item, section: section)) else { return CGSize() }
-        
+              let viewModel else { return CGSize() }
+        print("layout section, item", section, indexPath.item)
         let screenWidth = UIScreen.main.bounds.width
-                
-        var todoCount = maxTodoViewModel.todoList.count
         
-        if let height = viewModel?.cachedCellHeightForTodoCount[todoCount] {
-            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: Double(height))
+        if indexPath.item%7 == 0 {
+            (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
+                viewModel.blockMemo[$0] = [(Int, Bool)?](repeating: nil, count: 20)
+            }
+            var calendar = Calendar.current
+            calendar.firstWeekday = 2
             
-        } else {
+            for (item, dayViewModel) in Array(viewModel.mainDayList[section].enumerated())[indexPath.item..<indexPath.item+7] {
+                var filteredTodoList = dayViewModel.todoList
+                if let filterGroupId = try? viewModel.filteredGroupId.value() {
+                    filteredTodoList = filteredTodoList.filter( { $0.groupId == filterGroupId })
+                }
+                
+                var periodList = filteredTodoList.filter { $0.startDate != $0.endDate }
+                let singleList = filteredTodoList.filter { $0.startDate == $0.endDate }
+                
+                if item % 7 != 0 { // 만약 월요일이 아닐 경우, 오늘 시작하는것들만, 월요일이면 포함되는 전체 다!
+                    periodList = periodList.filter { $0.startDate == dayViewModel.date }
+                        .sorted { $0.endDate < $1.endDate }
+                } else { //월요일 중에 오늘이 startDate가 아닌 놈들만 startDate로 정렬, 그 뒤에는 전부다 endDate로 정렬하고, 이걸 다시 endDate를 업댓해줘야함!
+                    
+                    var continuousPeriodList = periodList
+                        .filter { $0.startDate != dayViewModel.date }
+                        .sorted{ ($0.startDate == $1.startDate) ? $0.endDate < $1.endDate : $0.startDate < $1.startDate }
+                        .map { todo in
+                            var tmpTodo = todo
+                            tmpTodo.startDate = dayViewModel.date
+                            return tmpTodo
+                        }
+                    
+                    var initialPeriodList = periodList
+                        .filter { $0.startDate == dayViewModel.date } //이걸 바로 end로 정렬해도 되나? -> 애를 바로 end로 정렬할 경우?
+                        .sorted{ $0.endDate < $1.endDate }
+                    
+                    periodList = continuousPeriodList + initialPeriodList
+                }
+                
+                periodList = periodList.map { todo in
+                    // 날짜는 dayViewModel의 date를 사용하고, todo.endDate랑 비교를 해서 이게 같은주에 포함되는지 아닌지를 판단해야함..!
+                    let currentWeek = calendar.component(.weekOfYear, from: dayViewModel.date)
+                    let endWeek = calendar.component(.weekOfYear, from: todo.endDate)
+                    
+                    if currentWeek != endWeek {
+                        let firstDayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: dayViewModel.date))
+                        let lastDayOfWeek = calendar.date(byAdding: .day, value: 6, to: firstDayOfWeek!) //이게 이번주 일요일임.
+                        var tmpTodo = todo
+                        tmpTodo.endDate = lastDayOfWeek!
+                        return tmpTodo
+                    } else { return todo }
+                }
+                
+                let periodTodo: [(Int, Todo)] = periodList.compactMap { todo in
+                    for i in (0..<viewModel.blockMemo[item].count) {
+                        if viewModel.blockMemo[item][i] == nil,
+                           let period = Calendar.current.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
+                            for j in (0...period) {
+                                viewModel.blockMemo[item+j][i] = (todo.id!, todo.isGroupTodo)
+                            }
+                            return (i, todo)
+                        }
+                    }
+                    return nil
+                }
+                
+                var singleStartIndex = 0
+                viewModel.blockMemo[item].enumerated().forEach { (index, tuple) in
+                    if tuple != nil {
+                        singleStartIndex = index + 1
+                    }
+                }
+                
+                let singleTodo = singleList.enumerated().map { (index, todo) in
+                    return (index + singleStartIndex, todo)
+                }
+                
+                viewModel.filteredTodoCache[item] = FilteredTodoViewModel(periodTodo: periodTodo, singleTodo: singleTodo)
+            }
+            
+            guard let maxItem = Array(viewModel.mainDayList[section].enumerated())[indexPath.item..<indexPath.item + 7].max(by: { a, b in
+                a.element.todoList.count < b.element.todoList.count
+            }) else { return CGSize() }
+            
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
-//            mockCell.delegate = self
-//            mockCell.fill(todoList: maxTodoViewModel.todoList, item: indexPath.item)
+            mockCell.delegate = self
+            mockCell.fill(periodTodoList: viewModel.filteredTodoCache[maxItem.offset].periodTodo, singleTodoList: viewModel.filteredTodoCache[maxItem.offset].singleTodo)
+            
             mockCell.layoutIfNeeded()
             
             let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
                 width: Double(1)/Double(7) * screenWidth,
                 height: UIView.layoutFittingCompressedSize.height
             ))
-
+            
             if estimatedSize.height <= 116 {
-                viewModel?.cachedCellHeightForTodoCount[todoCount] = 116
+                viewModel.weekTodoHeightCache[indexPath.item/7] = 116
                 return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: 116)
             } else {
-                viewModel?.cachedCellHeightForTodoCount[todoCount] = estimatedSize.height
-            
+                viewModel.weekTodoHeightCache[indexPath.item/7] = estimatedSize.height
                 return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: estimatedSize.height)
             }
-            
+        } else {
+            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: viewModel.weekTodoHeightCache[indexPath.item/7])
         }
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
@@ -360,25 +379,6 @@ extension MonthlyCalendarCell: UIGestureRecognizerDelegate {
 }
 
 extension MonthlyCalendarCell: DailyCalendarCellDelegate {
-    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, item: Int, idToFindIndex id: Int, isGroupTodo: Bool) -> Int? {
-        viewModel?.blockMemo[item%7].firstIndex { tuple in
-            guard let tuple else {
-                return false
-            }
-            return tuple.0 == id && tuple.1 == isGroupTodo
-        }
-    }
-    
-    func startIndexOfDailyTodo(_ dayCalendarCell: DailyCalendarCell, item: Int) -> Int {
-        var ret = 0
-        viewModel?.blockMemo[item%7].enumerated().forEach { (index, tuple) in
-            if tuple != nil {
-                ret = index + 1
-            }
-        }
-        return ret
-    }
-    
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId id: Int) -> CategoryColor? {
         return viewModel?.categoryDict[id]?.color
     }

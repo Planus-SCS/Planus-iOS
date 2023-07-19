@@ -117,16 +117,13 @@ class DailyCalendarCell: SpringableCollectionViewCell {
             numberLabel.textColor = UIColor(hex: 0x000000, a: alpha)
         }        
     }
-    
-    func fill(periodTodoList: [Todo], singleTodoList: [Todo], item: Int) {
+        
+    func fill(periodTodoList: [(Int, Todo)], singleTodoList: [(Int, Todo)]) {
         var currentIndex = 0
 
-        periodTodoList.forEach { todo in
-            if todo.title == "이거 ㄹㅇ" {
-                print("dot")
-            }
+        periodTodoList.forEach { (index, todo) in
             let todoView = generateSmallTodoView(todo: todo)
-            guard let index = self.delegate?.dailyCalendarCell(self, item: item, idToFindIndex: todo.id!, isGroupTodo: todo.isGroupTodo) else { return }
+
             for _ in (currentIndex..<index) {
                 let clearView = generateClearView()
                 stackView.addArrangedSubview(clearView)
@@ -138,7 +135,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
             currentIndex = index + 1
         }
 
-        let startIndex = delegate!.startIndexOfDailyTodo(self, item: item)
+        guard let startIndex = singleTodoList.first?.0 else { return }
 
         for _ in (currentIndex..<startIndex) {
             let clearView = generateClearView()
@@ -146,12 +143,13 @@ class DailyCalendarCell: SpringableCollectionViewCell {
             views.append(clearView)
         }
 
-        singleTodoList.forEach { todo in
+        singleTodoList.forEach { (index, todo) in
             let view = generateSmallTodoView(todo: todo)
             stackView.addArrangedSubview(view)
             views.append(view)
         }
-
+        
+        // views.count가 총 높이가 되는거임!!!
     }
     
     func fill(socialTodoList: [SocialTodoSummary]) {
@@ -167,6 +165,10 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         }
     }
     
+
+}
+
+extension DailyCalendarCell {
     func generateSmallTodoView(todo: Todo) -> SmallTodoView {
         var todoView: SmallTodoView
         if let color = todo.isGroupTodo ?
@@ -193,13 +195,19 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         }
         return view
     }
+    
+    func mockFill(todoCount: Int) {
+        (0..<todoCount).forEach { _ in
+            var todoView = generateClearView()
+            stackView.addArrangedSubview(todoView)
+            views.append(todoView)
+        }
+    }
 }
 
 protocol DailyCalendarCellDelegate: NSObject {
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor?
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfGroupCategoryId id: Int) -> CategoryColor?
-    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, item: Int, idToFindIndex id: Int, isGroupTodo: Bool) -> Int?
-    func startIndexOfDailyTodo(_ dayCalendarCell: DailyCalendarCell, item: Int) -> Int
 }
 
 /*

@@ -8,6 +8,11 @@
 import Foundation
 import RxSwift
 
+struct FilteredTodoViewModel {
+    var periodTodo: [(Int,Todo)] //offset, Todo
+    var singleTodo: [(Int,Todo)] //offset, Todo
+}
+
 class HomeCalendarViewModel {
     
     var bag = DisposeBag()
@@ -30,7 +35,9 @@ class HomeCalendarViewModel {
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
     var mainDayList = [[DayViewModel]]()
-    var blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 15), count: 7) //todoId, groupTodo인가?
+    var blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 20), count: 42) //todoId, groupTodo인가?
+    var filteredTodoCache = [FilteredTodoViewModel](repeating: FilteredTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
+    var weekTodoHeightCache = [Double](repeating: 0, count: 6)
     
     var groupDict = [Int: GroupName]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
     var categoryDict = [Int: Category]()
@@ -845,26 +852,20 @@ class HomeCalendarViewModel {
         needReloadSectionSet.onNext(sectionSet)
     }
     
-    func getMaxInWeek(indexPath: IndexPath) -> DayViewModel {
+    func getMaxCountInWeek(indexPath: IndexPath) -> (offset: Int, element: FilteredTodoViewModel) {
         let item = indexPath.item
         let section = indexPath.section
         
-        var maxItem: Int
-        if let filteredGroupId = try? filteredGroupId.value() {
-            maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-                mainDayList[section][a].todoList.filter { $0.groupId == filteredGroupId }.count < mainDayList[section][b].todoList.filter { $0.groupId == filteredGroupId }.count
-            }) ?? Int()
-        } else {
-            maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-                mainDayList[section][a].todoList.count < mainDayList[section][b].todoList.count
-            }) ?? Int()
-        }
+        // 한 주차 내에서만 구해야함
+        let maxItem = Array(filteredTodoCache.enumerated())[indexPath.item - indexPath.item%7..<indexPath.item + 7 - indexPath.item%7].max(by: { a, b in
+            a.element.periodTodo.count + a.element.singleTodo.count < b.element.periodTodo.count + b.element.singleTodo.count
+        }) ?? (offset: Int(), element: FilteredTodoViewModel(periodTodo: [], singleTodo: []))
         
-        return mainDayList[indexPath.section][maxItem]
+        return maxItem
     }
     
-    // 달을 걸쳐서 계산하는건 없음 일단. 현재 달만 계산하면 됨. 근데 이걸 하기 위해선,,, 달이 보여질때 이 모든걸 계산해야하는 단점이 존재함...
-    // 그럼 배열 사이즈를 어떻게 가져가야하지??? 전체를 다 갖고있어야되나? 그럼 터질텐데???
-    // 시작일자만 알면 되는건데도 일케까지 해야하나? 한다면 ㅇㅇ 해야한다..!? 아그럼
+    func generateFilteredTodoOffsetOfWeek(indexPath: IndexPath) {
+        
+    }
 }
 
