@@ -29,7 +29,7 @@ class MonthlyCalendarCell: UICollectionViewCell {
         let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(self.longTap(_:)))
         lpgr.minimumPressDuration = 0.5
         lpgr.delegate = self
-        lpgr.delaysTouchesBegan = true
+        lpgr.delaysTouchesBegan = false
         return lpgr
     }()
     
@@ -105,7 +105,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         guard let section = self.section else { return Int() }
-        return viewModel?.mainDayList[section].count ?? Int()
+        return viewModel?.mainDays[section].count ?? Int()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -116,7 +116,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         }
         
         
-        let dayViewModel = viewModel.mainDayList[section][indexPath.item]
+        let dayViewModel = viewModel.mainDays[section][indexPath.item]
         let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
 
         cell.delegate = self
@@ -138,6 +138,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
               let viewModel else { return CGSize() }
 
         let screenWidth = UIScreen.main.bounds.width
+        print(indexPath.item)
         
         if indexPath.item%7 == 0 {
             (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
@@ -146,8 +147,8 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             var calendar = Calendar.current
             calendar.firstWeekday = 2
             
-            for (item, dayViewModel) in Array(viewModel.mainDayList[section].enumerated())[indexPath.item..<indexPath.item+7] {
-                var filteredTodoList = dayViewModel.todoList
+            for (item, dayViewModel) in Array(viewModel.mainDays[section].enumerated())[indexPath.item..<indexPath.item+7] {
+                var filteredTodoList = viewModel.todos[dayViewModel.date] ?? []
                 if let filterGroupId = try? viewModel.filteredGroupId.value() {
                     filteredTodoList = filteredTodoList.filter( { $0.groupId == filterGroupId })
                 }
@@ -219,11 +220,11 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         }
         
         let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
-        guard let maxItem = Array(viewModel.mainDayList[section].enumerated())[weekRange]
+        guard let maxItem = Array(viewModel.mainDays[section].enumerated())[weekRange]
             .max(by: { a, b in
-                a.element.todoList.count < b.element.todoList.count
+                viewModel.todos[a.element.date]?.count ?? Int() < viewModel.todos[b.element.date]?.count ?? Int()
             }) else { return CGSize() }
-        
+
         let filteredTodo = viewModel.filteredTodoCache[maxItem.offset]
         
         guard let todosHeight = (filteredTodo.singleTodo.count != 0) ?
@@ -231,7 +232,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 filteredTodo.periodTodo.last?.0 : 0 else { return CGSize() }
         
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
-            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: cellHeight)
+            return CGSize(width: screenWidth/Double(7) - 0.01, height: cellHeight)
         } else {
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
             mockCell.delegate = self
@@ -246,7 +247,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             
             let targetHeight = (estimatedSize.height > 116) ? estimatedSize.height : 116
             viewModel.cachedCellHeightForTodoCount[todosHeight] = targetHeight
-            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: targetHeight)
+            return CGSize(width: screenWidth/Double(7) - 0.01, height: targetHeight)
         }
 
     }
@@ -258,6 +259,12 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         return false
     }
     
+    func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
+        return collectionView.indexPathsForSelectedItems?.contains(indexPath) == false
+
+    }
+    
+
 }
 
 extension MonthlyCalendarCell {
@@ -386,10 +393,10 @@ extension MonthlyCalendarCell: UIGestureRecognizerDelegate {
 
 extension MonthlyCalendarCell: DailyCalendarCellDelegate {
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId id: Int) -> CategoryColor? {
-        return viewModel?.categoryDict[id]?.color
+        return viewModel?.memberCategories[id]?.color
     }
     
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfGroupCategoryId id: Int) -> CategoryColor? {
-        return viewModel?.groupCategoryDict[id]?.color
+        return viewModel?.groupCategories[id]?.color
     }
 }

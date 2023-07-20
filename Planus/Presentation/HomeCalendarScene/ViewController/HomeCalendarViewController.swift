@@ -178,10 +178,10 @@ class HomeCalendarViewController: UIViewController {
                 
                 viewModel.setDate(currentDate: dayViewModel.date)
                 viewModel.setTodoList(
-                    todoList: dayViewModel.todoList ?? [],
-                    categoryDict: vc.viewModel?.categoryDict ?? [:],
-                    groupDict: vc.viewModel?.groupDict ?? [:],
-                    groupCategoryDict: vc.viewModel?.groupCategoryDict ?? [:],
+                    todoList: vc.viewModel?.todos[dayViewModel.date] ?? [],
+                    categoryDict: vc.viewModel?.memberCategories ?? [:],
+                    groupDict: vc.viewModel?.groups ?? [:],
+                    groupCategoryDict: vc.viewModel?.groupCategories ?? [:],
                     filteringGroupId: try? vc.viewModel?.filteredGroupId.value()
                 ) //투두리스트를 필터링해야함..! 아니 걍 다 올리고 저짝에서 필터링하자 그게 편하다..!
                 viewModel.setOwnership(isOwner: true)
@@ -227,7 +227,7 @@ class HomeCalendarViewController: UIViewController {
                     readCategoryUseCase: readCateogryUseCase
                 )
                 
-                let groupList = Array(viewModel.groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+                let groupList = Array(viewModel.groups.values).sorted(by: { $0.groupId < $1.groupId })
                 vm.setGroup(groupList: groupList)
                 vm.todoStartDay.onNext(dateRange.0)
                 vm.todoEndDay.onNext(dateRange.1)
@@ -337,7 +337,7 @@ class HomeCalendarViewController: UIViewController {
             self?.groupSelected(id: nil)
         })
         children.append(all)
-        if let groupDict = viewModel?.groupDict {
+        if let groupDict = viewModel?.groups {
             let groupList = Array(groupDict.values)
             let sortedList = groupList.sorted(by: { $0.groupId < $1.groupId })
             
@@ -394,7 +394,7 @@ extension HomeCalendarViewController: UIPopoverPresentationControllerDelegate {
 
 extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        viewModel?.mainDayList.count ?? Int()
+        viewModel?.mainDays.count ?? Int()
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         1
