@@ -649,7 +649,10 @@ class HomeCalendarViewModel {
             }
             todos[tmpDate]?.append(todo)
             let sectionIndex = calendar.dateComponents([.month], from: firstDate, to: tmpDate).month ?? 0
-            sectionSet.insert(sectionIndex)
+            let range = ((sectionIndex > 0) ? sectionIndex - 1 : sectionIndex)
+            ...
+            ((sectionIndex < endOfLastIndex - endOfFirstIndex) ? sectionIndex + 1 : sectionIndex)
+            sectionSet.insert(integersIn: range)
             
             tmpDate = calendar.date(byAdding: DateComponents(day: 1), to: tmpDate) ?? Date()
         }
@@ -665,7 +668,10 @@ class HomeCalendarViewModel {
             guard let todoIndex = todos[tmpDate]?.firstIndex(where: { $0.id == todo.id && $0.isGroupTodo == todo.isGroupTodo }) else { return }
             todos[tmpDate]?[todoIndex] = todo
             let sectionIndex = calendar.dateComponents([.month], from: firstDate, to: tmpDate).month ?? 0
-            sectionSet.insert(sectionIndex)
+            let range = ((sectionIndex > 0) ? sectionIndex - 1 : sectionIndex)
+            ...
+            ((sectionIndex < endOfLastIndex - endOfFirstIndex) ? sectionIndex + 1 : sectionIndex)
+            sectionSet.insert(integersIn: range)
             
             tmpDate = calendar.date(byAdding: DateComponents(day: 1), to: tmpDate) ?? Date()
         }
@@ -684,7 +690,11 @@ class HomeCalendarViewModel {
             todos[removingTmpDate]?.removeAll(where: { $0.id == todoBeforeUpdate.id && $0.isGroupTodo == todoBeforeUpdate.isGroupTodo })
             
             let sectionIndex = calendar.dateComponents([.month], from: firstDate, to: removingTmpDate).month ?? 0
-            sectionSet.insert(sectionIndex)
+
+            let range = ((sectionIndex > 0) ? sectionIndex - 1 : sectionIndex)
+            ...
+            ((sectionIndex < endOfLastIndex - endOfFirstIndex) ? sectionIndex + 1 : sectionIndex)
+            sectionSet.insert(integersIn: range)
             
             removingTmpDate = calendar.date(byAdding: DateComponents(day: 1), to: removingTmpDate) ?? Date()
         }
@@ -706,11 +716,12 @@ class HomeCalendarViewModel {
 
             
             let sectionIndex = calendar.dateComponents([.month], from: firstDate, to: addingTmpDate).month ?? 0
-            sectionSet.insert(sectionIndex)
-            
+            let range = ((sectionIndex > 0) ? sectionIndex - 1 : sectionIndex)
+            ...
+            ((sectionIndex < endOfLastIndex - endOfFirstIndex) ? sectionIndex + 1 : sectionIndex)
+            sectionSet.insert(integersIn: range)
             addingTmpDate = calendar.date(byAdding: DateComponents(day: 1), to: addingTmpDate) ?? Date()
         }
-        
         needReloadSectionSet.onNext(sectionSet)
     }
     
@@ -723,8 +734,10 @@ class HomeCalendarViewModel {
         while(tmpDate <= todo.endDate) {
             todos[tmpDate]?.removeAll(where: { $0.id == todo.id && $0.isGroupTodo == todo.isGroupTodo })
             let sectionIndex = calendar.dateComponents([.month], from: firstDate, to: tmpDate).month ?? 0
-            sectionSet.insert(sectionIndex)
-            
+            let range = ((sectionIndex > 0) ? sectionIndex - 1 : sectionIndex)
+            ...
+            ((sectionIndex < endOfLastIndex - endOfFirstIndex) ? sectionIndex + 1 : sectionIndex)
+            sectionSet.insert(integersIn: range)
             tmpDate = calendar.date(byAdding: DateComponents(day: 1), to: tmpDate) ?? Date()
         }
 

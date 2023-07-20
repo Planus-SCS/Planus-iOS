@@ -345,13 +345,14 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         }
         
         if isOwner {
-            
-
             vm.setForEdit(todo: item, category: category, groupName: groupName)
         } else {
             vm.setForOthers(todo: item, category: category, groupName: groupName)
         }
-        vm.todoStartDay.onNext(viewModel?.currentDate)
+        vm.todoStartDay.onNext(item.startDate)
+        if item.startDate != item.endDate {
+            vm.todoEndDay.onNext(item.endDate)
+        }
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)

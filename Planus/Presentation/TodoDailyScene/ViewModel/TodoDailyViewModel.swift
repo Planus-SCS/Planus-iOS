@@ -158,14 +158,7 @@ class TodoDailyViewModel {
                 vm.needReloadData.onNext(())
             })
             .disposed(by: bag)
-        
-//        deleteCategoryUseCase
-//            .didDeleteCategory
-//            .withUnretained(self)
-//            .subscribe(onNext: { vm, id in
-//
-//            })
-//            .disposed(by: bag)
+
     }
     
     // 내 투두 볼때만 불릴예정
@@ -210,8 +203,10 @@ class TodoDailyViewModel {
                 let todoAfterUpdate = todoUpdate.after
                 let todoBeforeUpdate = todoUpdate.before
                 
-                // MARK: 날짜가 바뀐 경우 -> 삭제
-                if todoAfterUpdate.startDate != todoBeforeUpdate.startDate { //이전 todo로 인덱스를 찾아야함
+                // MARK: 날짜가 포함 안되는 경우 걍 삭제해버림!
+                guard let currentDate = vm.currentDate else { return }
+                
+                if todoAfterUpdate.startDate > currentDate || todoAfterUpdate.endDate < currentDate {
                     var section: Int
                     var item: Int
                     
