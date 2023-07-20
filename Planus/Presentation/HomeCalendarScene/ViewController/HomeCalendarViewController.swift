@@ -17,6 +17,7 @@ class HomeCalendarViewController: UIViewController {
     var isMonthChanged = PublishSubject<Date>()
     var isMultipleSelecting = PublishSubject<Bool>()
     var isMultipleSelected = PublishSubject<(Int, (Int, Int))>()
+    var multipleTodoCompletionHandler: (() -> Void)?
     var isSingleSelected = PublishSubject<(Int, Int)>()
     var isGroupSelectedWithId = PublishSubject<Int?>()
     
@@ -192,11 +193,19 @@ class HomeCalendarViewController: UIViewController {
                     sheet.detents = [.medium(), .large()]
                 }
                 vc.present(nav, animated: true)
+                
+                // viewController에 completionHandler를 달아야함. 어떻게 달까??
             })
             .disposed(by: bag)
         
-        output.showCreateMultipleTodo
-            .subscribe(onNext: { dateRange in
+        isMultipleSelected
+            .subscribe(onNext: { indexRange in
+                var startDate = viewModel.mainDays[indexRange.0][indexRange.1.0].date
+                var endDate = viewModel.mainDays[indexRange.0][indexRange.1.1].date
+                
+                if startDate > endDate {
+                    swap(&startDate, &endDate)
+                }
                 
                 let api = NetworkManager()
                 let keyChain = KeyChainManager()
@@ -229,9 +238,11 @@ class HomeCalendarViewController: UIViewController {
                 
                 let groupList = Array(viewModel.groups.values).sorted(by: { $0.groupId < $1.groupId })
                 vm.setGroup(groupList: groupList)
-                vm.todoStartDay.onNext(dateRange.0)
-                vm.todoEndDay.onNext(dateRange.1)
+                vm.todoStartDay.onNext(startDate)
+                vm.todoEndDay.onNext(endDate)
+                
                 let vc = TodoDetailViewController(viewModel: vm)
+
                 vc.modalPresentationStyle = .overFullScreen
                 self.present(vc, animated: false, completion: nil)
             })

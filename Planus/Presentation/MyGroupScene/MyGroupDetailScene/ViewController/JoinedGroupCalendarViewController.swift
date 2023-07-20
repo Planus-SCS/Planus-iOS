@@ -246,7 +246,7 @@ extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout,
             return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: cellHeight)
         } else {
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
-            mockCell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo)
+            mockCell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: nil)
             
             mockCell.layoutIfNeeded()
             
@@ -291,10 +291,11 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
             state: dayViewModel.state,
             weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
-            isToday: dayViewModel.date == viewModel.today
+            isToday: dayViewModel.date == viewModel.today,
+            isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil
         )
         
-        cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo)
+        cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: nil)
 
         return cell
     }

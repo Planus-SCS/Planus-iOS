@@ -124,21 +124,23 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
             state: dayViewModel.state,
             weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
-            isToday: dayViewModel.date == viewModel.today
+            isToday: dayViewModel.date == viewModel.today,
+            isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil
         )
 
-        cell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo)
+        cell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
         // 여기서 총 높이를 구해서 viewModel에다가 저장해둬야함..! fill 메서드에서 계산하니까 저기서 직접 해줘도 될거같은데?
         
         return cell
     }
     
+    
+    // FIXME: 리펙토링 시급 (이부분 간소화해서 뷰모델쪽으로 옮기자)
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         guard let section,
               let viewModel else { return CGSize() }
 
         let screenWidth = UIScreen.main.bounds.width
-        print(indexPath.item)
         
         if indexPath.item%7 == 0 {
             (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
@@ -215,28 +217,45 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                     return (index + singleStartIndex, todo)
                 }
                 
-                viewModel.filteredTodoCache[item] = FilteredTodoViewModel(periodTodo: periodTodo, singleTodo: singleTodo)
+                
+                var holidayMock: (Int, String)?
+                if let holidayTitle = HolidayPool.shared.holidays[dayViewModel.date] {
+                    let holidayIndex = singleStartIndex + singleTodo.count
+                    holidayMock = (holidayIndex, holidayTitle)
+                }
+                
+                viewModel.filteredTodoCache[item] = FilteredTodoViewModel(periodTodo: periodTodo, singleTodo: singleTodo, holiday: holidayMock)
             }
         }
         
         let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
-        guard let maxItem = Array(viewModel.mainDays[section].enumerated())[weekRange]
-            .max(by: { a, b in
-                viewModel.todos[a.element.date]?.count ?? Int() < viewModel.todos[b.element.date]?.count ?? Int()
-            }) else { return CGSize() }
 
-        let filteredTodo = viewModel.filteredTodoCache[maxItem.offset]
-        
-        guard let todosHeight = (filteredTodo.singleTodo.count != 0) ?
-                filteredTodo.singleTodo.last?.0 : (filteredTodo.periodTodo.count != 0) ?
-                filteredTodo.periodTodo.last?.0 : 0 else { return CGSize() }
+        guard let maxItem = viewModel.filteredTodoCache[weekRange]
+            .max(by: { a, b in
+                let aHeight = (a.holiday != nil) ? a.holiday!.0 : (a.singleTodo.last != nil) ?
+                a.singleTodo.last!.0 : (a.periodTodo.last != nil) ? a.periodTodo.last!.0 : 0
+                let bHeight = (b.holiday != nil) ? b.holiday!.0 : (b.singleTodo.last != nil) ?
+                b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
+                return aHeight < bHeight
+            }) else { return CGSize() }
+                
+        guard var todosHeight = (maxItem.holiday != nil) ?
+                maxItem.holiday?.0 : (maxItem.singleTodo.count != 0) ?
+                maxItem.singleTodo.last?.0 : (maxItem.periodTodo.count != 0) ?
+                maxItem.periodTodo.last?.0 : 0 else { return CGSize() }
+
+        // 여기서 공휴일까지 포함시켜서 높이를 측정해줘야한다..!!!
         
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
             return CGSize(width: screenWidth/Double(7) - 0.01, height: cellHeight)
         } else {
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
             mockCell.delegate = self
-            mockCell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo)
+            mockCell.fill(
+                periodTodoList: maxItem.periodTodo,
+                singleTodoList: maxItem.singleTodo,
+                holiday: maxItem.holiday
+            )
             
             mockCell.layoutIfNeeded()
             
