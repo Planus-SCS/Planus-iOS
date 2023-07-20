@@ -24,9 +24,9 @@ class DayPickerViewController: UIViewController {
         dateFormatter.dateFormat = "yyyy.MM.dd"
         return dateFormatter
     }()
-    
-    var firstSelectedIndexPath: IndexPath?
-    var secondSelectedIndexPath: IndexPath?
+
+    var firstSelectedDate: Date?
+    var lastSelectedDate: Date?
     
     var currentMonth: Date?
     var currentDateLabel: String?
@@ -78,10 +78,15 @@ class DayPickerViewController: UIViewController {
         dayPickerView?.nextButton.addTarget(self, action: #selector(nextBtnTapped), for: .touchUpInside)
     }
     
-    public func setDate(date: Date, endDate: Date?) {
+    public func setDate(startDate: Date?, endDate: Date?) {
+        self.firstSelectedDate = startDate
+        self.lastSelectedDate = endDate
+        
+        guard let startDate else { return }
+        delegate?.dayPickerViewController(self, didSelectDate: startDate)
         let components = self.calendar.dateComponents(
             [.year, .month],
-            from: date
+            from: startDate
         )
         
         let currentMonth = self.calendar.date(from: components) ?? Date()
@@ -93,29 +98,12 @@ class DayPickerViewController: UIViewController {
         let frameWidth = UIScreen.main.bounds.width - 20
         self.reloadAndMove(to: CGPoint(x: frameWidth * CGFloat(halfOfInitAmount), y: 0))
         
-        guard let dateIndex = days[halfOfInitAmount].firstIndex(where: { $0.date == date }) else { return }
-
-        if let endDate,
-           let endDateIndex = days[halfOfInitAmount].firstIndex(where: { $0.date == endDate }) {
-            selectMultipleDateAt(
-                first: IndexPath(item: dateIndex, section: self.halfOfInitAmount),
-                indexPath: IndexPath(item: endDateIndex, section: self.halfOfInitAmount)
-            )
-        } else {
-            selectStartDateAt(indexPath: IndexPath(item: dateIndex, section: self.halfOfInitAmount))
+        if let endDate {
+            delegate?.dayPickerViewController(self, didSelectDateInRange: (startDate, endDate))
         }
+
         UIView.performWithoutAnimation {
             dayPickerView?.dayPickerCollectionView.reloadSections(IndexSet(integer: self.halfOfInitAmount))
-        }
-    }
-    
-    public func selectDate(date: Date) {
-        days.enumerated().forEach { monthIndex, daysPerMonth in
-            daysPerMonth.enumerated().forEach { dayIndex, day in
-                if day.date == date {
-                    self.dayPickerView?.dayPickerCollectionView.selectItem(at: IndexPath(item: dayIndex, section: monthIndex), animated: false, scrollPosition: .top)
-                }
-            }
         }
     }
     
@@ -242,8 +230,7 @@ class DayPickerViewController: UIViewController {
                 DayPickerModel(
                     dayLabel: "\(calendar.component(.day, from: date))",
                     date: date,
-                    monthState: state,
-                    rangeState: .none
+                    monthState: state
                 )
             )
         }
