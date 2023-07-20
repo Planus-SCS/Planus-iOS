@@ -11,6 +11,7 @@ import RxSwift
 struct FilteredSocialTodoViewModel {
     var periodTodo: [(Int, SocialTodoSummary)] //offset, Todo
     var singleTodo: [(Int, SocialTodoSummary)] //offset, Todo
+    var holiday: (Int, String)?
 }
 
 class MemberProfileViewModel {
@@ -43,7 +44,8 @@ class MemberProfileViewModel {
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
-    var mainDayList = [[SocialDayViewModel]]()
+    var mainDayList = [[DayViewModel]]()
+    var todos = [Date: [SocialTodoSummary]]()
     
     var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 20), count: 42) //todoId
     var filteredTodoCache = [FilteredSocialTodoViewModel](repeating: FilteredSocialTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
@@ -54,7 +56,7 @@ class MemberProfileViewModel {
     var categoryFetched = BehaviorSubject<Void?>(value: nil)
     var needReloadSection = BehaviorSubject<IndexSet?>(value: nil)
     
-    var showDailyTodoPage = PublishSubject<SocialDayViewModel>()
+    var showDailyTodoPage = PublishSubject<DayViewModel>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
     
@@ -72,7 +74,7 @@ class MemberProfileViewModel {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var needReloadSectionInRange: Observable<IndexSet?> // a부터 b까지 리로드 해라!
-        var showDailyTodoPage: Observable<SocialDayViewModel>
+        var showDailyTodoPage: Observable<DayViewModel>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var memberName: String?
@@ -80,7 +82,7 @@ class MemberProfileViewModel {
         var memberImageUrl: String?
     }
     
-    let createSocialMonthlyCalendarUseCase: CreateSocialMonthlyCalendarUseCase
+    let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     let getTokenUseCase: GetTokenUseCase
     let refreshTokenUseCase: RefreshTokenUseCase
@@ -88,14 +90,14 @@ class MemberProfileViewModel {
     let fetchImageUseCase: FetchImageUseCase
     
     init(
-        createSocialMonthlyCalendarUseCase: CreateSocialMonthlyCalendarUseCase,
+        createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         fetchMemberCalendarUseCase: FetchMemberCalendarUseCase,
         fetchImageUseCase: FetchImageUseCase
     ) {
-        self.createSocialMonthlyCalendarUseCase = createSocialMonthlyCalendarUseCase
+        self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -213,9 +215,9 @@ class MemberProfileViewModel {
     }
     
     func initCalendar(date: Date) {
-        mainDayList = (endOfFirstIndex...endOfLastIndex).map { difference -> [SocialDayViewModel] in
+        mainDayList = (endOfFirstIndex...endOfLastIndex).map { difference -> [DayViewModel] in
             let calendarDate = self.calendar.date(byAdding: DateComponents(month: difference), to: date) ?? Date()
-            return createSocialMonthlyCalendarUseCase.execute(date: calendarDate)
+            return createMonthlyCalendarUseCase.execute(date: calendarDate)
         }
         currentIndex = -endOfFirstIndex
         latestPrevCacheRequestedIndex = currentIndex
@@ -313,30 +315,10 @@ class MemberProfileViewModel {
             )
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
-                (fromIndex..<toIndex).forEach { index in
-                    self.mainDayList[index] = self.mainDayList[index].map {
-                        guard let todoList = todoDict[$0.date] else {
-                            return $0
-                        }
-                        var dayViewModel = $0
-                        dayViewModel.todoList = todoList
-                        return dayViewModel
-                    }
-                }
+                self.todos.merge(todoDict) { (_, new) in new }
                 self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
             })
             .disposed(by: bag)
-    }
-    
-    func getMaxInWeek(indexPath: IndexPath) -> SocialDayViewModel {
-        let item = indexPath.item
-        let section = indexPath.section
-        
-        let maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-            mainDayList[section][a].todoList.count < mainDayList[section][b].todoList.count
-        }) ?? Int()
-        
-        return mainDayList[indexPath.section][maxItem]
     }
     
     func fetchImage(key: String) -> Single<Data> {

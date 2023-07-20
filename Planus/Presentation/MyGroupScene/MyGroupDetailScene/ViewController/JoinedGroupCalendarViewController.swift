@@ -165,8 +165,10 @@ extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout,
             calendar.firstWeekday = 2
             
             for (item, dayViewModel) in Array(viewModel.mainDayList.enumerated())[indexPath.item..<indexPath.item+7] {
-                var periodList = dayViewModel.todoList.filter { $0.startDate != $0.endDate }
-                let singleList = dayViewModel.todoList.filter { $0.startDate == $0.endDate }
+                var filteredTodoList = viewModel.todos[dayViewModel.date] ?? []
+                
+                var periodList = filteredTodoList.filter { $0.startDate != $0.endDate }
+                let singleList = filteredTodoList.filter { $0.startDate == $0.endDate }
                 
                 if item % 7 != 0 { // 만약 월요일이 아닐 경우, 오늘 시작하는것들만, 월요일이면 포함되는 전체 다!
                     periodList = periodList.filter { $0.startDate == dayViewModel.date }
@@ -226,27 +228,37 @@ extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout,
                     return (index + singleStartIndex, todo)
                 }
                 
-                viewModel.filteredTodoCache[item] = FilteredSocialTodoViewModel(periodTodo: periodTodo, singleTodo: singleTodo)
+                var holidayMock: (Int, String)?
+                if let holidayTitle = HolidayPool.shared.holidays[dayViewModel.date] {
+                    let holidayIndex = singleStartIndex + singleTodo.count
+                    holidayMock = (holidayIndex, holidayTitle)
+                }
+                
+                viewModel.filteredTodoCache[item] = FilteredSocialTodoViewModel(periodTodo: periodTodo, singleTodo: singleTodo, holiday: holidayMock)
             }
         }
         
         let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
-        guard let maxItem = Array(viewModel.mainDayList.enumerated())[weekRange]
+        
+        guard let maxItem = viewModel.filteredTodoCache[weekRange]
             .max(by: { a, b in
-                a.element.todoList.count < b.element.todoList.count
+                let aHeight = (a.holiday != nil) ? a.holiday!.0 : (a.singleTodo.last != nil) ?
+                a.singleTodo.last!.0 : (a.periodTodo.last != nil) ? a.periodTodo.last!.0 : 0
+                let bHeight = (b.holiday != nil) ? b.holiday!.0 : (b.singleTodo.last != nil) ?
+                b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
+                return aHeight < bHeight
             }) else { return CGSize() }
-        
-        let filteredTodo = viewModel.filteredTodoCache[maxItem.offset]
-        
-        guard let todosHeight = (filteredTodo.singleTodo.count != 0) ?
-                filteredTodo.singleTodo.last?.0 : (filteredTodo.periodTodo.count != 0) ?
-                filteredTodo.periodTodo.last?.0 : 0 else { return CGSize() }
+                
+        guard var todosHeight = (maxItem.holiday != nil) ?
+                maxItem.holiday?.0 : (maxItem.singleTodo.count != 0) ?
+                maxItem.singleTodo.last?.0 : (maxItem.periodTodo.count != 0) ?
+                maxItem.periodTodo.last?.0 : 0 else { return CGSize() }
         
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
             return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: cellHeight)
         } else {
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
-            mockCell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: nil)
+            mockCell.socialFill(periodTodoList: maxItem.periodTodo, singleTodoList: maxItem.singleTodo, holiday: maxItem.holiday)
             
             mockCell.layoutIfNeeded()
             
@@ -295,8 +307,11 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
             isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil
         )
         
-        cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: nil)
+        print(dayViewModel.date)
+        cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
 
+        
+        
         return cell
     }
     

@@ -350,12 +350,12 @@ class JoinedGroupDetailViewController: UIViewController {
         noticeViewController.scrollDelegate = self
         self.noticeViewController = noticeViewController
         
-        let createMonthlyCalendarUseCase = DefaultCreateSocialMonthlyCalendarUseCase()
+        let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
         let fetchTodoListUseCase = DefaultFetchMyGroupCalendarUseCase(myGroupRepository: myGroupRepo)
         let calendarViewModel = JoinedGroupCalendarViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
-            createSocialMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
+            createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
             fetchMyGroupCalendarUseCase: fetchTodoListUseCase
         )
         calendarViewModel.setGroupId(id: groupId)

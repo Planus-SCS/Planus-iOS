@@ -213,7 +213,7 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
               let member = viewModel?.memberList?[indexPath.item] else { return false }
         let api = NetworkManager()
         let memberCalendarRepo = DefaultMemberCalendarRepository(apiProvider: api)
-        let createMonthlyCalendarUseCase = DefaultCreateSocialMonthlyCalendarUseCase()
+        let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
         let fetchMemberTodoUseCase = DefaultFetchMemberCalendarUseCase(memberCalendarRepository: memberCalendarRepo)
         let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
         let keyChainManager = KeyChainManager()
@@ -223,7 +223,7 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         
         let vm = MemberProfileViewModel(
-            createSocialMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
+            createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
             dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,

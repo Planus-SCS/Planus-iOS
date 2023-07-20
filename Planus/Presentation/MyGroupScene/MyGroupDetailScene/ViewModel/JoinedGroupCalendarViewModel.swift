@@ -36,7 +36,8 @@ class JoinedGroupCalendarViewModel {
     
     var currentDate: Date?
     var currentDateText: String?
-    var mainDayList = [SocialDayViewModel]()
+    var mainDayList = [DayViewModel]()
+    var todos = [Date: [SocialTodoSummary]]()
     
     var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 20), count: 42) //todoId
     var filteredTodoCache = [FilteredSocialTodoViewModel](repeating: FilteredSocialTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
@@ -47,18 +48,18 @@ class JoinedGroupCalendarViewModel {
     
     let getTokenUseCase: GetTokenUseCase
     let refreshTokenUseCase: RefreshTokenUseCase
-    let createSocialMonthlyCalendarUseCase: CreateSocialMonthlyCalendarUseCase
+    let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let fetchMyGroupCalendarUseCase: FetchMyGroupCalendarUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
-        createSocialMonthlyCalendarUseCase: CreateSocialMonthlyCalendarUseCase,
+        createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
         fetchMyGroupCalendarUseCase: FetchMyGroupCalendarUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
-        self.createSocialMonthlyCalendarUseCase = createSocialMonthlyCalendarUseCase
+        self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.fetchMyGroupCalendarUseCase = fetchMyGroupCalendarUseCase
     }
     
@@ -106,9 +107,8 @@ class JoinedGroupCalendarViewModel {
     
     func createCalendar(date: Date) {
         updateCurrentDate(date: date)
-        mainDayList = createSocialMonthlyCalendarUseCase.execute(date: date)
-        print(date)
-        print(mainDayList)
+        mainDayList = createMonthlyCalendarUseCase.execute(date: date)
+
         let startDate = mainDayList.first?.date ?? Date()
         let endDate = mainDayList.last?.date ?? Date()
         fetchTodo(from: startDate, to: endDate)
@@ -119,14 +119,6 @@ class JoinedGroupCalendarViewModel {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy년 MM월"
         self.currentDateText = dateFormatter.string(from: date)
-    }
-    
-    func getMaxInWeek(index: Int) -> SocialDayViewModel {
-        let maxItem = ((index-index%7)..<(index+7-index%7)).max(by: { (a,b) in
-            mainDayList[a].todoList.count < mainDayList[b].todoList.count
-        }) ?? Int()
-
-        return mainDayList[maxItem]
     }
     
     func fetchTodo(from: Date, to: Date) {
@@ -146,15 +138,8 @@ class JoinedGroupCalendarViewModel {
             )
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
-
-                self.mainDayList = self.mainDayList.map {
-                    guard let todoList = todoDict[$0.date] else {
-                        return $0
-                    }
-                    var dayViewModel = $0
-                    dayViewModel.todoList = todoList
-                    return dayViewModel
-                }
+                self.todos = todoDict
+                print(self.mainDayList.count)
                 self.didFetchTodo.onNext(())
             })
             .disposed(by: bag)
