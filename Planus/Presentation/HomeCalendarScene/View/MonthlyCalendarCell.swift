@@ -27,7 +27,7 @@ class MonthlyCalendarCell: UICollectionViewCell {
     
     lazy var lpgr : UILongPressGestureRecognizer = {
         let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(self.longTap(_:)))
-        lpgr.minimumPressDuration = 0.5
+        lpgr.minimumPressDuration = 0.6
         lpgr.delegate = self
         lpgr.delaysTouchesBegan = false
         return lpgr
@@ -95,6 +95,14 @@ class MonthlyCalendarCell: UICollectionViewCell {
         self.isMultipleSelecting = isMultipleSelecting
         self.isMultipleSelected = isMultipleSelected
         self.isSingleSelected = isSingleSelected
+    }
+    
+    func deselectItems() {
+        guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
+        paths.forEach { indexPath in
+            self.collectionView.deselectItem(at: indexPath, animated: true)
+        }
+        collectionView.allowsMultipleSelection = false
     }
 }
 
@@ -288,7 +296,8 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
 
 extension MonthlyCalendarCell {
     @objc func longTap(_ gestureRecognizer: UILongPressGestureRecognizer){
-        if gestureRecognizer.state == .began {
+        switch gestureRecognizer.state {
+        case .began:
             let location = gestureRecognizer.location(in: collectionView)
             guard let nowIndexPath = collectionView.indexPathForItem(at: location) else { return }
             
@@ -297,6 +306,24 @@ extension MonthlyCalendarCell {
             self.firstPressedIndexPath = nowIndexPath
             self.lastPressedIndexPath = nowIndexPath
             collectionView.selectItem(at: nowIndexPath, animated: true, scrollPosition: [])
+        case .ended:
+            selectionState = false
+
+            guard let section,
+                  let firstPressedItem = self.firstPressedIndexPath?.item,
+                  let lastPressedItem = self.lastPressedIndexPath?.item else { return }
+            print("end with \(firstPressedItem), \(lastPressedItem)")
+            self.isMultipleSelected?.onNext((section, (firstPressedItem, lastPressedItem)))
+
+            firstPressedIndexPath = nil
+            lastPressedIndexPath = nil
+
+            self.isMultipleSelecting?.onNext(false)
+
+            collectionView.isScrollEnabled = true
+            collectionView.isUserInteractionEnabled = true
+        default:
+            break
         }
     }
     
@@ -319,8 +346,7 @@ extension MonthlyCalendarCell {
             collectionView.allowsMultipleSelection = true
         case .changed:
             guard let firstPressedIndexPath = firstPressedIndexPath,
-                  let lastPressedIndexPath = lastPressedIndexPath,
-                  nowIndexPath != lastPressedIndexPath else { return }
+                  let lastPressedIndexPath = lastPressedIndexPath else { return }
             
             if firstPressedIndexPath.item < lastPressedIndexPath.item {
                 if firstPressedIndexPath.item > nowIndexPath.item {
@@ -372,32 +398,10 @@ extension MonthlyCalendarCell {
                     }
                 }
             }
-            
+            print("change with \(firstPressedIndexPath), \(nowIndexPath)")
             self.lastPressedIndexPath = nowIndexPath
-        case .ended:
-            selectionState = false
-            
-            guard let section,
-                  let firstPressedItem = self.firstPressedIndexPath?.item,
-                  let lastPressedItem = self.lastPressedIndexPath?.item else { return }
-            self.isMultipleSelected?.onNext((section, (firstPressedItem, lastPressedItem)))
-
-            firstPressedIndexPath = nil
-            lastPressedIndexPath = nil
-            
-            self.isMultipleSelecting?.onNext(false)
-            
-
-            collectionView.isScrollEnabled = true
-            collectionView.isUserInteractionEnabled = true
-            collectionView.allowsMultipleSelection = false
-            
-            guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
-            paths.forEach { indexPath in
-                self.collectionView.deselectItem(at: indexPath, animated: true)
-            }
         default:
-            print(gestureRecognizer.state)
+            break
         }
     }
 }

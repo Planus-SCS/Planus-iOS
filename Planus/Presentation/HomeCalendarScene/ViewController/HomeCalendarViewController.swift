@@ -239,10 +239,14 @@ class HomeCalendarViewController: UIViewController {
                 let groupList = Array(viewModel.groups.values).sorted(by: { $0.groupId < $1.groupId })
                 vm.setGroup(groupList: groupList)
                 vm.todoStartDay.onNext(startDate)
-                vm.todoEndDay.onNext(endDate)
+                vm.todoEndDay.onNext((startDate == endDate) ? nil : endDate)
                 
                 let vc = TodoDetailViewController(viewModel: vm)
-
+                vc.completionHandler = { [weak self] in
+                    guard let cell = self?.collectionView.cellForItem(at: IndexPath(item: 0, section: indexRange.0)) as? MonthlyCalendarCell else { return }
+                    cell.deselectItems()
+                }
+                
                 vc.modalPresentationStyle = .overFullScreen
                 self.present(vc, animated: false, completion: nil)
             })

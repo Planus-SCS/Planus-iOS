@@ -139,7 +139,6 @@ class JoinedGroupCalendarViewModel {
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 self.todos = todoDict
-                print(self.mainDayList.count)
                 self.didFetchTodo.onNext(())
             })
             .disposed(by: bag)

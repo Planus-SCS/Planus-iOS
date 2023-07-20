@@ -10,6 +10,7 @@ import RxSwift
 
 class TodoDetailViewController: UIViewController {
     var bag = DisposeBag()
+    var completionHandler: (() -> Void)?
 
     var didSelectCategoryAt = PublishSubject<Int?>()
     var didRequestEditCategoryAt = PublishSubject<Int>() // 생성도 이걸로하자!
@@ -95,6 +96,12 @@ class TodoDetailViewController: UIViewController {
              self.view.layoutIfNeeded()
          }, completion: nil)
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        completionHandler?()
+    }
+    
     private func hideBottomSheetAndGoBack() {
 
         self.view.endEditing(true)

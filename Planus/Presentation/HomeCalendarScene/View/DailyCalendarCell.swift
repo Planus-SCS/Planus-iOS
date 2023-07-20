@@ -273,7 +273,7 @@ extension DailyCalendarCell {
                 
         var titleLabel: UILabel = {
             let label = UILabel(frame: .zero)
-            label.font = UIFont(name: "Pretendard-SemiBold", size: 10)
+            label.font = UIFont(name: "Pretendard-Regular", size: 10)
             label.textAlignment = .center
             label.textColor =  UIColor(hex: 0xEA4335, a: alpha)
             return label
