@@ -570,6 +570,7 @@ class HomeCalendarViewModel {
                 errorType: TokenError.noTokenExist
             )
             .subscribe(onSuccess: { [weak self] list in
+                self?.memberCategories = [:]
                 list.forEach {
                     guard let id = $0.id else { return }
                     self?.memberCategories[id] = $0
@@ -594,6 +595,7 @@ class HomeCalendarViewModel {
                 errorType: TokenError.noTokenExist
             )
             .subscribe(onSuccess: { [weak self] list in
+                self?.groupCategories = [:]
                 list.forEach {
                     guard let id = $0.id else { return }
                     self?.groupCategories[id] = $0
@@ -618,6 +620,7 @@ class HomeCalendarViewModel {
                 errorType: TokenError.noTokenExist
             )
             .subscribe(onSuccess: { [weak self] list in
+                self?.groups = [:]
                 list.forEach {
                     self?.groups[$0.groupId] = $0
                 }
