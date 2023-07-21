@@ -80,7 +80,6 @@ class SocialTodoDailyViewController: UIViewController {
         spinner.isHidden = false
         spinner.startAnimating()
         collectionView.setAnimatedIsHidden(true, duration: 0)
-        print("load")
         
         output
             .didFetchTodoList
@@ -88,7 +87,6 @@ class SocialTodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("fetched")
                 vc.collectionView.reloadData()
                 vc.spinner.setAnimatedIsHidden(true, duration: 0.2, onCompletion: {
                     vc.spinner.stopAnimating()
@@ -132,74 +130,9 @@ class SocialTodoDailyViewController: UIViewController {
     }
     
     @objc func addTodoTapped(_ sender: UIButton) {
-//        let api = NetworkManager()
-//        let keyChain = KeyChainManager()
-//
-//        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
-//        let todoRepo = TestTodoDetailRepository(apiProvider: api)
-//        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
-//
-//        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-//        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-//        let createTodoUseCase = DefaultCreateTodoUseCase.shared
-//        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
-//        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
-//        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
-//        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
-//        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
-//        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
-//
-//        let vm = TodoDetailViewModel(
-//            getTokenUseCase: getTokenUseCase,
-//            refreshTokenUseCase: refreshTokenUseCase,
-//            createTodoUseCase: createTodoUseCase,
-//            updateTodoUseCase: updateTodoUseCase,
-//            deleteTodoUseCase: deleteTodoUseCase,
-//            createCategoryUseCase: createCategoryUseCase,
-//            updateCategoryUseCase: updateCategoryUseCase,
-//            deleteCategoryUseCase: deleteCategoryUseCase,
-//            readCategoryUseCase: readCateogryUseCase
-//        )
-//        guard let groupDict = viewModel?.groupDict else { return }
-//        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-//        vm.setGroup(groupList: groupList)
-//        vm.todoStartDay.onNext(viewModel?.currentDate)
-//        let vc = TodoDetailViewController(viewModel: vm)
-//        vc.modalPresentationStyle = .overFullScreen
-//        self.present(vc, animated: false, completion: nil)
+        print("그룹장이 추가하도록!")
     }
     
-//    @objc func dateTitleBtnTapped(_ sender: UIButton) {
-//        showSmallCalendar()
-//    }
-    
-//    private func showSmallCalendar() {
-//
-//        guard let viewModel = self.viewModel else {
-//            return
-//        }
-//
-//        if let sheet = self.sheetPresentationController {
-//            sheet.invalidateDetents()
-//        }
-//
-//        let vm = SmallCalendarViewModel()
-//        vm.completionHandler = { [weak self] date in
-//            self?.didChangeDate.onNext(date)
-//        }
-//        vm.configureDate(currentDate: viewModel.currentDate ?? Date(), min: viewModel.minDate ?? Date(), max: viewModel.maxDate ?? Date())
-//        let vc = SmallCalendarViewController(viewModel: vm)
-//
-//        vc.preferredContentSize = CGSize(width: 320, height: 400)
-//        vc.modalPresentationStyle = .popover
-//
-//        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
-//        popover.delegate = self
-//        popover.sourceView = self.view
-//        popover.sourceItem = dateTitleButton
-//
-//        present(vc, animated: true, completion:nil)
-//    }
 }
 
 extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -234,19 +167,24 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
             } else {
                 return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
-        default:
-            print("4")
-            return UICollectionViewCell()
+        default: return UICollectionViewCell()
         }
-        guard let todoItem else {
-            print("5")
-            return UICollectionViewCell()
-        }
+        guard let todoItem else { return UICollectionViewCell() }
 
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
-        cell.fill(title: todoItem.title, time: todoItem.startTime, category: todoItem.categoryColor, isGroup: todoItem.isGroupTodo, isScheduled: todoItem.isPeriodTodo, isMemo: todoItem.hasDescription, completion: todoItem.isCompleted)
+        cell.fill(
+            title: todoItem.title,
+            time: todoItem.startTime,
+            category: todoItem.categoryColor,
+            isGroup: todoItem.isGroupTodo,
+            isScheduled: todoItem.isPeriodTodo,
+            isMemo: todoItem.hasDescription,
+            completion: todoItem.isCompleted,
+            isOwner: false
+        )
+        cell
         return cell
         
 

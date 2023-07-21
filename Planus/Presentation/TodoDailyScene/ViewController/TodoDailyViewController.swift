@@ -98,7 +98,6 @@ class TodoDailyViewController: UIViewController {
                 if indexPath.section == 0 {
                     if vm.viewModel?.scheduledTodoList?.count == 1 {
                         vm.collectionView.deleteItems(at: [indexPath])
-                        print("removed!")
                     }
                 } else if indexPath.section == 1 {
                     if vm.viewModel?.unscheduledTodoList?.count == 1 {
@@ -125,7 +124,6 @@ class TodoDailyViewController: UIViewController {
                 if indexPath.section == 0 {
                     if vm.viewModel?.scheduledTodoList?.count == 0 {
                         vm.collectionView.insertItems(at: [indexPath])
-                        print("removed!")
                     }
                 } else if indexPath.section == 1 {
                     if vm.viewModel?.unscheduledTodoList?.count == 0 {
@@ -237,9 +235,8 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         default:
             return UICollectionViewCell()
         }
-        guard let todoItem else {
-            return UICollectionViewCell()
-        }
+        guard let todoItem else { return UICollectionViewCell() }
+        
         var category: Category?
         category = todoItem.isGroupTodo ?
         viewModel?.groupCategoryDict[todoItem.categoryId]
@@ -250,7 +247,18 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
-        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.isGroupTodo, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: todoItem.isCompleted)
+        
+        cell.fill(
+            title: todoItem.title,
+            time: todoItem.startTime,
+            category: category.color,
+            isGroup: todoItem.isGroupTodo,
+            isScheduled: todoItem.startDate != todoItem.endDate,
+            isMemo: todoItem.memo != nil,
+            completion: todoItem.isCompleted,
+            isOwner: true
+        )
+        
         cell.fill { [weak self] in
             self?.didTappedCompletionBtnAt.onNext(indexPath)
         }

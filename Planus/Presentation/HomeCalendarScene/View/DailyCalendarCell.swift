@@ -140,7 +140,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
                     self.delegate?.dailyCalendarCell(self, colorOfGroupCategoryId: todo.categoryId)
                     : self.delegate?.dailyCalendarCell(self, colorOfCategoryId: todo.categoryId) else { return }
             
-            let todoView = generateSmallTodoView(title: todo.title, color: color, startDate: todo.startDate, endDate: todo.endDate)
+            let todoView = generateSmallTodoView(title: todo.title, color: color, startDate: todo.startDate, endDate: todo.endDate, isComplete: todo.isCompleted)
 
             for _ in (currentIndex..<index) {
                 let clearView = generateClearView()
@@ -166,7 +166,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
                         self.delegate?.dailyCalendarCell(self, colorOfGroupCategoryId: todo.categoryId)
                         : self.delegate?.dailyCalendarCell(self, colorOfCategoryId: todo.categoryId) else { return }
                 
-                let todoView = generateSmallTodoView(title: todo.title, color: color, startDate: todo.startDate, endDate: todo.endDate)
+                let todoView = generateSmallTodoView(title: todo.title, color: color, startDate: todo.startDate, endDate: todo.endDate, isComplete: todo.isCompleted)
                 stackView.addArrangedSubview(todoView)
                 views.append(todoView)
             }
@@ -196,7 +196,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
 
         periodTodoList.forEach { (index, todo) in
 
-            let todoView = generateSmallTodoView(title: todo.title, color: todo.categoryColor, startDate: todo.startDate, endDate: todo.endDate)
+            let todoView = generateSmallTodoView(title: todo.title, color: todo.categoryColor, startDate: todo.startDate, endDate: todo.endDate, isComplete: nil)
 
             for _ in (currentIndex..<index) {
                 let clearView = generateClearView()
@@ -218,7 +218,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
             }
 
             singleTodoList.forEach { (index, todo) in
-                let todoView = generateSmallTodoView(title: todo.title, color: todo.categoryColor, startDate: todo.startDate, endDate: todo.endDate)
+                let todoView = generateSmallTodoView(title: todo.title, color: todo.categoryColor, startDate: todo.startDate, endDate: todo.endDate, isComplete: nil)
                 stackView.addArrangedSubview(todoView)
                 views.append(todoView)
             }
@@ -247,8 +247,8 @@ class DailyCalendarCell: SpringableCollectionViewCell {
 }
 
 extension DailyCalendarCell {
-    func generateSmallTodoView(title: String, color: CategoryColor, startDate: Date, endDate: Date) -> SmallTodoView {
-        var todoView = SmallTodoView(text: title, categoryColor: color)
+    func generateSmallTodoView(title: String, color: CategoryColor, startDate: Date, endDate: Date, isComplete: Bool?) -> SmallTodoView {
+        var todoView = SmallTodoView(text: title, categoryColor: color, isComplete: isComplete)
         let diff = (Calendar.current.dateComponents([.day], from: startDate, to: endDate).day ?? 0) + 1
         todoView.snp.makeConstraints {
             $0.height.equalTo(16)
