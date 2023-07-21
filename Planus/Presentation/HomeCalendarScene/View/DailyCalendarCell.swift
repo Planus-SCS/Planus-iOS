@@ -47,8 +47,6 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         label.font = UIFont(name: "Pretendard-Regular", size: 10)
         label.text = "0"
         label.textAlignment = .center
-        label.layer.cornerRadius = 3
-        label.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         label.layer.masksToBounds = true
         return label
     }()
@@ -85,12 +83,17 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         views.removeAll()
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        numberLabel.layer.cornerRadius = numberLabel.bounds.width/2
+    }
+    
     func configureView() {
         self.addSubview(numberLabel)
         numberLabel.snp.makeConstraints {
             $0.top.equalTo(self.snp.top).offset(4)
-            $0.leading.trailing.equalToSuperview()
-            $0.height.equalTo(16)
+            $0.centerX.equalToSuperview()
+            $0.height.width.equalTo(16)
         }
         
         self.addSubview(stackView)

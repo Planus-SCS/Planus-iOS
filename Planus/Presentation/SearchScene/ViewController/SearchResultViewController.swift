@@ -354,12 +354,14 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
                 captin: item.leaderName
             )
             
+            let cellBag = DisposeBag()
+            cell.bag = cellBag
             viewModel?.fetchImage(key: item.groupImageUrl)
                 .observe(on: MainScheduler.asyncInstance)
                 .subscribe(onSuccess: { data in
                     cell.fill(image: UIImage(data: data))
                 })
-                .disposed(by: bag)
+                .disposed(by: cellBag)
             
             return cell
         case historyView.collectionView: // 삭제버튼 핸들러도 같이 넘기자

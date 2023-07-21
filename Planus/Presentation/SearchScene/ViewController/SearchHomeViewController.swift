@@ -242,12 +242,15 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
             captin: item.leaderName
         )
         
+        let cellBag = DisposeBag()
+        cell.bag = cellBag
+        
         viewModel?.fetchImage(key: item.groupImageUrl)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { data in
                 cell.fill(image: UIImage(data: data))
             })
-            .disposed(by: bag)
+            .disposed(by: cellBag)
         
         return cell
     }

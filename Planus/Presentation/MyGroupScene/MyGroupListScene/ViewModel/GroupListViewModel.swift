@@ -91,7 +91,6 @@ class GroupListViewModel {
             .refreshRequired
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                print("reff!!!")
                 vm.fetchMyGroupList(fetchType: .refresh)
             })
             .disposed(by: bag)

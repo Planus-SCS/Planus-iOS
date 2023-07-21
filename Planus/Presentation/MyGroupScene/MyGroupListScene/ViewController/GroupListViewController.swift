@@ -134,11 +134,13 @@ class GroupListViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .needReloadItemAt
+            .needReloadItemAt //이걸 리로드로 하면 약간의 flicker가 발생함. without animation으로 할까?
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc.resultCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                UIView.performWithoutAnimation {
+                    vc.resultCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                }
             })
             .disposed(by: bag)
         
@@ -211,6 +213,7 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
                 print(isOn)
                 // 네트워크 요청 성공 시 스위치 토글을 옮겨야한다..!
                 // 아니면 요청후 성공하면 유지, 실패하면 다시 원래자리로 돌리는거..?
+                // 토글한거 답변 올때까지 userInteraction을 금지. 리로드 하지 말고 직접 찾아서 해야할듯!
                 if isOn {
                     vc.becameOnlineStateAt.onNext(indexPath.item)
                 } else {
@@ -224,7 +227,7 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
             .subscribe(onSuccess: { data in
                 cell.fill(image: UIImage(data: data))
             })
-            .disposed(by: bag)
+            .disposed(by: cellBag)
         
         return cell
     }

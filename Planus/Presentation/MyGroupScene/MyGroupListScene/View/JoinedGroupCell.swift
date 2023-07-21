@@ -10,7 +10,6 @@ import RxSwift
 
 class JoinedGroupCell: SearchResultCell {
     
-    var bag: DisposeBag?
     var switchBag = DisposeBag()
     var indexPath: IndexPath?
     

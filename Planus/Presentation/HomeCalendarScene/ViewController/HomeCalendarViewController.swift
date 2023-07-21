@@ -332,7 +332,6 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("fetched!!!")
                 vc.setGroupButton()
             })
             .disposed(by: bag)
