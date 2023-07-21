@@ -20,6 +20,8 @@ class HomeCalendarViewController: UIViewController {
     var multipleTodoCompletionHandler: (() -> Void)?
     var isSingleSelected = PublishSubject<(Int, Int)>()
     var isGroupSelectedWithId = PublishSubject<Int?>()
+    var refreshRequired = PublishSubject<Void>()
+    var didFetchRefreshedData = PublishSubject<Void>()
     
     let scrolledTo = PublishSubject<ScrollDirection>()
     
@@ -114,7 +116,8 @@ class HomeCalendarViewController: UIViewController {
             didMultipleSelectItemsInRange: isMultipleSelected.asObservable(),
             didTappedTitleButton: yearMonthButton.rx.tap.asObservable(),
             didSelectMonth: isMonthChanged.asObservable(),
-            filterGroupWithId: isGroupSelectedWithId.asObservable()
+            filterGroupWithId: isGroupSelectedWithId.asObservable(),
+            refreshRequired: refreshRequired.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -140,7 +143,7 @@ class HomeCalendarViewController: UIViewController {
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, rangeSet in
+            .subscribe(onNext: { vc, rangeSet in //여기서 추가로 리로드중인게 있는지 확인해야하나???
                 vc.collectionView.reloadSections(IndexSet(rangeSet.0..<rangeSet.1))
             })
             .disposed(by: bag)
@@ -342,6 +345,15 @@ class HomeCalendarViewController: UIViewController {
                 vc.collectionView.reloadData()
             })
             .disposed(by: bag)
+        
+        output
+            .didFinishRefreshing
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.didFetchRefreshedData.onNext(())
+            })
+            .disposed(by: bag)
             
     }
     
@@ -423,12 +435,15 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
             section: indexPath.section,
             viewModel: viewModel
         )
+        
         cell.fill(
             isMultipleSelecting: isMultipleSelecting,
             isMultipleSelected: isMultipleSelected,
-            isSingleSelected: isSingleSelected
+            isSingleSelected: isSingleSelected,
+            refreshRequired: refreshRequired,
+            didFetchRefreshedData: didFetchRefreshedData
         )
-                
+            
         return cell
     }
     

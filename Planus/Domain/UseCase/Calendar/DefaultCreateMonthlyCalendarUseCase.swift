@@ -47,7 +47,6 @@ class DefaultCreateMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase {
                 state: state
             ))
         }
-        print("date: \(date), totalDays: \(totalDaysCount)")
         
         return dayList
     }

@@ -55,6 +55,8 @@ class HomeCalendarViewModel {
     var memberCategories = [Int: Category]()
     var groupCategories = [Int: Category]()
 
+    var nowRefreshing: Bool = false
+    var didFinishRefreshing = PublishSubject<Void>()
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
     var showCreateMultipleTodo = PublishSubject<(Date, Date)>()
@@ -65,7 +67,7 @@ class HomeCalendarViewModel {
     var needReloadData = PublishSubject<Void>()
     var needWelcome = BehaviorSubject<String?>(value: nil)
     
-    lazy var categoryAndGroupZip = Observable.combineLatest(
+    lazy var categoryAndGroupZip = Observable.zip(
         initialReadGroup.compactMap { $0 },
         initialReadGroupCategory.compactMap { $0 },
         initialReadCategory.compactMap { $0 }
@@ -88,6 +90,7 @@ class HomeCalendarViewModel {
         var didTappedTitleButton: Observable<Void>
         var didSelectMonth: Observable<Date>
         var filterGroupWithId: Observable<Int?>
+        var refreshRequired: Observable<Void>
     }
     
     struct Output {
@@ -104,6 +107,7 @@ class HomeCalendarViewModel {
         var needWelcome: Observable<String?>
         var groupListFetched: Observable<Void?>
         var needFilterGroupWithId: Observable<Int?>
+        var didFinishRefreshing: Observable<Void>
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -205,9 +209,14 @@ class HomeCalendarViewModel {
                 vm.bindProfileUseCase()
                 vm.bindGroupUseCase()
                 vm.initCalendar(date: date)
+                
                 vm.categoryAndGroupZip
                     .take(1)
                     .subscribe(onNext: { _ in
+                        vm.initialReadGroup.onNext(nil)
+                        vm.initialReadCategory.onNext(nil)
+                        vm.initialReadGroupCategory.onNext(nil)
+                        
                         vm.initTodoList()
                     })
                     .disposed(by: vm.bag)
@@ -287,6 +296,14 @@ class HomeCalendarViewModel {
             .bind(to: filteredGroupId)
             .disposed(by: bag)
                 
+        input
+            .refreshRequired
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.nowRefreshing = true
+                vm.fetchAll()
+            })
+            .disposed(by: bag)
         
         return Output(
             didLoadYYYYMM: currentYYYYMM.asObservable(),
@@ -301,7 +318,8 @@ class HomeCalendarViewModel {
             profileImageFetched: fetchedProfileImage.asObservable(),
             needWelcome: needWelcome.asObservable(),
             groupListFetched: initialReadGroup.asObservable(),
-            needFilterGroupWithId: filteredGroupId.asObservable()
+            needFilterGroupWithId: filteredGroupId.asObservable(),
+            didFinishRefreshing: didFinishRefreshing.asObservable()
         )
     }
     
@@ -319,22 +337,33 @@ class HomeCalendarViewModel {
         latestFollowingCacheRequestedIndex = currentIndex
         
         initialDayListFetchedInCenterIndex.onNext(currentIndex)
-        // 여기서 바인딩 할것인가?
+    }
+    
+    func fetchAll() { //네이밍 변경하자..!
+        fetchGroup()
+        fetchCategory()
+        fetchGroupCategory()
+        
+        categoryAndGroupZip
+            .withUnretained(self)
+            .take(1)
+            .subscribe(onNext: { vm, _ in
+                // 여기서 categoryAndGroupZip이 세개의 뉴 데이터를 잘 받은 후 이부분이 실행되는지 보자..!
+                vm.initialReadGroup.onNext(nil)
+                vm.initialReadCategory.onNext(nil)
+                vm.initialReadGroupCategory.onNext(nil)
+                
+                vm.initTodoList()
+            })
+            .disposed(by: bag)
     }
     
     func bindGroupUseCase() {
-        groupCreateUseCase
+        groupCreateUseCase //그룹 생성이나 탈퇴 시 새로 fetch
             .didCreateGroup
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchGroup()
-                vm.fetchCategory()
-                
-                vm.categoryAndGroupZip
-                    .subscribe(onNext: { _ in
-                        vm.initTodoList()
-                    })
-                    .disposed(by: vm.bag)
+                vm.fetchAll()
             })
             .disposed(by: bag)
         
@@ -342,14 +371,7 @@ class HomeCalendarViewModel {
             .didWithdrawGroup
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchGroup()
-                vm.fetchCategory()
-                
-                vm.categoryAndGroupZip
-                    .subscribe(onNext: { _ in
-                        vm.initTodoList()
-                    })
-                    .disposed(by: vm.bag)
+                vm.fetchAll()
             })
             .disposed(by: bag)
         
@@ -357,14 +379,7 @@ class HomeCalendarViewModel {
             .didDeleteGroupWithId
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchGroup()
-                vm.fetchCategory()
-                
-                vm.categoryAndGroupZip
-                    .subscribe(onNext: { _ in
-                        vm.initTodoList()
-                    })
-                    .disposed(by: vm.bag)
+                vm.fetchAll()
             })
             .disposed(by: bag)
     }
@@ -448,7 +463,7 @@ class HomeCalendarViewModel {
             .disposed(by: bag)
     }
     
-    func initTodoList() {
+    func initTodoList() { //index를 기점으로 초기화
         latestPrevCacheRequestedIndex = currentIndex
         latestFollowingCacheRequestedIndex = currentIndex
         
@@ -527,8 +542,13 @@ class HomeCalendarViewModel {
             )
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
-                self.todos.merge(todoDict) { (_, new) in new}
+                self.todos.merge(todoDict) { (_, new) in new }
                 self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
+                
+                if self.nowRefreshing {
+                    self.nowRefreshing = false
+                    self.didFinishRefreshing.onNext(())
+                }
             })
             .disposed(by: bag)
     }

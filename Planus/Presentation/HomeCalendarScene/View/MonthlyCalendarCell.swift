@@ -22,6 +22,7 @@ class MonthlyCalendarCell: UICollectionViewCell {
     var isMultipleSelecting: PublishSubject<Bool>?
     var isMultipleSelected: PublishSubject<(Int, (Int, Int))>?
     var isSingleSelected: PublishSubject<(Int, Int)>?
+    var refreshRequired: PublishSubject<Void>?
     
     var bag: DisposeBag?
     
@@ -48,9 +49,25 @@ class MonthlyCalendarCell: UICollectionViewCell {
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
-        
-        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.dataSource = self
+        cv.delegate = self
+        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.showsVerticalScrollIndicator = false
+        cv.refreshControl = refreshControl
+        cv.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
+        return cv
+    }() //돌아가는 동안에는 Home의 스크롤도 막아야함..!
+    
+    lazy var refreshControl: UIRefreshControl = {
+        let rc = UIRefreshControl(frame: .zero)
+        rc.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        return rc
     }()
+    
+    @objc func refresh(_ sender: UIRefreshControl) {
+        refreshRequired?.onNext(())
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -70,15 +87,10 @@ class MonthlyCalendarCell: UICollectionViewCell {
     }
     
     func configureView() {
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
-        collectionView.showsVerticalScrollIndicator = false
         self.addSubview(collectionView)
         collectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        collectionView.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
     }
     
     func fill(section: Int, viewModel: HomeCalendarViewModel?) {
@@ -90,11 +102,26 @@ class MonthlyCalendarCell: UICollectionViewCell {
     func fill(
         isMultipleSelecting: PublishSubject<Bool>,
         isMultipleSelected: PublishSubject<(Int, (Int, Int))>,
-        isSingleSelected: PublishSubject<(Int, Int)>
+        isSingleSelected: PublishSubject<(Int, Int)>,
+        refreshRequired: PublishSubject<Void>,
+        didFetchRefreshedData: PublishSubject<Void>
     ) {
         self.isMultipleSelecting = isMultipleSelecting
         self.isMultipleSelected = isMultipleSelected
         self.isSingleSelected = isSingleSelected
+        self.refreshRequired = refreshRequired
+        
+        var bag = DisposeBag()
+        didFetchRefreshedData
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { view, _ in
+                if view.refreshControl.isRefreshing {
+                    view.refreshControl.endRefreshing()
+                }
+            })
+            .disposed(by: bag)
+        self.bag = bag
     }
     
     func deselectItems() {
