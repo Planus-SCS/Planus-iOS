@@ -358,6 +358,7 @@ class HomeCalendarViewController: UIViewController {
     }
     
     func setGroupButton() {
+        print("그룹버튼 만들어야함!")
         let image = UIImage(named: "groupCalendarList")
         var children = [UIMenuElement]()
         let all = UIAction(title: "모아 보기", handler: { [weak self] _ in

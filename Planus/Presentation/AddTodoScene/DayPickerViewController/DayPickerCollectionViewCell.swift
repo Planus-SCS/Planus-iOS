@@ -76,7 +76,7 @@ class DayPickerCollectionViewCell: UICollectionViewCell {
         case .following:
             dayLabel.textColor = UIColor(hex: 0xBFC7D7, a: 0.4)
         }
-        print(rangeState)
+
         switch rangeState {
         case .only:
             self.highlightView.backgroundColor = UIColor(hex: 0x6495F4)

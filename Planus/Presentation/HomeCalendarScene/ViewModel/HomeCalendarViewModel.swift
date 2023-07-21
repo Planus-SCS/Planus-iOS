@@ -213,15 +213,17 @@ class HomeCalendarViewModel {
                 vm.categoryAndGroupZip
                     .take(1)
                     .subscribe(onNext: { _ in
-                        vm.initialReadGroup.onNext(nil)
-                        vm.initialReadCategory.onNext(nil)
-                        vm.initialReadGroupCategory.onNext(nil)
-                        
                         vm.initTodoList()
                     })
                     .disposed(by: vm.bag)
             })
             .disposed(by: bag)
+        
+        // FIXME: testing subscribe
+        initialReadGroup.subscribe(onNext: { print("group Fetched with \($0)")})
+        initialReadCategory.subscribe(onNext: { print("category Fetched with \($0)")})
+        initialReadGroupCategory.subscribe(onNext: { print("groupCategory Fetched with \($0)") })
+        todoListFetchedInIndexRange.subscribe(onNext: { print("todo fetched with \($0)") })
     }
     
     func transform(input: Input) -> Output {
@@ -340,6 +342,10 @@ class HomeCalendarViewModel {
     }
     
     func fetchAll() { //네이밍 변경하자..!
+        initialReadGroup.onNext(nil)
+        initialReadCategory.onNext(nil)
+        initialReadGroupCategory.onNext(nil)
+        
         fetchGroup()
         fetchCategory()
         fetchGroupCategory()
@@ -348,11 +354,7 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .take(1)
             .subscribe(onNext: { vm, _ in
-                // 여기서 categoryAndGroupZip이 세개의 뉴 데이터를 잘 받은 후 이부분이 실행되는지 보자..!
-                vm.initialReadGroup.onNext(nil)
-                vm.initialReadCategory.onNext(nil)
-                vm.initialReadGroupCategory.onNext(nil)
-                
+                // 여기서 categoryAndGroupZip이 세개의 뉴 데이터를 잘 받은 후 이부분이 실행되는지 보자..!                
                 vm.initTodoList()
             })
             .disposed(by: bag)

@@ -307,7 +307,6 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
             isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil
         )
         
-        print(dayViewModel.date)
         cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
 
         
