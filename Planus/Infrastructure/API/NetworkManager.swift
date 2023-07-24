@@ -47,6 +47,8 @@ class NetworkManager: APIProvider {
                     emitter(.failure(NetworkError.nilDataError))
                     return
                 }
+                
+                print(String(data: data, encoding: .utf8))
 
                 guard let httpResponse = response as? HTTPURLResponse else { return }
                 switch httpResponse.statusCode {

@@ -401,7 +401,9 @@ class HomeCalendarViewController: UIViewController {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        let vm = MyPageMainViewModel(updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, fetchImageUseCase: fetchImageUseCase)
+        let removeTokenUseCase = DefaultRemoveTokenUseCase(tokenRepository: tokenRepo)
+        let removeProfileUseCase = DefaultRemoveProfileUseCase(profileRepository: profileRepo)
+        let vm = MyPageMainViewModel(updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, removeTokenUseCase: removeTokenUseCase, removeProfileUseCase: removeProfileUseCase, fetchImageUseCase: fetchImageUseCase)
         vm.setProfile(profile: profile)
         let vc = MyPageMainViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true

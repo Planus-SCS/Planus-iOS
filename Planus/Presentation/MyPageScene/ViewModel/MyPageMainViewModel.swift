@@ -20,6 +20,7 @@ class MyPageMainViewModel {
     }()
     
     var didRefreshUserProfile = BehaviorSubject<Void?>(value: nil)
+    var didResigned = PublishSubject<Void>()
     
     lazy var titleList: [MyPageMainTitleViewModel] = [ //이 리스트까지 이넘으로 해서 caseIterable쓸까?
         MyPageMainTitleViewModel(title: "푸시 알림 설정", type: .toggle(self.isPushOn)),
@@ -34,26 +35,35 @@ class MyPageMainViewModel {
     struct Input {
         var viewDidLoad: Observable<Void>
         var didSelectedAt: Observable<Int>
+        var signOut: Observable<Void>
+        var resign: Observable<Void>
     }
     
     struct Output {
         var didRefreshUserProfile: Observable<Void?>
+        var didResigned: Observable<Void>
     }
     
     var updateProfileUseCase: UpdateProfileUseCase
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
+    var removeTokenUseCase: RemoveTokenUseCase
+    var removeProfileUseCase: RemoveProfileUseCase
     var fetchImageUseCase: FetchImageUseCase
     
     init(
         updateProfileUseCase: UpdateProfileUseCase,
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
+        removeTokenUseCase: RemoveTokenUseCase,
+        removeProfileUseCase: RemoveProfileUseCase,
         fetchImageUseCase: FetchImageUseCase
     ) {
         self.updateProfileUseCase = DefaultUpdateProfileUseCase.shared
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
+        self.removeTokenUseCase = removeTokenUseCase
+        self.removeProfileUseCase = removeProfileUseCase
         self.fetchImageUseCase = fetchImageUseCase
     }
     
@@ -79,7 +89,15 @@ class MyPageMainViewModel {
             })
             .disposed(by: bag)
         
-        return Output(didRefreshUserProfile: didRefreshUserProfile.asObservable())
+        input
+            .resign
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.resign()
+            })
+            .disposed(by: bag)
+        
+        return Output(didRefreshUserProfile: didRefreshUserProfile.asObservable(), didResigned: didResigned.asObservable())
     }
     
     func bindUseCase() {
@@ -91,6 +109,30 @@ class MyPageMainViewModel {
                 vm.introduce = profile.description
                 vm.imageURL = profile.imageUrl
                 vm.didRefreshUserProfile.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
+    func signOut() {
+        removeTokenUseCase.execute()
+    }
+    
+    func resign() {
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.removeProfileUseCase.execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.signOut()
+                self?.didResigned.onNext(())
             })
             .disposed(by: bag)
     }

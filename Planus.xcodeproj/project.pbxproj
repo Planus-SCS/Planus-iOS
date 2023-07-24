@@ -187,6 +187,10 @@
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
 		6A61C3CD2A69675600DCA088 /* HolidayPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61C3CC2A69675500DCA088 /* HolidayPool.swift */; };
 		6A61C3F42A6E9CC500DCA088 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61C3F32A6E9CC500DCA088 /* NetworkMonitor.swift */; };
+		6A61C3F62A6EB16200DCA088 /* DefaultRemoveTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61C3F52A6EB16200DCA088 /* DefaultRemoveTokenUseCase.swift */; };
+		6A61C3F82A6EB1AD00DCA088 /* RemoveTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61C3F72A6EB1AD00DCA088 /* RemoveTokenUseCase.swift */; };
+		6A61C3FA2A6EB32E00DCA088 /* DefaultRemoveProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61C3F92A6EB32E00DCA088 /* DefaultRemoveProfileUseCase.swift */; };
+		6A61C3FC2A6EB38100DCA088 /* RemoveProfileUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61C3FB2A6EB38100DCA088 /* RemoveProfileUseCase.swift */; };
 		6A6C7B912A25B5D3005BAEEC /* DefaultFetchGroupCategoryListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B902A25B5D3005BAEEC /* DefaultFetchGroupCategoryListUseCase.swift */; };
 		6A6C7B932A25B639005BAEEC /* FetchGroupCategoryListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B922A25B639005BAEEC /* FetchGroupCategoryListUseCase.swift */; };
 		6A6C7B952A275273005BAEEC /* DefaultTodoCompleteUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B942A275273005BAEEC /* DefaultTodoCompleteUseCase.swift */; };
@@ -689,6 +693,10 @@
 		6A483DB129CA804C003375BF /* PlanusRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PlanusRelease.entitlements; sourceTree = "<group>"; };
 		6A61C3CC2A69675500DCA088 /* HolidayPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayPool.swift; sourceTree = "<group>"; };
 		6A61C3F32A6E9CC500DCA088 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		6A61C3F52A6EB16200DCA088 /* DefaultRemoveTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultRemoveTokenUseCase.swift; sourceTree = "<group>"; };
+		6A61C3F72A6EB1AD00DCA088 /* RemoveTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoveTokenUseCase.swift; sourceTree = "<group>"; };
+		6A61C3F92A6EB32E00DCA088 /* DefaultRemoveProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultRemoveProfileUseCase.swift; sourceTree = "<group>"; };
+		6A61C3FB2A6EB38100DCA088 /* RemoveProfileUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoveProfileUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B902A25B5D3005BAEEC /* DefaultFetchGroupCategoryListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchGroupCategoryListUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B922A25B639005BAEEC /* FetchGroupCategoryListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchGroupCategoryListUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B942A275273005BAEEC /* DefaultTodoCompleteUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTodoCompleteUseCase.swift; sourceTree = "<group>"; };
@@ -2331,6 +2339,7 @@
 				6A9AAB1C29FA534F002A6DAF /* DefaultGetTokenUseCase.swift */,
 				6A9AAB1E29FA5390002A6DAF /* DefaultRefreshTokenUseCase.swift */,
 				6A9AAB4229FAC180002A6DAF /* DefaultSetTokenUseCase.swift */,
+				6A61C3F52A6EB16200DCA088 /* DefaultRemoveTokenUseCase.swift */,
 			);
 			path = Token;
 			sourceTree = "<group>";
@@ -2387,6 +2396,7 @@
 				6A9AAB2029FA5775002A6DAF /* GetTokenRepository.swift */,
 				6A9AAB2229FA57E0002A6DAF /* RefreshTokenUseCase.swift */,
 				6A9AAB4429FAC1AD002A6DAF /* SetTokenUseCase.swift */,
+				6A61C3F72A6EB1AD00DCA088 /* RemoveTokenUseCase.swift */,
 			);
 			path = Token;
 			sourceTree = "<group>";
@@ -2424,6 +2434,7 @@
 			children = (
 				6AC0790C2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift */,
 				6AC079212A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift */,
+				6A61C3F92A6EB32E00DCA088 /* DefaultRemoveProfileUseCase.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -2433,6 +2444,7 @@
 			children = (
 				6AC079112A08CCF9007ACDB8 /* ReadProfileUseCase.swift */,
 				6AC079232A08EC4A007ACDB8 /* UpdateProfileUseCase.swift */,
+				6A61C3FB2A6EB38100DCA088 /* RemoveProfileUseCase.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -2897,6 +2909,7 @@
 				6AC0793F2A0A3650007ACDB8 /* ValidationCheckView.swift in Sources */,
 				6A08AD6E29C88969005947D2 /* Coordinator.swift in Sources */,
 				6A24F91F29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift in Sources */,
+				6A61C3FA2A6EB32E00DCA088 /* DefaultRemoveProfileUseCase.swift in Sources */,
 				6A9199EF2A20960300108BF4 /* FetchMyGroupCalendarUseCase.swift in Sources */,
 				6A987A4329DDAE1000C27D09 /* MyGroupMemberEditViewModel.swift in Sources */,
 				6A27441B2A0CC9EF008FB4F5 /* PrimitiveSequence+Ext.swift in Sources */,
@@ -2984,6 +2997,7 @@
 				6AC079A42A0B5E0D007ACDB8 /* MyGroupSummaryDTO.swift in Sources */,
 				6A9199592A12004100108BF4 /* MyGroupInfoEditViewModel.swift in Sources */,
 				6A91998A2A1254F300108BF4 /* GroupCreateLoadViewController.swift in Sources */,
+				6A61C3FC2A6EB38100DCA088 /* RemoveProfileUseCase.swift in Sources */,
 				6A9199D92A169E1D00108BF4 /* GroupCreateTagView.swift in Sources */,
 				6A6C7B912A25B5D3005BAEEC /* DefaultFetchGroupCategoryListUseCase.swift in Sources */,
 				6A08ADB429C8A064005947D2 /* SignInCoordinator.swift in Sources */,
@@ -3035,6 +3049,7 @@
 				6A24F90E29D223D90000FD64 /* CreateDailyCalendarUseCase.swift in Sources */,
 				6A987A7729DEF55300C27D09 /* TodoDailyCoordinator.swift in Sources */,
 				6AC078DE2A0287FF007ACDB8 /* TodoViewModel.swift in Sources */,
+				6A61C3F82A6EB1AD00DCA088 /* RemoveTokenUseCase.swift in Sources */,
 				6A9A080829D40C7D0051AD43 /* CategorySelectCell.swift in Sources */,
 				6A9AAB4129FA98A3002A6DAF /* TokenDTO.swift in Sources */,
 				6AA3BAD52A24D75B00E5B8A2 /* CustomAlertViewController.swift in Sources */,
@@ -3091,6 +3106,7 @@
 				6AA3BAD12A24AD2900E5B8A2 /* RecentQueryRepository.swift in Sources */,
 				6AA3BACE2A24A46900E5B8A2 /* DefaultRecentQueryRepository.swift in Sources */,
 				6A24F84E29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift in Sources */,
+				6A61C3F62A6EB16200DCA088 /* DefaultRemoveTokenUseCase.swift in Sources */,
 				6A24F91029D226810000FD64 /* TodoMainViewController.swift in Sources */,
 				6A95DFEE29D5A6D1009017D8 /* GroupIntroduceCoordinator.swift in Sources */,
 				6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */,

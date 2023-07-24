@@ -48,6 +48,23 @@ class DefaultProfileRepository: ProfileRepository {
             type: ResponseDTO<ProfileResponseDataDTO>.self
         )
     }
+    
+    func removeProfile(token: String) -> Single<ResponseDTO<ProfileResponseDataDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.members,
+            requestType: .delete,
+            body: nil,
+            query: nil,
+            header: [
+                "Authorization": "Bearer \(token)"
+            ]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<ProfileResponseDataDTO>.self
+        )
+    }
 }
 
 
