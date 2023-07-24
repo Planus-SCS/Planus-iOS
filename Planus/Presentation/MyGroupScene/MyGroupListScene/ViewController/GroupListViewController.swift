@@ -138,6 +138,7 @@ class GroupListViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
+                print("reload Item")
                 UIView.performWithoutAnimation {
                     vc.resultCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
                 }
@@ -150,6 +151,40 @@ class GroupListViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
                 vc.showToast(message: message, type: .normal)
+            })
+            .disposed(by: bag)
+        
+        output
+            .didSuccessOnlineStateChange
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] (index, isSuccess) in
+                guard let self,
+                      var group = viewModel.groupList?[index],
+                      let cell = self.resultCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? JoinedGroupCell else { return }
+                
+                if isSuccess {
+                    cell.onlineButton.setTitle("\(group.onlineCount)", for: .normal)
+                } else {
+                    let outerSwitchBag = DisposeBag()
+                    cell.outerSwitchBag = outerSwitchBag
+                    
+                    cell.onlineSwitch.isOn = !cell.onlineSwitch.isOn
+                    
+                    cell.onlineSwitch.rx.isOn
+                        .skip(1)
+                        .asObservable() //초기값 무시
+                        .subscribe(onNext: { isOn in
+                            cell.onlineSwitch.isUserInteractionEnabled = false
+                            if isOn {
+                                self.becameOnlineStateAt.onNext(index)
+                            } else {
+                                self.becameOfflineStateAt.onNext(index)
+                            }
+                        })
+                    .disposed(by: outerSwitchBag)
+                }
+                
+                cell.onlineSwitch.isUserInteractionEnabled = true
             })
             .disposed(by: bag)
     }
@@ -204,23 +239,24 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
         
         // 새로 바인딩..!
         let cellBag = DisposeBag()
-        cell.indexPath = indexPath
+        let outerSwitchBag = DisposeBag()
+        
         cell.bag = cellBag
-        cell.isOnline
-            .distinctUntilChanged()
+        cell.outerSwitchBag = outerSwitchBag
+        
+        cell.onlineSwitch.rx.isOn
+            .skip(1)
+            .asObservable() //초기값은 무시
             .withUnretained(self)
             .subscribe(onNext: { vc, isOn in
-                print(isOn)
-                // 네트워크 요청 성공 시 스위치 토글을 옮겨야한다..!
-                // 아니면 요청후 성공하면 유지, 실패하면 다시 원래자리로 돌리는거..?
-                // 토글한거 답변 올때까지 userInteraction을 금지. 리로드 하지 말고 직접 찾아서 해야할듯!
+                cell.onlineSwitch.isUserInteractionEnabled = false
                 if isOn {
                     vc.becameOnlineStateAt.onNext(indexPath.item)
                 } else {
                     vc.becameOfflineStateAt.onNext(indexPath.item)
                 }
             })
-            .disposed(by: cellBag)
+        .disposed(by: outerSwitchBag)
         
         viewModel?.fetchImage(key: item.groupImageUrl)
             .observe(on: MainScheduler.asyncInstance)

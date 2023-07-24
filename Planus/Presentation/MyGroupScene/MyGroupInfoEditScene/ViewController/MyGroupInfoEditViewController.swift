@@ -86,6 +86,7 @@ class MyGroupInfoEditViewController: UIViewController {
         super.viewWillAppear(animated)
         
         self.navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationItem.setRightBarButton(saveButton, animated: false)
         self.navigationItem.title = "그룹 편집"
     }
@@ -354,3 +355,5 @@ extension MyGroupInfoEditViewController: UIPopoverPresentationControllerDelegate
         return .none
     }
 }
+
+extension MyGroupInfoEditViewController: UIGestureRecognizerDelegate {}

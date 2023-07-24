@@ -72,6 +72,7 @@ class GroupCreateViewController: UIViewController {
         super.viewWillAppear(animated)
         
         self.navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationItem.title = "그룹 생성"
     }
     
@@ -373,3 +374,5 @@ extension GroupCreateViewController: UIPopoverPresentationControllerDelegate {
         return .none
     }
 }
+
+extension GroupCreateViewController: UIGestureRecognizerDelegate {}

@@ -51,13 +51,15 @@ class MyGroupMemberEditViewController: UIViewController {
         
         bind()
         
-        navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         navigationItem.title = "그룹 멤버 관리"
+        
+        navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     func bind() {
@@ -164,3 +166,5 @@ extension MyGroupMemberEditViewController: UICollectionViewDataSource {
     
     
 }
+
+extension MyGroupMemberEditViewController: UIGestureRecognizerDelegate {}

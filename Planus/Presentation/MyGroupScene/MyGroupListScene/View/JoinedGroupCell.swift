@@ -10,7 +10,7 @@ import RxSwift
 
 class JoinedGroupCell: SearchResultCell {
     
-    var switchBag = DisposeBag()
+    var outerSwitchBag: DisposeBag?
     var indexPath: IndexPath?
     
     var isOnline = PublishSubject<Bool>()
@@ -53,12 +53,6 @@ class JoinedGroupCell: SearchResultCell {
         swicth.layer.cornerRadius = 14
         swicth.backgroundColor = UIColor(hex: 0x6F81A9)
         swicth.clipsToBounds = true
-        swicth.rx.isOn.asObservable()
-            .withUnretained(self)
-            .subscribe(onNext: { cell, isOn in
-                cell.isOnline.onNext(isOn)
-        })
-        .disposed(by: switchBag)
         
         return swicth
     }()

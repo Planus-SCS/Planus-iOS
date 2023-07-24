@@ -123,6 +123,7 @@ class MyPageEditViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationItem.setLeftBarButton(backButton, animated: false)
         navigationItem.setRightBarButton(saveButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         navigationItem.title = "프로필 수정"
     }
     
@@ -316,3 +317,5 @@ extension MyPageEditViewController: UITextViewDelegate {
         }
     }
 }
+
+extension MyPageEditViewController: UIGestureRecognizerDelegate {}

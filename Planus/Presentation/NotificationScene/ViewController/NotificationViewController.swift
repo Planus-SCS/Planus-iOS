@@ -75,7 +75,7 @@ class NotificationViewController: UIViewController {
         
         navigationItem.title = "그룹 신청 관리"
         navigationItem.setLeftBarButton(backButton, animated: false)
-
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     func bind() {
@@ -206,3 +206,5 @@ extension NotificationViewController {
         return layout
     }
 }
+
+extension NotificationViewController: UIGestureRecognizerDelegate {}

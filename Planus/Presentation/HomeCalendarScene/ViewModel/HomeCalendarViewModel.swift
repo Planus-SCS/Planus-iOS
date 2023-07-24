@@ -354,7 +354,6 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .take(1)
             .subscribe(onNext: { vm, _ in
-                // 여기서 categoryAndGroupZip이 세개의 뉴 데이터를 잘 받은 후 이부분이 실행되는지 보자..!                
                 vm.initTodoList()
             })
             .disposed(by: bag)

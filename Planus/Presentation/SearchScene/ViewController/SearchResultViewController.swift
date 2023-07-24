@@ -150,6 +150,7 @@ class SearchResultViewController: UIViewController {
         super.viewWillAppear(animated)
         
         self.navigationItem.setLeftBarButton(backButton, animated: true)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationItem.setRightBarButton(UIBarButtonItem(customView: searchBarField), animated: true)
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardEvent), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -434,3 +435,5 @@ extension SearchResultViewController {
         return layout
     }
 }
+
+extension SearchResultViewController: UIGestureRecognizerDelegate {}

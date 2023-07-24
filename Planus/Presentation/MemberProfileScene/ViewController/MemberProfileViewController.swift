@@ -76,6 +76,7 @@ class MemberProfileViewController: UIViewController {
         
         self.navigationItem.title = "그룹 멤버 캘린더"
         self.navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     func bind() {
@@ -434,3 +435,5 @@ extension MemberProfileViewController: UIPopoverPresentationControllerDelegate {
         return .none
     }
 }
+
+extension MemberProfileViewController: UIGestureRecognizerDelegate {}

@@ -64,11 +64,13 @@ class JoinedGroupDetailViewController: UIViewController {
         configurePanGesture()
         
         bind()
-        navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         
         titleFetched
             .withUnretained(self)
@@ -551,3 +553,5 @@ extension JoinedGroupDetailViewController: JoinedGroupCalendarViewControllerDele
         return viewModel?.isLeader
     }
 }
+
+extension JoinedGroupDetailViewController: UIGestureRecognizerDelegate {}

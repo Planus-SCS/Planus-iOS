@@ -46,7 +46,7 @@ struct Member {
     var profileImageUrl: String?
 }
 
-class GroupIntroduceViewController: UIViewController {
+class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegate {
 
     var bag = DisposeBag()
     
@@ -141,7 +141,8 @@ class GroupIntroduceViewController: UIViewController {
 //        self.navigationItem.title = "dkssddd"
         navigationItem.setLeftBarButton(backButton, animated: false)
         navigationItem.setRightBarButton(shareButton, animated: false)
-        
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+
         let initialAppearance = UINavigationBarAppearance()
         let scrollingAppearance = UINavigationBarAppearance()
         scrollingAppearance.configureWithOpaqueBackground()
@@ -243,13 +244,12 @@ class GroupIntroduceViewController: UIViewController {
         }
         
         collectionView.snp.makeConstraints {
-//            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
             $0.top.leading.trailing.bottom.equalToSuperview()
         }
     }
     
     @objc func backBtnAction() {
-        backButtonTapped.onNext(())
+        navigationController?.popViewController(animated: true)
     }
     
     @objc func shareBtnAction() {
