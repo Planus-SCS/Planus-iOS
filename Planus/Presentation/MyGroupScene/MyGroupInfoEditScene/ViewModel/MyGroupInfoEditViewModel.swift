@@ -17,8 +17,8 @@ class MyGroupInfoEditViewModel {
     var tagList = [String]()
     var maxMember = BehaviorSubject<Int?>(value: nil)
     
-    let tagCountValidState = PublishSubject<Bool>()
-    let tagDuplicateValidState = PublishSubject<Bool>()
+    let tagCountValidState = BehaviorSubject<Bool?>(value: nil)
+    let tagDuplicateValidState = BehaviorSubject<Bool?>(value: nil)
     
     var infoUpdateCompleted = PublishSubject<Void>()
     var groupDeleted = PublishSubject<Void>()
@@ -88,6 +88,8 @@ class MyGroupInfoEditViewModel {
         let insertAt = PublishSubject<Int>()
         let removeAt = PublishSubject<Int>()
         
+        checkTagValidation()
+        
         input
             .titleImageChanged
             .bind(to: titleImage)
@@ -138,8 +140,8 @@ class MyGroupInfoEditViewModel {
         let isCreateButtonEnabled = Observable.combineLatest([
             imageFilled,
             maxMemberFilled,
-            tagCountValidState,
-            tagDuplicateValidState
+            tagCountValidState.compactMap { $0 },
+            tagDuplicateValidState.compactMap { $0 }
         ]).map { list in
             guard let _ = list.first(where: { !$0 }) else { return true }
             return false
@@ -149,8 +151,8 @@ class MyGroupInfoEditViewModel {
             imageFilled: imageFilled,
             maxCountFilled: maxMemberFilled,
             didChangedTitleImage: titleImage.map { $0?.data }.asObservable(),
-            tagCountValidState: tagCountValidState.asObservable(),
-            tagDuplicateValidState: tagDuplicateValidState.asObservable(),
+            tagCountValidState: tagCountValidState.compactMap { $0 }.asObservable(),
+            tagDuplicateValidState: tagDuplicateValidState.compactMap { $0 }.asObservable(),
             isUpdateButtonEnabled: isCreateButtonEnabled,
             infoUpdateCompleted: infoUpdateCompleted.asObservable(),
             insertTagAt: insertAt.asObservable(),

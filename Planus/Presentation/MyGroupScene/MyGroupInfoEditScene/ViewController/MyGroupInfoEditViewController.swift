@@ -20,6 +20,7 @@ class MyGroupInfoEditViewController: UIViewController {
     var titleImageChanged = PublishSubject<ImageFile?>()
     
     var scrollView = UIScrollView(frame: .zero)
+    var keyboardHeightConstraint: NSLayoutConstraint?
     
     var contentStackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
@@ -78,7 +79,9 @@ class MyGroupInfoEditViewController: UIViewController {
         
         configureView()
         configureLayout()
-    
+        addKeyboardSizeView()
+        hideKeyboardWithTap()
+        
         bind()
     }
     
@@ -89,6 +92,13 @@ class MyGroupInfoEditViewController: UIViewController {
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationItem.setRightBarButton(saveButton, animated: false)
         self.navigationItem.title = "그룹 편집"
+        addKeyboardNotifications()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        removeKeyboardNotifications()
     }
     
     func bind() {
@@ -108,7 +118,7 @@ class MyGroupInfoEditViewController: UIViewController {
                 })
             })
             .disposed(by: bag)
-
+        
         let input = MyGroupInfoEditViewModel.Input(
             titleImageChanged: titleImageChanged.asObservable(),
             tagAdded: tagAdded.asObservable(),
@@ -128,7 +138,7 @@ class MyGroupInfoEditViewController: UIViewController {
                 = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
             })
             .disposed(by: bag)
-
+        
         output
             .isUpdateButtonEnabled
             .observe(on: MainScheduler.asyncInstance)
@@ -193,12 +203,12 @@ class MyGroupInfoEditViewController: UIViewController {
                             .tagCollectionView
                             .insertItems(at: [IndexPath(item: index, section: 0)])
                     }, completion: { _ in
-                            UIView.performWithoutAnimation {
-                                vc
-                                    .tagView
-                                    .tagCollectionView
-                                    .reloadSections(IndexSet(0...0))
-                            }
+                        UIView.performWithoutAnimation {
+                            vc
+                                .tagView
+                                .tagCollectionView
+                                .reloadSections(IndexSet(0...0))
+                        }
                     })
             })
             .disposed(by: bag)
@@ -217,18 +227,18 @@ class MyGroupInfoEditViewController: UIViewController {
                             .tagCollectionView
                             .deleteItems(at: [IndexPath(item: index, section: 0)])
                     }, completion: { _ in
-                            UIView.performWithoutAnimation {
-                                vc
-                                    .tagView
-                                    .tagCollectionView
-                                    .reloadSections(IndexSet(0...0))
-                            }
+                        UIView.performWithoutAnimation {
+                            vc
+                                .tagView
+                                .tagCollectionView
+                                .reloadSections(IndexSet(0...0))
+                        }
                     })
                 
                 
             })
             .disposed(by: bag)
-            
+        
         output
             .groupDeleted
             .observe(on: MainScheduler.asyncInstance)
@@ -237,13 +247,13 @@ class MyGroupInfoEditViewController: UIViewController {
                 vc.navigationController?.popToRootViewController(animated: true)
             })
             .disposed(by: bag)
-            
+        
     }
     
     func configureView() {
         tagView.tagCollectionView.dataSource = self
         tagView.tagCollectionView.delegate = self
-                
+        
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(scrollView)
         scrollView.addSubview(contentStackView)
@@ -266,7 +276,7 @@ class MyGroupInfoEditViewController: UIViewController {
         contentStackView.snp.makeConstraints {
             $0.edges.width.equalToSuperview()
         }
-
+        
     }
     
     func presentPhotoPicker() {
@@ -274,7 +284,7 @@ class MyGroupInfoEditViewController: UIViewController {
         phPickerConfiguration.selectionLimit = 1
         phPickerConfiguration.filter = .images
         phPickerConfiguration.preferredAssetRepresentationMode = .current
-
+        
         let phPicker = PHPickerViewController(configuration: phPickerConfiguration)
         phPicker.delegate = self
         self.present(phPicker, animated: true)
@@ -333,10 +343,92 @@ extension MyGroupInfoEditViewController: UICollectionViewDataSource, UICollectio
 }
 
 extension MyGroupInfoEditViewController {
+    func hideKeyboardWithTap() {
+        let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    func addKeyboardSizeView() {
+        let view = UIView(frame: .zero)
+        view.backgroundColor = .clear
+        view.snp.makeConstraints {
+            $0.height.equalTo(0)
+        }
+        self.keyboardHeightConstraint = view.constraints.first(where: { $0.firstAttribute == .height })
+        
+        self.contentStackView.addArrangedSubview(view)
+    }
+    
+    func addKeyboardNotifications(){
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification , object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    // 노티피케이션을 제거하는 메서드
+    func removeKeyboardNotifications(){
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification , object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardWillShow(_ sender: Notification) {
+        guard let keyboardFrame = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
+        }
+
+        guard let firstResponder = self.view.firstResponder else { return }
+
+        // 키보드에 가려진 후의 frame
+        let container = CGRect(
+            x: scrollView.contentOffset.x,
+            y: scrollView.contentOffset.y,
+            width: self.view.frame.width,
+            height: self.view.frame.height - keyboardFrame.height
+        )
+                
+        let globalFrame = firstResponder.convert(firstResponder.frame, to: scrollView)
+
+        if !CGRectIntersectsRect(container, globalFrame) { // 만약 안보이면? 이동시켜주기!
+            scrollView.setContentOffset(
+                CGPoint(x: scrollView.contentOffset.x, y: scrollView.contentOffset.y + keyboardFrame.height),
+                animated: true
+            )
+        }
+        
+        self.keyboardHeightConstraint?.constant = keyboardFrame.height
+        
+    }
+    
+    @objc func keyboardWillHide(_ sender: Notification) {
+        self.keyboardHeightConstraint?.constant = 0
+    }
+    
+}
+
+extension MyGroupInfoEditViewController {
     func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell) {
         let vc = GroupTagInputViewController(nibName: nil, bundle: nil)
         vc.tagAddclosure = { [weak self] tag in
             self?.tagAdded.onNext(tag)
+        }
+        
+        vc.keyboardAppearWithHeight = { [weak self] keyboardHeight in
+            guard let self else { return }
+            let container = CGRect(
+                x: self.scrollView.contentOffset.x,
+                y: self.scrollView.contentOffset.y,
+                width: self.scrollView.frame.size.width,
+                height: self.scrollView.frame.size.height - keyboardHeight
+            )
+            let realCenter = self.tagView.tagCollectionView.convert(collectionViewCell.center, to: self.view)
+   
+            let currentYRange = self.scrollView.contentOffset.y...self.scrollView.contentOffset.y + self.view.frame.height - keyboardHeight
+            if !currentYRange.contains(realCenter.y) {
+                self.scrollView.setContentOffset(
+                    CGPoint(x: self.scrollView.contentOffset.x, y: self.scrollView.contentOffset.y + keyboardHeight),
+                    animated: true
+                )
+            }
         }
         
         vc.preferredContentSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 60)
