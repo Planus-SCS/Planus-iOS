@@ -111,11 +111,11 @@ class MyGroupInfoEditViewController: UIViewController {
             .wideButton.rx.tap
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.showPopUp(title: "그룹 삭제하기", message: "삭제된 그룹은 추후 복구할 수 없습니다.", leftActionTitle: "취소", rightActionTitle: "삭제", leftActionCompletion: {
-                    return
-                }, rightActionCompletion: {
-                    viewModel.deleteGroup()
-                })
+
+                vc.showPopUp(title: "그룹 삭제하기", message: "삭제된 그룹은 추후 복구할 수 없습니다.", alertAttrs: [
+                    CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
+                    CustomAlertAttr(title: "삭제", actionHandler: { viewModel.deleteGroup() }, type: .warning)]
+                )
             })
             .disposed(by: bag)
         

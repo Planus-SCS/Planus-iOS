@@ -186,6 +186,7 @@
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
 		6A61C3CD2A69675600DCA088 /* HolidayPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61C3CC2A69675500DCA088 /* HolidayPool.swift */; };
+		6A61C3F42A6E9CC500DCA088 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61C3F32A6E9CC500DCA088 /* NetworkMonitor.swift */; };
 		6A6C7B912A25B5D3005BAEEC /* DefaultFetchGroupCategoryListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B902A25B5D3005BAEEC /* DefaultFetchGroupCategoryListUseCase.swift */; };
 		6A6C7B932A25B639005BAEEC /* FetchGroupCategoryListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B922A25B639005BAEEC /* FetchGroupCategoryListUseCase.swift */; };
 		6A6C7B952A275273005BAEEC /* DefaultTodoCompleteUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B942A275273005BAEEC /* DefaultTodoCompleteUseCase.swift */; };
@@ -687,6 +688,7 @@
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
 		6A483DB129CA804C003375BF /* PlanusRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PlanusRelease.entitlements; sourceTree = "<group>"; };
 		6A61C3CC2A69675500DCA088 /* HolidayPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayPool.swift; sourceTree = "<group>"; };
+		6A61C3F32A6E9CC500DCA088 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		6A6C7B902A25B5D3005BAEEC /* DefaultFetchGroupCategoryListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchGroupCategoryListUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B922A25B639005BAEEC /* FetchGroupCategoryListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchGroupCategoryListUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B942A275273005BAEEC /* DefaultTodoCompleteUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTodoCompleteUseCase.swift; sourceTree = "<group>"; };
@@ -1136,6 +1138,7 @@
 				6A08AD7129C8912A005947D2 /* Interface */,
 				6A24F89D29CE29F50000FD64 /* TodoCategory+Ext.swift */,
 				6A24F8BB29CE50DC0000FD64 /* ScrollDirection.swift */,
+				6A61C3F32A6E9CC500DCA088 /* NetworkMonitor.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -2846,6 +2849,7 @@
 				6AC079172A08D788007ACDB8 /* DefaultImageRepository.swift in Sources */,
 				6AC079962A0AA573007ACDB8 /* GroupJoinApplingDTO.swift in Sources */,
 				6A9AAB2129FA5775002A6DAF /* GetTokenRepository.swift in Sources */,
+				6A61C3F42A6E9CC500DCA088 /* NetworkMonitor.swift in Sources */,
 				6AC079AA2A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift in Sources */,
 				6A9AAAC629F808FB002A6DAF /* TodoCheckButton.swift in Sources */,
 				6A2BB1CB29E55EBE0053C5CA /* UpdateTodoUseCase.swift in Sources */,

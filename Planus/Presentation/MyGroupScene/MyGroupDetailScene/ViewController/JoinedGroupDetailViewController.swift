@@ -201,7 +201,10 @@ class JoinedGroupDetailViewController: UIViewController {
     }
     
     func withdrawGroup() {
-        showPopUp(title: "그룹 탈퇴하기", message: "정말로 그룹을 탈퇴하시겠습니까?", leftActionTitle: "취소", rightActionTitle: "탈퇴", leftActionCompletion: { return }, rightActionCompletion: { [weak self] in self?.viewModel?.withdrawGroup() })
+        self.showPopUp(title: "그룹 탈퇴하기", message: "정말로 그룹을 탈퇴하시겠습니까?", alertAttrs: [
+            CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
+            CustomAlertAttr(title: "탈퇴", actionHandler: { [weak self] in self?.viewModel?.withdrawGroup()}, type: .warning)]
+        )
     }
     
     lazy var editNotice: () -> Void = { [weak self] () -> Void in

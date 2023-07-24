@@ -155,38 +155,57 @@ final class CustomAlertViewController: UIViewController {
     }
 }
 
+struct CustomAlertAttr {
+    var title: String
+    var actionHandler: () -> Void
+    var type: AlertType
+}
+
+enum AlertType {
+    case normal
+    case warning
+    
+    var textColor: UIColor {
+        switch self {
+        case .normal:
+            return .systemGray2
+        case .warning:
+            return .systemPink
+        }
+    }
+}
+
 extension UIViewController {
-    func showPopUp(title: String,
-                   message: String?,
-                   leftActionTitle: String = "취소",
-                   rightActionTitle: String = "확인",
-                   leftActionCompletion: (() -> Void)? = nil,
-                   rightActionCompletion: (() -> Void)? = nil) {
+    
+    func showPopUp(
+        title: String,
+        message: String?,
+        alertAttrs: [CustomAlertAttr]
+    ) {
         let customAlert = CustomAlertViewController(titleText: title,
                                       messageText: message)
-        showPopUp(customAlert: customAlert,
-                  leftActionTitle: leftActionTitle,
-                  rightActionTitle: rightActionTitle,
-                  leftActionCompletion: leftActionCompletion,
-                  rightActionCompletion: rightActionCompletion)
-    }
-    
-    private func showPopUp(customAlert: CustomAlertViewController,
-                           leftActionTitle: String,
-                           rightActionTitle: String,
-                           leftActionCompletion: (() -> Void)?,
-                           rightActionCompletion: (() -> Void)?) {
-        customAlert.addActionToButton(title: leftActionTitle,
-                                      titleColor: .systemGray2,
-                                      backgroundColor: .clear) {
-            customAlert.dismiss(animated: false, completion: leftActionCompletion)
-        }
-        
-        customAlert.addActionToButton(title: rightActionTitle,
-                                      titleColor: .systemPink,
-                                      backgroundColor: .clear) {
-            customAlert.dismiss(animated: false, completion: rightActionCompletion)
+        alertAttrs.forEach { attr in
+            
+            customAlert.addActionToButton(title: attr.title,
+                                          titleColor: attr.type.textColor,
+                                          backgroundColor: .clear) {
+                customAlert.dismiss(animated: false, completion: attr.actionHandler)
+            }
         }
         present(customAlert, animated: false, completion: nil)
+    }
+    
+    func showErrorPopUp(title: String, message: String?, alertAttr: CustomAlertAttr) -> (() -> Void) {
+        let customAlert = CustomAlertViewController(titleText: title,
+                                      messageText: message)
+            
+            customAlert.addActionToButton(title: alertAttr.title,
+                                          titleColor: alertAttr.type.textColor,
+                                          backgroundColor: .clear) {
+                alertAttr.actionHandler()
+            }
+        
+        present(customAlert, animated: false, completion: nil)
+        return { customAlert.dismiss(animated: false) }
     }
 }
