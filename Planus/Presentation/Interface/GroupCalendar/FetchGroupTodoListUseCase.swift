@@ -8,6 +8,6 @@
 import Foundation
 import RxSwift
 
-protocol FetchGroupDailyTodoListUseCase {
+protocol FetchGroupDailyCalendarUseCase {
     func execute(token: Token, groupId: Int, date: Date) -> Single<[[SocialTodoDaily]]>
 }

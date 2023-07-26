@@ -8,7 +8,21 @@
 import Foundation
 import RxSwift
 
+struct SocialTodoDetail {
+    var groupId: Int?
+    var memberId: Int?
+    var todoId: Int?
+}
+
 final class SocialTodoDetailViewModel: TodoDetailViewModelable {
+    enum Mode {
+        case new(SocialTodoDetail)
+        case edit(SocialTodoDetail) //
+        case view(SocialTodoDetail) //그룹 투두인지 다른놈 투두인지 알아야함
+    }
+    
+    var mode: Mode = .new(SocialTodoDetail())
+    
     var bag = DisposeBag()
     
     var completionHandler: ((Todo) -> Void)?
@@ -46,69 +60,50 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
     
-    var createTodoUseCase: CreateTodoUseCase
-    var updateTodoUseCase: UpdateTodoUseCase
-    var deleteTodoUseCase: DeleteTodoUseCase
+    var fetchGroupMemberTodoDetailUseCase: FetchGroupMemberTodoDetailUseCase
     
-    var createCategoryUseCase: CreateCategoryUseCase
-    var updateCategoryUseCase: UpdateCategoryUseCase
-    var deleteCategoryUseCase: DeleteCategoryUseCase
-    var readCategoryUseCase: ReadCategoryListUseCase
+    var fetchGroupTodoDetailUseCase: FetchGroupTodoDetailUseCase
+    var createGroupTodoUseCase: CreateGroupTodoUseCase
+    var updateGroupTodoUseCase: UpdateGroupTodoUseCase
+    var deleteGroupTodoUseCase: DeleteGroupTodoUseCase
+    
+    var createGroupCategoryUseCase: CreateGroupCategoryUseCase
+    var updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
+    var deleteGroupCategoryUseCase: DeleteGroupCategoryUseCase
+    var fetchGroupCategorysUseCase: FetchGroupCategorysUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
-        createTodoUseCase: CreateTodoUseCase,
-        updateTodoUseCase: UpdateTodoUseCase,
-        deleteTodoUseCase: DeleteTodoUseCase,
-        createCategoryUseCase: CreateCategoryUseCase,
-        updateCategoryUseCase: UpdateCategoryUseCase,
-        deleteCategoryUseCase: DeleteCategoryUseCase,
-        readCategoryUseCase: ReadCategoryListUseCase
+        fetchGroupMemberTodoDetailUseCase: FetchGroupMemberTodoDetailUseCase,
+        fetchGroupTodoDetailUseCase: FetchGroupTodoDetailUseCase,
+        createGroupTodoUseCase: CreateGroupTodoUseCase,
+        updateGroupTodoUseCase: UpdateGroupTodoUseCase,
+        deleteGroupTodoUseCase: DeleteGroupTodoUseCase,
+        createGroupCategoryUseCase: CreateGroupCategoryUseCase,
+        updateGroupCategoryUseCase: UpdateGroupCategoryUseCase,
+        deleteGroupCategoryUseCase: DeleteGroupCategoryUseCase,
+        fetchGroupCategorysUseCase: FetchGroupCategorysUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
-        self.createTodoUseCase = createTodoUseCase
-        self.updateTodoUseCase = updateTodoUseCase
-        self.deleteTodoUseCase = deleteTodoUseCase
-        self.createCategoryUseCase = createCategoryUseCase
-        self.updateCategoryUseCase = updateCategoryUseCase
-        self.deleteCategoryUseCase = deleteCategoryUseCase
-        self.readCategoryUseCase = readCategoryUseCase
+        self.fetchGroupMemberTodoDetailUseCase = fetchGroupMemberTodoDetailUseCase
+        self.fetchGroupTodoDetailUseCase = fetchGroupTodoDetailUseCase
+        self.createGroupTodoUseCase = createGroupTodoUseCase
+        self.updateGroupTodoUseCase = updateGroupTodoUseCase
+        self.deleteGroupTodoUseCase = deleteGroupTodoUseCase
+        self.createGroupCategoryUseCase = createGroupCategoryUseCase
+        self.updateGroupCategoryUseCase = updateGroupCategoryUseCase
+        self.deleteGroupCategoryUseCase = deleteGroupCategoryUseCase
+        self.fetchGroupCategorysUseCase = fetchGroupCategorysUseCase
     }
     
     func setGroup(groupList: [GroupName]) {
         self.groups = groupList
     }
     
-    func setForEdit(todo: Todo, category: Category, groupName: GroupName?) {
-        guard let id = todo.id else { return }
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = .current
-        dateFormatter.dateFormat = "yyyy.MM.dd"
-        self.todoTitle.onNext(todo.title)
-        self.todoCategory.onNext(category)
-        self.todoGroup.onNext(groupName)
-        self.todoStartDay.onNext(todo.startDate)
-        // FIXME: endDate는 설정 안함 아직
-        self.todoTime.onNext(todo.startTime)
-        self.todoMemo.onNext(todo.memo)
-        self.todoCreateState = .edit(todo)
-    }
-    
-    func setForOthers(todo: Todo, category: Category, groupName: GroupName?) {
-        guard let id = todo.id else { return }
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = .current
-        dateFormatter.dateFormat = "yyyy.MM.dd"
-        self.todoTitle.onNext(todo.title)
-        self.todoCategory.onNext(category)
-        self.todoStartDay.onNext(todo.startDate)
-        // FIXME: endDate는 설정 안함 아직
-        self.todoTime.onNext(todo.startTime)
-        self.todoMemo.onNext(todo.memo)
-        self.todoCreateState = .view(todo)
-        self.todoGroup.onNext(groupName)
+    func initMode(mode: Mode) {
+        self.mode = mode
     }
     
     func initFetch() {
@@ -141,7 +136,47 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         
     }
     
-    func createTodo(todo: Todo) {
+    func saveDetail() {
+        guard let title = try? todoTitle.value(),
+              let startDate = try? todoStartDay.value(),
+              let categoryId = (try? todoCategory.value())?.id else { return }
+        
+        var endDate = startDate
+        if let todoEndDay = try? todoEndDay.value() {
+            endDate = todoEndDay
+        }
+        let memo = try? todoMemo.value()
+        let time = try? todoTime.value()
+        let groupName = try? todoGroup.value()
+        var todo = Todo(
+            id: nil,
+            title: title,
+            startDate: startDate,
+            endDate: endDate,
+            memo: memo,
+            groupId: groupName?.groupId,
+            categoryId: categoryId,
+            startTime: ((time?.isEmpty) ?? true) ? nil : time,
+            isCompleted: nil,
+            isGroupTodo: false
+        )
+        
+                        
+        switch mode {
+        case .new(let info):
+            guard let groupId = info.groupId else { return }
+            createTodo(groupId: groupId, todo: todo)
+        case .edit(let info):
+            guard let groupId = info.groupId,
+                  let todoId = info.todoId else { return }
+            todo.id = todoId
+            updateTodo(groupId: groupId, todoId: todoId, todo: todo)
+        default:
+            return
+        }
+    }
+    
+    func createTodo(groupId: Int, todo: Todo) {
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Int> in
@@ -163,7 +198,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
             .disposed(by: bag)
     }
     
-    func updateTodo(todoUpdate: TodoUpdateComparator) {
+    func updateTodo(groupId: Int, todoId: Int, todo: Todo) {
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in

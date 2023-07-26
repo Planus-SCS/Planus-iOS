@@ -1,5 +1,5 @@
 //
-//  DefaultFetchMyGroupCalendarUseCase.swift
+//  DefaultFetchGroupMonthlyCalendarUseCase.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/05/26.
@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultFetchMyGroupCalendarUseCase: FetchMyGroupCalendarUseCase {
+class DefaultFetchGroupMonthlyCalendarUseCase: FetchGroupMonthlyCalendarUseCase {
     let myGroupRepository: MyGroupRepository
     
     init(myGroupRepository: MyGroupRepository) {

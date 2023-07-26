@@ -49,13 +49,13 @@ class JoinedGroupCalendarViewModel {
     let getTokenUseCase: GetTokenUseCase
     let refreshTokenUseCase: RefreshTokenUseCase
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
-    let fetchMyGroupCalendarUseCase: FetchMyGroupCalendarUseCase
+    let fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        fetchMyGroupCalendarUseCase: FetchMyGroupCalendarUseCase
+        fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase

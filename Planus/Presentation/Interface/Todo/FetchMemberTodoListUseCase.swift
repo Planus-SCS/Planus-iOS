@@ -8,6 +8,6 @@
 import Foundation
 import RxSwift
 
-protocol FetchMemberCalendarUseCase {
+protocol FetchGroupMemberCalendarUseCase {
     func execute(token: Token, groupId: Int, memberId: Int, from: Date, to: Date) -> Single<[Date: [SocialTodoSummary]]>
 }

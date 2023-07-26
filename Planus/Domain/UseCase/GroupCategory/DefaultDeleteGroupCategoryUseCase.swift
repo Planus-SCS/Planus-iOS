@@ -10,9 +10,7 @@ import RxSwift
 
 class DefaultDeleteGroupCategoryUseCase: DeleteGroupCategoryUseCase {
     let categoryRepository: GroupCategoryRepository
-    
-    var didDeleteCategory = PublishSubject<Int>()
-    
+        
     init(categoryRepository: GroupCategoryRepository) {
         self.categoryRepository = categoryRepository
     }

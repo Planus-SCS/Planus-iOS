@@ -20,7 +20,6 @@ protocol MyGroupRepository {
     func fetchMyGroupDetail(token: String, groupId: Int) -> Single<ResponseDTO<MyGroupDetailResponseDTO>>
     func fetchMyGroupMemberList(token: String, groupId: Int) -> Single<ResponseDTO<[MyMemberResponseDTO]>>
     func updateNotice(token: String, groupId: Int, notice: MyGroupNoticeEditRequestDTO) -> Single<ResponseDTO<MyGroupNoticeEditResponseDTO>>
-    func fetchMyGroupCalendar(token: String, groupId: Int, from: Date, to: Date) -> Single<ResponseDTO<[SocialTodoSummaryResponseDTO]>>
     func updateInfo(token: String, groupId: Int, editRequestDTO: MyGroupInfoEditRequestDTO, image: ImageFile) -> Single<ResponseDTO<MyGroupInfoEditResponseDTO>>
     func kickOutMember(token: String, groupId: Int, memberId: Int) -> Single<ResponseDTO<MyMemberKickOutResponseDTO>>
     func changeOnlineState(token: String, groupId: Int) -> Single<ResponseDTO<GroupSetOnlineResponseDTO>>

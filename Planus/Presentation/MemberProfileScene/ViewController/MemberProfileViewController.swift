@@ -131,8 +131,8 @@ class MemberProfileViewController: UIViewController {
                 let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
                 let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
                 let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyTodoListUseCase(groupCalendarRepository: gcr)
-                let fetchMemberDailyCalendarUseCase = DefaultFetchMemberDailyCalendarUseCase(memberCalendarRepository: DefaultMemberCalendarRepository(apiProvider: nm))
+                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyCalendarUseCase(groupCalendarRepository: gcr)
+                let fetchMemberDailyCalendarUseCase = DefaultFetchGroupMemberDailyCalendarUseCase(memberCalendarRepository: DefaultGroupMemberCalendarRepository(apiProvider: nm))
                 let viewModel = SocialTodoDailyViewModel(
                     getTokenUseCase: getTokenUseCase,
                     refreshTokenUseCase: refTokenUseCase,

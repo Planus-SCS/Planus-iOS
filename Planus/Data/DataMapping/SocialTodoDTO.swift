@@ -57,3 +57,19 @@ extension SocialTodoDailyResponseDTO {
         )
     }
 }
+
+struct SocialTodoDetailResponseDTO: Codable {
+    var todoId: Int
+    var title: String
+    var todoCategory: SocialCategoryResponseDTO
+    var groupName: String
+    var startDate: String
+    var endDate: String
+    var startTime: String
+    var description: String
+}
+
+struct SocialCategoryResponseDTO: Codable {
+    var name: String
+    var color: String
+}

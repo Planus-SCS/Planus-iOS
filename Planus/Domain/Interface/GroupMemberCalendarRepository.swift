@@ -1,5 +1,5 @@
 //
-//  MemberCalendarRepository.swift
+//  GroupMemberCalendarRepository.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/05/16.
@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-protocol MemberCalendarRepository {
+protocol GroupMemberCalendarRepository {
     func fetchMemberCalendar(
         token: String,
         groupId: Int,

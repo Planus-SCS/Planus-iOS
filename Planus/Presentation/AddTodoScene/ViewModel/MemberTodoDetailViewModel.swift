@@ -8,7 +8,15 @@
 import Foundation
 import RxSwift
 
-final class MemberTodoDetailViewModel: TodoDetailViewModelable {
+final class MemberTodoDetailViewModel: TodoDetailViewModelable {    
+    enum Mode {
+        case new
+        case edit(Todo)
+        case view(Todo)
+    }
+    
+    var mode: Mode = .new
+
     var bag = DisposeBag()
     
     var completionHandler: ((Todo) -> Void)?
@@ -139,6 +147,45 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     
     func fetchGroupList() {
         
+    }
+    
+    func saveDetail() {
+        guard let title = try? todoTitle.value(),
+              let startDate = try? todoStartDay.value(),
+              let categoryId = (try? todoCategory.value())?.id else { return }
+        
+        var endDate = startDate
+        if let todoEndDay = try? todoEndDay.value() {
+            endDate = todoEndDay
+        }
+        let memo = try? todoMemo.value()
+        let time = try? todoTime.value()
+        let groupName = try? todoGroup.value()
+        var todo = Todo(
+            id: nil,
+            title: title,
+            startDate: startDate,
+            endDate: endDate,
+            memo: memo,
+            groupId: groupName?.groupId,
+            categoryId: categoryId,
+            startTime: ((time?.isEmpty) ?? true) ? nil : time,
+            isCompleted: nil,
+            isGroupTodo: false
+        )
+        
+                        
+        switch mode {
+        case .new:
+            createTodo(todo: todo)
+        case .edit(let exTodo):
+            todo.id = exTodo.id
+            todo.isCompleted = exTodo.isCompleted
+            todo.isGroupTodo = exTodo.isGroupTodo
+            updateTodo(todoUpdate: TodoUpdateComparator(before: exTodo, after: todo))
+        default:
+            return
+        }
     }
     
     func createTodo(todo: Todo) {

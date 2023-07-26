@@ -13,7 +13,7 @@ enum CategoryCreateState {
     case edit(Int)
 }
 
-enum TodoCreateState {
+enum TodoCreateState { //이것도 연관값때문에 나눠져야함... 유지할 필요가 있나?
     case new
     case edit(Todo)
     case view(Todo)
@@ -21,15 +21,15 @@ enum TodoCreateState {
 
 struct TodoDetailViewModelableInput {
     // MARK: Control Value
-    var todoTitleChanged: Observable<String?>
-    var categorySelected: Observable<Int?>
-    var startDayChanged: Observable<Date?>
-    var endDayChanged: Observable<Date?>
-    var timeChanged: Observable<String?>
-    var groupSelected: Observable<Int?>
-    var memoChanged: Observable<String?>
-    var newCategoryNameChanged: Observable<String?>
-    var newCategoryColorChanged: Observable<CategoryColor?>
+    var titleTextChanged: Observable<String?>
+    var categorySelectedAt: Observable<Int?>
+    var startDaySelected: Observable<Date?>
+    var endDaySelected: Observable<Date?>
+    var timeFieldChanged: Observable<String?>
+    var groupSelectedAt: Observable<Int?>
+    var memoTextChanged: Observable<String?>
+    var creatingCategoryNameTextChanged: Observable<String?>
+    var creatingCategoryColorChanged: Observable<CategoryColor?>
     var didRemoveCategory: Observable<Int>
     
     // MARK: Control Event
@@ -46,8 +46,13 @@ struct TodoDetailViewModelableInput {
 }
 
 struct TodoDetailViewModelableOutput {
+    var titleValueChanged: Observable<String?>
     var categoryChanged: Observable<Category?>
+    var startDayValueChanged: Observable<Date?>
+    var endDayValueChanged: Observable<Date?>
+    var timeValueChanged: Observable<String?>
     var groupChanged: Observable<GroupName?>
+    var memoValueChanged: Observable<String?>
     var todoSaveBtnEnabled: Observable<Bool>
     var newCategorySaveBtnEnabled: Observable<Bool>
     var newCategorySaved: Observable<Void>
@@ -60,6 +65,9 @@ struct TodoDetailViewModelableOutput {
 }
 
 protocol TodoDetailViewModelable: AnyObject {
+    associatedtype Mode
+    
+    var mode: Mode { get set }
     var bag: DisposeBag { get }
     
     var categoryColorList: [CategoryColor] { get set }
@@ -93,26 +101,26 @@ protocol TodoDetailViewModelable: AnyObject {
     
     // 메서드는 뭐가있을까..? 카테고리 패치랑 그룹 패치
     func initFetch()
-    func createTodo(todo: Todo)
-    func updateTodo(todoUpdate: TodoUpdateComparator)
-    func deleteTodo(todo: Todo)
+    func saveDetail()
+    func removeDetail()
+    
     func saveNewCategory(category: Category)
     func updateCategory(category: Category)
     func deleteCategory(id: Int)
 }
 
 extension TodoDetailViewModelable {
-    public func transform(input: TodoDetailViewModelableInput) -> TodoDetailViewModelableOutput {
+    public func transform(input: TodoDetailViewModelableInput) -> TodoDetailViewModelableOutput { //여기서 양방향 바인딩 해야한다..!
         initFetch()
         
         input
-            .todoTitleChanged
+            .titleTextChanged
             .skip(1)
             .bind(to: todoTitle)
             .disposed(by: bag)
         
         input
-            .categorySelected
+            .categorySelectedAt
             .compactMap { $0 }
             .withUnretained(self)
             .map { vm, index in
@@ -122,25 +130,25 @@ extension TodoDetailViewModelable {
             .disposed(by: bag)
         
         input
-            .startDayChanged
+            .startDaySelected
             .distinctUntilChanged()
             .bind(to: todoStartDay)
             .disposed(by: bag)
         
         input
-            .endDayChanged
+            .endDaySelected
             .distinctUntilChanged()
             .bind(to: todoEndDay)
             .disposed(by: bag)
         
         input
-            .timeChanged
+            .timeFieldChanged
             .skip(1)
             .bind(to: todoTime)
             .disposed(by: bag)
         
         input
-            .groupSelected
+            .groupSelectedAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 if let index {
@@ -152,18 +160,18 @@ extension TodoDetailViewModelable {
             .disposed(by: bag)
         
         input
-            .memoChanged
+            .memoTextChanged
             .skip(1)
             .bind(to: todoMemo)
             .disposed(by: bag)
         
         input
-            .newCategoryNameChanged
+            .creatingCategoryNameTextChanged
             .bind(to: newCategoryName)
             .disposed(by: bag)
         
         input
-            .newCategoryColorChanged
+            .creatingCategoryColorChanged
             .bind(to: newCategoryColor)
             .disposed(by: bag)
         
@@ -199,43 +207,8 @@ extension TodoDetailViewModelable {
         input
             .todoSaveBtnTapped
             .withUnretained(self)
-            .subscribe(onNext: { vm, _ in
-                guard let title = try? vm.todoTitle.value(),
-                      let startDate = try? vm.todoStartDay.value(),
-                      let categoryId = (try? vm.todoCategory.value())?.id else { return }
-                
-                var endDate = startDate
-                if let todoEndDay = try? vm.todoEndDay.value() {
-                    endDate = todoEndDay
-                }
-                let memo = try? vm.todoMemo.value()
-                let time = try? vm.todoTime.value()
-                let groupName = try? vm.todoGroup.value()
-                var todo = Todo(
-                    id: nil,
-                    title: title,
-                    startDate: startDate,
-                    endDate: endDate,
-                    memo: memo,
-                    groupId: groupName?.groupId,
-                    categoryId: categoryId,
-                    startTime: ((time?.isEmpty) ?? true) ? nil : time,
-                    isCompleted: nil,
-                    isGroupTodo: false
-                )
-                                
-                switch vm.todoCreateState {
-                case .new:
-                    vm.createTodo(todo: todo)
-                case .edit(let exTodo):
-                    todo.id = exTodo.id
-                    todo.isCompleted = exTodo.isCompleted
-                    todo.isGroupTodo = exTodo.isGroupTodo
-                    vm.updateTodo(todoUpdate: TodoUpdateComparator(before: exTodo, after: todo))
-                default:
-                    return
-                }
-                
+            .subscribe(onNext: { vm, _ in //이부분은 구현체쪽에 구현하면 되지 않을까? 그럼 state유지하는 놈도 필요 없음
+                vm.saveDetail()
             })
             .disposed(by: bag)
         
@@ -335,8 +308,13 @@ extension TodoDetailViewModelable {
             }
         
         return TodoDetailViewModelableOutput(
+            titleValueChanged: todoTitle.asObservable(),
             categoryChanged: todoCategory.asObservable(),
+            startDayValueChanged: todoStartDay.asObservable(),
+            endDayValueChanged: todoEndDay.asObservable(),
+            timeValueChanged: todoTime.asObservable(),
             groupChanged: todoGroup.asObservable(),
+            memoValueChanged: todoMemo.asObservable(),
             todoSaveBtnEnabled: todoSaveBtnEnabled.asObservable(),
             newCategorySaveBtnEnabled: newCategorySaveBtnEnabled.asObservable(),
             newCategorySaved: needReloadCategoryList.asObservable(),

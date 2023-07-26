@@ -163,30 +163,6 @@ class DefaultMyGroupRepository: MyGroupRepository {
         )
     }
     
-    func fetchMyGroupCalendar(token: String, groupId: Int, from: Date, to: Date) -> Single<ResponseDTO<[SocialTodoSummaryResponseDTO]>> {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = .current
-        
-        let endPoint = APIEndPoint(
-            url: URLPool.myGroup + "/\(groupId)/todos/calendar",
-            requestType: .get,
-            body: nil,
-            query: [
-                "from": dateFormatter.string(from: from),
-                "to": dateFormatter.string(from: to)
-            ],
-            header: [
-                "Authorization": "Bearer \(token)"
-            ]
-        )
-        
-        return apiProvider.requestCodable(
-            endPoint: endPoint,
-            type: ResponseDTO<[SocialTodoSummaryResponseDTO]>.self
-        )
-    }
-    
     func updateInfo(token: String, groupId: Int, editRequestDTO: MyGroupInfoEditRequestDTO, image: ImageFile) -> Single<ResponseDTO<MyGroupInfoEditResponseDTO>> {
         let endPoint = APIMultiPartEndPoint(
             url: URLPool.groups + "/\(groupId)",

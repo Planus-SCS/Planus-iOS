@@ -356,7 +356,7 @@ class JoinedGroupDetailViewController: UIViewController {
         self.noticeViewController = noticeViewController
         
         let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-        let fetchTodoListUseCase = DefaultFetchMyGroupCalendarUseCase(myGroupRepository: myGroupRepo)
+        let fetchTodoListUseCase = DefaultFetchGroupMonthlyCalendarUseCase(myGroupRepository: myGroupRepo)
         let calendarViewModel = JoinedGroupCalendarViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,

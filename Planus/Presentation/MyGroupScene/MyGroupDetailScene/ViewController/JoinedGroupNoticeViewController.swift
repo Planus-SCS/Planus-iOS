@@ -212,9 +212,9 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
         guard let groupId = viewModel?.groupId,
               let member = viewModel?.memberList?[indexPath.item] else { return false }
         let api = NetworkManager()
-        let memberCalendarRepo = DefaultMemberCalendarRepository(apiProvider: api)
+        let memberCalendarRepo = DefaultGroupMemberCalendarRepository(apiProvider: api)
         let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-        let fetchMemberTodoUseCase = DefaultFetchMemberCalendarUseCase(memberCalendarRepository: memberCalendarRepo)
+        let fetchMemberTodoUseCase = DefaultFetchGroupMemberCalendarUseCase(memberCalendarRepository: memberCalendarRepo)
         let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
         let keyChainManager = KeyChainManager()
         

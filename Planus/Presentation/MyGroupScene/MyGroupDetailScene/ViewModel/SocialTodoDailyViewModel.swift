@@ -49,15 +49,15 @@ class SocialTodoDailyViewModel {
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
     
-    var fetchGroupDailyTodoListUseCase: FetchGroupDailyTodoListUseCase
-    var fetchMemberDailyCalendarUseCase: FetchMemberDailyCalendarUseCase
+    var fetchGroupDailyTodoListUseCase: FetchGroupDailyCalendarUseCase
+    var fetchMemberDailyCalendarUseCase: FetchGroupMemberDailyCalendarUseCase
     // 카테고리 CRUD, 그룹투두 CRUD에 대한 유즈케이스의 이벤트를 받아야함
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
-        fetchGroupDailyTodoListUseCase: FetchGroupDailyTodoListUseCase,
-        fetchMemberDailyCalendarUseCase: FetchMemberDailyCalendarUseCase
+        fetchGroupDailyTodoListUseCase: FetchGroupDailyCalendarUseCase,
+        fetchMemberDailyCalendarUseCase: FetchGroupMemberDailyCalendarUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase

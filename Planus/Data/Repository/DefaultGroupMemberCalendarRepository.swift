@@ -1,5 +1,5 @@
 //
-//  DefaultMemberCalendarRepository.swift
+//  DefaultGroupMemberCalendarRepository.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/05/16.
@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultMemberCalendarRepository: MemberCalendarRepository {
+class DefaultGroupMemberCalendarRepository: GroupMemberCalendarRepository {
     let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {

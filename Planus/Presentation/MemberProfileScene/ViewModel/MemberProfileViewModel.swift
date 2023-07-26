@@ -86,7 +86,7 @@ class MemberProfileViewModel {
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
     let getTokenUseCase: GetTokenUseCase
     let refreshTokenUseCase: RefreshTokenUseCase
-    let fetchMemberCalendarUseCase: FetchMemberCalendarUseCase
+    let fetchMemberCalendarUseCase: FetchGroupMemberCalendarUseCase
     let fetchImageUseCase: FetchImageUseCase
     
     init(
@@ -94,7 +94,7 @@ class MemberProfileViewModel {
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
-        fetchMemberCalendarUseCase: FetchMemberCalendarUseCase,
+        fetchMemberCalendarUseCase: FetchGroupMemberCalendarUseCase,
         fetchImageUseCase: FetchImageUseCase
     ) {
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
