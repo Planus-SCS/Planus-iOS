@@ -1,23 +1,40 @@
 //
-//  DefaultCategoryRepository.swift
+//  DefaultGroupCategoryRepository.swift
 //  Planus
 //
-//  Created by Sangmin Lee on 2023/04/26.
+//  Created by Sangmin Lee on 2023/07/26.
 //
 
 import Foundation
 import RxSwift
 
-class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메모리 캐시에 존재할 경우 메모리를 이용하도록 하자..!
+class DefaultGroupCategoryRepository: GroupCategoryRepository {
     let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {
         self.apiProvider = apiProvider
     }
     
-    func read(token: String) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>> {
+    func fetchAllGroupCategory(token: String) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>> {
         let endPoint = APIEndPoint(
-            url: URLPool.categories,
+            url: URLPool.categories + URLPathComponent.groups,
+            requestType: .get,
+            body: nil,
+            query: nil,
+            header: [
+                "Authorization": "Bearer \(token)"
+            ]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<[CategoryEntityResponseDTO]>.self
+        )
+    }
+    
+    func fetchGroupCategory(token: String, groupId: Int) -> Single<ResponseDTO<[CategoryEntityResponseDTO]>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.myGroup + "/\(groupId)/categories",
             requestType: .get,
             body: nil,
             query: nil,
@@ -33,9 +50,9 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
         )
     }
     
-    func create(token: String, category: CategoryRequestDTO) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
+    func create(token: String, groupId: Int, category: CategoryRequestDTO) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: URLPool.categories,
+            url: URLPool.myGroup + "/\(groupId)/categories",
             requestType: .post,
             body: category,
             query: nil,
@@ -51,9 +68,9 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
         )
     }
     
-    func update(token: String, id: Int, category: CategoryRequestDTO) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
+    func update(token: String, groupId: Int, categoryId: Int, category: CategoryRequestDTO) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: URLPool.categories + "/\(id)",
+            url: URLPool.myGroup + "/\(groupId)/categories/\(categoryId)",
             requestType: .patch,
             body: category,
             query: nil,
@@ -69,9 +86,9 @@ class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메�
         )
     }
     
-    func delete(token: String, id: Int) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
+    func delete(token: String, groupId: Int, categoryId: Int) -> Single<ResponseDTO<CategoryResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: URLPool.categories + "/\(id)",
+            url: URLPool.myGroup + "/\(groupId)/categories/\(categoryId)",
             requestType: .delete,
             body: nil,
             query: nil,
