@@ -8,17 +8,22 @@
 import Foundation
 import RxSwift
 
-class DefaultFetchGroupCategorysUseCase: FetchAllGroupCategoryListUseCase {
-    let categoryRepository: CategoryRepository
+class DefaultFetchGroupCategorysUseCase: FetchGroupCategorysUseCase {
+    let categoryRepository: GroupCategoryRepository
     
-    init(categoryRepository: CategoryRepository) {
+    init(categoryRepository: GroupCategoryRepository) {
         self.categoryRepository = categoryRepository
     }
     
-    func execute(token: Token) -> Single<[Category]> {
+    func execute(token: Token, groupId: Int) -> Single<[Category]> {
+        let accessToken = token.accessToken
         return categoryRepository
-            .fetchAllGroupCategory(token: token.accessToken)
-            .map { $0.data.map { $0.toDomain() } }
+            .fetchGroupCategory(token: accessToken, groupId: groupId)
+            .map {
+                $0.data.map {
+                    $0.toDomain()
+                }
+            }
     }
 }
 
