@@ -333,6 +333,7 @@ extension MonthlyCalendarCell {
             self.firstPressedIndexPath = nowIndexPath
             self.lastPressedIndexPath = nowIndexPath
             collectionView.selectItem(at: nowIndexPath, animated: true, scrollPosition: [])
+            Vibration.selection.vibrate()
         case .ended:
             selectionState = false
 
@@ -373,7 +374,9 @@ extension MonthlyCalendarCell {
             collectionView.allowsMultipleSelection = true
         case .changed:
             guard let firstPressedIndexPath = firstPressedIndexPath,
-                  let lastPressedIndexPath = lastPressedIndexPath else { return }
+                  let lastPressedIndexPath = lastPressedIndexPath,
+                  lastPressedIndexPath != nowIndexPath else { return }
+            
             
             if firstPressedIndexPath.item < lastPressedIndexPath.item {
                 if firstPressedIndexPath.item > nowIndexPath.item {
@@ -427,6 +430,7 @@ extension MonthlyCalendarCell {
             }
             print("change with \(firstPressedIndexPath), \(nowIndexPath)")
             self.lastPressedIndexPath = nowIndexPath
+            Vibration.selection.vibrate()
         default:
             break
         }

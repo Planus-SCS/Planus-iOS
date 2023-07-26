@@ -8,6 +8,6 @@
 import Foundation
 import RxSwift
 
-protocol FetchGroupCategoryListUseCase {
+protocol FetchAllGroupCategoryListUseCase {
     func execute(token: Token) -> Single<[Category]>
 }

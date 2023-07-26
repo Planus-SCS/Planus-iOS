@@ -123,7 +123,7 @@ class HomeCalendarViewModel {
     let readCategoryListUseCase: ReadCategoryListUseCase
     let updateCategoryUseCase: UpdateCategoryUseCase
     let deleteCategoryUseCase: DeleteCategoryUseCase
-    let fetchGroupCategoryListUseCase: FetchGroupCategoryListUseCase
+    let fetchGroupCategoryListUseCase: FetchAllGroupCategoryListUseCase
     
     let fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase
     let groupCreateUseCase: GroupCreateUseCase
@@ -149,7 +149,7 @@ class HomeCalendarViewModel {
         readCategoryListUseCase: ReadCategoryListUseCase,
         updateCategoryUseCase: UpdateCategoryUseCase,
         deleteCategoryUseCase: DeleteCategoryUseCase,
-        fetchGroupCategoryListUseCase: FetchGroupCategoryListUseCase,
+        fetchGroupCategoryListUseCase: FetchAllGroupCategoryListUseCase,
         fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase,
         groupCreateUseCase: GroupCreateUseCase,
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,

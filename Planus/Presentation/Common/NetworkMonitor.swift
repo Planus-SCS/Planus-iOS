@@ -86,19 +86,3 @@ final class NetworkMonitor {
     }
 }
 
-class NetworkViewController: UIViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        self.view.backgroundColor = .white
-        self.showPopUp(title: "❌ 연결 유실 ❌", message: "네트워크 상태를 확인해 주세요 🥹", alertAttrs: [
-            CustomAlertAttr(title: "네트워크 설정하기", actionHandler: {
-                guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url)
-                }
-            }, type: .normal)
-        ])
-    }
-}

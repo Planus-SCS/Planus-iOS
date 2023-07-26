@@ -40,7 +40,7 @@ class GroupListViewController: UIViewController {
     }()
     
     var emptyResultView: EmptyResultView = {
-        let view = EmptyResultView(text: "그룹 신청이 없습니다.")
+        let view = EmptyResultView(text: "가입된 그룹이 없습니다.")
         view.isHidden = true
         return view
     }()

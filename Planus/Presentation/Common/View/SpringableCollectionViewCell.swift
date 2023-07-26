@@ -20,7 +20,7 @@ class SpringableCollectionViewCell: UICollectionViewCell {
     
     func springIn() {
         UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseIn, animations: {
-            self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+            self.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
         })
     }
     

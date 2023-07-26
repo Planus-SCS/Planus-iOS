@@ -16,13 +16,13 @@ class DailyCalendarCell: SpringableCollectionViewCell {
     override var isSelected: Bool {
         didSet {
             if isSelected {
-                UIView.animate(withDuration: 0.01,
+                UIView.animate(withDuration: 0.001,
                                animations: {
                     self.alpha = 0.5
                     self.backgroundColor = UIColor(hex: 0xDBDAFF)
                 })
             } else {
-                UIView.animate(withDuration: 0.01,
+                UIView.animate(withDuration: 0.001,
                                animations: {
                     self.alpha = 1
                     self.backgroundColor = nil

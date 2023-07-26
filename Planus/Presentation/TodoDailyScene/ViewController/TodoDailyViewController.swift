@@ -178,7 +178,7 @@ class TodoDailyViewController: UIViewController {
         let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
         let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
         
-        let vm = TodoDetailViewModel(
+        let vm = MemberTodoDetailViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             createTodoUseCase: createTodoUseCase,
@@ -331,7 +331,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
         let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
         
-        let vm = TodoDetailViewModel(
+        let vm = MemberTodoDetailViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             createTodoUseCase: createTodoUseCase,

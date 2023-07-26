@@ -56,6 +56,7 @@ class TodoCheckButton: SpringableButton {
     
     @objc func tapped() {
         self.isOn = !isOn
+        Vibration.medium.vibrate()
     }
     
     func setColor(color: CategoryColor) {

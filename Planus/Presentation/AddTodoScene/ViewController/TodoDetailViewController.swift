@@ -22,7 +22,7 @@ class TodoDetailViewController: UIViewController {
     
     var pageType: AddTodoViewControllerPageType = .addTodo
 
-    var viewModel: TodoDetailViewModel?
+    var viewModel: TodoDetailViewModelable?
     
     // MARK: Child ViewController
     var dayPickerViewController = DayPickerViewController(nibName: nil, bundle: nil)
@@ -40,7 +40,7 @@ class TodoDetailViewController: UIViewController {
         return view
     }()
     
-    convenience init(viewModel: TodoDetailViewModel) {
+    convenience init(viewModel: TodoDetailViewModelable) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
@@ -206,7 +206,7 @@ class TodoDetailViewController: UIViewController {
                 return nil
             }
         }
-        let input = TodoDetailViewModel.Input(
+        let input = TodoDetailViewModelableInput(
             todoTitleChanged: addTodoView.titleField.rx.text.asObservable(),
             categorySelected: didSelectCategoryAt.asObservable(),
             startDayChanged: didSelectedStartDate.asObservable(),
@@ -367,7 +367,7 @@ class TodoDetailViewController: UIViewController {
         case .new:
             addTodoView.removeButton.isHidden = true
             addTodoView.titleField.becomeFirstResponder()
-        case .others(_):
+        case .view(_):
             addTodoView.contentStackView.isUserInteractionEnabled = false
             addTodoView.titleField.resignFirstResponder()
             dayPickerViewController.view.isHidden = true

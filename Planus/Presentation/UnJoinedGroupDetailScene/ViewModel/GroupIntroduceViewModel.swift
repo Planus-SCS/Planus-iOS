@@ -191,6 +191,8 @@ class GroupIntroduceViewModel {
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.actions?.popCurrentPage?()
+            }, onFailure: { [weak self] error in
+                
             })
             .disposed(by: bag)
     }
