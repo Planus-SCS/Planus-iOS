@@ -23,4 +23,11 @@ protocol GroupMemberCalendarRepository {
         memberId: Int,
         date: Date
     ) -> Single<ResponseDTO<SocialTodoDailyListResponseDTO>>
+    
+    func fetchMemberTodoDetail(
+        token: String,
+        groupId: Int,
+        memberId: Int,
+        todoId: Int
+    ) -> Single<ResponseDTO<SocialTodoDetailResponseDTO>>
 }

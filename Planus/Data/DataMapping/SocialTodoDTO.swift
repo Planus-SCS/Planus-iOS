@@ -64,12 +64,33 @@ struct SocialTodoDetailResponseDTO: Codable {
     var todoCategory: SocialCategoryResponseDTO
     var groupName: String
     var startDate: String
-    var endDate: String
-    var startTime: String
-    var description: String
+    var endDate: String?
+    var startTime: String?
+    var description: String?
+}
+
+extension SocialTodoDetailResponseDTO {
+    func toDomain() -> SocialTodoDetail {
+        return SocialTodoDetail(
+            todoId: todoId,
+            title: title,
+            todoCategory: todoCategory.toDomain(),
+            groupName: groupName,
+            startDate: startDate.toDate() ?? Date(),
+            endDate: endDate?.toDate(),
+            startTime: startTime,
+            description: description
+        )
+    }
 }
 
 struct SocialCategoryResponseDTO: Codable {
     var name: String
     var color: String
+}
+
+extension SocialCategoryResponseDTO {
+    func toDomain() -> SocialCategory {
+        return SocialCategory(name: self.name, color: CategoryColor(rawValue: self.color) ?? .none)
+    }
 }

@@ -67,4 +67,21 @@ class DefaultGroupMemberCalendarRepository: GroupMemberCalendarRepository {
                 type: ResponseDTO<SocialTodoDailyListResponseDTO>.self
             )
     }
+    
+    func fetchMemberTodoDetail(token: String, groupId: Int, memberId: Int, todoId: Int) -> Single<ResponseDTO<SocialTodoDetailResponseDTO>> {
+        SocialTodoDetail
+        let endPoint = APIEndPoint(
+            url: URLPool.myGroup+"/\(groupId)/members/\(memberId)/todos/\(todoId)",
+            requestType: .get,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider
+            .requestCodable(
+                endPoint: endPoint,
+                type: ResponseDTO<SocialTodoDetailResponseDTO>.self
+            )
+    }
 }

@@ -25,3 +25,19 @@ struct SocialTodoDaily {
     var hasDescription: Bool
     var isCompleted: Bool?
 }
+
+struct SocialTodoDetail {
+    var todoId: Int
+    var title: String
+    var todoCategory: SocialCategory
+    var groupName: String
+    var startDate: Date
+    var endDate: Date?
+    var startTime: String?
+    var description: String?
+}
+
+struct SocialCategory {
+    var name: String
+    var color: CategoryColor
+}

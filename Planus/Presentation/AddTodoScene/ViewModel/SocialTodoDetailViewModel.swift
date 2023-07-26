@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-struct SocialTodoDetail {
+struct SocialTodoInfo {
     var groupId: Int?
     var memberId: Int?
     var todoId: Int?
@@ -16,9 +16,9 @@ struct SocialTodoDetail {
 
 final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     enum Mode {
-        case new(SocialTodoDetail)
-        case edit(SocialTodoDetail) //
-        case view(SocialTodoDetail) //그룹 투두인지 다른놈 투두인지 알아야함
+        case new(SocialTodoInfo)
+        case edit(SocialTodoInfo) //
+        case view(SocialTodoInfo) //그룹 투두인지 다른놈 투두인지 알아야함
     }
     
     var mode: Mode = .new(SocialTodoDetail())
