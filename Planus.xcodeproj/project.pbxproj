@@ -191,6 +191,8 @@
 		6A2C00C22A70F81B003D6B95 /* FetchGroupCategorysUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00C12A70F81B003D6B95 /* FetchGroupCategorysUseCase.swift */; };
 		6A2C00C42A70F865003D6B95 /* DefaultCreateGroupCategoryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00C32A70F865003D6B95 /* DefaultCreateGroupCategoryUseCase.swift */; };
 		6A2C00C62A70FC5F003D6B95 /* CreateGroupCategoryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00C52A70FC5F003D6B95 /* CreateGroupCategoryUseCase.swift */; };
+		6A2C00C82A70FC88003D6B95 /* DefaultUpdateGroupCategoryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00C72A70FC88003D6B95 /* DefaultUpdateGroupCategoryUseCase.swift */; };
+		6A2C00CA2A70FD4F003D6B95 /* UpdateGroupCategoryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00C92A70FD4F003D6B95 /* UpdateGroupCategoryUseCase.swift */; };
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
@@ -705,6 +707,8 @@
 		6A2C00C12A70F81B003D6B95 /* FetchGroupCategorysUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchGroupCategorysUseCase.swift; sourceTree = "<group>"; };
 		6A2C00C32A70F865003D6B95 /* DefaultCreateGroupCategoryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCreateGroupCategoryUseCase.swift; sourceTree = "<group>"; };
 		6A2C00C52A70FC5F003D6B95 /* CreateGroupCategoryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupCategoryUseCase.swift; sourceTree = "<group>"; };
+		6A2C00C72A70FC88003D6B95 /* DefaultUpdateGroupCategoryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultUpdateGroupCategoryUseCase.swift; sourceTree = "<group>"; };
+		6A2C00C92A70FD4F003D6B95 /* UpdateGroupCategoryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateGroupCategoryUseCase.swift; sourceTree = "<group>"; };
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
@@ -2362,6 +2366,7 @@
 				6A6C7B902A25B5D3005BAEEC /* DefaultFetchAllGroupCategoryListUseCase.swift */,
 				6A2C00BB2A70F4AD003D6B95 /* DefaultFetchGroupCategorysUseCase.swift */,
 				6A2C00C32A70F865003D6B95 /* DefaultCreateGroupCategoryUseCase.swift */,
+				6A2C00C72A70FC88003D6B95 /* DefaultUpdateGroupCategoryUseCase.swift */,
 			);
 			path = Category;
 			sourceTree = "<group>";
@@ -2421,6 +2426,7 @@
 				6A6C7B922A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift */,
 				6A2C00C12A70F81B003D6B95 /* FetchGroupCategorysUseCase.swift */,
 				6A2C00C52A70FC5F003D6B95 /* CreateGroupCategoryUseCase.swift */,
+				6A2C00C92A70FD4F003D6B95 /* UpdateGroupCategoryUseCase.swift */,
 			);
 			path = Category;
 			sourceTree = "<group>";
@@ -2945,6 +2951,7 @@
 				6A987A7929DEFC6600C27D09 /* TodoDailyViewModel.swift in Sources */,
 				6A6C7B932A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift in Sources */,
 				6AC0793F2A0A3650007ACDB8 /* ValidationCheckView.swift in Sources */,
+				6A2C00CA2A70FD4F003D6B95 /* UpdateGroupCategoryUseCase.swift in Sources */,
 				6A08AD6E29C88969005947D2 /* Coordinator.swift in Sources */,
 				6A24F91F29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift in Sources */,
 				6A61C3FA2A6EB32E00DCA088 /* DefaultRemoveProfileUseCase.swift in Sources */,
@@ -2991,6 +2998,7 @@
 				6A95DFDC29D53B7C009017D8 /* GroupIntroduceInfoHeaderView.swift in Sources */,
 				6AC0796D2A0A59FA007ACDB8 /* GroupRepository.swift in Sources */,
 				6AC079512A0A4D08007ACDB8 /* GroupCreateDTO.swift in Sources */,
+				6A2C00C82A70FC88003D6B95 /* DefaultUpdateGroupCategoryUseCase.swift in Sources */,
 				6A987A5C29DECB0300C27D09 /* MemberProfileViewModel.swift in Sources */,
 				6A27442D2A0E48E5008FB4F5 /* FetchMyGroupMemberListUseCase.swift in Sources */,
 				6A987A2B29DCFC7700C27D09 /* JoinedGroupChattingViewModel.swift in Sources */,
