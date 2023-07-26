@@ -199,6 +199,8 @@
 		6A2C00D62A7135B3003D6B95 /* FetchGroupMemberTodoDetailUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00D52A7135B3003D6B95 /* FetchGroupMemberTodoDetailUseCase.swift */; };
 		6A2C00D82A713631003D6B95 /* DefaultFetchGroupTodoDetailUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00D72A713631003D6B95 /* DefaultFetchGroupTodoDetailUseCase.swift */; };
 		6A2C00DA2A713734003D6B95 /* FetchGroupTodoDetailUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00D92A713734003D6B95 /* FetchGroupTodoDetailUseCase.swift */; };
+		6A2C00DC2A713785003D6B95 /* DefaultCreateGroupTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00DB2A713785003D6B95 /* DefaultCreateGroupTodoUseCase.swift */; };
+		6A2C00DE2A71387F003D6B95 /* CreateGroupTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00DD2A71387F003D6B95 /* CreateGroupTodoUseCase.swift */; };
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
@@ -719,6 +721,8 @@
 		6A2C00D52A7135B3003D6B95 /* FetchGroupMemberTodoDetailUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchGroupMemberTodoDetailUseCase.swift; sourceTree = "<group>"; };
 		6A2C00D72A713631003D6B95 /* DefaultFetchGroupTodoDetailUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchGroupTodoDetailUseCase.swift; sourceTree = "<group>"; };
 		6A2C00D92A713734003D6B95 /* FetchGroupTodoDetailUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchGroupTodoDetailUseCase.swift; sourceTree = "<group>"; };
+		6A2C00DB2A713785003D6B95 /* DefaultCreateGroupTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCreateGroupTodoUseCase.swift; sourceTree = "<group>"; };
+		6A2C00DD2A71387F003D6B95 /* CreateGroupTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupTodoUseCase.swift; sourceTree = "<group>"; };
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
@@ -1959,6 +1963,7 @@
 				6A9199FF2A20BA3900108BF4 /* DefaultFetchGroupDailyCalendarUseCase.swift */,
 				6A9199EC2A20958500108BF4 /* DefaultFetchGroupMonthlyCalendarUseCase.swift */,
 				6A2C00D72A713631003D6B95 /* DefaultFetchGroupTodoDetailUseCase.swift */,
+				6A2C00DB2A713785003D6B95 /* DefaultCreateGroupTodoUseCase.swift */,
 			);
 			path = GroupCalendar;
 			sourceTree = "<group>";
@@ -1969,6 +1974,7 @@
 				6A9199EE2A20960300108BF4 /* FetchGroupMonthlyCalendarUseCase.swift */,
 				6A919A022A20BB1500108BF4 /* FetchGroupDailyCalendarUseCase.swift */,
 				6A2C00D92A713734003D6B95 /* FetchGroupTodoDetailUseCase.swift */,
+				6A2C00DD2A71387F003D6B95 /* CreateGroupTodoUseCase.swift */,
 			);
 			path = GroupCalendar;
 			sourceTree = "<group>";
@@ -3067,6 +3073,7 @@
 				6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */,
 				6A24F91B29D22D5B0000FD64 /* BigTodoCell.swift in Sources */,
 				6A987A5729DEB02300C27D09 /* MemberProfileHeaderView.swift in Sources */,
+				6A2C00DC2A713785003D6B95 /* DefaultCreateGroupTodoUseCase.swift in Sources */,
 				6AC078E82A0387FD007ACDB8 /* TowWayBinding.swift in Sources */,
 				6A6C7B972A275389005BAEEC /* TodoCompleteUseCase.swift in Sources */,
 				6A9A080029D40BEF0051AD43 /* MemberTodoDetailViewModel.swift in Sources */,
@@ -3187,6 +3194,7 @@
 				6A987A8829DF118000C27D09 /* SmallCalendarViewModel.swift in Sources */,
 				6A9199E72A208EDE00108BF4 /* SocialDailyCalendarCell.swift in Sources */,
 				6A9A07F929D40B970051AD43 /* DayPickerViewControllerDelegate.swift in Sources */,
+				6A2C00DE2A71387F003D6B95 /* CreateGroupTodoUseCase.swift in Sources */,
 				6A95DFB529D4DD33009017D8 /* SearchHomeViewController.swift in Sources */,
 				6AA3BACA2A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataClass copy.swift in Sources */,
 				6A91997E2A120D5100108BF4 /* SpringableButton.swift in Sources */,
