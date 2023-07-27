@@ -97,7 +97,7 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
         )
         
         cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
-
+        print("cellForItem at \(section), \(indexPath.item)")
         return cell
     }
     
@@ -106,7 +106,7 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
               let viewModel else { return CGSize() }
 
         let screenWidth = UIScreen.main.bounds.width
-        
+        print("layout at \(section), \(indexPath.item)")
         if indexPath.item%7 == 0 {
             (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
                 viewModel.blockMemo[$0] = [Int?](repeating: nil, count: 20)

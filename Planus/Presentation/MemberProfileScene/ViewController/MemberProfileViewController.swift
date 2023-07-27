@@ -18,7 +18,7 @@ class MemberProfileViewController: UIViewController {
     var headerViewHeightConstraint: NSLayoutConstraint?
     
     var isSingleSelected = PublishSubject<IndexPath>()
-    var scrolledTo = PublishSubject<ScrollDirection>()
+    var indexChanged = PublishSubject<Int>()
     var isMonthChanged = PublishSubject<Date>()
     
     let headerView = MemberProfileHeaderView(frame: .zero)
@@ -83,7 +83,7 @@ class MemberProfileViewController: UIViewController {
         guard let viewModel else { return }
         
         let input = MemberProfileViewModel.Input(
-            didScrollTo: self.scrolledTo.asObservable(),
+            indexChanged: indexChanged.asObservable(),
             viewDidLoaded: Observable.just(()),
             didSelectItem: isSingleSelected.asObservable(),
             didTappedTitleButton: calendarHeaderView.yearMonthButton.rx.tap.asObservable(),
@@ -321,13 +321,12 @@ extension MemberProfileViewController: UICollectionViewDataSource, UICollectionV
         return cell
     }
     
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        if velocity.x > 0 {
-            scrolledTo.onNext(.right)
-        } else if velocity.x < 0 {
-            scrolledTo.onNext(.left)
-        }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
+        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) else { return }
+        indexChanged.onNext(Int(round(floatedIndex)))
     }
+    
     
 }
 

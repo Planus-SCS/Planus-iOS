@@ -247,7 +247,6 @@ class HomeCalendarViewModel {
             .didScrollToIndex
             .withUnretained(self)
             .subscribe { vm, index in
-                print("in viewModel: \(index)")
                 vm.scrolledTo(index: index)
             }
             .disposed(by: bag)

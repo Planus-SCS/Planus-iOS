@@ -63,7 +63,7 @@ class MemberProfileViewModel {
     var currentIndex = Int()
     
     struct Input {
-        var didScrollTo: Observable<ScrollDirection>
+        var indexChanged: Observable<Int>
         var viewDidLoaded: Observable<Void>
         var didSelectItem: Observable<IndexPath>
         var didTappedTitleButton: Observable<Void>
@@ -158,10 +158,10 @@ class MemberProfileViewModel {
             .disposed(by: bag)
         
         input
-            .didScrollTo
+            .indexChanged
             .withUnretained(self)
-            .subscribe { vm, direction in
-                vm.scrolledTo(direction: direction)
+            .subscribe { vm, index in
+                vm.scrolledTo(index: index)
             }
             .disposed(by: bag)
         
@@ -233,8 +233,11 @@ class MemberProfileViewModel {
         fetchTodoList(from: fromIndex, to: toIndex)
     }
 
-    func scrolledTo(direction: ScrollDirection) {
-        updateCurrentDate(direction: direction)
+    func scrolledTo(index: Int) {
+        let indexBefore = currentIndex
+        currentIndex = index
+        
+        updateCurrentDate(direction: (indexBefore == index) ? .none : (indexBefore > index) ? .left : .right)
         checkCacheLoadNeed()
     }
     
@@ -246,13 +249,11 @@ class MemberProfileViewModel {
                                 byAdding: DateComponents(month: -1),
                                 to: previousDate
                         ))
-            currentIndex-=1
         case .right:
             currentDate.onNext(self.calendar.date(
                                 byAdding: DateComponents(month: 1),
                                 to: previousDate
                         ))
-            currentIndex+=1
         case .none:
             return
         }
