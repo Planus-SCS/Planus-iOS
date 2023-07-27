@@ -12,6 +12,7 @@ class ProfileButton: UIButton {
         let imageView = UIImageView(frame: .zero)
         imageView.clipsToBounds = true
         imageView.layer.cornerCurve = .continuous
+        imageView.contentMode = .scaleAspectFill
         return imageView
     }()
     
