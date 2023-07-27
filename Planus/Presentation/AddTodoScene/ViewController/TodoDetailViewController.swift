@@ -18,6 +18,7 @@ class TodoDetailViewController: UIViewController {
     var didSelectedGroupAt = PublishSubject<Int?>()
     var didChangednewCategoryColor = PublishSubject<CategoryColor?>()
     var didDeleteCategoryId = PublishSubject<Int>()
+    var didChangedTimeValue = PublishSubject<String?>()
     
     var pageType: AddTodoViewControllerPageType = .addTodo
 
@@ -25,7 +26,7 @@ class TodoDetailViewController: UIViewController {
     
     // MARK: Child ViewController
     var dayPickerViewController = DayPickerViewController(nibName: nil, bundle: nil)
-    var pickerView = UIPickerView()
+    var groupPickerView = UIPickerView()
     
     // MARK: Child View
     var addTodoView = AddTodoView(frame: .zero)
@@ -65,10 +66,11 @@ class TodoDetailViewController: UIViewController {
         dayPickerViewController.delegate = self
         addTodoView.titleField.delegate = self
         addTodoView.memoTextView.delegate = self
+        addTodoView.timeField.delegate = self
         
-        pickerView.dataSource = self
-        pickerView.delegate = self
-        addTodoView.groupSelectionField.inputView = pickerView
+        groupPickerView.dataSource = self
+        groupPickerView.delegate = self
+        addTodoView.groupSelectionField.inputView = groupPickerView
         
         addTodoView.addSubview(dayPickerViewController.view)
     }
@@ -196,6 +198,7 @@ class TodoDetailViewController: UIViewController {
 
         let memoViewObservable = addTodoView
             .memoTextView.rx.text
+            .skip(1)
             .asObservable()
             .map { [weak self] (text) -> String? in
             guard let isMemoFilled = self?.addTodoView.isMemoFilled else { return nil }
@@ -205,12 +208,13 @@ class TodoDetailViewController: UIViewController {
                 return nil
             }
         }
+
         let input = TodoDetailViewModelableInput(
-            titleTextChanged: addTodoView.titleField.rx.text.distinctUntilChanged().asObservable(),
+            titleTextChanged: addTodoView.titleField.rx.text.skip(1).distinctUntilChanged().asObservable(),
             categorySelectedAt: didSelectCategoryAt.asObservable(),
             dayRange: didSelectedDateRange.asObservable(),
-            timeFieldChanged: addTodoView.timeField.rx.text.distinctUntilChanged().asObservable(),
-            groupSelectedAt: didSelectedGroupAt.asObservable(),
+            timeFieldChanged: didChangedTimeValue.asObservable(),
+            groupSelectedAt: didSelectedGroupAt.distinctUntilChanged().asObservable(),
             memoTextChanged: memoViewObservable,
             creatingCategoryNameTextChanged: categoryCreateView.nameField.rx.text.asObservable(),
             creatingCategoryColorChanged: didChangednewCategoryColor.asObservable(),
@@ -270,7 +274,7 @@ class TodoDetailViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, memo in //여기서 isMemoField에 따라 ㄱㄱ하자
                 vc.addTodoView.isMemoFilled = (memo != nil)
-                vc.addTodoView.memoTextView.text = memo != nil ? memo : (output.type == .memberTodo) ? "메모를 입력하세요" : "메모가 없습니다"
+                vc.addTodoView.memoTextView.text = memo != nil ? memo : (output.mode == .view) ? "메모가 없습니다" : "메모를 입력하세요"
                 vc.addTodoView.memoTextView.textColor = (memo != nil) ? .black : UIColor(hex: 0xBFC7D7)
             })
             .disposed(by: bag)
@@ -708,6 +712,46 @@ extension TodoDetailViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == self.addTodoView.titleField {
             self.addTodoView.memoTextView.becomeFirstResponder()
+        }
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == self.addTodoView.timeField {
+            let separator: Character = ":"
+            if string == "" { //backspace
+                if var textString = textField.text,
+                   !textString.isEmpty {
+                    textString = textString.replacingOccurrences(of: String(separator), with: "")
+                    textString = String(textString.dropLast())
+                    if textString.count >= 2 {
+                        textString.insert(separator, at: textString.index(textString.startIndex, offsetBy: 2)
+)
+                    }
+                    textField.text = textString
+                    didChangedTimeValue.onNext(textString)
+                }
+                return false
+            } else if var textString = textField.text {
+                if textString.contains(separator) {
+                    textString = textString.replacingOccurrences(of: String(separator), with: "")
+                }
+                
+                if textString.count == 4 {
+                    return false
+                }
+                textString += string
+
+                if textString.count >= 2 {
+                    textString.insert(separator, at: textString.index(textString.startIndex, offsetBy: 2))
+                }
+                textField.text = textString
+                didChangedTimeValue.onNext(textString)
+
+                return false
+            } else {
+                print("4")
+            }
         }
         return true
     }

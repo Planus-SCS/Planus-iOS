@@ -143,6 +143,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
                 self?.todoTitle.onNext(todo.title)
                 self?.todoCategory.onNext(Category(title: todo.todoCategory.name, color: todo.todoCategory.color))
                 self?.todoDayRange.onNext(DateRange(start: todo.startDate, end: (todo.startDate != todo.endDate) ? todo.endDate : nil))
+                self?.todoTime.onNext(todo.startTime)
                 self?.todoGroup.onNext(GroupName(groupId: groupId, groupName: todo.groupName))
                 self?.todoMemo.onNext(todo.description)
             })

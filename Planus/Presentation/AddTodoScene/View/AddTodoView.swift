@@ -144,13 +144,14 @@ class AddTodoView: UIView {
         textField.placeholder = "00:00"
         textField.font = UIFont(name: "Pretendard-Light", size: 16)
         textField.textColor = .black
+        textField.keyboardType = .numberPad
         textField.sizeToFit()
         return textField
     }()
     
     lazy var groupSelectionField: UITextField = {
         let field = UITextField(frame: .zero)
-        field.text = "그룹 선택"
+        field.placeholder = "그룹 선택"
         field.font = UIFont(name: "Pretendard-Light", size: 16)
         field.textColor = .black
         field.sizeToFit()
@@ -229,12 +230,13 @@ class AddTodoView: UIView {
 
         
         groupSelectionField.snp.makeConstraints {
+            $0.width.equalToSuperview()
             $0.height.equalTo(30)
         }
         
         separatorView.forEach { view in
             view.snp.makeConstraints {
-                $0.height.equalTo(0.5)
+                $0.height.equalTo(0.7)
                 $0.width.equalToSuperview()
             }
         }

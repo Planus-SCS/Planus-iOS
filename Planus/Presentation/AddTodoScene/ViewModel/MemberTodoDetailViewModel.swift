@@ -85,30 +85,23 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func initMode(mode: TodoDetailSceneMode, todo: Todo? = nil, category: Category? = nil, groupName: GroupName? = nil, start: Date? = nil, end: Date? = nil) { //여기서 new는 date, 아님 투두임. 하씨,,, 이거 어케 안되냐..?
+        self.todoGroup.onNext(groupName)
+        self.todoCategory.onNext(category)
         self.mode = mode
         switch mode {
         case .new:
             self.todoDayRange.onNext(DateRange(start: start, end: (start != end) ? end : nil))
         case .edit, .view:
             guard let todo else { return }
-            print("category ID: ", todo.categoryId)
             self.exTodo = todo
-            self.todoCategory.onNext(category)
-            self.todoGroup.onNext(groupName)
+            self.todoTitle.onNext(todo.title)
+            self.todoDayRange.onNext(DateRange(start: todo.startDate, end: (todo.startDate != todo.endDate) ? todo.endDate : nil))
+            self.todoTime.onNext(todo.startTime)
+            self.todoMemo.onNext(todo.memo)
         }
     }
 
-    func initFetch() { //여기서 exTodo가 있으면 넣어줘야함..!!!
-        switch mode {
-        case .edit, .view:
-            guard let exTodo else { return }
-            self.todoTitle.onNext(exTodo.title)
-            self.todoDayRange.onNext(DateRange(start: exTodo.startDate, end: (exTodo.startDate != exTodo.endDate) ? exTodo.endDate : nil))
-            self.todoTime.onNext(exTodo.startTime)
-            self.todoMemo.onNext(exTodo.memo)
-        default:
-            break
-        }
+    func initFetch() {
         fetchCategoryList()
         fetchGroupList()
     }

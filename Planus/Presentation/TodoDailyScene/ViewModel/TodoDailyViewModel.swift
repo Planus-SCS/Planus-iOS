@@ -160,10 +160,12 @@ class TodoDailyViewModel {
             .didCreateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in //무조건 추가하면 안된다.. 그룹보고 필터그룹이랑 다르면 추가 x
-                guard todo.startDate == vm.currentDate else { return }
+                guard let currentDate = vm.currentDate,
+                      todo.startDate <= currentDate,
+                      currentDate <= todo.endDate else { return }
                 
                 if let filteringGroupId = vm.filteringGroupId,
-                   todo.groupId == filteringGroupId {
+                   todo.groupId != filteringGroupId {
                     return
                 }
                 

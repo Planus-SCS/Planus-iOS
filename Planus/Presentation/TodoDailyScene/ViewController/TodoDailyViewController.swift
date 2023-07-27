@@ -191,7 +191,13 @@ class TodoDailyViewController: UIViewController {
         guard let groupDict = viewModel?.groupDict else { return }
         let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
         vm.setGroup(groupList: groupList)
-        vm.initMode(mode: .new, start: viewModel?.currentDate)
+        
+        var groupName: GroupName?
+        if let filteredGroupId = viewModel?.filteringGroupId,
+           let filteredGroupName = groupDict[filteredGroupId] {
+            groupName = filteredGroupName
+        }
+        vm.initMode(mode: .new, groupName: groupName, start: viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)

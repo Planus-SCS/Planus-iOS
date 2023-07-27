@@ -23,7 +23,7 @@ class HomeCalendarViewController: UIViewController {
     var refreshRequired = PublishSubject<Void>()
     var didFetchRefreshedData = PublishSubject<Void>()
     
-    let scrolledTo = PublishSubject<ScrollDirection>()
+    let indexChanged = PublishSubject<Int>()
     
     lazy var yearMonthButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
@@ -61,6 +61,7 @@ class HomeCalendarViewController: UIViewController {
             label.text = dayOfTheWeek[i]
             label.textAlignment = .center
             label.font = UIFont(name: "Pretendard-Regular", size: 12)
+            label.textColor = .black
             stackView.addArrangedSubview(label)
         }
         stackView.backgroundColor = UIColor(hex: 0xF5F5FB)
@@ -110,7 +111,7 @@ class HomeCalendarViewController: UIViewController {
         guard let viewModel else { return }
         
         let input = HomeCalendarViewModel.Input(
-            didScrollTo: self.scrolledTo.asObservable(),
+            didScrollToIndex: indexChanged.distinctUntilChanged().asObservable(),
             viewDidLoaded: Observable.just(()),
             didSelectItem: isSingleSelected.asObservable(),
             didMultipleSelectItemsInRange: isMultipleSelected.asObservable(),
@@ -239,8 +240,14 @@ class HomeCalendarViewController: UIViewController {
                 )
                 
                 let groupList = Array(viewModel.groups.values).sorted(by: { $0.groupId < $1.groupId })
+                
+                var groupName: GroupName?
+                if let filteredGroupId = try? viewModel.filteredGroupId.value(),
+                   let filteredGroupName = viewModel.groups[filteredGroupId] {
+                    groupName = filteredGroupName
+                }
                 vm.setGroup(groupList: groupList)
-                vm.initMode(mode: .new, start: startDate, end: endDate)
+                vm.initMode(mode: .new, groupName: groupName, start: startDate, end: endDate)
                 
                 let vc = TodoDetailViewController(viewModel: vm)
                 vc.completionHandler = { [weak self] in
@@ -446,13 +453,11 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
             
         return cell
     }
-    
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        if velocity.x > 0 {
-            scrolledTo.onNext(.right)
-        } else if velocity.x < 0 {
-            scrolledTo.onNext(.left)
-        }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
+        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) else { return }
+        indexChanged.onNext(Int(round(floatedIndex)))
     }
     
 }

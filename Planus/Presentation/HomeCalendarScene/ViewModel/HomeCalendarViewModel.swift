@@ -83,7 +83,7 @@ class HomeCalendarViewModel {
     var currentIndex = Int()
     
     struct Input {
-        var didScrollTo: Observable<ScrollDirection>
+        var didScrollToIndex: Observable<Int>
         var viewDidLoaded: Observable<Void>
         var didSelectItem: Observable<(Int, Int)>
         var didMultipleSelectItemsInRange: Observable<(Int, (Int, Int))>
@@ -244,10 +244,11 @@ class HomeCalendarViewModel {
             .disposed(by: bag)
         
         input
-            .didScrollTo
+            .didScrollToIndex
             .withUnretained(self)
-            .subscribe { vm, direction in
-                vm.scrolledTo(direction: direction)
+            .subscribe { vm, index in
+                print("in viewModel: \(index)")
+                vm.scrolledTo(index: index)
             }
             .disposed(by: bag)
         
@@ -474,8 +475,11 @@ class HomeCalendarViewModel {
         fetchTodoList(from: fromIndex, to: toIndex)
     }
 
-    func scrolledTo(direction: ScrollDirection) {
-        updateCurrentDate(direction: direction)
+    func scrolledTo(index: Int) {
+        let indexBefore = currentIndex
+        currentIndex = index
+        
+        updateCurrentDate(direction: (indexBefore == index) ? .none : (indexBefore > index) ? .left : .right)
         checkCacheLoadNeed()
     }
     
@@ -487,13 +491,11 @@ class HomeCalendarViewModel {
                                 byAdding: DateComponents(month: -1),
                                 to: previousDate
                         ))
-            currentIndex-=1
         case .right:
             currentDate.onNext(self.calendar.date(
                                 byAdding: DateComponents(month: 1),
                                 to: previousDate
                         ))
-            currentIndex+=1
         case .none:
             return
         }

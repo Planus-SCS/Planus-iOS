@@ -283,16 +283,21 @@ extension TodoDetailViewModelable {
         
         let todoSaveBtnEnabled = Observable
             .combineLatest(
-                todoTitle,
-                todoCategory,
-                todoDayRange
+                todoTitle.asObservable(),
+                todoCategory.asObservable(),
+                todoDayRange.asObservable(),
+                todoTime.asObservable()
             )
-            .map { (title, category, dayRange) in
+            .map { (title, category, dayRange, time) in
                 guard let title,
                       let category,
                       let _ = dayRange.start else { return false }
+                var isTimeStructured = true
+                if let time = time {
+                    isTimeStructured = time.isEmpty || time.count == 5
+                }
                 
-                return !title.isEmpty
+                return !title.isEmpty && isTimeStructured
             }
         
         let newCategorySaveBtnEnabled = Observable
