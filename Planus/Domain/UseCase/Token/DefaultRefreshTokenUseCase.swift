@@ -19,6 +19,7 @@ class DefaultRefreshTokenUseCase: RefreshTokenUseCase {
         return tokenRepository
             .refresh()
             .map { [weak self] dto in
+                print("refreshed")
                 let token = dto.data.toDomain()
                 self?.tokenRepository.set(token: token)
                 return token

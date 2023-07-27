@@ -375,7 +375,7 @@ class TodoDailyViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onFailure: { _ in
                 // 처리 실패하면 버튼을 다시 원래대로 돌리면서 토스트 띄워야함..!

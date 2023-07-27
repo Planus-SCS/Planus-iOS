@@ -118,7 +118,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
                 self?.categorys = list.filter { $0.status == .active }
@@ -194,7 +194,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] id in
                 var todoWithId = todo
@@ -216,7 +216,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.needDismiss.onNext(())
@@ -236,7 +236,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.needDismiss.onNext(())
@@ -256,7 +256,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] id in
                 var categoryWithId = category
@@ -283,7 +283,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] id in
                 guard let index = self?.categorys.firstIndex(where: { $0.id == id }) else { return }
@@ -308,7 +308,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] in
                 print("removed!!")

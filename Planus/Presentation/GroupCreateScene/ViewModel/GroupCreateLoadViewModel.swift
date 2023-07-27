@@ -74,7 +74,7 @@ class GroupCreateLoadViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] groupId in
                 self?.groupCreateCompleted.onNext(groupId)

@@ -44,8 +44,12 @@ class NetworkManager: APIProvider {
                 }
                 
                 guard let data = data else {
-                    emitter(.failure(NetworkError.nilDataError))
+                    emitter(.failure(NetworkManagerError.nilDataError))
                     return
+                }
+                print(request.url)
+                if let body = request.httpBody {
+                    print(String(data: body, encoding: .utf8))
                 }
                 
                 print(String(data: data, encoding: .utf8))
@@ -55,13 +59,19 @@ class NetworkManager: APIProvider {
                 case (200..<300):
                     emitter(.success(data))
                 case (300..<400):
-                    emitter(.failure(NetworkError.unKnownError(String("300~400"))))
+                    let message = (try? JSONDecoder().decode(FailureDTO.self, from: data))?.message
+                    emitter(.failure(NetworkManagerError.redirection(httpResponse.statusCode, message)))
                 case 401:
-                    emitter(.failure(TokenError.tokenExpired))
+                    emitter(.failure(NetworkManagerError.tokenExpired))
                 case (400..<500):
-                    emitter(.failure(NetworkError.unKnownError(String("400~500"))))
+                    let message = (try? JSONDecoder().decode(FailureDTO.self, from: data))?.message
+                    emitter(.failure(NetworkManagerError.clientError(httpResponse.statusCode, message)))
+                case (500..<600):
+                    let message = (try? JSONDecoder().decode(FailureDTO.self, from: data))?.message
+                    emitter(.failure(NetworkManagerError.serverError(httpResponse.statusCode, message)))
                 default:
-                    emitter(.failure(NetworkError.unKnownError(String("400~500"))))
+                    let message = (try? JSONDecoder().decode(FailureDTO.self, from: data))?.message
+                    emitter(.failure(NetworkManagerError.unKnownError(httpResponse.statusCode, message)))
                 }
             }
             task.resume()
@@ -77,7 +87,7 @@ private extension NetworkManager {
     private func createRequest(endPoint: APIEndPoint) throws -> URLRequest {
         
         guard var urlComponents = URLComponents(string: endPoint.url) else {
-            throw NetworkError.invalidURLFormatError
+            throw NetworkManagerError.invalidURLFormatError
         }
         
         if let query = endPoint.query {
@@ -89,7 +99,7 @@ private extension NetworkManager {
         }
         
         guard let url = urlComponents.url else {
-            throw NetworkError.invalidURLFormatError
+            throw NetworkManagerError.invalidURLFormatError
         }
         
         var request = URLRequest(url: url)
@@ -97,7 +107,7 @@ private extension NetworkManager {
         
         if let body = endPoint.body {
             guard let data = try? JSONEncoder().encode(body) else {
-                throw NetworkError.httpBodyEncodingError
+                throw NetworkManagerError.httpBodyEncodingError
             }
             request.httpBody = data
         }
@@ -113,7 +123,7 @@ private extension NetworkManager {
     
     private func createMultiPartRequest(endPoint: APIMultiPartEndPoint) throws -> URLRequest {
         guard var urlComponents = URLComponents(string: endPoint.url) else {
-            throw NetworkError.invalidURLFormatError
+            throw NetworkManagerError.invalidURLFormatError
         }
         
         if let query = endPoint.query {
@@ -125,7 +135,7 @@ private extension NetworkManager {
         }
         
         guard let url = urlComponents.url else {
-            throw NetworkError.invalidURLFormatError
+            throw NetworkManagerError.invalidURLFormatError
         }
         
         var request = URLRequest(url: url)

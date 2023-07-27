@@ -184,7 +184,7 @@ class MyGroupInfoEditViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.infoUpdateCompleted.onNext(())
@@ -207,7 +207,7 @@ class MyGroupInfoEditViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
                 // 아에 앞에 있던 네비게이션을 싹다 없애고 첫 씬으로 돌아가야함..!

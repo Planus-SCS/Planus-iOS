@@ -198,7 +198,7 @@ class GroupListViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUsecase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onFailure: { [weak self] _ in //이경우 다시 바꿔주고 바꾸기
                 self?.didSuccessOnlineStateChange.onNext((index, false))
@@ -219,7 +219,7 @@ class GroupListViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUsecase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
                 self?.groupList = list

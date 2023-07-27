@@ -135,7 +135,7 @@ class JoinedGroupDetailViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] detail in
                 self?.isLeader = detail.isLeader
@@ -211,7 +211,7 @@ class JoinedGroupDetailViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onError: { [weak self] _ in
                 self?.isOnline.onNext(try? self?.isOnline.value())
@@ -233,7 +233,7 @@ class JoinedGroupDetailViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
