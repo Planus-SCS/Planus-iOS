@@ -130,7 +130,7 @@ class SocialTodoDailyViewController: UIViewController {
     }
     
     @objc func addTodoTapped(_ sender: UIButton) {
-        guard let groupId = viewModel?.groupId else { return }
+        guard let group = viewModel?.group else { return }
         
         let api = NetworkManager()
         let keyChain = KeyChainManager()
@@ -166,7 +166,7 @@ class SocialTodoDailyViewController: UIViewController {
             fetchGroupCategorysUseCase: fetchGroupCategorysUseCase
         )
 
-        vm.initMode(mode: .new, info: SocialTodoInfo(groupId: groupId), date: viewModel?.currentDate)
+        vm.initMode(mode: .new, info: SocialTodoInfo(group: group), date: viewModel?.currentDate)
         
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
@@ -273,7 +273,7 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
             return false
         }
         guard let todoId,
-              let groupId = viewModel?.groupId,
+              let group = viewModel?.group,
               let type = viewModel?.type else { return false }
 
         let api = NetworkManager()
@@ -312,9 +312,9 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
         
         switch type {
         case .member(let id): //애는 무적권 조회만
-            vm.initMode(mode: .view, info: SocialTodoInfo(groupId: groupId, memberId: id, todoId: todoId))
+            vm.initMode(mode: .view, info: SocialTodoInfo(group: group, memberId: id, todoId: todoId))
         case .group(let isLeader): //애는 edit
-            vm.initMode(mode: isLeader ? .edit : .view, info: SocialTodoInfo(groupId: groupId, todoId: todoId))
+            vm.initMode(mode: isLeader ? .edit : .view, info: SocialTodoInfo(group: group, todoId: todoId))
         }
         
         let vc = TodoDetailViewController(viewModel: vm)

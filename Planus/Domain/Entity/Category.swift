@@ -27,3 +27,9 @@ extension Category {
         )
     }
 }
+
+extension Category: Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.id == rhs.id
+    }
+}

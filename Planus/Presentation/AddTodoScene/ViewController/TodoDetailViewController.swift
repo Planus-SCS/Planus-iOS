@@ -14,8 +14,7 @@ class TodoDetailViewController: UIViewController {
     
     var didSelectCategoryAt = PublishSubject<Int?>()
     var didRequestEditCategoryAt = PublishSubject<Int>() // 생성도 이걸로하자!
-    var didSelectedStartDate = PublishSubject<Date?>()
-    var didSelectedEndDate = PublishSubject<Date?>()
+    var didSelectedDateRange = PublishSubject<DateRange>()
     var didSelectedGroupAt = PublishSubject<Int?>()
     var didChangednewCategoryColor = PublishSubject<CategoryColor?>()
     var didDeleteCategoryId = PublishSubject<Int>()
@@ -209,8 +208,7 @@ class TodoDetailViewController: UIViewController {
         let input = TodoDetailViewModelableInput(
             titleTextChanged: addTodoView.titleField.rx.text.distinctUntilChanged().asObservable(),
             categorySelectedAt: didSelectCategoryAt.asObservable(),
-            startDaySelected: didSelectedStartDate.asObservable(),
-            endDaySelected: didSelectedEndDate.asObservable(),
+            dayRange: didSelectedDateRange.asObservable(),
             timeFieldChanged: addTodoView.timeField.rx.text.distinctUntilChanged().asObservable(),
             groupSelectedAt: didSelectedGroupAt.asObservable(),
             memoTextChanged: memoViewObservable,
@@ -277,10 +275,11 @@ class TodoDetailViewController: UIViewController {
             })
             .disposed(by: bag)
         
-        Observable.combineLatest(output.startDayValueChanged, output.endDayValueChanged)
+        output
+            .dayRangeChanged
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { [weak self] start, end in
-                self?.dayPickerViewController.setDate(startDate: start, endDate: end)
+            .subscribe(onNext: { [weak self] range in
+                self?.dayPickerViewController.setDate(startDate: range.start, endDate: range.end)
             })
             .disposed(by: bag)
         
@@ -473,8 +472,7 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_white")
         addTodoView.endDateButton.setTitle("2000.00.00", for: .normal)
         addTodoView.endDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
-        didSelectedStartDate.onNext(didSelectDate)
-        didSelectedEndDate.onNext(nil)
+        didSelectedDateRange.onNext(DateRange(start: didSelectDate))
     }
     
     func unHighlightAllItem(_ dayPickerViewController: DayPickerViewController) {
@@ -483,8 +481,7 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_white")
         addTodoView.endDateButton.setTitle("2000.00.00", for: .normal)
         addTodoView.endDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
-        didSelectedStartDate.onNext(nil)
-        didSelectedEndDate.onNext(nil)
+        didSelectedDateRange.onNext(DateRange())
     }
     
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDateInRange: (Date, Date)) {
@@ -500,8 +497,7 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.endDateButton.setTitle("\(dayPickerViewController.dateFormatter2.string(from: max))", for: .normal)
         addTodoView.endDateButton.setTitleColor(.black, for: .normal)
         
-        didSelectedStartDate.onNext(min)
-        didSelectedEndDate.onNext(max)
+        didSelectedDateRange.onNext(DateRange(start: min, end: max))
     }
 }
 

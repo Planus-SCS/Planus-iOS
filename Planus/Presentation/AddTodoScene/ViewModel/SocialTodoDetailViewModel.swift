@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 struct SocialTodoInfo { //그룹투두 또한 조회만 되기도 하고 주인장은 수정이 되기도 한다,,,
-    var groupId: Int?
+    var group: GroupName?
     var memberId: Int?
     var todoId: Int?
 }
@@ -34,8 +34,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     
     var todoTitle = BehaviorSubject<String?>(value: nil)
     var todoCategory = BehaviorSubject<Category?>(value: nil)
-    var todoStartDay = BehaviorSubject<Date?>(value: nil)
-    var todoEndDay = BehaviorSubject<Date?>(value: nil)
+    var todoDayRange = BehaviorSubject<DateRange>(value: DateRange())
     var todoTime = BehaviorSubject<String?>(value: nil)
     var todoGroup = BehaviorSubject<GroupName?>(value: nil)
     var todoMemo = BehaviorSubject<String?>(value: nil)
@@ -98,28 +97,29 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     func initMode(mode: TodoDetailSceneMode, info: SocialTodoInfo, date: Date? = nil) {
         self.mode = mode
         self.info = info
-        self.todoStartDay.onNext(date)
+        self.todoDayRange.onNext(DateRange(start: date))
     }
     
     func initFetch() {
         switch mode {
         case .new:
-            guard let groupId = info?.groupId else { return }
-            fetchCategoryList(groupId: groupId)
+            guard let group = info?.group else { return }
+            self.todoGroup.onNext(group)
+            fetchCategoryList(groupId: group.groupId)
         case .edit:
-            guard let groupId = info?.groupId,
+            guard let group = info?.group,
                   let todoId = info?.todoId else { return }
             
-            fetchGroupTodoDetail(groupId: groupId, todoId: todoId)
-            fetchCategoryList(groupId: groupId)
+            fetchGroupTodoDetail(groupId: group.groupId, todoId: todoId)
+            fetchCategoryList(groupId: group.groupId)
         case .view:
-            guard let groupId = info?.groupId,
+            guard let group = info?.group,
                   let todoId = info?.todoId else { return }
             
             if let memberId = info?.memberId {
-                fetchGroupMemberTodoDetail(groupId: groupId, memberId: memberId, todoId: todoId)
+                fetchGroupMemberTodoDetail(groupId: group.groupId, memberId: memberId, todoId: todoId)
             } else {
-                fetchGroupTodoDetail(groupId: groupId, todoId: todoId)
+                fetchGroupTodoDetail(groupId: group.groupId, todoId: todoId)
             }
             return
         }
@@ -142,8 +142,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
             .subscribe(onSuccess: { [weak self] todo in
                 self?.todoTitle.onNext(todo.title)
                 self?.todoCategory.onNext(Category(title: todo.todoCategory.name, color: todo.todoCategory.color))
-                self?.todoStartDay.onNext(todo.startDate)
-                self?.todoEndDay.onNext((todo.startDate != todo.endDate) ? todo.endDate : nil)
+                self?.todoDayRange.onNext(DateRange(start: todo.startDate, end: (todo.startDate != todo.endDate) ? todo.endDate : nil))
                 self?.todoGroup.onNext(GroupName(groupId: groupId, groupName: todo.groupName))
                 self?.todoMemo.onNext(todo.description)
             })
@@ -164,11 +163,10 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: TokenError.noTokenExist
             )
-            .subscribe(onSuccess: { [weak self] todo in // FIXME: 여기 카테고리 id받으면 넣기!
+            .subscribe(onSuccess: { [weak self] todo in
                 self?.todoTitle.onNext(todo.title)
                 self?.todoCategory.onNext(Category(id: todo.todoCategory.id, title: todo.todoCategory.name, color: todo.todoCategory.color))
-                self?.todoStartDay.onNext(todo.startDate)
-                self?.todoEndDay.onNext((todo.startDate != todo.endDate) ? todo.endDate : nil)
+                self?.todoDayRange.onNext(DateRange(start: todo.startDate, end: (todo.startDate != todo.endDate) ? todo.endDate : nil))
                 self?.todoGroup.onNext(GroupName(groupId: groupId, groupName: todo.groupName))
                 self?.todoMemo.onNext(todo.description)
             })
@@ -198,11 +196,12 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
 
     func saveDetail() {
         guard let title = try? todoTitle.value(),
-              let startDate = try? todoStartDay.value(),
+              let dateRange = try? todoDayRange.value(),
+              let startDate = dateRange.start,
               let categoryId = (try? todoCategory.value())?.id else { return }
         
         var endDate = startDate
-        if let todoEndDay = try? todoEndDay.value() {
+        if let todoEndDay = dateRange.end {
             endDate = todoEndDay
         }
         let memo = try? todoMemo.value()
@@ -223,10 +222,10 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
                         
         switch mode {
         case .new:
-            guard let groupId = info?.groupId else { return }
+            guard let groupId = info?.group?.groupId else { return }
             createTodo(groupId: groupId, todo: todo)
         case .edit:
-            guard let groupId = info?.groupId,
+            guard let groupId = info?.group?.groupId,
                   let todoId = info?.todoId else { return }
             todo.id = todoId
             updateTodo(groupId: groupId, todoId: todoId, todo: todo)
@@ -238,7 +237,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     func removeDetail() {
         switch mode {
         case .edit:
-            guard let groupId = info?.groupId,
+            guard let groupId = info?.group?.groupId,
                   let todoId = info?.todoId else { return }
             deleteTodo(groupId: groupId, todoId: todoId)
         default:
@@ -312,7 +311,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         var groupId: Int
         switch mode {
         case .new, .edit:
-            guard let infoGroupId = info?.groupId else { return }
+            guard let infoGroupId = info?.group?.groupId else { return }
             groupId = infoGroupId
         default: return
         }
@@ -347,7 +346,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         var groupId: Int
         switch mode {
         case .new, .edit:
-            guard let infoGroupId = info?.groupId else { return }
+            guard let infoGroupId = info?.group?.groupId else { return }
             groupId = infoGroupId
         default: return
         }
@@ -381,7 +380,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         var groupId: Int
         switch mode {
         case .new, .edit:
-            guard let infoGroupId = info?.groupId else { return }
+            guard let infoGroupId = info?.group?.groupId else { return }
             groupId = infoGroupId
         default: return
         }

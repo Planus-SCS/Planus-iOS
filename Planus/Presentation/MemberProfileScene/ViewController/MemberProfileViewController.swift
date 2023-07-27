@@ -123,7 +123,7 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, dayViewModel in
-                guard let groupId = vc.viewModel?.groupId,
+                guard let group = vc.viewModel?.group,
                       let memberId = vc.viewModel?.member?.memberId else { return }
                 let nm = NetworkManager()
                 let kc = KeyChainManager()
@@ -137,9 +137,13 @@ class MemberProfileViewController: UIViewController {
                     getTokenUseCase: getTokenUseCase,
                     refreshTokenUseCase: refTokenUseCase,
                     fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
-                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase
+                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase,
+                    createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
+                    updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
+                    deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
+                    updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
                 )
-                viewModel.setGroup(groupId: groupId, type: .member(id: memberId), date: dayViewModel.date)
+                viewModel.setGroup(group: group, type: .member(id: memberId), date: dayViewModel.date)
                 let viewController = SocialTodoDailyViewController(viewModel: viewModel)
                 
                 let nav = UINavigationController(rootViewController: viewController)

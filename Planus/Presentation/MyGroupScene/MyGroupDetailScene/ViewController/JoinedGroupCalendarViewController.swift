@@ -102,6 +102,7 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, date in
                 guard let groupId = vc.viewModel?.groupId,
+                      let groupName = vc.delegate?.calendarViewControllerGetGroupTitle(),
                       let isOwner = vc.delegate?.isLeader() else { return }
                 let nm = NetworkManager()
                 let kc = KeyChainManager()
@@ -115,9 +116,13 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
                     getTokenUseCase: getTokenUseCase,
                     refreshTokenUseCase: refTokenUseCase,
                     fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
-                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase
+                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase,
+                    createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
+                    updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
+                    deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
+                    updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
                 )
-                viewModel.setGroup(groupId: groupId, type: .group(isLeader: isOwner), date: date)
+                viewModel.setGroup(group: GroupName(groupId: groupId, groupName: groupName), type: .group(isLeader: isOwner), date: date)
                 let viewController = SocialTodoDailyViewController(viewModel: viewModel)
                 
                 let nav = UINavigationController(rootViewController: viewController)
@@ -352,4 +357,5 @@ extension JoinedGroupCalendarViewController: UIPopoverPresentationControllerDele
 
 protocol JoinedGroupCalendarViewControllerDelegate: AnyObject {
     func isLeader() -> Bool?
+    func calendarViewControllerGetGroupTitle() -> String?
 }

@@ -210,6 +210,7 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         guard let groupId = viewModel?.groupId,
+              let groupName = delegate?.noticeViewControllerGetGroupTitle(),
               let member = viewModel?.memberList?[indexPath.item] else { return false }
         let api = NetworkManager()
         let memberCalendarRepo = DefaultGroupMemberCalendarRepository(apiProvider: api)
@@ -231,7 +232,7 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
             fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
         )
         
-        vm.setMember(groupId: groupId, member: member)
+        vm.setMember(group: GroupName(groupId: groupId, groupName: groupName), member: member)
         
         let vc = MemberProfileViewController(viewModel: vm)
         self.navigationController?.pushViewController(vc, animated: true)
@@ -313,4 +314,5 @@ extension JoinedGroupNoticeViewController {
 
 protocol JoinedGroupNoticeViewControllerDelegate: AnyObject {
     func refreshRequested(_ viewController: JoinedGroupNoticeViewController)
+    func noticeViewControllerGetGroupTitle() -> String?
 }

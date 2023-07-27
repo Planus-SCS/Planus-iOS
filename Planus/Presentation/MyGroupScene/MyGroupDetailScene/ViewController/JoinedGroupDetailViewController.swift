@@ -419,6 +419,10 @@ extension JoinedGroupDetailViewController: JoinedGroupNoticeViewControllerDelega
     func refreshRequested(_ viewController: JoinedGroupNoticeViewController) {
         self.needRefresh.onNext(())
     }
+    
+    func noticeViewControllerGetGroupTitle() -> String? {
+        viewModel?.groupTitle
+    }
 }
 
 
@@ -557,6 +561,10 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
 }
 
 extension JoinedGroupDetailViewController: JoinedGroupCalendarViewControllerDelegate {
+    func calendarViewControllerGetGroupTitle() -> String? {
+        return viewModel?.groupTitle
+    }
+    
     func isLeader() -> Bool? {
         return viewModel?.isLeader
     }

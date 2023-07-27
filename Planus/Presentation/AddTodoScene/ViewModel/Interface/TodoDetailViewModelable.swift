@@ -8,6 +8,15 @@
 import Foundation
 import RxSwift
 
+struct DateRange: Equatable {
+    var start: Date?
+    var end: Date?
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.start == rhs.start && lhs.end == rhs.end
+    }
+}
+
 enum CategoryCreateState {
     case new
     case edit(Int)
@@ -28,8 +37,7 @@ struct TodoDetailViewModelableInput {
     // MARK: Control Value
     var titleTextChanged: Observable<String?>
     var categorySelectedAt: Observable<Int?>
-    var startDaySelected: Observable<Date?>
-    var endDaySelected: Observable<Date?>
+    var dayRange: Observable<DateRange>
     var timeFieldChanged: Observable<String?>
     var groupSelectedAt: Observable<Int?>
     var memoTextChanged: Observable<String?>
@@ -57,8 +65,7 @@ struct TodoDetailViewModelableOutput {
     var type: TodoDetailSceneType
     var titleValueChanged: Observable<String?>
     var categoryChanged: Observable<Category?>
-    var startDayValueChanged: Observable<Date?>
-    var endDayValueChanged: Observable<Date?>
+    var dayRangeChanged: Observable<DateRange>
     var timeValueChanged: Observable<String?>
     var groupChanged: Observable<GroupName?>
     var memoValueChanged: Observable<String?>
@@ -88,8 +95,7 @@ protocol TodoDetailViewModelable: AnyObject {
     
     var todoTitle: BehaviorSubject<String?> { get }
     var todoCategory: BehaviorSubject<Category?> { get }
-    var todoStartDay: BehaviorSubject<Date?> { get }
-    var todoEndDay: BehaviorSubject<Date?> { get }
+    var todoDayRange: BehaviorSubject<DateRange> { get }
     var todoTime: BehaviorSubject<String?> { get }
     var todoGroup: BehaviorSubject<GroupName?> { get }
     var todoMemo: BehaviorSubject<String?> { get }
@@ -137,15 +143,8 @@ extension TodoDetailViewModelable {
             .disposed(by: bag)
         
         input
-            .startDaySelected
-            .distinctUntilChanged()
-            .bind(to: todoStartDay)
-            .disposed(by: bag)
-        
-        input
-            .endDaySelected
-            .distinctUntilChanged()
-            .bind(to: todoEndDay)
+            .dayRange
+            .bind(to: todoDayRange)
             .disposed(by: bag)
         
         input
@@ -286,12 +285,12 @@ extension TodoDetailViewModelable {
             .combineLatest(
                 todoTitle,
                 todoCategory,
-                todoStartDay
+                todoDayRange
             )
-            .map { (title, category, startDay) in
+            .map { (title, category, dayRange) in
                 guard let title,
                       let category,
-                      let startDay else { return false }
+                      let _ = dayRange.start else { return false }
                 
                 return !title.isEmpty
             }
@@ -310,13 +309,12 @@ extension TodoDetailViewModelable {
         return TodoDetailViewModelableOutput(
             mode: mode,
             type: type,
-            titleValueChanged: todoTitle.asObservable(),
-            categoryChanged: todoCategory.asObservable(),
-            startDayValueChanged: todoStartDay.asObservable(),
-            endDayValueChanged: todoEndDay.asObservable(),
-            timeValueChanged: todoTime.asObservable(),
-            groupChanged: todoGroup.asObservable(),
-            memoValueChanged: todoMemo.asObservable(),
+            titleValueChanged: todoTitle.distinctUntilChanged().asObservable(),
+            categoryChanged: todoCategory.distinctUntilChanged().asObservable(),
+            dayRangeChanged: todoDayRange.distinctUntilChanged().asObservable(),
+            timeValueChanged: todoTime.distinctUntilChanged().asObservable(),
+            groupChanged: todoGroup.distinctUntilChanged().asObservable(),
+            memoValueChanged: todoMemo.distinctUntilChanged().asObservable(),
             todoSaveBtnEnabled: todoSaveBtnEnabled.asObservable(),
             newCategorySaveBtnEnabled: newCategorySaveBtnEnabled.asObservable(),
             newCategorySaved: needReloadCategoryList.asObservable(),

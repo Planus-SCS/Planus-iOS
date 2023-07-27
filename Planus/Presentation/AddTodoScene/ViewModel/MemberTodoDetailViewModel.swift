@@ -27,8 +27,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     
     var todoTitle = BehaviorSubject<String?>(value: nil)
     var todoCategory = BehaviorSubject<Category?>(value: nil)
-    var todoStartDay = BehaviorSubject<Date?>(value: nil)
-    var todoEndDay = BehaviorSubject<Date?>(value: nil)
+    var todoDayRange = BehaviorSubject<DateRange>(value: DateRange())
     var todoTime = BehaviorSubject<String?>(value: nil)
     var todoGroup = BehaviorSubject<GroupName?>(value: nil)
     var todoMemo = BehaviorSubject<String?>(value: nil)
@@ -89,8 +88,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
         self.mode = mode
         switch mode {
         case .new:
-            self.todoStartDay.onNext(start)
-            self.todoEndDay.onNext((start != end) ? end : nil)
+            self.todoDayRange.onNext(DateRange(start: start, end: (start != end) ? end : nil))
         case .edit, .view:
             guard let todo else { return }
             print("category ID: ", todo.categoryId)
@@ -105,8 +103,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
         case .edit, .view:
             guard let exTodo else { return }
             self.todoTitle.onNext(exTodo.title)
-            self.todoStartDay.onNext(exTodo.startDate)
-            self.todoEndDay.onNext((exTodo.startDate != exTodo.endDate) ? exTodo.endDate : nil)
+            self.todoDayRange.onNext(DateRange(start: exTodo.startDate, end: (exTodo.startDate != exTodo.endDate) ? exTodo.endDate : nil))
             self.todoTime.onNext(exTodo.startTime)
             self.todoMemo.onNext(exTodo.memo)
         default:
@@ -143,10 +140,12 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     
     func saveDetail() {
         guard let title = try? todoTitle.value(),
-              let startDate = try? todoStartDay.value(),
+              let dayRange = try? todoDayRange.value(),
+              let startDate = dayRange.start,
               let categoryId = (try? todoCategory.value())?.id else { return }
+        
         var endDate = startDate
-        if let todoEndDay = try? todoEndDay.value() {
+        if let todoEndDay = dayRange.end {
             endDate = todoEndDay
         }
         let memo = try? todoMemo.value()

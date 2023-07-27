@@ -16,7 +16,7 @@ enum SocialTodoViewModelType {
 class SocialTodoDailyViewModel {
     var bag = DisposeBag()
 
-    var groupId: Int?
+    var group: GroupName?
     
     var scheduledTodoList: [SocialTodoDaily]?
     var unscheduledTodoList: [SocialTodoDaily]?
@@ -51,28 +51,47 @@ class SocialTodoDailyViewModel {
     
     var fetchGroupDailyTodoListUseCase: FetchGroupDailyCalendarUseCase
     var fetchMemberDailyCalendarUseCase: FetchGroupMemberDailyCalendarUseCase
-    // 카테고리 CRUD, 그룹투두 CRUD에 대한 유즈케이스의 이벤트를 받아야함
+    
+    let createGroupTodoUseCase: CreateGroupTodoUseCase
+    let updateGroupTodoUseCase: UpdateGroupTodoUseCase
+    let deleteGroupTodoUseCase: DeleteGroupTodoUseCase
+    let updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         fetchGroupDailyTodoListUseCase: FetchGroupDailyCalendarUseCase,
-        fetchMemberDailyCalendarUseCase: FetchGroupMemberDailyCalendarUseCase
+        fetchMemberDailyCalendarUseCase: FetchGroupMemberDailyCalendarUseCase,
+        createGroupTodoUseCase: CreateGroupTodoUseCase,
+        updateGroupTodoUseCase: UpdateGroupTodoUseCase,
+        deleteGroupTodoUseCase: DeleteGroupTodoUseCase,
+        updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.fetchGroupDailyTodoListUseCase = fetchGroupDailyTodoListUseCase
         self.fetchMemberDailyCalendarUseCase = fetchMemberDailyCalendarUseCase
+        
+        self.createGroupTodoUseCase = createGroupTodoUseCase
+        self.updateGroupTodoUseCase = updateGroupTodoUseCase
+        self.deleteGroupTodoUseCase = deleteGroupTodoUseCase
+        self.updateGroupCategoryUseCase = updateGroupCategoryUseCase
     }
     
-    func setGroup(groupId: Int, type: SocialTodoViewModelType, date: Date) {
-        self.groupId = groupId
+    func setGroup(group: GroupName, type: SocialTodoViewModelType, date: Date) {
+        self.group = group
         self.type = type
         self.currentDate = date
         self.currentDateText = dateFormatter.string(from: date)
     }
     
     func transform(input: Input) -> Output {
+
+        if case .group(isLeader: let isLeader) = type,
+           isLeader {
+            bindUseCase()
+        }
+        
         input
             .viewDidLoad
             .withUnretained(self)
@@ -92,6 +111,45 @@ class SocialTodoDailyViewModel {
     // 여기선 굳이 카테고리 생성,수정,삭제에 따라서 패치하지말고 그냥 다시 받아오자!
     // 투두도 생성, 수정, 삭제에 따라서 그냥 다시 받아올까? 아님 어카지?(카테고리를 생성하고 그걸로 투두 생성할 경우에... 가 아니라 가능하구나 애는..! ㅇㅋ!
     
+    func bindUseCase() { //이건 그냥 바인딩 하면 안됨
+        createGroupTodoUseCase //삽입하고 리로드 or 다시 받기.. 뭐가 좋을랑가 -> 걍 다시받자!
+            .didCreateGroupTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                guard vm.group?.groupId == todo.groupId else { return }
+                vm.fetchTodoList()
+            })
+            .disposed(by: bag)
+        
+        updateGroupTodoUseCase // 삭제하고 다시넣기,,, 걍 다시받는게 편하겠지 아무래도?
+            .didUpdateGroupTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                guard vm.group?.groupId == todo.groupId else { return }
+                vm.fetchTodoList()
+            })
+            .disposed(by: bag)
+        
+        deleteGroupTodoUseCase
+            .didDeleteGroupTodoWithIds
+            .withUnretained(self)
+            .subscribe(onNext: { vm, ids in
+                guard vm.group?.groupId == ids.groupId else { return }
+                vm.fetchTodoList()
+            })
+            .disposed(by: bag)
+        
+        updateGroupCategoryUseCase
+            .didUpdateCategoryWithGroupId
+            .withUnretained(self)
+            .subscribe(onNext: { vm, categoryWithGroupId in
+                guard vm.group?.groupId == categoryWithGroupId.groupId else { return }
+                vm.fetchTodoList()
+            })
+            .disposed(by: bag)
+
+    }
+    
     func fetchTodoList() {
         switch type {
         case .none:
@@ -109,7 +167,7 @@ class SocialTodoDailyViewModel {
     func fetchMemberTodoList(memberId: Int) {
         nowFetchLoading.onNext(())
         
-        guard let groupId,
+        guard let groupId = group?.groupId,
               let currentDate else { return }
         
         getTokenUseCase
@@ -136,7 +194,7 @@ class SocialTodoDailyViewModel {
     func fetchGroupTodoList() {
         nowFetchLoading.onNext(())
         
-        guard let groupId,
+        guard let groupId = group?.groupId,
               let currentDate else { return }
         
         getTokenUseCase

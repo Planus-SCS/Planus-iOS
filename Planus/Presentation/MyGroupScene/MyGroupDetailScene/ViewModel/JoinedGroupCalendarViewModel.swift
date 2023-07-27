@@ -83,6 +83,9 @@ class JoinedGroupCalendarViewModel {
     }
     
     func transform(input: Input) -> Output {
+        
+        bindUseCase()
+        
         input
             .viewDidLoad
             .withUnretained(self)

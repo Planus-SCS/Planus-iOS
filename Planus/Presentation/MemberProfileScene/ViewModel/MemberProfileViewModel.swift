@@ -19,7 +19,7 @@ class MemberProfileViewModel {
         
     let calendar = Calendar.current
     
-    var groupId: Int?
+    var group: GroupName?
     var member: MyMember?
     
     // for todoList caching
@@ -105,8 +105,8 @@ class MemberProfileViewModel {
         self.fetchImageUseCase = fetchImageUseCase
     }
     
-    func setMember(groupId: Int, member: MyMember) {
-        self.groupId = groupId
+    func setMember(group: GroupName, member: MyMember) {
+        self.group = group
         self.member = member
     }
     
@@ -284,7 +284,7 @@ class MemberProfileViewModel {
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
 
         guard let currentDate = try? self.currentDate.value(),
-              let groupId,
+              let groupId = group?.groupId,
               let memberId = member?.memberId else { return }
         
         let fromMonth = calendar.date(byAdding: DateComponents(month: fromIndex - currentIndex), to: currentDate) ?? Date()
