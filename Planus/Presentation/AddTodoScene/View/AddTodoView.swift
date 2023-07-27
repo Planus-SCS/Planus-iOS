@@ -13,6 +13,7 @@ class AddTodoView: UIView {
         let titleField = UITextField(frame: .zero)
         titleField.placeholder = "일정을 입력하세요"
         titleField.font = UIFont(name: "Pretendard-Medium", size: 20)
+        titleField.textColor = .black
         return titleField
     }()
     
@@ -151,7 +152,7 @@ class AddTodoView: UIView {
         let field = UITextField(frame: .zero)
         field.text = "그룹 선택"
         field.font = UIFont(name: "Pretendard-Light", size: 16)
-        field.textColor = UIColor(hex: 0xBFC7D7)
+        field.textColor = .black
         field.sizeToFit()
         return field
     }()

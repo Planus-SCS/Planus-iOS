@@ -9,14 +9,14 @@ import Foundation
 import RxSwift
 
 class DefaultFetchGroupMonthlyCalendarUseCase: FetchGroupMonthlyCalendarUseCase {
-    let myGroupRepository: MyGroupRepository
+    let groupCalendarRepository: GroupCalendarRepository
     
-    init(myGroupRepository: MyGroupRepository) {
-        self.myGroupRepository = myGroupRepository
+    init(groupCalendarRepository: GroupCalendarRepository) {
+        self.groupCalendarRepository = groupCalendarRepository
     }
     
     func execute(token: Token, groupId: Int, from: Date, to: Date) -> Single<[Date: [SocialTodoSummary]]> {
-        myGroupRepository.fetchMyGroupCalendar(
+        groupCalendarRepository.fetchMonthlyCalendar(
             token: token.accessToken,
             groupId: groupId,
             from: from,

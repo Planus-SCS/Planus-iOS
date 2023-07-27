@@ -33,6 +33,7 @@ class HomeCalendarCoordinator: Coordinator {
         let todoRepository = TestTodoDetailRepository(apiProvider: apiProvider)
         let tokenRepository = DefaultTokenRepository(apiProvider: apiProvider, keyChainManager: keyChain)
         let categoryRepository = DefaultCategoryRepository(apiProvider: apiProvider)
+        let groupCategoryRepository = DefaultGroupCategoryRepository(apiProvider: apiProvider)
         let profileRepository = DefaultProfileRepository(apiProvider: apiProvider)
         let myGroupRepository = DefaultMyGroupRepository(apiProvider: apiProvider)
         let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
@@ -51,7 +52,7 @@ class HomeCalendarCoordinator: Coordinator {
         let updateProfileUseCase = DefaultUpdateProfileUseCase.shared
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
         let fetchMyGroupNameListUseCase = DefaultFetchMyGroupNameListUseCase(myGroupRepo: myGroupRepository)
-        let fetchGroupCategoryListUseCase = DefaultFetchAllGroupCategoryListUseCase(categoryRepository: categoryRepository)
+        let fetchGroupCategoryListUseCase = DefaultFetchAllGroupCategoryListUseCase(categoryRepository: groupCategoryRepository)
         let vm = HomeCalendarViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,

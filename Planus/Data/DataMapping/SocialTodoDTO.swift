@@ -85,12 +85,13 @@ extension SocialTodoDetailResponseDTO {
 }
 
 struct SocialCategoryResponseDTO: Codable {
+    var todoCategoryId: Int
     var name: String
     var color: String
 }
 
 extension SocialCategoryResponseDTO {
     func toDomain() -> SocialCategory {
-        return SocialCategory(name: self.name, color: CategoryColor(rawValue: self.color) ?? .none)
+        return SocialCategory(id: todoCategoryId, name: self.name, color: CategoryColor(rawValue: self.color) ?? .none)
     }
 }

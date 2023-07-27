@@ -51,16 +51,31 @@ class JoinedGroupCalendarViewModel {
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase
     
+    let createGroupTodoUseCase: CreateGroupTodoUseCase
+    let updateGroupTodoUseCase: UpdateGroupTodoUseCase
+    let deleteGroupTodoUseCase: DeleteGroupTodoUseCase
+    let updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
+    
+    
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase
+        fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase,
+        createGroupTodoUseCase: CreateGroupTodoUseCase,
+        updateGroupTodoUseCase: UpdateGroupTodoUseCase,
+        deleteGroupTodoUseCase: DeleteGroupTodoUseCase,
+        updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.fetchMyGroupCalendarUseCase = fetchMyGroupCalendarUseCase
+        
+        self.createGroupTodoUseCase = createGroupTodoUseCase
+        self.updateGroupTodoUseCase = updateGroupTodoUseCase
+        self.deleteGroupTodoUseCase = deleteGroupTodoUseCase
+        self.updateGroupCategoryUseCase = updateGroupCategoryUseCase
     }
     
     func setGroupId(id: Int) {
@@ -103,6 +118,53 @@ class JoinedGroupCalendarViewModel {
             didFetchTodo: didFetchTodo.asObservable(),
             showDaily: showDaily.asObservable()
         )
+    }
+    
+    func bindUseCase() {
+        createGroupTodoUseCase //삽입하고 리로드 or 다시 받기.. 뭐가 좋을랑가 -> 걍 다시받자!
+            .didCreateGroupTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                guard vm.groupId == todo.groupId else { return }
+                let startDate = vm.mainDayList.first?.date ?? Date()
+                let endDate = vm.mainDayList.last?.date ?? Date()
+                vm.fetchTodo(from: startDate, to: endDate)
+            })
+            .disposed(by: bag)
+        
+        updateGroupTodoUseCase // 삭제하고 다시넣기,,, 걍 다시받는게 편하겠지 아무래도?
+            .didUpdateGroupTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                guard vm.groupId == todo.groupId else { return }
+                let startDate = vm.mainDayList.first?.date ?? Date()
+                let endDate = vm.mainDayList.last?.date ?? Date()
+                vm.fetchTodo(from: startDate, to: endDate)
+            })
+            .disposed(by: bag)
+        
+        deleteGroupTodoUseCase
+            .didDeleteGroupTodoWithIds
+            .withUnretained(self)
+            .subscribe(onNext: { vm, ids in
+                guard vm.groupId == ids.groupId else { return }
+                let startDate = vm.mainDayList.first?.date ?? Date()
+                let endDate = vm.mainDayList.last?.date ?? Date()
+                vm.fetchTodo(from: startDate, to: endDate)
+            })
+            .disposed(by: bag)
+        
+        updateGroupCategoryUseCase
+            .didUpdateCategoryWithGroupId
+            .withUnretained(self)
+            .subscribe(onNext: { vm, categoryWithGroupId in
+                guard vm.groupId == categoryWithGroupId.groupId else { return }
+                let startDate = vm.mainDayList.first?.date ?? Date()
+                let endDate = vm.mainDayList.last?.date ?? Date()
+                vm.fetchTodo(from: startDate, to: endDate)
+            })
+            .disposed(by: bag)
+
     }
     
     func createCalendar(date: Date) {

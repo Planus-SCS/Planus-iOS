@@ -10,8 +10,6 @@ import RxSwift
 
 class TodoDailyViewModel {
     var bag = DisposeBag()
-
-    var isOwner: Bool?
     
     var scheduledTodoList: [Todo]?
     var unscheduledTodoList: [Todo]?
@@ -38,7 +36,6 @@ class TodoDailyViewModel {
     
     struct Output {
         var currentDateText: String?
-        var isOwner: Bool?
         var needInsertItem: Observable<IndexPath>
         var needReloadItem: Observable<IndexPath>
         var needDeleteItem: Observable<IndexPath>
@@ -86,10 +83,6 @@ class TodoDailyViewModel {
         self.updateCategoryUseCase = updateCategoryUseCase
         self.deleteCategoryUseCase = deleteCategoryUseCase
         self.readCategoryUseCase = readCategoryUseCase
-    }
-    
-    func setOwnership(isOwner: Bool) {
-        self.isOwner = isOwner
     }
     
     func setDate(currentDate: Date) {
@@ -361,7 +354,6 @@ class TodoDailyViewModel {
         
         return Output(
             currentDateText: currentDateText,
-            isOwner: isOwner,
             needInsertItem: needInsertItem.asObservable(),
             needReloadItem: needReloadItem.asObservable(),
             needDeleteItem: needDeleteItem.asObservable(),

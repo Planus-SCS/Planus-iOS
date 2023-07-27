@@ -337,6 +337,7 @@ class JoinedGroupDetailViewController: UIViewController {
         let keyChain = KeyChainManager()
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
+        let groupCalendarRepo = DefaultGroupCalendarRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
@@ -356,12 +357,16 @@ class JoinedGroupDetailViewController: UIViewController {
         self.noticeViewController = noticeViewController
         
         let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-        let fetchTodoListUseCase = DefaultFetchGroupMonthlyCalendarUseCase(myGroupRepository: myGroupRepo)
+        let fetchTodoListUseCase = DefaultFetchGroupMonthlyCalendarUseCase(groupCalendarRepository: groupCalendarRepo)
         let calendarViewModel = JoinedGroupCalendarViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
-            fetchMyGroupCalendarUseCase: fetchTodoListUseCase
+            fetchMyGroupCalendarUseCase: fetchTodoListUseCase,
+            createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
+            updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
+            deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
+            updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
         )
         calendarViewModel.setGroupId(id: groupId)
         let calendarViewController = JoinedGroupCalendarViewController(viewModel: calendarViewModel)

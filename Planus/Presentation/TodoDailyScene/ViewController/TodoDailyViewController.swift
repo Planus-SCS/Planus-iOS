@@ -78,7 +78,6 @@ class TodoDailyViewController: UIViewController {
         
         let output = viewModel.transform(input: input)
         
-        addTodoButton.isHidden = !(output.isOwner ?? true)
         dateTitleButton.setTitle(output.currentDateText, for: .normal)
         
         output
@@ -192,7 +191,7 @@ class TodoDailyViewController: UIViewController {
         guard let groupDict = viewModel?.groupDict else { return }
         let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
         vm.setGroup(groupList: groupList)
-        vm.todoStartDay.onNext(viewModel?.currentDate)
+        vm.initMode(mode: .new, start: viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)
@@ -311,14 +310,12 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             return false
         }
         print("b")
-        guard let item,
-              let isOwner = viewModel?.isOwner else { return false }
+        guard let item else { return false }
         print("c")
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
-        let todoRepo = TestTodoDetailRepository(apiProvider: api)
         let categoryRepo = DefaultCategoryRepository(apiProvider: api)
         
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
@@ -343,24 +340,25 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             readCategoryUseCase: readCateogryUseCase
         )
         
-        guard let groupDict = viewModel?.groupDict else { return false }
-        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-        vm.setGroup(groupList: groupList)
-        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
-        var groupName: GroupName?
-        if let groupId = item.groupId {
-            groupName = groupDict[groupId]
-        }
-        
-        if isOwner {
-            vm.setForEdit(todo: item, category: category, groupName: groupName)
+        if item.isGroupTodo {
+            guard let groupId = item.groupId,
+                  let category = viewModel?.groupCategoryDict[item.categoryId] else { return false }
+            let groupName = viewModel?.groupDict[groupId]
+            vm.initMode(mode: .view, todo: item, category: category, groupName: groupName)
         } else {
-            vm.setForOthers(todo: item, category: category, groupName: groupName)
+            guard let groupDict = viewModel?.groupDict else { return false }
+            let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+            vm.setGroup(groupList: groupList)
+            guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+            var groupName: GroupName?
+            if let groupId = item.groupId {
+                groupName = groupDict[groupId]
+            }
+            
+            vm.initMode(mode: .edit, todo: item, category: category, groupName: groupName)
         }
-        vm.todoStartDay.onNext(item.startDate)
-        if item.startDate != item.endDate {
-            vm.todoEndDay.onNext(item.endDate)
-        }
+
+
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)

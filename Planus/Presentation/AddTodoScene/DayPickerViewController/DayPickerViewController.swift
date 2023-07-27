@@ -79,6 +79,9 @@ class DayPickerViewController: UIViewController {
     }
     
     public func setDate(startDate: Date?, endDate: Date?) {
+        if self.firstSelectedDate == startDate,
+           self.lastSelectedDate == endDate { return }
+        
         self.firstSelectedDate = startDate
         self.lastSelectedDate = endDate
         

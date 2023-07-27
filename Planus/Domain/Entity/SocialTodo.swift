@@ -38,6 +38,7 @@ struct SocialTodoDetail {
 }
 
 struct SocialCategory {
+    var id: Int
     var name: String
     var color: CategoryColor
 }

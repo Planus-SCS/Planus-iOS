@@ -69,7 +69,7 @@ class DefaultGroupMemberCalendarRepository: GroupMemberCalendarRepository {
     }
     
     func fetchMemberTodoDetail(token: String, groupId: Int, memberId: Int, todoId: Int) -> Single<ResponseDTO<SocialTodoDetailResponseDTO>> {
-        SocialTodoDetail
+        
         let endPoint = APIEndPoint(
             url: URLPool.myGroup+"/\(groupId)/members/\(memberId)/todos/\(todoId)",
             requestType: .get,

@@ -188,7 +188,6 @@ class HomeCalendarViewController: UIViewController {
                     groupCategoryDict: vc.viewModel?.groupCategories ?? [:],
                     filteringGroupId: try? vc.viewModel?.filteredGroupId.value()
                 ) //투두리스트를 필터링해야함..! 아니 걍 다 올리고 저짝에서 필터링하자 그게 편하다..!
-                viewModel.setOwnership(isOwner: true)
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)
                 nav.modalPresentationStyle = .pageSheet
@@ -241,8 +240,7 @@ class HomeCalendarViewController: UIViewController {
                 
                 let groupList = Array(viewModel.groups.values).sorted(by: { $0.groupId < $1.groupId })
                 vm.setGroup(groupList: groupList)
-                vm.todoStartDay.onNext(startDate)
-                vm.todoEndDay.onNext((startDate == endDate) ? nil : endDate)
+                vm.initMode(mode: .new, start: startDate, end: endDate)
                 
                 let vc = TodoDetailViewController(viewModel: vm)
                 vc.completionHandler = { [weak self] in

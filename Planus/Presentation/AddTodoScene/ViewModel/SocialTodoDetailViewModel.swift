@@ -8,21 +8,19 @@
 import Foundation
 import RxSwift
 
-struct SocialTodoInfo {
+struct SocialTodoInfo { //그룹투두 또한 조회만 되기도 하고 주인장은 수정이 되기도 한다,,,
     var groupId: Int?
     var memberId: Int?
     var todoId: Int?
 }
 
 final class SocialTodoDetailViewModel: TodoDetailViewModelable {
-    enum Mode {
-        case new(SocialTodoInfo)
-        case edit(SocialTodoInfo) //
-        case view(SocialTodoInfo) //그룹 투두인지 다른놈 투두인지 알아야함
-    }
+
+    var info: SocialTodoInfo?
     
-    var mode: Mode = .new(SocialTodoDetail())
-    
+    var type: TodoDetailSceneType = .socialTodo
+    var mode: TodoDetailSceneMode = .new
+        
     var bag = DisposeBag()
     
     var completionHandler: ((Todo) -> Void)?
@@ -32,7 +30,6 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     var categorys: [Category] = []
     var groups: [GroupName] = []
     
-    var todoCreateState: TodoCreateState = .new
     var categoryCreatingState: CategoryCreateState = .new
     
     var todoTitle = BehaviorSubject<String?>(value: nil)
@@ -63,12 +60,12 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     var fetchGroupMemberTodoDetailUseCase: FetchGroupMemberTodoDetailUseCase
     
     var fetchGroupTodoDetailUseCase: FetchGroupTodoDetailUseCase
-    var createGroupTodoUseCase: CreateGroupTodoUseCase
-    var updateGroupTodoUseCase: UpdateGroupTodoUseCase
-    var deleteGroupTodoUseCase: DeleteGroupTodoUseCase
+    var createGroupTodoUseCase: CreateGroupTodoUseCase // 업댓 필요!
+    var updateGroupTodoUseCase: UpdateGroupTodoUseCase  // 업댓 필요!
+    var deleteGroupTodoUseCase: DeleteGroupTodoUseCase   // 업댓 필요!
     
     var createGroupCategoryUseCase: CreateGroupCategoryUseCase
-    var updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
+    var updateGroupCategoryUseCase: UpdateGroupCategoryUseCase  // 업댓 필요!!
     var deleteGroupCategoryUseCase: DeleteGroupCategoryUseCase
     var fetchGroupCategorysUseCase: FetchGroupCategorysUseCase
     
@@ -98,28 +95,95 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         self.fetchGroupCategorysUseCase = fetchGroupCategorysUseCase
     }
     
-    func setGroup(groupList: [GroupName]) {
-        self.groups = groupList
-    }
-    
-    func initMode(mode: Mode) {
+    func initMode(mode: TodoDetailSceneMode, info: SocialTodoInfo, date: Date? = nil) {
         self.mode = mode
+        self.info = info
+        self.todoStartDay.onNext(date)
     }
     
     func initFetch() {
-        fetchCategoryList()
-        fetchGroupList()
+        switch mode {
+        case .new:
+            guard let groupId = info?.groupId else { return }
+            fetchCategoryList(groupId: groupId)
+        case .edit:
+            guard let groupId = info?.groupId,
+                  let todoId = info?.todoId else { return }
+            
+            fetchGroupTodoDetail(groupId: groupId, todoId: todoId)
+            fetchCategoryList(groupId: groupId)
+        case .view:
+            guard let groupId = info?.groupId,
+                  let todoId = info?.todoId else { return }
+            
+            if let memberId = info?.memberId {
+                fetchGroupMemberTodoDetail(groupId: groupId, memberId: memberId, todoId: todoId)
+            } else {
+                fetchGroupTodoDetail(groupId: groupId, todoId: todoId)
+            }
+            return
+        }
     }
     
-    func fetchCategoryList() {
+    func fetchGroupTodoDetail(groupId: Int, todoId: Int) {
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<SocialTodoDetail> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchGroupTodoDetailUseCase
+                    .execute(token: token, groupId: groupId, todoId: todoId)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] todo in
+                self?.todoTitle.onNext(todo.title)
+                self?.todoCategory.onNext(Category(title: todo.todoCategory.name, color: todo.todoCategory.color))
+                self?.todoStartDay.onNext(todo.startDate)
+                self?.todoEndDay.onNext((todo.startDate != todo.endDate) ? todo.endDate : nil)
+                self?.todoGroup.onNext(GroupName(groupId: groupId, groupName: todo.groupName))
+                self?.todoMemo.onNext(todo.description)
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchGroupMemberTodoDetail(groupId: Int, memberId: Int, todoId: Int) {
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<SocialTodoDetail> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchGroupMemberTodoDetailUseCase
+                    .execute(token: token, groupId: groupId, memberId: memberId, todoId: todoId)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: TokenError.noTokenExist
+            )
+            .subscribe(onSuccess: { [weak self] todo in // FIXME: 여기 카테고리 id받으면 넣기!
+                self?.todoTitle.onNext(todo.title)
+                self?.todoCategory.onNext(Category(id: todo.todoCategory.id, title: todo.todoCategory.name, color: todo.todoCategory.color))
+                self?.todoStartDay.onNext(todo.startDate)
+                self?.todoEndDay.onNext((todo.startDate != todo.endDate) ? todo.endDate : nil)
+                self?.todoGroup.onNext(GroupName(groupId: groupId, groupName: todo.groupName))
+                self?.todoMemo.onNext(todo.description)
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchCategoryList(groupId: Int) {
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[Category]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.readCategoryUseCase
-                    .execute(token: token)
+                return self.fetchGroupCategorysUseCase
+                    .execute(token: token, groupId: groupId)
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
@@ -131,11 +195,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
             })
             .disposed(by: bag)
     }
-    
-    func fetchGroupList() {
-        
-    }
-    
+
     func saveDetail() {
         guard let title = try? todoTitle.value(),
               let startDate = try? todoStartDay.value(),
@@ -160,17 +220,27 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
             isCompleted: nil,
             isGroupTodo: false
         )
-        
                         
         switch mode {
-        case .new(let info):
-            guard let groupId = info.groupId else { return }
+        case .new:
+            guard let groupId = info?.groupId else { return }
             createTodo(groupId: groupId, todo: todo)
-        case .edit(let info):
-            guard let groupId = info.groupId,
-                  let todoId = info.todoId else { return }
+        case .edit:
+            guard let groupId = info?.groupId,
+                  let todoId = info?.todoId else { return }
             todo.id = todoId
             updateTodo(groupId: groupId, todoId: todoId, todo: todo)
+        default:
+            return
+        }
+    }
+    
+    func removeDetail() {
+        switch mode {
+        case .edit:
+            guard let groupId = info?.groupId,
+                  let todoId = info?.todoId else { return }
+            deleteTodo(groupId: groupId, todoId: todoId)
         default:
             return
         }
@@ -183,8 +253,8 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.createTodoUseCase
-                    .execute(token: token, todo: todo)
+                return self.createGroupTodoUseCase
+                    .execute(token: token, groupId: groupId, todo: todo)
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
@@ -201,12 +271,12 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     func updateTodo(groupId: Int, todoId: Int, todo: Todo) {
         getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<Void> in
+            .flatMap { [weak self] token -> Single<Int> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.updateTodoUseCase
-                    .execute(token: token, todoUpdate: todoUpdate)
+                return self.updateGroupTodoUseCase
+                    .execute(token: token, groupId: groupId, todoId: todoId, todo: todo)
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
@@ -218,15 +288,15 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
             .disposed(by: bag)
     }
     
-    func deleteTodo(todo: Todo) {
+    func deleteTodo(groupId: Int, todoId: Int) {
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.deleteTodoUseCase
-                    .execute(token: token, todo: todo)
+                return self.deleteGroupTodoUseCase
+                    .execute(token: token, groupId: groupId, todoId: todoId)
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
@@ -239,14 +309,22 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     }
 
     func saveNewCategory(category: Category) {
+        var groupId: Int
+        switch mode {
+        case .new, .edit:
+            guard let infoGroupId = info?.groupId else { return }
+            groupId = infoGroupId
+        default: return
+        }
+        
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Int> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.createCategoryUseCase
-                    .execute(token: token, category: category)
+                return self.createGroupCategoryUseCase
+                    .execute(token: token, groupId: groupId, category: category)
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
@@ -266,14 +344,23 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     func updateCategory(category: Category) {
         guard let id = category.id else { return }
         
+        var groupId: Int
+        switch mode {
+        case .new, .edit:
+            guard let infoGroupId = info?.groupId else { return }
+            groupId = infoGroupId
+        default: return
+        }
+        
+        
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Int> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.updateCategoryUseCase
-                    .execute(token: token, id: id, category: category)
+                return self.updateGroupCategoryUseCase
+                    .execute(token: token, groupId: groupId, categoryId: id, category: category)
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
@@ -291,20 +378,29 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func deleteCategory(id: Int) {
+        var groupId: Int
+        switch mode {
+        case .new, .edit:
+            guard let infoGroupId = info?.groupId else { return }
+            groupId = infoGroupId
+        default: return
+        }
+        
+        
         getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<Void> in
+            .flatMap { [weak self] token -> Single<Int> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.deleteCategoryUseCase
-                    .execute(token: token, id: id)
+                return self.deleteGroupCategoryUseCase
+                    .execute(token: token, groupId: groupId, categoryId: id)
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: TokenError.noTokenExist
             )
-            .subscribe(onSuccess: { [weak self] in
+            .subscribe(onSuccess: { [weak self] _ in
                 print("removed!!")
             })
             .disposed(by: bag)

@@ -13,10 +13,15 @@ enum CategoryCreateState {
     case edit(Int)
 }
 
-enum TodoCreateState { //이것도 연관값때문에 나눠져야함... 유지할 필요가 있나?
-    case new
-    case edit(Todo)
-    case view(Todo)
+enum TodoDetailSceneMode {
+    case new // date
+    case edit //todo or todoId
+    case view //todo or todoId
+}
+
+enum TodoDetailSceneType {
+    case memberTodo
+    case socialTodo
 }
 
 struct TodoDetailViewModelableInput {
@@ -43,9 +48,13 @@ struct TodoDetailViewModelableInput {
     var newCategorySaveBtnTapped: Observable<Void>
     var categorySelectPageBackBtnTapped: Observable<Void>
     var categoryCreatePageBackBtnTapped: Observable<Void>
+    
+    // 여기서 모드도 전달을 할 수 있어야함......!!!
 }
 
 struct TodoDetailViewModelableOutput {
+    var mode: TodoDetailSceneMode
+    var type: TodoDetailSceneType
     var titleValueChanged: Observable<String?>
     var categoryChanged: Observable<Category?>
     var startDayValueChanged: Observable<Date?>
@@ -65,16 +74,16 @@ struct TodoDetailViewModelableOutput {
 }
 
 protocol TodoDetailViewModelable: AnyObject {
-    associatedtype Mode
     
-    var mode: Mode { get set }
     var bag: DisposeBag { get }
+    
+    var mode: TodoDetailSceneMode { get set }
+    var type: TodoDetailSceneType { get }
     
     var categoryColorList: [CategoryColor] { get set }
     var categorys: [Category] { get set }
     var groups: [GroupName] { get set }
     
-    var todoCreateState: TodoCreateState { get set }
     var categoryCreatingState: CategoryCreateState { get set }
     
     var todoTitle: BehaviorSubject<String?> { get }
@@ -111,11 +120,9 @@ protocol TodoDetailViewModelable: AnyObject {
 
 extension TodoDetailViewModelable {
     public func transform(input: TodoDetailViewModelableInput) -> TodoDetailViewModelableOutput { //여기서 양방향 바인딩 해야한다..!
-        initFetch()
         
         input
             .titleTextChanged
-            .skip(1)
             .bind(to: todoTitle)
             .disposed(by: bag)
         
@@ -143,7 +150,6 @@ extension TodoDetailViewModelable {
         
         input
             .timeFieldChanged
-            .skip(1)
             .bind(to: todoTime)
             .disposed(by: bag)
         
@@ -161,7 +167,6 @@ extension TodoDetailViewModelable {
         
         input
             .memoTextChanged
-            .skip(1)
             .bind(to: todoMemo)
             .disposed(by: bag)
         
@@ -216,12 +221,7 @@ extension TodoDetailViewModelable {
             .todoRemoveBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                switch vm.todoCreateState {
-                case .edit(let exTodo):
-                    vm.deleteTodo(todo: exTodo)
-                default:
-                    return
-                }
+                vm.removeDetail()
             })
             .disposed(by: bag)
         
@@ -308,6 +308,8 @@ extension TodoDetailViewModelable {
             }
         
         return TodoDetailViewModelableOutput(
+            mode: mode,
+            type: type,
             titleValueChanged: todoTitle.asObservable(),
             categoryChanged: todoCategory.asObservable(),
             startDayValueChanged: todoStartDay.asObservable(),

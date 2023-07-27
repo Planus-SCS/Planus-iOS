@@ -8,14 +8,11 @@
 import Foundation
 import RxSwift
 
-final class MemberTodoDetailViewModel: TodoDetailViewModelable {    
-    enum Mode {
-        case new
-        case edit(Todo)
-        case view(Todo)
-    }
-    
-    var mode: Mode = .new
+final class MemberTodoDetailViewModel: TodoDetailViewModelable {
+
+    var exTodo: Todo?
+    var type: TodoDetailSceneType = .memberTodo
+    var mode: TodoDetailSceneMode = .new
 
     var bag = DisposeBag()
     
@@ -26,7 +23,6 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     var categorys: [Category] = []
     var groups: [GroupName] = []
     
-    var todoCreateState: TodoCreateState = .new
     var categoryCreatingState: CategoryCreateState = .new
     
     var todoTitle = BehaviorSubject<String?>(value: nil)
@@ -85,41 +81,37 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
         self.readCategoryUseCase = readCategoryUseCase
     }
     
-    func setGroup(groupList: [GroupName]) {
+    func setGroup(groupList: [GroupName]) { //애도 원래 이럼 안되고 fetch해와야함!
         self.groups = groupList
     }
     
-    func setForEdit(todo: Todo, category: Category, groupName: GroupName?) {
-        guard let id = todo.id else { return }
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = .current
-        dateFormatter.dateFormat = "yyyy.MM.dd"
-        self.todoTitle.onNext(todo.title)
-        self.todoCategory.onNext(category)
-        self.todoGroup.onNext(groupName)
-        self.todoStartDay.onNext(todo.startDate)
-        // FIXME: endDate는 설정 안함 아직
-        self.todoTime.onNext(todo.startTime)
-        self.todoMemo.onNext(todo.memo)
-        self.todoCreateState = .edit(todo)
+    func initMode(mode: TodoDetailSceneMode, todo: Todo? = nil, category: Category? = nil, groupName: GroupName? = nil, start: Date? = nil, end: Date? = nil) { //여기서 new는 date, 아님 투두임. 하씨,,, 이거 어케 안되냐..?
+        self.mode = mode
+        switch mode {
+        case .new:
+            self.todoStartDay.onNext(start)
+            self.todoEndDay.onNext((start != end) ? end : nil)
+        case .edit, .view:
+            guard let todo else { return }
+            print("category ID: ", todo.categoryId)
+            self.exTodo = todo
+            self.todoCategory.onNext(category)
+            self.todoGroup.onNext(groupName)
+        }
     }
-    
-    func setForOthers(todo: Todo, category: Category, groupName: GroupName?) {
-        guard let id = todo.id else { return }
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = .current
-        dateFormatter.dateFormat = "yyyy.MM.dd"
-        self.todoTitle.onNext(todo.title)
-        self.todoCategory.onNext(category)
-        self.todoStartDay.onNext(todo.startDate)
-        // FIXME: endDate는 설정 안함 아직
-        self.todoTime.onNext(todo.startTime)
-        self.todoMemo.onNext(todo.memo)
-        self.todoCreateState = .view(todo)
-        self.todoGroup.onNext(groupName)
-    }
-    
-    func initFetch() {
+
+    func initFetch() { //여기서 exTodo가 있으면 넣어줘야함..!!!
+        switch mode {
+        case .edit, .view:
+            guard let exTodo else { return }
+            self.todoTitle.onNext(exTodo.title)
+            self.todoStartDay.onNext(exTodo.startDate)
+            self.todoEndDay.onNext((exTodo.startDate != exTodo.endDate) ? exTodo.endDate : nil)
+            self.todoTime.onNext(exTodo.startTime)
+            self.todoMemo.onNext(exTodo.memo)
+        default:
+            break
+        }
         fetchCategoryList()
         fetchGroupList()
     }
@@ -153,7 +145,6 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
         guard let title = try? todoTitle.value(),
               let startDate = try? todoStartDay.value(),
               let categoryId = (try? todoCategory.value())?.id else { return }
-        
         var endDate = startDate
         if let todoEndDay = try? todoEndDay.value() {
             endDate = todoEndDay
@@ -178,11 +169,22 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
         switch mode {
         case .new:
             createTodo(todo: todo)
-        case .edit(let exTodo):
+        case .edit:
+            guard let exTodo else { return }
             todo.id = exTodo.id
             todo.isCompleted = exTodo.isCompleted
             todo.isGroupTodo = exTodo.isGroupTodo
             updateTodo(todoUpdate: TodoUpdateComparator(before: exTodo, after: todo))
+        default:
+            return
+        }
+    }
+    
+    func removeDetail() {
+        switch mode {
+        case .edit:
+            guard let exTodo else { return }
+            deleteTodo(todo: exTodo)
         default:
             return
         }

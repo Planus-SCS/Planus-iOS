@@ -12,9 +12,9 @@ class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase { //이건 �
     static let shared: DefaultUpdateGroupCategoryUseCase = .init(categoryRepository: DefaultGroupCategoryRepository(apiProvider: NetworkManager()))
     let categoryRepository: GroupCategoryRepository
     
-    var didUpdateCategory = PublishSubject<Category>()
+    var didUpdateCategoryWithGroupId = PublishSubject<(groupId: Int, category: Category)>()
     
-    init(
+    private init(
         categoryRepository: GroupCategoryRepository
     ) {
         self.categoryRepository = categoryRepository
@@ -28,7 +28,7 @@ class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase { //이건 �
             category: category.toDTO()
         )
         .map { [weak self] dto in
-            self?.didUpdateCategory.onNext(category)
+            self?.didUpdateCategoryWithGroupId.onNext((groupId: groupId, category: category))
             return dto.data.id
         }
     }

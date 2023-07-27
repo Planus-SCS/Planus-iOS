@@ -9,5 +9,6 @@ import Foundation
 import RxSwift
 
 protocol CreateGroupTodoUseCase {
+    var didCreateGroupTodo: PublishSubject<Todo> { get }
     func execute(token: Token, groupId: Int, todo: Todo) -> Single<Int>
 }
