@@ -213,7 +213,7 @@ class TodoDetailViewController: UIViewController {
         let input = TodoDetailViewModelableInput(
             titleTextChanged: addTodoView.titleField.rx.text.skip(1).distinctUntilChanged().asObservable(),
             categorySelectedAt: didSelectCategoryAt.asObservable(),
-            dayRange: didSelectedDateRange.asObservable(),
+            dayRange: didSelectedDateRange.distinctUntilChanged().asObservable(),
             timeFieldChanged: didChangedTimeValue.asObservable(),
             groupSelectedAt: didSelectedGroupAt.distinctUntilChanged().asObservable(),
             memoTextChanged: memoViewObservable,
@@ -280,7 +280,7 @@ class TodoDetailViewController: UIViewController {
             })
             .disposed(by: bag)
         
-        output
+        output //계속 뺑그르르 돌고있다...
             .dayRangeChanged
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [weak self] range in
@@ -523,7 +523,7 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_dark")
         addTodoView.endDateButton.setTitle("\(dayPickerViewController.dateFormatter2.string(from: max))", for: .normal)
         addTodoView.endDateButton.setTitleColor(.black, for: .normal)
-        
+        print("didSelect Multiple")
         didSelectedDateRange.onNext(DateRange(start: min, end: max))
     }
 }

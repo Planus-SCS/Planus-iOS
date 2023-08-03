@@ -86,7 +86,7 @@ class DayPickerViewController: UIViewController {
         self.lastSelectedDate = endDate
         
         guard let startDate else { return }
-        delegate?.dayPickerViewController(self, didSelectDate: startDate)
+        
         let components = self.calendar.dateComponents(
             [.year, .month],
             from: startDate
@@ -103,6 +103,8 @@ class DayPickerViewController: UIViewController {
         
         if let endDate {
             delegate?.dayPickerViewController(self, didSelectDateInRange: (startDate, endDate))
+        } else {
+            delegate?.dayPickerViewController(self, didSelectDate: startDate)
         }
 
         UIView.performWithoutAnimation {
