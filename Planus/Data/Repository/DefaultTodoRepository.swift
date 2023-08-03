@@ -62,7 +62,6 @@ class TestTodoDetailRepository: TodoRepository {
     }
     
     func updateTodo(token: String, id: Int, todo: TodoRequestDTO) -> Single<Int> {
-        print(URLPool.todo + "/\(id)")
         let endPoint = APIEndPoint(
             url: URLPool.todo + "/\(id)",
             requestType: .patch,

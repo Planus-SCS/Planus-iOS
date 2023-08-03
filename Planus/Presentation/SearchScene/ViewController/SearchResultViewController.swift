@@ -383,7 +383,7 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
         if scrollView == self.resultCollectionView,
            !isLoading,
            !isEnded,
-           scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height {
+           scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height - 250 {
             isLoading = true
             needLoadNextData.onNext(())
         }
@@ -428,7 +428,7 @@ extension SearchResultViewController {
         group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 20, trailing: 7)
         
         let layout = UICollectionViewCompositionalLayout(section: section)
         

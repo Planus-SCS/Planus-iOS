@@ -263,7 +263,6 @@ class GroupTagInputViewController: UIViewController {
     }
     
     @objc func infoBtnTapped(_ sender: UIButton) {
-        print(self.view.bounds)
         isInfoViewing = !isInfoViewing
         self.preferredContentSize = isInfoViewing ?
         CGSize(width: self.view.bounds.width, height: 110) :

@@ -23,7 +23,7 @@ class MyPageMainViewModel {
     var didResigned = PublishSubject<Void>()
     
     lazy var titleList: [MyPageMainTitleViewModel] = [ //이 리스트까지 이넘으로 해서 caseIterable쓸까?
-        MyPageMainTitleViewModel(title: "푸시 알림 설정", type: .toggle(self.isPushOn)),
+        MyPageMainTitleViewModel(title: "푸시 알림 ~ 🚧 개발중 👷‍♂️", type: .toggle(self.isPushOn)),
         MyPageMainTitleViewModel(title: "공지 사항", type: .normal),
         MyPageMainTitleViewModel(title: "문의하기", type: .normal),
         MyPageMainTitleViewModel(title: "이용 약관", type: .normal),

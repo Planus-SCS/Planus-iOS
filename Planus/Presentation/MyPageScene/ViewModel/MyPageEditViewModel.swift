@@ -95,7 +95,6 @@ class MyPageEditViewModel {
             .take(1)
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                print("changed")
                 vm.imageChangeChecker = true
             })
             .disposed(by: bag)

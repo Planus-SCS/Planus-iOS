@@ -135,8 +135,12 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
+                vc.collectionView.performBatchUpdates({
+                    vc.collectionView.reloadData()
+                }, completion: { _ in
+                    vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
+                })
                 vc.collectionView.reloadData()
-                vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
             })
             .disposed(by: bag)
             
@@ -362,7 +366,6 @@ class HomeCalendarViewController: UIViewController {
     }
     
     func setGroupButton() {
-        print("그룹버튼 만들어야함!")
         let image = UIImage(named: "groupCalendarList")
         var children = [UIMenuElement]()
         let all = UIAction(title: "모아 보기", handler: { [weak self] _ in

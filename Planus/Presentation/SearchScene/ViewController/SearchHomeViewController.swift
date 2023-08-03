@@ -190,21 +190,9 @@ class SearchHomeViewController: UIViewController {
     }
     
     func configureLayout() {
-//        headerView.snp.makeConstraints {
-//            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
-//            $0.leading.trailing.equalToSuperview()
-//            $0.height.equalTo(60)
-//        }
-        
         resultCollectionView.snp.makeConstraints {
             $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
-        
-//        searchBarField.snp.makeConstraints {
-//            $0.centerY.equalToSuperview()
-//            $0.leading.trailing.equalToSuperview().inset(12)
-//            $0.height.equalTo(40)
-//        }
         
         createGroupButton.snp.makeConstraints {
             $0.bottom.trailing.equalToSuperview().inset(16)
@@ -258,7 +246,7 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if !isLoading,
            !isEnded,
-           scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height {
+           scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height - 250 {
             isLoading = true
             needLoadNextData.onNext(())
         }
@@ -282,7 +270,7 @@ extension SearchHomeViewController {
         group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
 
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 20, trailing: 7)
         
         let layout = UICollectionViewCompositionalLayout(section: section)
 

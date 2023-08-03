@@ -38,6 +38,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     var newCategoryColor = BehaviorSubject<CategoryColor?>(value: nil)
     
     var groupListChanged = PublishSubject<Void>()
+    var showMessage = PublishSubject<Message>()
     
     let moveFromAddToSelect = PublishSubject<Void>()
     let moveFromSelectToCreate = PublishSubject<Void>()
@@ -45,7 +46,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     let moveFromSelectToAdd = PublishSubject<Void>()
     let needReloadCategoryList = PublishSubject<Void>()
     let removeKeyboard = PublishSubject<Void>()
-    
+        
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
     
@@ -200,6 +201,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
                 var todoWithId = todo
                 todoWithId.id = id
                 self?.needDismiss.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }
@@ -220,6 +226,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.needDismiss.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }
@@ -240,6 +251,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.needDismiss.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }
@@ -265,6 +281,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
                 self?.categorys.append(categoryWithId)
                 self?.needReloadCategoryList.onNext(())
                 self?.moveFromCreateToSelect.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }
@@ -290,8 +311,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
                 self?.categorys[index] = category
                 self?.needReloadCategoryList.onNext(())
                 self?.moveFromCreateToSelect.onNext(())
-            }, onFailure: { error in
-                print(error)
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }
@@ -311,7 +335,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] in
-                print("removed!!")
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }

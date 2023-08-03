@@ -95,11 +95,6 @@ class GroupCreateViewController: UIViewController {
             return self.infoView.isDescEditing ? text : nil
         }
         
-        tagAdded.subscribe(onNext: {
-            print($0)
-        })
-        .disposed(by: bag)
-        
         let input = GroupCreateViewModel.Input(
             titleChanged: infoView.groupNameField.rx.text.asObservable(),
             noticeChanged: noticeChanged,

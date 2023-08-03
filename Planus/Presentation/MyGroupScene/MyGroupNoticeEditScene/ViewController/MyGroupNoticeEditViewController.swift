@@ -81,7 +81,6 @@ class MyGroupNoticeEditViewController: UIViewController {
         guard let viewModel else { return }
         
         guard let notice = try? viewModel.notice.value() else { return }
-        print(notice)
         noticeTextView.text = notice
         isNoticeFilled = true
         

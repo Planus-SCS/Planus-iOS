@@ -38,7 +38,7 @@ class ProfileButton: UIButton {
     
     func configureLayout() {
         profileImageView.snp.makeConstraints {
-            $0.height.width.equalTo(25)
+            $0.height.width.equalTo(30)
             $0.center.equalToSuperview()
         }
     }

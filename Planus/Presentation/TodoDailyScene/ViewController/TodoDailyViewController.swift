@@ -296,7 +296,6 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         var item: Todo?
-        print("a")
         switch indexPath.section {
         case 0:
             if let scheduledList = viewModel?.scheduledTodoList,
@@ -315,9 +314,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         default:
             return false
         }
-        print("b")
         guard let item else { return false }
-        print("c")
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         

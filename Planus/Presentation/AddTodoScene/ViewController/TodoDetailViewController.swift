@@ -9,6 +9,7 @@ import UIKit
 import RxSwift
 
 class TodoDetailViewController: UIViewController {
+    var keyboardBag: DisposeBag?
     var bag = DisposeBag()
     var completionHandler: (() -> Void)?
     
@@ -423,6 +424,17 @@ class TodoDetailViewController: UIViewController {
             let keyboardRectangle = keyboardFrame.cgRectValue
             let keyboardHeight = keyboardRectangle.height
             
+            let newKeyboardBag = DisposeBag()
+            keyboardBag = newKeyboardBag
+            viewModel?
+                .showMessage
+                .observe(on: MainScheduler.asyncInstance)
+                .withUnretained(self)
+                .subscribe(onNext: { vc, message in
+                    vc.showToast(message: message.text, type: Message.toToastType(state: message.state), fromBotton: keyboardHeight + 50)
+                })
+                .disposed(by: newKeyboardBag)
+            
             switch pageType {
             case .addTodo:
                 dayPickerViewController.view.snp.remakeConstraints {
@@ -447,6 +459,17 @@ class TodoDetailViewController: UIViewController {
     }
 
     @objc func keyboardWillHide(_ notification:NSNotification) {
+        let newKeyboardBag = DisposeBag()
+        keyboardBag = newKeyboardBag
+        viewModel?
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+            })
+            .disposed(by: newKeyboardBag)
+        
         switch pageType {
         case .addTodo:
             dayPickerViewController.view.snp.remakeConstraints {
@@ -645,7 +668,6 @@ extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate
             addTodoView.groupSelectionField.text = nil
             return
         }
-        print(row-1)
         didSelectedGroupAt.onNext(row-1)
     }
 }
@@ -750,7 +772,6 @@ extension TodoDetailViewController: UITextFieldDelegate {
 
                 return false
             } else {
-                print("4")
             }
         }
         return true

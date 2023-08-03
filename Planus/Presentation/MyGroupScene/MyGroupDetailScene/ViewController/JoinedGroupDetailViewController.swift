@@ -171,16 +171,17 @@ class JoinedGroupDetailViewController: UIViewController {
         let image = UIImage(named: "dotBtn")
         var item: UIBarButtonItem
         var menuChild = [UIAction]()
-        let link = UIAction(title: "공유하기", handler: { _ in print("전체 캘린더 조회") })
+        let link = UIAction(title: "공유하기", image: UIImage(systemName: "square.and.arrow.up"), handler: { _ in print("전체 캘린더 조회") })
         menuChild.append(link)
         if isLeader ?? false {
-            let editInfo = UIAction(title: "그룹 정보 수정", handler: { [weak self] _ in
+            let editInfo = UIAction(title: "그룹 정보 수정", image: UIImage(systemName: "pencil"), handler: { [weak self] _ in
                 self?.editInfo()
             })
-            let editNotice = UIAction(title: "공지사항 수정", handler: { [weak self] _ in
+            
+            let editNotice = UIAction(title: "공지사항 수정", image: UIImage(systemName: "speaker.badge.exclamationmark.fill"), handler: { [weak self] _ in
                 self?.editNotice()
             })
-            let editMember = UIAction(title: "멤버 수정", handler: { [weak self] _ in
+            let editMember = UIAction(title: "멤버 수정", image: UIImage(systemName: "person"), handler: { [weak self] _ in
                 self?.editMember()
             })
             
@@ -188,9 +189,10 @@ class JoinedGroupDetailViewController: UIViewController {
             menuChild.append(editNotice)
             menuChild.append(editMember)
         } else {
-            let withdraw = UIAction(title: "그룹 탈퇴하기", handler: { [weak self] _ in
+            let withdraw = UIAction(title: "그룹 탈퇴하기", image: UIImage(systemName: "rectangle.portrait.and.arrow.forward"), attributes: .destructive, handler: { [weak self] _ in
                 self?.withdrawGroup()
             })
+            
             menuChild.append(withdraw)
         }
         

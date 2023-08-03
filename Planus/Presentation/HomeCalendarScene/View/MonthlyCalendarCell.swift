@@ -340,7 +340,6 @@ extension MonthlyCalendarCell {
             guard let section,
                   let firstPressedItem = self.firstPressedIndexPath?.item,
                   let lastPressedItem = self.lastPressedIndexPath?.item else { return }
-            print("end with \(firstPressedItem), \(lastPressedItem)")
             self.isMultipleSelected?.onNext((section, (firstPressedItem, lastPressedItem)))
 
             firstPressedIndexPath = nil
@@ -428,7 +427,6 @@ extension MonthlyCalendarCell {
                     }
                 }
             }
-            print("change with \(firstPressedIndexPath), \(nowIndexPath)")
             self.lastPressedIndexPath = nowIndexPath
             Vibration.selection.vibrate()
         default:

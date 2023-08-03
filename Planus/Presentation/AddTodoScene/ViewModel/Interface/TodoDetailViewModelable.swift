@@ -78,6 +78,7 @@ struct TodoDetailViewModelableOutput {
     var moveFromSelectToAdd: Observable<Void>
     var removeKeyboard: Observable<Void>
     var needDismiss: Observable<Void>
+    var showMessage: Observable<Message>
 }
 
 protocol TodoDetailViewModelable: AnyObject {
@@ -113,6 +114,8 @@ protocol TodoDetailViewModelable: AnyObject {
     var moveFromSelectToAdd: PublishSubject<Void> { get }
     var needReloadCategoryList: PublishSubject<Void> { get }
     var removeKeyboard: PublishSubject<Void> { get }
+    
+    var showMessage: PublishSubject<Message> { get }
     
     // 메서드는 뭐가있을까..? 카테고리 패치랑 그룹 패치
     func initFetch()
@@ -328,7 +331,8 @@ extension TodoDetailViewModelable {
             moveFromCreateToSelect: moveFromCreateToSelect.asObservable(),
             moveFromSelectToAdd: moveFromSelectToAdd.asObservable(),
             removeKeyboard: removeKeyboard.asObservable(),
-            needDismiss: needDismiss.asObservable()
+            needDismiss: needDismiss.asObservable(),
+            showMessage: showMessage.asObservable()
         )
     }
 }

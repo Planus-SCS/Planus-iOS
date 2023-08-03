@@ -56,7 +56,6 @@ class JoinedGroupDetailCoordinator: Coordinator {
     }
 
     lazy var popCurrentPage: () -> Void = { [weak self] in
-        print(self)
         self?.navigationController.popViewController(animated: true)
     }
 

@@ -32,6 +32,7 @@ class GroupIntroduceViewModel {
     var showGroupDetailPage = PublishSubject<Int>()
     var isJoinableGroup = BehaviorSubject<Bool?>(value: nil)
     var applyCompleted = PublishSubject<Void>()
+    var showMessage = PublishSubject<Message>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -45,6 +46,7 @@ class GroupIntroduceViewModel {
         var isJoinableGroup: Observable<Bool?>
         var didCompleteApply: Observable<Void>
         var showGroupDetailPage: Observable<Int>
+        var showMessage: Observable<Message>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -121,7 +123,8 @@ class GroupIntroduceViewModel {
             didGroupMemberFetched: didGroupMemberFetched.asObservable(),
             isJoinableGroup: isJoinableGroup.asObservable(),
             didCompleteApply: applyCompleted.asObservable(),
-            showGroupDetailPage: showGroupDetailPage.asObservable()
+            showGroupDetailPage: showGroupDetailPage.asObservable(),
+            showMessage: showMessage.asObservable()
         )
     }
     
@@ -190,9 +193,12 @@ class GroupIntroduceViewModel {
             )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
-                self?.actions?.popCurrentPage?()
+                self?.showMessage.onNext(Message(text: "가입을 요청하였습니다.", state: .normal))
             }, onFailure: { [weak self] error in
-                
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }

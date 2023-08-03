@@ -35,7 +35,7 @@ class SearchResultViewModel {
     var didFetchHistory = BehaviorSubject<Void?>(value: nil)
     
     var page: Int = 0
-    var size: Int = 5
+    var size: Int = 10
     
     struct Input {
         var viewDidLoad: Observable<Void>

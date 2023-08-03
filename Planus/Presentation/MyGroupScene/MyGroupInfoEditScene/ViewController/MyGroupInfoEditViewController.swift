@@ -295,9 +295,12 @@ extension MyGroupInfoEditViewController: PHPickerViewControllerDelegate { //PHPi
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         
-        results.first?.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (image, error) in
-            guard let fileName = results.first?.itemProvider.suggestedName else { return }
-            if let data = (image as? UIImage)?.pngData() {
+        results.first?.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (item, error) in
+            guard let fileName = results.first?.itemProvider.suggestedName,
+                  var image = item as? UIImage  else { return }
+            
+            image = UIImage.resizeImage(image: image, targetWidth: 500)
+            if let data = image.pngData() {
                 self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "png"))
             }
         }
