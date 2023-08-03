@@ -142,7 +142,9 @@ extension TodoDetailViewModelable {
             .map { vm, index in
                 return vm.categorys[index]
             }
-            .bind(to: todoCategory)
+            .subscribe(onNext: { [weak self] ca in
+                self?.todoCategory.onNext(ca)
+            })
             .disposed(by: bag)
         
         input
@@ -318,7 +320,7 @@ extension TodoDetailViewModelable {
             mode: mode,
             type: type,
             titleValueChanged: todoTitle.distinctUntilChanged().asObservable(),
-            categoryChanged: todoCategory.distinctUntilChanged().asObservable(),
+            categoryChanged: todoCategory.asObservable(),
             dayRangeChanged: todoDayRange.distinctUntilChanged().asObservable(),
             timeValueChanged: todoTime.distinctUntilChanged().asObservable(),
             groupChanged: todoGroup.distinctUntilChanged().asObservable(),

@@ -142,7 +142,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
             )
             .subscribe(onSuccess: { [weak self] todo in
                 self?.todoTitle.onNext(todo.title)
-                self?.todoCategory.onNext(Category(title: todo.todoCategory.name, color: todo.todoCategory.color))
+                self?.todoCategory.onNext(Category(id: todo.todoCategory.id, title: todo.todoCategory.name, color: todo.todoCategory.color))
                 self?.todoDayRange.onNext(DateRange(start: todo.startDate, end: (todo.startDate != todo.endDate) ? todo.endDate : nil))
                 self?.todoTime.onNext(todo.startTime)
                 self?.todoGroup.onNext(GroupName(groupId: groupId, groupName: todo.groupName))
@@ -212,6 +212,8 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     }
 
     func saveDetail() {
+        print("1")
+        print(try? todoTitle.value(),try? todoDayRange.value(),(try? todoCategory.value())?.id)
         guard let title = try? todoTitle.value(),
               let dateRange = try? todoDayRange.value(),
               let startDate = dateRange.start,
@@ -222,6 +224,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
             endDate = todoEndDay
         }
         let memo = try? todoMemo.value()
+        print(memo)
         let time = try? todoTime.value()
         let groupName = try? todoGroup.value()
         var todo = Todo(
@@ -244,6 +247,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         case .edit:
             guard let groupId = info?.group?.groupId,
                   let todoId = info?.todoId else { return }
+            print("2")
             todo.id = todoId
             updateTodo(groupId: groupId, todoId: todoId, todo: todo)
         default:

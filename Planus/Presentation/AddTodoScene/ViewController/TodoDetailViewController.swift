@@ -13,6 +13,7 @@ class TodoDetailViewController: UIViewController {
     var bag = DisposeBag()
     var completionHandler: (() -> Void)?
     
+    var didChangedMemoValue = PublishSubject<String?>()
     var didSelectCategoryAt = PublishSubject<Int?>()
     var didRequestEditCategoryAt = PublishSubject<Int>() // 생성도 이걸로하자!
     var didSelectedDateRange = PublishSubject<DateRange>()
@@ -197,26 +198,13 @@ class TodoDetailViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
 
-        let memoViewObservable = addTodoView
-            .memoTextView.rx.text
-            .skip(1)
-            .asObservable()
-            .map { [weak self] (text) -> String? in
-            guard let isMemoFilled = self?.addTodoView.isMemoFilled else { return nil }
-            if isMemoFilled {
-                return text
-            } else {
-                return nil
-            }
-        }
-
         let input = TodoDetailViewModelableInput(
             titleTextChanged: addTodoView.titleField.rx.text.skip(1).distinctUntilChanged().asObservable(),
             categorySelectedAt: didSelectCategoryAt.asObservable(),
             dayRange: didSelectedDateRange.distinctUntilChanged().asObservable(),
             timeFieldChanged: didChangedTimeValue.asObservable(),
             groupSelectedAt: didSelectedGroupAt.distinctUntilChanged().asObservable(),
-            memoTextChanged: memoViewObservable,
+            memoTextChanged: didChangedMemoValue.asObservable(),
             creatingCategoryNameTextChanged: categoryCreateView.nameField.rx.text.asObservable(),
             creatingCategoryColorChanged: didChangednewCategoryColor.asObservable(),
             didRemoveCategory: didDeleteCategoryId.asObservable(),
@@ -271,7 +259,6 @@ class TodoDetailViewController: UIViewController {
         output
             .memoValueChanged
             .observe(on: MainScheduler.asyncInstance)
-            .distinctUntilChanged()
             .withUnretained(self)
             .subscribe(onNext: { vc, memo in //여기서 isMemoField에 따라 ㄱㄱ하자
                 vc.addTodoView.isMemoFilled = (memo != nil)
@@ -319,7 +306,7 @@ class TodoDetailViewController: UIViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vc, groupName in
-                vc.addTodoView.groupSelectionField.text = groupName?.groupName ?? ""
+                vc.addTodoView.groupSelectionField.text = groupName?.groupName ?? ((output.mode == .view) ? "그룹이 없습니다" : "그룹 선택")
             })
             .disposed(by: bag)
         
@@ -686,7 +673,7 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
         
         cell.nameLabel.text = viewModel.categorys[indexPath.row].title
         cell.colorView.backgroundColor = viewModel.categorys[indexPath.row].color.todoForCalendarColor
-        
+        cell.selectionStyle = .none
         return cell
     }
     
@@ -792,6 +779,13 @@ extension TodoDetailViewController: UITextViewDelegate {
             textView.text = nil
             textView.textColor = .black
             addTodoView.isMemoFilled = true
+        }
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        if addTodoView.isMemoFilled {
+            print("delegate: ", textView.text)
+            didChangedMemoValue.onNext(textView.text)
         }
     }
 }
