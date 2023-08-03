@@ -89,15 +89,10 @@ class GroupCreateViewController: UIViewController {
     
     func bind() {
         guard let viewModel else { return }
-
-        let noticeChanged = infoView.groupNoticeTextView.rx.text.asObservable().map { [weak self] text -> String? in
-            guard let self else { return nil }
-            return self.infoView.isDescEditing ? text : nil
-        }
         
         let input = GroupCreateViewModel.Input(
-            titleChanged: infoView.groupNameField.rx.text.asObservable(),
-            noticeChanged: noticeChanged,
+            titleChanged: infoView.didChangeNameValue.asObservable(),
+            noticeChanged: infoView.didChangeNoticeValue.asObservable(),
             titleImageChanged: titleImageChanged.asObservable(),
             tagAdded: tagAdded.asObservable(),
             tagRemovedAt: tagRemovedAt.asObservable(),

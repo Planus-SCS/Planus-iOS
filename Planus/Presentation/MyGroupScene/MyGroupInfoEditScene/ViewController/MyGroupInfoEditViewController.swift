@@ -114,7 +114,7 @@ class MyGroupInfoEditViewController: UIViewController {
             .subscribe(onNext: { vc, _ in
                 vc.showPopUp(title: "그룹 삭제하기", message: "삭제된 그룹은 추후 복구할 수 없습니다.", alertAttrs: [
                     CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
-                    CustomAlertAttr(title: "삭제", actionHandler: { removeBtnTapped.onNext(()) }, type: .warning)]
+                    CustomAlertAttr(title: "삭제", actionHandler: { [weak self] in self?.removeBtnTapped.onNext(()) }, type: .warning)]
                 )
             })
             .disposed(by: bag)

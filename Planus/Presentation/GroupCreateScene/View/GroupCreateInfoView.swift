@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import RxSwift
 
 class GroupCreateInfoView: UIView {
+    var didChangeNameValue = PublishSubject<String?>()
+    var didChangeNoticeValue = PublishSubject<String?>()
     
     var groupIntroduceTitleLabel: UILabel = {
         let label = UILabel(frame: .zero)
@@ -44,7 +47,7 @@ class GroupCreateInfoView: UIView {
         return button
     }()
     
-    var groupNameField: UITextField = {
+    lazy var groupNameField: UITextField = {
         let textField = UITextField(frame: .zero)
         textField.textColor = .black
         textField.font = UIFont(name: "Pretendard-Regular", size: 16)
@@ -59,6 +62,7 @@ class GroupCreateInfoView: UIView {
             string: "그룹 이름을 입력하세요",
             attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
         )
+        textField.delegate = self
 
         return textField
     }()
@@ -153,5 +157,58 @@ extension GroupCreateInfoView: UITextViewDelegate {
             textView.textColor = .black
             isDescEditing = true
         }
+    }
+
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if isDescEditing && textView == self.groupNoticeTextView {
+            if text == "" { //backspace
+                if var textString = textView.text,
+                   !textString.isEmpty {
+                    textString = String(textString.dropLast())
+                    textView.text = textString
+                    didChangeNoticeValue.onNext(textString)
+                }
+                return false
+            } else if var textString = textView.text {
+                if textString.count == 50 {
+                    return false
+                }
+                textString += text
+                
+                textView.text = textString
+                didChangeNoticeValue.onNext(textString)
+                
+                return false
+            }
+        }
+        return true
+        
+    }
+}
+
+extension GroupCreateInfoView: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == self.groupNameField {
+            if string == "" { //backspace
+                if var textString = textField.text,
+                   !textString.isEmpty {
+                    textString = String(textString.dropLast())
+                    textField.text = textString
+                    didChangeNameValue.onNext(textString)
+                }
+                return false
+            } else if var textString = textField.text {
+                if textString.count == 10 { //추가해서 세글자가 되면? 없애야함
+                    return false
+                }
+                textString += string
+
+                textField.text = textString
+                didChangeNameValue.onNext(textString)
+
+                return false
+            }
+        }
+        return true
     }
 }

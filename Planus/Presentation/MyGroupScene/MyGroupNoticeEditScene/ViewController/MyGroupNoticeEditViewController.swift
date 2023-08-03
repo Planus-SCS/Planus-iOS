@@ -14,6 +14,8 @@ class MyGroupNoticeEditViewController: UIViewController {
     var viewModel: MyGroupNoticeEditViewModel?
     
     var isNoticeFilled = false
+    var didChangeNoticeValue = PublishSubject<String?>()
+    
     lazy var noticeTextView: UITextView = {
         let textView = UITextView(frame: .zero)
         textView.layer.cornerRadius = 10
@@ -84,14 +86,9 @@ class MyGroupNoticeEditViewController: UIViewController {
         noticeTextView.text = notice
         isNoticeFilled = true
         
-        let noticeChanged = noticeTextView.rx.text.asObservable().map { [weak self] text -> String? in
-            guard let self else { return nil }
-            return self.isNoticeFilled ? text : nil
-        }
-        
         let input = MyGroupNoticeEditViewModel.Input(
             didTapSaveButton: saveButton.rx.tap.asObservable(),
-            didChangeNoticeValue: noticeChanged
+            didChangeNoticeValue: didChangeNoticeValue.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -158,6 +155,33 @@ extension MyGroupNoticeEditViewController: UITextViewDelegate {
             isNoticeFilled = true
         }
     }
+
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if isNoticeFilled && textView == self.noticeTextView {
+            if text == "" { //backspace
+                if var textString = textView.text,
+                   !textString.isEmpty {
+                    textString = String(textString.dropLast())
+                    textView.text = textString
+                    didChangeNoticeValue.onNext(textString)
+                }
+                return false
+            } else if var textString = textView.text {
+                if textString.count == 50 {
+                    return false
+                }
+                textString += text
+                
+                textView.text = textString
+                didChangeNoticeValue.onNext(textString)
+                
+                return false
+            }
+        }
+        return true
+        
+    }
 }
+
 
 extension MyGroupNoticeEditViewController: UIGestureRecognizerDelegate {}
