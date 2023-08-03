@@ -53,6 +53,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     let moveFromSelectToAdd = PublishSubject<Void>()
     let needReloadCategoryList = PublishSubject<Void>()
     let removeKeyboard = PublishSubject<Void>()
+    var nowSaving: Bool = false
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
@@ -212,8 +213,6 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     }
 
     func saveDetail() {
-        print("1")
-        print(try? todoTitle.value(),try? todoDayRange.value(),(try? todoCategory.value())?.id)
         guard let title = try? todoTitle.value(),
               let dateRange = try? todoDayRange.value(),
               let startDate = dateRange.start,
@@ -224,7 +223,6 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
             endDate = todoEndDay
         }
         let memo = try? todoMemo.value()
-        print(memo)
         let time = try? todoTime.value()
         let groupName = try? todoGroup.value()
         var todo = Todo(
@@ -247,7 +245,6 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         case .edit:
             guard let groupId = info?.group?.groupId,
                   let todoId = info?.todoId else { return }
-            print("2")
             todo.id = todoId
             updateTodo(groupId: groupId, todoId: todoId, todo: todo)
         default:
@@ -283,11 +280,13 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
             .subscribe(onSuccess: { [weak self] id in
                 var todoWithId = todo
                 todoWithId.id = id
+                self?.nowSaving = false
                 self?.needDismiss.onNext(())
             }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,
                       case NetworkManagerError.clientError(let status, let message) = error,
                       let message = message else { return }
+                self?.nowSaving = false
                 self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
@@ -308,11 +307,13 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
+                self?.nowSaving = false
                 self?.needDismiss.onNext(())
             }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,
                       case NetworkManagerError.clientError(let status, let message) = error,
                       let message = message else { return }
+                self?.nowSaving = false
                 self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
@@ -333,11 +334,13 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
+                self?.nowSaving = false
                 self?.needDismiss.onNext(())
             }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,
                       case NetworkManagerError.clientError(let status, let message) = error,
                       let message = message else { return }
+                self?.nowSaving = false
                 self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
@@ -372,10 +375,12 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
                 self?.categorys.append(categoryWithId)
                 self?.needReloadCategoryList.onNext(())
                 self?.moveFromCreateToSelect.onNext(())
+                self?.nowSaving = false
             }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,
                       case NetworkManagerError.clientError(let status, let message) = error,
                       let message = message else { return }
+                self?.nowSaving = false
                 self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
@@ -411,10 +416,12 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
                 self?.categorys[index] = category
                 self?.needReloadCategoryList.onNext(())
                 self?.moveFromCreateToSelect.onNext(())
+                self?.nowSaving = false
             }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,
                       case NetworkManagerError.clientError(let status, let message) = error,
                       let message = message else { return }
+                self?.nowSaving = false
                 self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)

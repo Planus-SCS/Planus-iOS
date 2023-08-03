@@ -306,7 +306,7 @@ class TodoDetailViewController: UIViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vc, groupName in
-                vc.addTodoView.groupSelectionField.text = groupName?.groupName ?? ((output.mode == .view) ? "그룹이 없습니다" : "그룹 선택")
+                vc.addTodoView.groupSelectionField.text = groupName?.groupName
             })
             .disposed(by: bag)
         

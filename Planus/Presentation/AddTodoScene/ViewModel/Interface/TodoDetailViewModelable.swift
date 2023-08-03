@@ -114,6 +114,7 @@ protocol TodoDetailViewModelable: AnyObject {
     var moveFromSelectToAdd: PublishSubject<Void> { get }
     var needReloadCategoryList: PublishSubject<Void> { get }
     var removeKeyboard: PublishSubject<Void> { get }
+    var nowSaving: Bool { get set }
     
     var showMessage: PublishSubject<Message> { get }
     
@@ -217,7 +218,10 @@ extension TodoDetailViewModelable {
             .todoSaveBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in //이부분은 구현체쪽에 구현하면 되지 않을까? 그럼 state유지하는 놈도 필요 없음
-                vm.saveDetail()
+                if !vm.nowSaving {
+                    vm.nowSaving = true
+                    vm.saveDetail()
+                }
             })
             .disposed(by: bag)
         
@@ -225,7 +229,10 @@ extension TodoDetailViewModelable {
             .todoRemoveBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.removeDetail()
+                if !vm.nowSaving {
+                    vm.nowSaving = true
+                    vm.removeDetail()
+                }
             })
             .disposed(by: bag)
         
@@ -242,14 +249,16 @@ extension TodoDetailViewModelable {
             .newCategorySaveBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                // 1. save current edit or creating
-                guard let title = try? vm.newCategoryName.value(),
-                      let color = try? vm.newCategoryColor.value() else { return }
-                switch vm.categoryCreatingState {
-                case .new:
-                    vm.saveNewCategory(category: Category(id: nil, title: title, color: color))
-                case .edit(let id):
-                    vm.updateCategory(category: Category(id: id, title: title, color: color))
+                if !vm.nowSaving {
+                    vm.nowSaving = true
+                    guard let title = try? vm.newCategoryName.value(),
+                          let color = try? vm.newCategoryColor.value() else { return }
+                    switch vm.categoryCreatingState {
+                    case .new:
+                        vm.saveNewCategory(category: Category(id: nil, title: title, color: color))
+                    case .edit(let id):
+                        vm.updateCategory(category: Category(id: id, title: title, color: color))
+                    }
                 }
             })
             .disposed(by: bag)
