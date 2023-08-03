@@ -66,6 +66,7 @@ class HomeCalendarViewModel {
     var needReloadSectionSet = PublishSubject<IndexSet>() //리로드 섹션을 해야함 왜?
     var needReloadData = PublishSubject<Void>()
     var needWelcome = BehaviorSubject<String?>(value: nil)
+    var homeTabReselected: PublishSubject<Void>?
     
     lazy var categoryAndGroupZip = Observable.zip(
         initialReadGroup.compactMap { $0 },
@@ -108,6 +109,7 @@ class HomeCalendarViewModel {
         var groupListFetched: Observable<Void?>
         var needFilterGroupWithId: Observable<Int?>
         var didFinishRefreshing: Observable<Void>
+        var needScrollToHome: Observable<Void>?
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -315,7 +317,8 @@ class HomeCalendarViewModel {
             needWelcome: needWelcome.asObservable(),
             groupListFetched: initialReadGroup.asObservable(),
             needFilterGroupWithId: filteredGroupId.asObservable(),
-            didFinishRefreshing: didFinishRefreshing.asObservable()
+            didFinishRefreshing: didFinishRefreshing.asObservable(),
+            needScrollToHome: homeTabReselected?.asObservable()
         )
     }
     

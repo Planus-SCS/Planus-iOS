@@ -78,6 +78,7 @@ final class MainTabCoordinator: NSObject, Coordinator {
         
         tabBarController.tabBar.barTintColor = .white
         tabBarController.tabBar.isTranslucent = false
+        tabBarController.delegate = self
         
         self.tabBarController.tabBar.backgroundColor = UIColor(hex: 0xF5F5FB)
 
@@ -129,5 +130,22 @@ extension MainTabCoordinator: CoordinatorFinishDelegate {
         childCoordinators = childCoordinators.filter {
             $0.type != childCoordinator.type
         }
+    }
+}
+
+extension MainTabCoordinator: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        if tabBarController.selectedIndex == currentPage.rawValue {
+            childCoordinators[tabBarController.selectedIndex].childCoordinators = []
+            
+            if currentPage == .calendar {
+                guard let coordinator = childCoordinators[0] as? HomeCalendarCoordinator else { return }
+                coordinator.homeTapReselected.onNext(())
+            }
+        } else {
+            guard let newPage = TabBarPage(rawValue: tabBarController.selectedIndex) else { return }
+            currentPage = newPage
+        }
+        
     }
 }

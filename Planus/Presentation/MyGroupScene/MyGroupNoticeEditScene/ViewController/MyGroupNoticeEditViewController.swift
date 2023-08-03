@@ -167,7 +167,7 @@ extension MyGroupNoticeEditViewController: UITextViewDelegate {
                 }
                 return false
             } else if var textString = textView.text {
-                if textString.count == 50 {
+                if textString.count == 1000 {
                     return false
                 }
                 textString += text

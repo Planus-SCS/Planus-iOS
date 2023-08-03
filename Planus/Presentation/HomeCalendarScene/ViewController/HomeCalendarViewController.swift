@@ -362,6 +362,17 @@ class HomeCalendarViewController: UIViewController {
                 vc.didFetchRefreshedData.onNext(())
             })
             .disposed(by: bag)
+        
+        output
+            .needScrollToHome?
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                // 스크롤 하고, 인덱스 바꿔주고
+                print("scroll!!!!!")
+                vc.collectionView.setContentOffset(CGPoint(x: CGFloat(100) * vc.view.frame.width, y: 0), animated: true)
+            })
+            .disposed(by: bag)
             
     }
     
