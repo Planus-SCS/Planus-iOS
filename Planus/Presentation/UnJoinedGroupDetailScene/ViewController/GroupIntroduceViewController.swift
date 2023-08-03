@@ -205,10 +205,14 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vc, isJoined in
-                if isJoined {
+                switch isJoined {
+                case .isJoined:
                     vc.joinButton.setTitle("그룹 페이지로 이동하기", for: .normal)
-                } else {
+                case .notJoined:
                     vc.joinButton.setTitle("그룹가입 신청하기", for: .normal)
+                case .full:
+                    vc.joinButton.setTitle("빈 자리가 없어요 😭", for: .normal)
+                    vc.joinButton.isEnabled = false
                 }
             })
             .disposed(by: bag)
