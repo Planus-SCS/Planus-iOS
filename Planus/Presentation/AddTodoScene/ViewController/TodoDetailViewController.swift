@@ -758,7 +758,6 @@ extension TodoDetailViewController: UITextFieldDelegate {
                 didChangedTimeValue.onNext(textString)
 
                 return false
-            } else {
             }
         }
         return true

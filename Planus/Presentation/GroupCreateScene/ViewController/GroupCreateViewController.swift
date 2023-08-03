@@ -101,7 +101,7 @@ class GroupCreateViewController: UIViewController {
             titleImageChanged: titleImageChanged.asObservable(),
             tagAdded: tagAdded.asObservable(),
             tagRemovedAt: tagRemovedAt.asObservable(),
-            maxMemberChanged: limitView.limitField.rx.text.asObservable(),
+            maxMemberChanged: limitView.didChangedLimitValue.asObservable(),
             saveBtnTapped: createButtonView.wideButton.rx.tap.asObservable()
         )
         let output = viewModel.transform(input: input)

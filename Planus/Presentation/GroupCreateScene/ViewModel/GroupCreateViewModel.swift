@@ -22,6 +22,7 @@ class GroupCreateViewModel {
     let tagDuplicateValidState = PublishSubject<Bool>()
 
     var showGroupCreateLoadPage = PublishSubject<(GroupCreate, ImageFile)>()
+    var nowSaving = false
     
     struct Input {
         var titleChanged: Observable<String?>
@@ -115,7 +116,10 @@ class GroupCreateViewModel {
             .saveBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.createGroup()
+                if !vm.nowSaving {
+                    vm.nowSaving = true
+                    vm.createGroup()
+                }
             })
             .disposed(by: bag)
         
