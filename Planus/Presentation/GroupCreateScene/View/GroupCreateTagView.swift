@@ -199,7 +199,7 @@ class GroupTagInputViewController: UIViewController {
             .map { text in
                 guard let text else { return false }
                 let tagLengthState = text.count > 0 && text.count <= 7
-                let tagSpecialCharState = text.checkRegex(regex: "^(?=.*[\\s!@#$%0-9])")
+                let tagSpecialCharState = text.checkRegex(regex: "^(?=.*[\\s!@#$%])")
                 return tagLengthState && !tagSpecialCharState
             }
             .withUnretained(self)
