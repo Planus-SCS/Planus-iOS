@@ -89,7 +89,7 @@ class TodoDetailViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseIn, animations: {
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
              self.addTodoView.snp.remakeConstraints {
                  $0.bottom.leading.trailing.equalToSuperview()
                  $0.height.lessThanOrEqualTo(700)
@@ -107,7 +107,7 @@ class TodoDetailViewController: UIViewController {
     private func hideBottomSheetAndGoBack() {
 
         self.view.endEditing(true)
-        UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
             self.dimmedView.alpha = 0.0
             switch self.pageType {
             case .addTodo:

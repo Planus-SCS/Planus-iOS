@@ -28,7 +28,7 @@ class MonthlyCalendarCell: UICollectionViewCell {
     
     lazy var lpgr : UILongPressGestureRecognizer = {
         let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(self.longTap(_:)))
-        lpgr.minimumPressDuration = 0.6
+        lpgr.minimumPressDuration = 0.4
         lpgr.delegate = self
         lpgr.delaysTouchesBegan = false
         return lpgr
