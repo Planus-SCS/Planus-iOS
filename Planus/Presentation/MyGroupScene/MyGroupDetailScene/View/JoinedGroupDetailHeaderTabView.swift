@@ -9,6 +9,8 @@ import UIKit
 
 class JoinedGroupDetailHeaderTabView: UIView {
     
+    weak var delegate: JoinedGroupDetailHeaderTabDelegate?
+    
     var contentView: UIView = {
         let view = UIView(frame: .zero)
         view.backgroundColor = .white
@@ -28,12 +30,14 @@ class JoinedGroupDetailHeaderTabView: UIView {
         return view
     }()
     
-    var titleButtonList: [UIButton] = {
-        return ["공지사항", "그룹캘린더", "그룹채팅"].map { text in
+    lazy var titleButtonList: [UIButton] = {
+        return ["공지사항", "그룹캘린더", "그룹채팅"].enumerated().map { [weak self] index, text in
             let button = UIButton(frame: .zero)
+            button.tag = index
             button.setTitle(text, for: .normal)
             button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 14)
             button.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
+            button.addTarget(self, action: #selector(self!.didTappedTitleButton), for: .touchUpInside)
             return button
         }
     }()
@@ -123,4 +127,12 @@ class JoinedGroupDetailHeaderTabView: UIView {
             self.layoutIfNeeded()
         })
     }
+    
+    @objc func didTappedTitleButton(_ sender: UIButton) {
+        delegate?.joinedGroupHeaderTappedAt(index: sender.tag)
+    }
+}
+
+protocol JoinedGroupDetailHeaderTabDelegate: AnyObject {
+    func joinedGroupHeaderTappedAt(index: Int)
 }

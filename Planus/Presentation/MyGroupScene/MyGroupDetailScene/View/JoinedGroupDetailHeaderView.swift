@@ -81,32 +81,6 @@ class JoinedGroupDetailHeaderView: UIView {
         return button
     }()
     
-//    var memberProfileStack: UIStackView = {
-//        let stackView = UIStackView(frame: .zero)
-//        stackView.axis = .horizontal
-//        stackView.spacing = -8
-//        stackView.alignment = .center
-//        return stackView
-//    }()
-    
-//    var memberRemainingStack: UILabel = {
-//        let label = UILabel(frame: .zero)
-//        label.font = UIFont(name: "Pretendard-Regular", size: 14)
-//        label.textColor = .white
-//        label.text = "+1"
-//        return label
-//    }()
-    
-//    lazy var memberStackView: UIStackView = {
-//        let stackView = UIStackView(frame: .zero)
-//        stackView.axis = .horizontal
-//        stackView.spacing = 4
-//        stackView.alignment = .center
-//        stackView.addArrangedSubview(memberProfileStack)
-//        stackView.addArrangedSubview(memberRemainingStack)
-//        return stackView
-//    }()
-    
     lazy var bottomStackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .horizontal
@@ -115,7 +89,6 @@ class JoinedGroupDetailHeaderView: UIView {
         stackView.addArrangedSubview(memberCountButton)
         stackView.addArrangedSubview(onlineButton)
         stackView.addArrangedSubview(captinButton)
-//        stackView.addArrangedSubview(memberStackView)
 
         return stackView
     }()
