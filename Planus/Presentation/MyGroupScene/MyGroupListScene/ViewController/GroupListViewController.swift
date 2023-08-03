@@ -161,28 +161,24 @@ class GroupListViewController: UIViewController {
                       var group = viewModel.groupList?[index],
                       let cell = self.resultCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? JoinedGroupCell else { return }
                 
-                if isSuccess {
-                    cell.onlineButton.setTitle("\(group.onlineCount)", for: .normal)
-                } else {
-                    let outerSwitchBag = DisposeBag()
-                    cell.outerSwitchBag = outerSwitchBag
-                    
-                    cell.onlineSwitch.isOn = !cell.onlineSwitch.isOn
-                    
-                    cell.onlineSwitch.rx.isOn
-                        .skip(1)
-                        .asObservable() //초기값 무시
-                        .subscribe(onNext: { isOn in
-                            cell.onlineSwitch.isUserInteractionEnabled = false
-                            if isOn {
-                                self.becameOnlineStateAt.onNext(index)
-                            } else {
-                                self.becameOfflineStateAt.onNext(index)
-                            }
-                        })
-                    .disposed(by: outerSwitchBag)
-                }
+                let outerSwitchBag = DisposeBag()
+                cell.outerSwitchBag = outerSwitchBag
                 
+                cell.onlineSwitch.isOn = group.isOnline
+                cell.onlineButton.setTitle("\(group.onlineCount)", for: .normal)
+                
+                cell.onlineSwitch.rx.isOn
+                    .skip(1)
+                    .asObservable() //초기값 무시
+                    .subscribe(onNext: { isOn in
+                        cell.onlineSwitch.isUserInteractionEnabled = false
+                        if isOn {
+                            self.becameOnlineStateAt.onNext(index)
+                        } else {
+                            self.becameOfflineStateAt.onNext(index)
+                        }
+                    })
+                .disposed(by: outerSwitchBag)
                 cell.onlineSwitch.isUserInteractionEnabled = true
             })
             .disposed(by: bag)
