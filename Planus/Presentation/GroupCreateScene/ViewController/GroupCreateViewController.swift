@@ -90,12 +90,6 @@ class GroupCreateViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
-        var noticeObservable = infoView.groupNoticeTextView.rx.text
-            .withUnretained(self)
-            .map { vc, text in
-                return vc.infoView.isDescEditing ? text : nil
-        }
-        
         let input = GroupCreateViewModel.Input(
             titleChanged: infoView.groupNameField.rx.text.skip(1).asObservable(),
             noticeChanged: infoView.groupNoticeTextView.rx.text.skip(1).asObservable(),

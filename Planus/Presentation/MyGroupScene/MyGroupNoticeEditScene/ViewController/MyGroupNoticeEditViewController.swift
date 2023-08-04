@@ -12,14 +12,13 @@ class MyGroupNoticeEditViewController: UIViewController {
     
     var bag = DisposeBag()
     var viewModel: MyGroupNoticeEditViewModel?
-    
-    var isNoticeFilled = false
-    
-    lazy var noticeTextView: UITextView = {
-        let textView = UITextView(frame: .zero)
+        
+    lazy var noticeTextView: PlaceholderTextView = {
+        let textView = PlaceholderTextView(frame: .zero)
         textView.layer.cornerRadius = 10
         textView.layer.cornerCurve = .continuous
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
+        textView.placeholder = "간단한 그룹소개 및 공지사항을 입력해주세요"
         textView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         
         let style = NSMutableParagraphStyle()
@@ -83,17 +82,10 @@ class MyGroupNoticeEditViewController: UIViewController {
         
         guard let notice = try? viewModel.notice.value() else { return }
         noticeTextView.text = notice
-        isNoticeFilled = true
-        
-        var noticeObservable = noticeTextView.rx.text
-            .withUnretained(self)
-            .map { vc, text in
-                return vc.isNoticeFilled ? text : nil
-        }
-        
+
         let input = MyGroupNoticeEditViewModel.Input(
             didTapSaveButton: saveButton.rx.tap.asObservable(),
-            didChangeNoticeValue: noticeObservable.asObservable()
+            didChangeNoticeValue: noticeTextView.rx.text.skip(1).asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -146,24 +138,8 @@ class MyGroupNoticeEditViewController: UIViewController {
 }
 
 extension MyGroupNoticeEditViewController: UITextViewDelegate {
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            textView.text = "간단한 그룹소개 및 공지사항을 입력해주세요"
-            textView.textColor = UIColor(hex: 0x7A7A7A)
-            isNoticeFilled = false
-        }
-    }
-    
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if !(isNoticeFilled) {
-            textView.text = nil
-            textView.textColor = .black
-            isNoticeFilled = true
-        }
-    }
-
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if isNoticeFilled && textView == self.noticeTextView {
+        if textView == self.noticeTextView {
             let newLength = (textView.text?.count)! + text.count - range.length
             return !(newLength > 1000)
         }
