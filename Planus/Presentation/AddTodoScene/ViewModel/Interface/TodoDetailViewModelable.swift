@@ -133,7 +133,10 @@ extension TodoDetailViewModelable {
         
         input
             .titleTextChanged
-            .bind(to: todoTitle)
+            .subscribe(onNext: { [weak self] text in
+                print("vm: ", text)
+                self?.todoTitle.onNext(text)
+            })
             .disposed(by: bag)
         
         input

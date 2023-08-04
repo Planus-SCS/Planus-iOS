@@ -197,9 +197,15 @@ class TodoDetailViewController: UIViewController {
     
     func bind() {
         guard let viewModel else { return }
+        
+        addTodoView.titleField.rx.text
+            .subscribe(onNext: { text in
+                print("vc fieldBind: ", text)
+            })
+            .disposed(by: bag)
 
-        let input = TodoDetailViewModelableInput(
-            titleTextChanged: addTodoView.titleField.rx.text.skip(1).distinctUntilChanged().asObservable(),
+        let input = TodoDetailViewModelableInput( //스킵을 해도 이러는가??
+            titleTextChanged: addTodoView.titleField.rx.text.skip(1).distinctUntilChanged().asObservable(), //첫번째 값 + becomeFirstResponder 시 값
             categorySelectedAt: didSelectCategoryAt.asObservable(),
             dayRange: didSelectedDateRange.distinctUntilChanged().asObservable(),
             timeFieldChanged: didChangedTimeValue.asObservable(),
@@ -222,36 +228,11 @@ class TodoDetailViewController: UIViewController {
         
         let output = viewModel.transform(input: input)
 
-        switch output.mode {
-        case .edit:
-            addTodoView.removeButton.isHidden = false
-            addTodoView.titleField.becomeFirstResponder()
-        case .new:
-            addTodoView.removeButton.isHidden = true
-            addTodoView.titleField.becomeFirstResponder()
-        case .view:
-            addTodoView.contentStackView.isUserInteractionEnabled = false
-            dayPickerViewController.view.isHidden = true
-            addTodoView.saveButton.isHidden = true
-            addTodoView.removeButton.isHidden = true
-            addTodoView.contentStackView.snp.remakeConstraints {
-                $0.leading.trailing.equalToSuperview().inset(16)
-                $0.top.equalTo(self.addTodoView.headerBarView.snp.bottom)
-                $0.bottom.equalToSuperview()
-            }
-        }
-        
-        switch output.type {
-        case .memberTodo:
-            addTodoView.groupSelectionField.isUserInteractionEnabled = true
-        case .socialTodo:
-            addTodoView.groupSelectionField.isUserInteractionEnabled = false
-        }
-
         output
             .titleValueChanged
-            .observe(on: MainScheduler.asyncInstance)
+            .observe(on: MainScheduler.asyncInstance) //메인스레드가 바인딩함
             .subscribe(onNext: { [weak self] title in
+                print("vc: ", title)
                 self?.addTodoView.titleField.text = title
             })
             .disposed(by: bag)
@@ -395,6 +376,36 @@ class TodoDetailViewController: UIViewController {
                 vc.dismiss(animated: true)
             })
             .disposed(by: bag)
+        
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            switch viewModel.mode {
+            case .edit:
+                self.addTodoView.removeButton.isHidden = false
+                self.addTodoView.titleField.becomeFirstResponder()
+            case .new:
+                self.addTodoView.removeButton.isHidden = true
+                self.addTodoView.titleField.becomeFirstResponder()
+            case .view:
+                self.addTodoView.contentStackView.isUserInteractionEnabled = false
+                self.dayPickerViewController.view.isHidden = true
+                self.addTodoView.saveButton.isHidden = true
+                self.addTodoView.removeButton.isHidden = true
+                self.addTodoView.contentStackView.snp.remakeConstraints {
+                    $0.leading.trailing.equalToSuperview().inset(16)
+                    $0.top.equalTo(self.addTodoView.headerBarView.snp.bottom)
+                    $0.bottom.equalToSuperview()
+                }
+            }
+            
+            switch viewModel.type {
+            case .memberTodo:
+                self.addTodoView.groupSelectionField.isUserInteractionEnabled = true
+            case .socialTodo:
+                self.addTodoView.groupSelectionField.isUserInteractionEnabled = false
+            }
+        }
             
         viewModel.initFetch()
     }
