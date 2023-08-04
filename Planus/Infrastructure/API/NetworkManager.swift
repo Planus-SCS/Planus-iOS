@@ -160,7 +160,7 @@ private extension NetworkManager {
         if let imageList = imageList {
             for (key, image) in imageList {
                 body.append("\(boundaryPrefix)\r\n".data(using: .utf8)!)
-                body.append("Content-Disposition: form-data; name=\"\(key)\"; filename=\"\(image.filename).png\"\r\n".data(using: .utf8)!)
+                body.append("Content-Disposition: form-data; name=\"\(key)\"; filename=\"\(image.filename).\(image.type)\"\r\n".data(using: .utf8)!)
                 body.append("Content-Type: image/\(image.type)\r\n\r\n".data(using: .utf8)!)
                 body.append(image.data)
                 body.append("\r\n".data(using: .utf8)!)

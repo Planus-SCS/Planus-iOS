@@ -14,7 +14,6 @@ class MyGroupNoticeEditViewController: UIViewController {
     var viewModel: MyGroupNoticeEditViewModel?
     
     var isNoticeFilled = false
-    var didChangeNoticeValue = PublishSubject<String?>()
     
     lazy var noticeTextView: UITextView = {
         let textView = UITextView(frame: .zero)
@@ -86,15 +85,22 @@ class MyGroupNoticeEditViewController: UIViewController {
         noticeTextView.text = notice
         isNoticeFilled = true
         
+        var noticeObservable = noticeTextView.rx.text
+            .withUnretained(self)
+            .map { vc, text in
+                return vc.isNoticeFilled ? text : nil
+        }
+        
         let input = MyGroupNoticeEditViewModel.Input(
             didTapSaveButton: saveButton.rx.tap.asObservable(),
-            didChangeNoticeValue: didChangeNoticeValue.asObservable()
+            didChangeNoticeValue: noticeObservable.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
         output
             .isSaveBtnEnabled
+            .compactMap { $0 }
             .withUnretained(self)
             .subscribe(onNext: { vc, isEnabled in
                 vc.saveButton.isEnabled = isEnabled
@@ -158,25 +164,8 @@ extension MyGroupNoticeEditViewController: UITextViewDelegate {
 
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if isNoticeFilled && textView == self.noticeTextView {
-            if text == "" { //backspace
-                if var textString = textView.text,
-                   !textString.isEmpty {
-                    textString = String(textString.dropLast())
-                    textView.text = textString
-                    didChangeNoticeValue.onNext(textString)
-                }
-                return false
-            } else if var textString = textView.text {
-                if textString.count == 1000 {
-                    return false
-                }
-                textString += text
-                
-                textView.text = textString
-                didChangeNoticeValue.onNext(textString)
-                
-                return false
-            }
+            let newLength = (textView.text?.count)! + text.count - range.length
+            return !(newLength > 1000)
         }
         return true
         

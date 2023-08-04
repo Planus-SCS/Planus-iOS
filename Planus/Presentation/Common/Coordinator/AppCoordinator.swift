@@ -47,14 +47,14 @@ final class AppCoordinator: Coordinator {
                 return refreshTokenUseCase.execute()
             }
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onSuccess: { [weak self] _ in
-                print("Succ")
+            .subscribe(onSuccess: { [weak self] token in
                 self?.showMainTabFlow()
             }, onFailure: { [weak self] error in
                 self?.showSignInFlow()
-                
             })
             .disposed(by: bag)
+        
+        // 마지막으로 리프레시 된놈을 얻어와야한다..!
             
     }
     

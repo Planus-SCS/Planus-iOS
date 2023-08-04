@@ -90,9 +90,15 @@ class GroupCreateViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
+        var noticeObservable = infoView.groupNoticeTextView.rx.text
+            .withUnretained(self)
+            .map { vc, text in
+                return vc.infoView.isDescEditing ? text : nil
+        }
+        
         let input = GroupCreateViewModel.Input(
-            titleChanged: infoView.didChangeNameValue.asObservable(),
-            noticeChanged: infoView.didChangeNoticeValue.asObservable(),
+            titleChanged: infoView.groupNameField.rx.text.skip(1).asObservable(),
+            noticeChanged: infoView.groupNoticeTextView.rx.text.skip(1).asObservable(),
             titleImageChanged: titleImageChanged.asObservable(),
             tagAdded: tagAdded.asObservable(),
             tagRemovedAt: tagRemovedAt.asObservable(),
@@ -370,8 +376,8 @@ extension GroupCreateViewController: PHPickerViewControllerDelegate { //PHPicker
                   var image = item as? UIImage  else { return }
             
             image = UIImage.resizeImage(image: image, targetWidth: 500)
-            if let data = image.pngData() {
-                self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "png"))
+            if let data = image.jpegData(compressionQuality: 1) {
+                self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "jpeg"))
             }
         }
     }

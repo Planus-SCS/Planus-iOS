@@ -102,6 +102,13 @@ class GroupCreateViewModel {
             .disposed(by: bag)
         
         input
+            .noticeChanged
+            .subscribe(onNext: {
+                print("notice: ", $0)
+            })
+            .disposed(by: bag)
+        
+        input
             .titleImageChanged
             .bind(to: titleImage)
             .disposed(by: bag)

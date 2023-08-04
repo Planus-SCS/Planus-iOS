@@ -9,9 +9,7 @@ import UIKit
 import RxSwift
 
 class GroupCreateInfoView: UIView {
-    var didChangeNameValue = PublishSubject<String?>()
-    var didChangeNoticeValue = PublishSubject<String?>()
-    
+
     var groupIntroduceTitleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "그룹 소개를 입력해주세요"
@@ -27,9 +25,7 @@ class GroupCreateInfoView: UIView {
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         return label
     }()
-    
-    var isDescEditing = false
-    
+        
     var groupImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
@@ -67,14 +63,17 @@ class GroupCreateInfoView: UIView {
         return textField
     }()
     
-    lazy var groupNoticeTextView: UITextView = {
-        let textView = UITextView(frame: .zero)
+    lazy var groupNoticeTextView: PlaceholderTextView = {
+        let textView = PlaceholderTextView(frame: .zero)
         textView.isScrollEnabled = true
-        textView.text = "간단한 그룹소개 및 공지사항을 입력해주세요"
-        textView.textColor = UIColor(hex: 0xBFC7D7)
+        textView.placeholder = "간단한 그룹소개 및 공지사항을 입력해주세요"
+        textView.textColor = .black
         textView.backgroundColor = .white
-        textView.font = UIFont(name: "Pretendard-Light", size: 16)
-        textView.textContainer.lineFragmentPadding = 10
+        textView.font = UIFont(name: "Pretendard-Regular", size: 16)
+        textView.textContainer.lineFragmentPadding = 0
+        textView.textContainerInset = .init(top: 10, left: 10, bottom: 10, right: 10)
+        
+        textView.placeholderColor = UIColor(hex: 0x7A7A7A)
         textView.backgroundColor = .white
         textView.layer.borderWidth = 1
         textView.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
@@ -143,43 +142,10 @@ class GroupCreateInfoView: UIView {
 }
 
 extension GroupCreateInfoView: UITextViewDelegate {
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            textView.text = "간단한 그룹소개 및 공지사항을 입력해주세요"
-            textView.textColor = UIColor(hex: 0x7A7A7A)
-            isDescEditing = false
-        }
-    }
-    
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if !(isDescEditing) {
-            textView.text = nil
-            textView.textColor = .black
-            isDescEditing = true
-        }
-    }
-
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if isDescEditing && textView == self.groupNoticeTextView {
-            if text == "" { //backspace
-                if var textString = textView.text,
-                   !textString.isEmpty {
-                    textString = String(textString.dropLast())
-                    textView.text = textString
-                    didChangeNoticeValue.onNext(textString)
-                }
-                return false
-            } else if var textString = textView.text {
-                if textString.count == 1000 {
-                    return false
-                }
-                textString += text
-                
-                textView.text = textString
-                didChangeNoticeValue.onNext(textString)
-                
-                return false
-            }
+        if textView == self.groupNoticeTextView {
+            let newLength = (textView.text?.count)! + text.count - range.length
+            return !(newLength > 1000)
         }
         return true
         
@@ -189,25 +155,8 @@ extension GroupCreateInfoView: UITextViewDelegate {
 extension GroupCreateInfoView: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField == self.groupNameField {
-            if string == "" { //backspace
-                if var textString = textField.text,
-                   !textString.isEmpty {
-                    textString = String(textString.dropLast())
-                    textField.text = textString
-                    didChangeNameValue.onNext(textString)
-                }
-                return false
-            } else if var textString = textField.text {
-                if textString.count == 10 { //추가해서 세글자가 되면? 없애야함
-                    return false
-                }
-                textString += string
-
-                textField.text = textString
-                didChangeNameValue.onNext(textString)
-
-                return false
-            }
+            let newLength = (textField.text?.count)! + string.count - range.length
+            return !(newLength > 10)
         }
         return true
     }

@@ -182,7 +182,7 @@ class MemberProfileViewController: UIViewController {
             .disposed(by: bag)
         
         headerView.nameLabel.text = output.memberName
-        headerView.introduceLabel.text = (output.memberDesc?.count != 0) ? output.memberDesc : "자기소개가 없습니다."
+        headerView.introduceLabel.text = output.memberDesc
         
         if let url = output.memberImageUrl {
             viewModel
@@ -204,12 +204,11 @@ class MemberProfileViewController: UIViewController {
     func configureHeaderViewLayout(memberName: String?, memberDesc: String?) {
         let mockView = MemberProfileHeaderView(
             mockName: memberName,
-            mockDesc: (memberDesc?.count != 0) ? memberDesc : "자기소개가 없습니다."
+            mockDesc: memberDesc
         )
         let estimatedSize = mockView
             .systemLayoutSizeFitting(CGSize(width: self.view.frame.width,
                                             height: 111))
-        print("estimated: ", estimatedSize.height)
 
         self.headerViewInitialHeight = estimatedSize.height
         

@@ -294,8 +294,8 @@ extension MyPageEditViewController: PHPickerViewControllerDelegate { //PHPicker 
                   var image = item as? UIImage  else { return }
             
             image = UIImage.resizeImage(image: image, targetWidth: 500)
-            if let data = image.pngData() {
-                self?.didChangedImage.onNext(ImageFile(filename: fileName, data: data, type: "png"))
+            if let data = image.jpegData(compressionQuality: 1) {
+                self?.didChangedImage.onNext(ImageFile(filename: fileName, data: data, type: "jpeg"))
             }
         }
     }
