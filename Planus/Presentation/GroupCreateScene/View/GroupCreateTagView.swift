@@ -170,6 +170,18 @@ class GroupTagInputViewController: UIViewController {
     
     lazy var stringCountValidateLabel: UILabel = self.validationLabelGenerator(text: "• 한번에 최대 7자 이하만 적을 수 있어요")
     lazy var charcaterValidateLabel: UILabel = self.validationLabelGenerator(text: "• 띄어쓰기, 특수 문자는 빼주세요")
+    
+    convenience init(isInfoViewing: Bool) {
+        self.init(nibName: nil, bundle: nil)
+        
+        self.isInfoViewing = isInfoViewing
+        self.preferredContentSize = isInfoViewing ?
+        CGSize(width: UIScreen.main.bounds.width - 80, height: 110) :
+        CGSize(width: UIScreen.main.bounds.width - 80, height: 60)
+        
+        self.stringCountValidateLabel.isHidden = !isInfoViewing
+        self.charcaterValidateLabel.isHidden = !isInfoViewing
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -218,9 +230,6 @@ class GroupTagInputViewController: UIViewController {
         self.view.addSubview(infoButton)
         self.view.addSubview(stringCountValidateLabel)
         self.view.addSubview(charcaterValidateLabel)
-        
-        self.stringCountValidateLabel.isHidden = true
-        self.charcaterValidateLabel.isHidden = true
     }
     
     func configureLayout() {
@@ -265,8 +274,8 @@ class GroupTagInputViewController: UIViewController {
     @objc func infoBtnTapped(_ sender: UIButton) {
         isInfoViewing = !isInfoViewing
         self.preferredContentSize = isInfoViewing ?
-        CGSize(width: self.view.bounds.width, height: 110) :
-        CGSize(width: self.view.bounds.width, height: 60)
+        CGSize(width: UIScreen.main.bounds.width - 80, height: 110) :
+        CGSize(width: UIScreen.main.bounds.width - 80, height: 60)
         
         self.stringCountValidateLabel.setAnimatedIsHidden(!isInfoViewing)
         self.charcaterValidateLabel.setAnimatedIsHidden(!isInfoViewing)

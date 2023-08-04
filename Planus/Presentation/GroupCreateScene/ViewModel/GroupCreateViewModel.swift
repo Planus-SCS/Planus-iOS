@@ -23,6 +23,7 @@ class GroupCreateViewModel {
 
     var showGroupCreateLoadPage = PublishSubject<(GroupCreate, ImageFile)>()
     var nowSaving = false
+    var initialTagPopedOver = true
     
     struct Input {
         var titleChanged: Observable<String?>

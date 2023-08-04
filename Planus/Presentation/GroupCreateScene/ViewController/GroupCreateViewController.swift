@@ -417,7 +417,11 @@ extension GroupCreateViewController: UICollectionViewDataSource, UICollectionVie
 
 extension GroupCreateViewController {
     func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell) {
-        let vc = GroupTagInputViewController(nibName: nil, bundle: nil)
+        guard let viewModel else { return }
+        
+        let vc = GroupTagInputViewController(isInfoViewing: viewModel.initialTagPopedOver)
+        viewModel.initialTagPopedOver = false
+        
         vc.tagAddclosure = { [weak self] tag in
             self?.tagAdded.onNext(tag)            
         }
@@ -438,9 +442,10 @@ extension GroupCreateViewController {
                     animated: true
                 )
             }
+            
+            self.keyboardHeightConstraint?.constant = keyboardHeight
         }
         
-        vc.preferredContentSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 60)
         vc.modalPresentationStyle = .popover
         let popover: UIPopoverPresentationController = vc.popoverPresentationController!
         popover.delegate = self

@@ -209,16 +209,12 @@ class MemberProfileViewController: UIViewController {
         let estimatedSize = mockView
             .systemLayoutSizeFitting(CGSize(width: self.view.frame.width,
                                             height: 111))
-        
-        let estimatedDescTextViewSize = mockView.introduceLabel.systemLayoutSizeFitting(CGSize(width: UIScreen.main.bounds.width - 96, height: UIView.layoutFittingCompressedSize.height))
-        
-        let sizeThatFitsTextView = mockView.introduceLabel.sizeThatFits(CGSize(width: UIScreen.main.bounds.width - 96, height: CGFloat(MAXFLOAT)))
-        let estimatedInitialHeight = estimatedSize.height + (sizeThatFitsTextView.height - estimatedDescTextViewSize.height)
-        
-        self.headerViewInitialHeight = estimatedInitialHeight
+        print("estimated: ", estimatedSize.height)
+
+        self.headerViewInitialHeight = estimatedSize.height
         
         headerView.snp.makeConstraints {
-            $0.height.equalTo(estimatedInitialHeight)
+            $0.height.equalTo(estimatedSize.height)
         }
         
         guard let headerViewHeightConstraint = headerView.constraints.first(where: { $0.firstAttribute == .height }) else { return }

@@ -45,16 +45,13 @@ class MemberProfileHeaderView: UIView {
         return label
     }()
     
-    var introduceLabel: UITextView = {
-        let textView = UITextView(frame: .zero)
-        textView.isEditable = false
-        textView.isScrollEnabled = false
-        textView.font = UIFont(name: "Pretendard-Regular", size: 14)
-        textView.textColor = UIColor(hex: 0x6F81A9)
-        textView.backgroundColor = UIColor(hex: 0xF5F5FB)
-
-        textView.textAlignment = .center
-        return textView
+    var introduceLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont(name: "Pretendard-Regular", size: 14)
+        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
     }()
     
     var separateView: UIView = {
@@ -71,16 +68,17 @@ class MemberProfileHeaderView: UIView {
     convenience init(mockName: String?, mockDesc: String?) {
         self.init(frame: .zero)
         
+        nameLabel.text = mockName
+        introduceLabel.text = mockDesc
+        
+        let optimalHeight = introduceLabel.sizeThatFits(CGSize(width: UIScreen.main.bounds.width - 96, height: CGFloat.greatestFiniteMagnitude)).height
+        
         introduceLabel.snp.remakeConstraints {
             $0.leading.trailing.equalToSuperview().inset(48)
             $0.top.equalTo(nameLabel.snp.bottom).offset(16)
             $0.bottom.equalToSuperview().offset(-25)
+            $0.height.equalTo(optimalHeight)
         }
-        
-        nameLabel.text = mockName
-        introduceLabel.text = mockDesc
-        
-        self.layoutIfNeeded()
     }
     
     override init(frame: CGRect) {

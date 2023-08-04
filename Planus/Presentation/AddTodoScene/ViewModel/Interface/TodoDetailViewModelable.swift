@@ -146,9 +146,7 @@ extension TodoDetailViewModelable {
             .map { vm, index in
                 return vm.categorys[index]
             }
-            .subscribe(onNext: { [weak self] ca in
-                self?.todoCategory.onNext(ca)
-            })
+            .bind(to: todoCategory)
             .disposed(by: bag)
         
         input

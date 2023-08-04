@@ -185,6 +185,9 @@ extension SignInViewController: ASAuthorizationControllerDelegate {
         
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
             let userIdentifier = appleIDCredential.user //이걸 키체인 같은데에 저장해서 앱 다시켤때마다 증명된지 확인
+            print("user: ", appleIDCredential.user)
+            print("fullName: ", appleIDCredential.fullName)
+            print("email: ", appleIDCredential.email)
             print("authorizationCode: ", String(data: appleIDCredential.authorizationCode ?? Data(), encoding: .utf8))
             print("identityToken: ", String(data: appleIDCredential.identityToken ?? Data(), encoding: .utf8))
             
