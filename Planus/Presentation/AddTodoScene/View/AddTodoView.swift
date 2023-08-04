@@ -16,17 +16,18 @@ class AddTodoView: UIView {
         titleField.textColor = .black
         return titleField
     }()
-    
-    var isMemoFilled: Bool = false
-    
-    lazy var memoTextView: UITextView = {
-        let textView = UITextView(frame: .zero)
+        
+    lazy var memoTextView: PlaceholderTextView = {
+        let textView = PlaceholderTextView(frame: .zero)
         textView.isScrollEnabled = false
-        textView.text = "메모를 입력하세요"
-        textView.textColor = UIColor(hex: 0xBFC7D7)
+        textView.textContainer.lineFragmentPadding = 0
+        textView.text = ""
+        textView.placeholder = "메모를 입력하세요"
+        textView.placeholderColor = UIColor(hex: 0xBFC7D7)
+        textView.textContainerInset = .init(top: 4, left: 0, bottom: 4, right: 0)
+        textView.textColor = .black
         textView.backgroundColor = UIColor(hex: 0xF5F5FB)
         textView.font = UIFont(name: "Pretendard-Light", size: 16)
-        textView.textContainer.lineFragmentPadding = 0
         return textView
     }()
         
@@ -218,6 +219,7 @@ class AddTodoView: UIView {
         
         titleField.snp.makeConstraints {
             $0.width.equalToSuperview()
+            $0.height.equalTo(30)
         }
  
         categoryStackView.snp.makeConstraints {
@@ -226,12 +228,18 @@ class AddTodoView: UIView {
 
         dateTimeStackView.snp.makeConstraints {
             $0.width.equalToSuperview()
+            $0.height.equalTo(30)
         }
 
         
         groupSelectionField.snp.makeConstraints {
             $0.width.equalToSuperview()
             $0.height.equalTo(30)
+        }
+        
+        memoTextView.snp.makeConstraints {
+            $0.width.equalToSuperview()
+            $0.height.greaterThanOrEqualTo(30)
         }
         
         separatorView.forEach { view in

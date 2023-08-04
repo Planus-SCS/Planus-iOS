@@ -13,7 +13,6 @@ class TodoDetailViewController: UIViewController {
     var bag = DisposeBag()
     var completionHandler: (() -> Void)?
     
-    var didChangedMemoValue = PublishSubject<String?>()
     var didSelectCategoryAt = PublishSubject<Int?>()
     var didRequestEditCategoryAt = PublishSubject<Int>() // 생성도 이걸로하자!
     var didSelectedDateRange = PublishSubject<DateRange>()
@@ -210,7 +209,7 @@ class TodoDetailViewController: UIViewController {
             dayRange: didSelectedDateRange.distinctUntilChanged().asObservable(),
             timeFieldChanged: didChangedTimeValue.asObservable(),
             groupSelectedAt: didSelectedGroupAt.distinctUntilChanged().asObservable(),
-            memoTextChanged: didChangedMemoValue.asObservable(),
+            memoTextChanged: addTodoView.memoTextView.rx.text.skip(1).distinctUntilChanged().asObservable(),
             creatingCategoryNameTextChanged: categoryCreateView.nameField.rx.text.asObservable(),
             creatingCategoryColorChanged: didChangednewCategoryColor.asObservable(),
             didRemoveCategory: didDeleteCategoryId.asObservable(),
@@ -230,22 +229,12 @@ class TodoDetailViewController: UIViewController {
 
         output
             .titleValueChanged
-            .observe(on: MainScheduler.asyncInstance) //메인스레드가 바인딩함
-            .subscribe(onNext: { [weak self] title in
-                print("vc: ", title)
-                self?.addTodoView.titleField.text = title
-            })
+            .bind(to: addTodoView.titleField.rx.text)
             .disposed(by: bag)
         
         output
             .memoValueChanged
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, memo in //여기서 isMemoField에 따라 ㄱㄱ하자
-                vc.addTodoView.isMemoFilled = (memo != nil)
-                vc.addTodoView.memoTextView.text = memo != nil ? memo : (output.mode == .view) ? "메모가 없습니다" : "메모를 입력하세요"
-                vc.addTodoView.memoTextView.textColor = (memo != nil) ? .black : UIColor(hex: 0xBFC7D7)
-            })
+            .bind(to: addTodoView.memoTextView.rx.text)
             .disposed(by: bag)
         
         output //계속 뺑그르르 돌고있다...
@@ -776,26 +765,4 @@ extension TodoDetailViewController: UITextFieldDelegate {
 }
 
 extension TodoDetailViewController: UITextViewDelegate {
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            textView.text = "메모를 입력하세요"
-            textView.textColor = UIColor(hex: 0xBFC7D7)
-            addTodoView.isMemoFilled = false
-        }
-    }
-    
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if !(addTodoView.isMemoFilled) {
-            textView.text = nil
-            textView.textColor = .black
-            addTodoView.isMemoFilled = true
-        }
-    }
-    
-    func textViewDidChange(_ textView: UITextView) {
-        if addTodoView.isMemoFilled {
-            print("delegate: ", textView.text)
-            didChangedMemoValue.onNext(textView.text)
-        }
-    }
 }
