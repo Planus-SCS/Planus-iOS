@@ -115,6 +115,7 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, rangeSet in
+                print("rangeSet fetched \(rangeSet)")
                 vc.collectionView.reloadSections(rangeSet)
             })
             .disposed(by: bag)

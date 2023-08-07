@@ -199,7 +199,7 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
             viewModel.cachedCellHeightForTodoCount[todosHeight] = targetHeight
             height = targetHeight
         }
-        
+                
         let dayViewModel = viewModel.mainDayList[section][indexPath.item]
         let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
         
@@ -250,3 +250,6 @@ extension NestedScrollableMonthlyCalendarCell {
         return layout
     }
 }
+
+// 옮기고, 리프레시를 해야하는데...!! 그게 안되고있음 타이밍이 겹쳐서... 그니까 이 타이밍 제어를 위해,,,
+// 1. 달력 그리기 -> 시작점으로 옮기기, 리프레시하기..?

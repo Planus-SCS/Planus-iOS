@@ -52,7 +52,6 @@ class MemberProfileViewModel {
     var cachedCellHeightForTodoCount = [Int: Double]()
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
-    var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
     var categoryFetched = BehaviorSubject<Void?>(value: nil)
     var needReloadSection = BehaviorSubject<IndexSet?>(value: nil)
     
@@ -128,18 +127,6 @@ class MemberProfileViewModel {
                 vm.initTodoList(date: date)
             })
             .disposed(by: bag)
-        
-        Observable.zip(
-            categoryFetched.compactMap { $0 },
-            todoListFetchedInIndexRange.compactMap { $0 }
-        )
-        .withUnretained(self)
-        .subscribe(onNext: { vm, arg in
-            let from = arg.1.0
-            let to = arg.1.1
-            vm.needReloadSection.onNext(IndexSet(from..<to))
-        })
-        .disposed(by: bag)
     }
     
     func transform(input: Input) -> Output {
@@ -317,7 +304,7 @@ class MemberProfileViewModel {
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 self.todos.merge(todoDict) { (_, new) in new }
-                self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
+                self.needReloadSection.onNext(IndexSet(fromIndex...toIndex))
             })
             .disposed(by: bag)
     }
