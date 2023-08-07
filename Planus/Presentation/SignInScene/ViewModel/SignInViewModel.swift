@@ -7,6 +7,7 @@
 
 import Foundation
 import RxSwift
+import AuthenticationServices
 
 struct SignInViewModelActions {
     var showWebViewSignInPage: ((_ type: SocialRedirectionType, _ completion: @escaping (String) -> Void) -> Void)?
@@ -17,10 +18,13 @@ class SignInViewModel {
     var bag = DisposeBag()
     
     var actions: SignInViewModelActions?
+    
+    var showAppleSignInPageWith = PublishSubject<ASAuthorizationAppleIDRequest>()
 
     let kakaoSignInUseCase: KakaoSignInUseCase
     let googleSignInUseCase: GoogleSignInUseCase
     let appleSignInUseCase: AppleSignInUseCase
+    let convertToSha256UseCase: ConvertToSha256UseCase
     
     let setTokenUseCase: SetTokenUseCase
         
@@ -32,18 +36,20 @@ class SignInViewModel {
     }
     
     struct Output {
-        var showAppleSignInPage: Observable<Void>
+        var showAppleSignInPage: Observable<ASAuthorizationAppleIDRequest>
     }
     
     init(
         kakaoSignInUseCase: KakaoSignInUseCase,
         googleSignInUseCase: GoogleSignInUseCase,
         appleSignInUseCase: AppleSignInUseCase,
+        convertToSha256UseCase: ConvertToSha256UseCase,
         setTokenUseCase: SetTokenUseCase
     ) {
         self.kakaoSignInUseCase = kakaoSignInUseCase
         self.googleSignInUseCase = googleSignInUseCase
         self.appleSignInUseCase = appleSignInUseCase
+        self.convertToSha256UseCase = convertToSha256UseCase
         self.setTokenUseCase = setTokenUseCase
     }
     
@@ -72,8 +78,10 @@ class SignInViewModel {
         
         input
             .appleSignInTapped
-            .subscribe(onNext: {
-                showAppleSignInPage.onNext(())
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                let request = vm.generateAppleSignInRequest()
+                vm.showAppleSignInPageWith.onNext(request)
             })
             .disposed(by: bag)
         
@@ -86,10 +94,17 @@ class SignInViewModel {
             .disposed(by: bag)
         
         return Output(
-            showAppleSignInPage: showAppleSignInPage.asObservable()
+            showAppleSignInPage: showAppleSignInPageWith.asObservable()
         )
     }
     
+    func generateAppleSignInRequest() -> ASAuthorizationAppleIDRequest {
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = convertToSha256UseCase.execute(AppleSignInNonce.nonce)
+        return request
+    }
     
     func signInKakao() {
         actions?.showWebViewSignInPage?(.kakao) { [weak self] code in

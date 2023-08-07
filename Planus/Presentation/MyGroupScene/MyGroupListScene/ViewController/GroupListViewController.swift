@@ -262,13 +262,6 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
         return cell
     }
     
-//    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-//        if (refreshControl.isRefreshing) {
-//            self.refreshControl.endRefreshing()
-////            refreshRequired.onNext(())
-//        }
-//    }
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         tappedItemAt.onNext(indexPath.item)
     }

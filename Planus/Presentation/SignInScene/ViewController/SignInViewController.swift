@@ -123,8 +123,8 @@ class SignInViewController: UIViewController {
             .showAppleSignInPage
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.appleSignInBtnTapped()
+            .subscribe(onNext: { vc, request in
+                vc.showASAuthController(request: request)
             })
             .disposed(by: bag)
     }
@@ -165,11 +165,7 @@ class SignInViewController: UIViewController {
         }
     }
 
-    func appleSignInBtnTapped() {
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-        
+    func showASAuthController(request: ASAuthorizationAppleIDRequest) {
         let controller = ASAuthorizationController(authorizationRequests: [request])
         
         controller.delegate = self
@@ -185,7 +181,15 @@ extension SignInViewController: ASAuthorizationControllerDelegate {
         
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
            let identityToken = String(data: appleIDCredential.identityToken ?? Data(), encoding: .utf8) {
-            didReceiveAppleIdentityToken.onNext((identityToken, appleIDCredential.fullName))
+            var fullName: PersonNameComponents? = nil
+            
+            if let userFullName = appleIDCredential.fullName,
+               let givenName = userFullName.givenName,
+               let familyName = userFullName.familyName {
+                fullName = PersonNameComponents(givenName: givenName, familyName: familyName)
+            }
+            
+            didReceiveAppleIdentityToken.onNext((identityToken, fullName))
         }
     }
 

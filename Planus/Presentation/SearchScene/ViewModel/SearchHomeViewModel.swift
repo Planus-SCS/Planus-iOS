@@ -126,6 +126,7 @@ class SearchHomeViewModel {
     
     func fetchInitialresult() {
         page = 0
+        print("remove!")
         result.removeAll()
         fetchResult(isInitial: true)
     }

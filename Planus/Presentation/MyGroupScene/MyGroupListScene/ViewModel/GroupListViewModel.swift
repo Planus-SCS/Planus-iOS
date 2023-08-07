@@ -115,6 +115,7 @@ class GroupListViewModel {
         
         input
             .tappedAt
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 guard let id = vm.groupList?[index].groupId else { return }

@@ -50,6 +50,10 @@ final class AppCoordinator: Coordinator {
             .subscribe(onSuccess: { [weak self] token in
                 self?.showMainTabFlow()
             }, onFailure: { [weak self] error in
+                if let ne = error as? NetworkManagerError,
+                   case NetworkManagerError.clientError(let int, let string) = ne {
+                    print(string)
+                }
                 self?.showSignInFlow()
             })
             .disposed(by: bag)

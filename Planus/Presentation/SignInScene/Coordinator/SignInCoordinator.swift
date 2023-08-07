@@ -33,11 +33,13 @@ class SignInCoordinator: Coordinator {
         let kakaoSignInUseCase = DefaultKakaoSignInUseCase(socialAuthRepository: repo)
         let googleSignInUseCase = DefaultGoogleSignInUseCase(socialAuthRepository: repo)
         let appleSignInUseCase = DefaultAppleSignInUseCase(socialAuthRepository: repo)
+        let converter = DefaultConvertToSha256UseCase()
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
         let vm = SignInViewModel(
             kakaoSignInUseCase: kakaoSignInUseCase,
             googleSignInUseCase: googleSignInUseCase,
             appleSignInUseCase: appleSignInUseCase,
+            convertToSha256UseCase: converter,
             setTokenUseCase: setTokenUseCase
         )
         

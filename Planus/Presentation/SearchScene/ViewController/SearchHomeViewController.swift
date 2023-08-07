@@ -148,6 +148,7 @@ class SearchHomeViewController: UIViewController {
             .subscribe(onNext: { vc, range in
                 let indexList = Array(range).map { IndexPath(item: $0, section: 0) }
                 vc.resultCollectionView.performBatchUpdates({
+                    print("addition")
                     vc.resultCollectionView.insertItems(at: indexList)
                 }, completion: { _ in
                     vc.isLoading = false
@@ -162,6 +163,7 @@ class SearchHomeViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.resultCollectionView.performBatchUpdates({
+                    print("init")
                     vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
                 }, completion: { _ in
                     if vc.refreshControl.isRefreshing {
@@ -222,6 +224,7 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        print("\(indexPath.item), \(viewModel?.result.count)")
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
               let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
         cell.fill(
