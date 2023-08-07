@@ -80,6 +80,8 @@
 		6A1B3F1629D7252900BFB3A6 /* notificationIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1B3F1329D7252900BFB3A6 /* notificationIcon@2x.png */; };
 		6A1B3F1829D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1B3F1729D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift */; };
 		6A2186042A7D11FD005CF505 /* PlaceholderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */; };
+		6A2186262A811CEA005CF505 /* DefaultAppleSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */; };
+		6A2186282A811D53005CF505 /* AppleSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */; };
 		6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */; };
 		6A24F83129CB45170000FD64 /* TodoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83029CB45170000FD64 /* TodoCoordinator.swift */; };
 		6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */; };
@@ -609,6 +611,8 @@
 		6A1B3F1329D7252900BFB3A6 /* notificationIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "notificationIcon@2x.png"; sourceTree = "<group>"; };
 		6A1B3F1729D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupSectionHeaderView.swift; sourceTree = "<group>"; };
 		6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTextView.swift; sourceTree = "<group>"; };
+		6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultAppleSignInUseCase.swift; sourceTree = "<group>"; };
+		6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInUseCase.swift; sourceTree = "<group>"; };
 		6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCalendarCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83029CB45170000FD64 /* TodoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoordinator.swift; sourceTree = "<group>"; };
@@ -2413,6 +2417,7 @@
 			children = (
 				6A08ADD529C8D048005947D2 /* DefaultKakaoSignInUseCase.swift */,
 				6A24F84D29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift */,
+				6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */,
 			);
 			path = SignIn;
 			sourceTree = "<group>";
@@ -2466,6 +2471,7 @@
 			children = (
 				6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */,
 				6A24F84B29CB6DC60000FD64 /* GoogleSignInUseCase.swift */,
+				6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */,
 			);
 			path = SignIn;
 			sourceTree = "<group>";
@@ -2996,6 +3002,7 @@
 				6A919A0B2A210C7100108BF4 /* DefaultFetchSearchResultUseCase.swift in Sources */,
 				6A9A07F129D40B3C0051AD43 /* DayPickerViewController.swift in Sources */,
 				6A2BB1A729E404DA0053C5CA /* MyPageMainViewController.swift in Sources */,
+				6A2186262A811CEA005CF505 /* DefaultAppleSignInUseCase.swift in Sources */,
 				6AC079222A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift in Sources */,
 				6A919A072A20E9C000108BF4 /* DefaultFetchGroupMemberDailyCalendarUseCase.swift in Sources */,
 				6A2744152A0B8389008FB4F5 /* SetOnlineUseCase.swift in Sources */,
@@ -3145,6 +3152,7 @@
 				6AA3BAC72A24A27000E5B8A2 /* RecentSearch.xcdatamodeld in Sources */,
 				6A9199BD2A14A3F600108BF4 /* UIView+Ext.swift in Sources */,
 				6A9199BF2A14E5E200108BF4 /* GroupName.swift in Sources */,
+				6A2186282A811D53005CF505 /* AppleSignInUseCase.swift in Sources */,
 				6AA3BADB2A24E7F100E5B8A2 /* DefaultWithdrawGroupUseCase.swift in Sources */,
 				6AC079242A08EC4A007ACDB8 /* UpdateProfileUseCase.swift in Sources */,
 				6A9AAB0B29F901CF002A6DAF /* TodoDTO.swift in Sources */,

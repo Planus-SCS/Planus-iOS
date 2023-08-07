@@ -20,6 +20,7 @@ class SignInViewModel {
 
     let kakaoSignInUseCase: KakaoSignInUseCase
     let googleSignInUseCase: GoogleSignInUseCase
+    let appleSignInUseCase: AppleSignInUseCase
     
     let setTokenUseCase: SetTokenUseCase
         
@@ -27,7 +28,7 @@ class SignInViewModel {
         var kakaoSignInTapped: Observable<Void>
         var googleSignInTapped: Observable<Void>
         var appleSignInTapped: Observable<Void>
-        var didReceiveAppleIdentityToken: Observable<String>
+        var didReceiveAppleIdentityToken: Observable<(String, PersonNameComponents?)>
     }
     
     struct Output {
@@ -37,10 +38,12 @@ class SignInViewModel {
     init(
         kakaoSignInUseCase: KakaoSignInUseCase,
         googleSignInUseCase: GoogleSignInUseCase,
+        appleSignInUseCase: AppleSignInUseCase,
         setTokenUseCase: SetTokenUseCase
     ) {
         self.kakaoSignInUseCase = kakaoSignInUseCase
         self.googleSignInUseCase = googleSignInUseCase
+        self.appleSignInUseCase = appleSignInUseCase
         self.setTokenUseCase = setTokenUseCase
     }
     
@@ -77,8 +80,8 @@ class SignInViewModel {
         input
             .didReceiveAppleIdentityToken
             .withUnretained(self)
-            .subscribe(onNext: { vm, token in
-                vm.signInApple(token: token)
+            .subscribe(onNext: { vm, personalInfo in
+                vm.signInApple(identityToken: personalInfo.0, fullName: personalInfo.1)
             })
             .disposed(by: bag)
         
@@ -117,7 +120,14 @@ class SignInViewModel {
         }
     }
     
-    func signInApple(token: String) {
-        
+    func signInApple(identityToken: String, fullName: PersonNameComponents?) {
+        self.appleSignInUseCase.execute(identityToken: identityToken, fullName: fullName)
+            .subscribe(onSuccess: { [weak self] token in
+                self?.setTokenUseCase.execute(token: token)
+                self?.actions?.showMainTabFlow?()
+            }, onFailure: { error in
+                
+            })
+            .disposed(by: bag)
     }
 }

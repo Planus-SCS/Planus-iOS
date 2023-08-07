@@ -32,10 +32,12 @@ class SignInCoordinator: Coordinator {
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
         let kakaoSignInUseCase = DefaultKakaoSignInUseCase(socialAuthRepository: repo)
         let googleSignInUseCase = DefaultGoogleSignInUseCase(socialAuthRepository: repo)
+        let appleSignInUseCase = DefaultAppleSignInUseCase(socialAuthRepository: repo)
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
         let vm = SignInViewModel(
             kakaoSignInUseCase: kakaoSignInUseCase,
             googleSignInUseCase: googleSignInUseCase,
+            appleSignInUseCase: appleSignInUseCase,
             setTokenUseCase: setTokenUseCase
         )
         

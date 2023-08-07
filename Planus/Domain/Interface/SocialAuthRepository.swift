@@ -11,5 +11,5 @@ import RxSwift
 protocol SocialAuthRepository {
     func kakaoSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>>
     func googleSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>>
-    func appleSignIn()
+    func appleSignIn(requestDTO: AppleSignInRequestDTO) -> Single<ResponseDTO<TokenResponseDataDTO>>
 }

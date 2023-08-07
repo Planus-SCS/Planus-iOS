@@ -46,7 +46,23 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
         )
     }
     
-    func appleSignIn() {
+    func appleSignIn(requestDTO: AppleSignInRequestDTO) -> Single<ResponseDTO<TokenResponseDataDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.oauthApple,
+            requestType: .post,
+            body: requestDTO,
+            query: nil,
+            header: ["Content-Type": "application/json"]
+        )
         
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<TokenResponseDataDTO>.self
+        )
     }
+}
+
+struct AppleSignInRequestDTO: Codable {
+    var identityToken: String
+    var fullName: PersonNameComponents?
 }
