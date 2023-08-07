@@ -34,6 +34,8 @@ class DailyCalendarCell: SpringableCollectionViewCell {
     
     var views: [UIView] = []
     
+    var contentViewHeightConst: NSLayoutConstraint!
+    
     lazy var stackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .vertical
@@ -63,7 +65,8 @@ class DailyCalendarCell: SpringableCollectionViewCell {
     
     convenience init(mockFrame frame: CGRect) {
         self.init(frame: frame)
-
+        contentViewHeightConst.isActive = false
+        
         stackView.snp.remakeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
             $0.leading.equalToSuperview().inset(1)
@@ -88,7 +91,8 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         numberLabel.layer.cornerRadius = numberLabel.bounds.width/2
     }
     
-    func configureView() {
+    func configureView() { //여기서 콘텐츠뷰의 높이를 조정하기 위해서,,,, 스택뷰 밑에 뭔가를 둬서 크기를 조정해야하나...?
+        // 아니다 콘텐츠뷰를 따로 해보자... 콘텐츠뷰? -> 레이아웃 용, 그 외에는? 그냥 용. 콘텐츠뷰를 클리어로? 원래 클리어일걸?
         self.addSubview(numberLabel)
         numberLabel.snp.makeConstraints {
             $0.top.equalTo(self.snp.top).offset(4)
@@ -101,9 +105,25 @@ class DailyCalendarCell: SpringableCollectionViewCell {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
             $0.leading.equalToSuperview()
         }
+        
+        contentView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.snp.makeConstraints {
+            $0.height.equalTo(120)
+        }
+        
+        contentViewHeightConst = contentView.constraints.first(where: { $0.firstAttribute == .height })
     }
     
-    func fill(day: String, state: MonthStateOfDay, weekDay: WeekDay, isToday: Bool, isHoliday: Bool) {
+    func fill(day: String, state: MonthStateOfDay, weekDay: WeekDay, isToday: Bool, isHoliday: Bool, height: CGFloat) {
+        
+        if contentViewHeightConst.constant != height {
+            contentViewHeightConst.constant = height
+        }
+
         numberLabel.text = day
         
         var alpha: Double

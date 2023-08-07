@@ -20,10 +20,7 @@ class NestedScrollableMonthlyCalendarCell: NestedScrollableCell {
     var bag: DisposeBag?
     
     lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         cv.alwaysBounceVertical = true
         return cv
     }()
@@ -67,7 +64,7 @@ class NestedScrollableMonthlyCalendarCell: NestedScrollableCell {
     }
 }
 
-extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
+extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
@@ -85,25 +82,6 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
             return UICollectionViewCell()
         }
         
-        let dayViewModel = viewModel.mainDayList[section][indexPath.item]
-        let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
-        
-        cell.fill(
-            day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
-            state: dayViewModel.state,
-            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
-            isToday: dayViewModel.date == viewModel.today,
-            isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil
-        )
-        
-        cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let section,
-              let viewModel else { return CGSize() }
-
         let screenWidth = UIScreen.main.bounds.width
         if indexPath.item%7 == 0 {
             (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
@@ -196,17 +174,18 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
                 let bHeight = (b.holiday != nil) ? b.holiday!.0 : (b.singleTodo.last != nil) ?
                 b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
                 return aHeight < bHeight
-            }) else { return CGSize() }
+            }) else { return UICollectionViewCell() }
                 
         guard var todosHeight = (maxItem.holiday != nil) ?
                 maxItem.holiday?.0 : (maxItem.singleTodo.count != 0) ?
                 maxItem.singleTodo.last?.0 : (maxItem.periodTodo.count != 0) ?
-                maxItem.periodTodo.last?.0 : 0 else { return CGSize() }
+                maxItem.periodTodo.last?.0 : 0 else { return UICollectionViewCell() }
         
+        var height: CGFloat
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
-            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: cellHeight)
+            height = cellHeight
         } else {
-            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
+            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 120))
             mockCell.socialFill(periodTodoList: maxItem.periodTodo, singleTodoList: maxItem.singleTodo, holiday: maxItem.holiday)
             
             mockCell.layoutIfNeeded()
@@ -216,10 +195,25 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
                 height: UIView.layoutFittingCompressedSize.height
             ))
             
-            let targetHeight = (estimatedSize.height > 116) ? estimatedSize.height : 116
+            let targetHeight = (estimatedSize.height > 120) ? estimatedSize.height : 120
             viewModel.cachedCellHeightForTodoCount[todosHeight] = targetHeight
-            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: targetHeight)
+            height = targetHeight
         }
+        
+        let dayViewModel = viewModel.mainDayList[section][indexPath.item]
+        let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
+        
+        cell.fill(
+            day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
+            state: dayViewModel.state,
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
+            isToday: dayViewModel.date == viewModel.today,
+            isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil,
+            height: height
+        )
+        
+        cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
+        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
@@ -227,5 +221,32 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
             isSingleSelected?.onNext(IndexPath(item: indexPath.item, section: section))
         }
         return false
+    }
+}
+
+extension NestedScrollableMonthlyCalendarCell {
+    private func createLayout() -> UICollectionViewLayout {
+        
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(Double(1)/Double(7)),
+            heightDimension: .estimated(120)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .estimated(120)
+        )
+        
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 7)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        configuration.scrollDirection = .vertical
+        
+        let layout = UICollectionViewCompositionalLayout(section: section, configuration: configuration)
+        
+        return layout
     }
 }

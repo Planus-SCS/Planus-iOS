@@ -46,10 +46,7 @@ class MonthlyCalendarCell: UICollectionViewCell {
     }
     
     lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         cv.dataSource = self
         cv.delegate = self
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
@@ -133,7 +130,7 @@ class MonthlyCalendarCell: UICollectionViewCell {
     }
 }
 
-extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
+extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
@@ -149,33 +146,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
               let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
             return UICollectionViewCell()
         }
-        
-        
-        let dayViewModel = viewModel.mainDays[section][indexPath.item]
-        let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
 
-        cell.delegate = self
-        cell.fill(
-            day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
-            state: dayViewModel.state,
-            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
-            isToday: dayViewModel.date == viewModel.today,
-            isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil
-        )
-
-        cell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
-        // 여기서 총 높이를 구해서 viewModel에다가 저장해둬야함..! fill 메서드에서 계산하니까 저기서 직접 해줘도 될거같은데?
-        
-        return cell
-    }
-    
-    
-    // FIXME: 리펙토링 시급 (이부분 간소화해서 뷰모델쪽으로 옮기자)
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let section,
-              let viewModel else { return CGSize() }
-
-        let screenWidth = UIScreen.main.bounds.width
         
         if indexPath.item%7 == 0 {
             (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
@@ -264,7 +235,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         }
         
         let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
-
+        
         guard let maxItem = viewModel.filteredTodoCache[weekRange]
             .max(by: { a, b in
                 let aHeight = (a.holiday != nil) ? a.holiday!.0 : (a.singleTodo.last != nil) ?
@@ -272,19 +243,18 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 let bHeight = (b.holiday != nil) ? b.holiday!.0 : (b.singleTodo.last != nil) ?
                 b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
                 return aHeight < bHeight
-            }) else { return CGSize() }
+            }) else { return UICollectionViewCell() }
                 
         guard var todosHeight = (maxItem.holiday != nil) ?
                 maxItem.holiday?.0 : (maxItem.singleTodo.count != 0) ?
                 maxItem.singleTodo.last?.0 : (maxItem.periodTodo.count != 0) ?
-                maxItem.periodTodo.last?.0 : 0 else { return CGSize() }
+                maxItem.periodTodo.last?.0 : 0 else { return UICollectionViewCell() }
 
-        // 여기서 공휴일까지 포함시켜서 높이를 측정해줘야한다..!!!
-        
+        var height: CGFloat
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
-            return CGSize(width: screenWidth/Double(7) - 0.01, height: cellHeight)
+            height = cellHeight
         } else {
-            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
+            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: 120))
             mockCell.delegate = self
             mockCell.fill(
                 periodTodoList: maxItem.periodTodo,
@@ -295,16 +265,35 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             mockCell.layoutIfNeeded()
             
             let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
-                width: Double(1)/Double(7) * screenWidth,
+                width: Double(1)/Double(7) * UIScreen.main.bounds.width,
                 height: UIView.layoutFittingCompressedSize.height
             ))
-            
-            let targetHeight = (estimatedSize.height > 116) ? estimatedSize.height : 116
-            viewModel.cachedCellHeightForTodoCount[todosHeight] = targetHeight
-            return CGSize(width: screenWidth/Double(7) - 0.01, height: targetHeight)
-        }
 
+            // 왜 이게 0으로 나오는가..? 이해할수가 없구만,,,
+            let targetHeight = (estimatedSize.height > 120) ? estimatedSize.height : 120
+            height = targetHeight
+        }
+        
+        
+        let dayViewModel = viewModel.mainDays[section][indexPath.item]
+        let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
+
+        cell.delegate = self
+        cell.fill(
+            day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
+            state: dayViewModel.state,
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
+            isToday: dayViewModel.date == viewModel.today,
+            isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil,
+            height: height
+        )
+
+        cell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
+        // 여기서 총 높이를 구해서 viewModel에다가 저장해둬야함..! fill 메서드에서 계산하니까 저기서 직접 해줘도 될거같은데?
+        
+        return cell
     }
+    
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let section {
@@ -450,5 +439,32 @@ extension MonthlyCalendarCell: DailyCalendarCellDelegate {
     
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfGroupCategoryId id: Int) -> CategoryColor? {
         return viewModel?.groupCategories[id]?.color
+    }
+}
+
+extension MonthlyCalendarCell {
+    private func createLayout() -> UICollectionViewLayout {
+        
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(Double(1)/Double(7)),
+            heightDimension: .estimated(120)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .estimated(120)
+        )
+        
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 7)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        configuration.scrollDirection = .vertical
+        
+        let layout = UICollectionViewCompositionalLayout(section: section, configuration: configuration)
+        
+        return layout
     }
 }

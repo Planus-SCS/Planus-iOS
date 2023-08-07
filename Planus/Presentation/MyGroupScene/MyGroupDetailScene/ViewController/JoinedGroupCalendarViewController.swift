@@ -21,12 +21,7 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
     var spinner = UIActivityIndicatorView(style: .medium)
     
     lazy var calendarCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        layout.headerReferenceSize = CGSize(width: self.view.frame.width, height: 80)
-        
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
         cv.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
         cv.register(JoinedGroupDetailCalendarHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier)
@@ -154,11 +149,31 @@ class JoinedGroupCalendarViewController: NestedScrollableViewController {
     
 }
 
-extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
+extension JoinedGroupCalendarViewController: UICollectionViewDelegate {
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let viewModel else { return CGSize() }
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        didTappedItemAt.onNext(indexPath.item)
+        return false
+    }
+    
 
+}
+
+extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return viewModel?.mainDayList.count ?? 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let viewModel,
+              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
+            return UICollectionViewCell()
+        }
+        
         let screenWidth = UIScreen.main.bounds.width
         
         if indexPath.item%7 == 0 {
@@ -252,17 +267,18 @@ extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout,
                 let bHeight = (b.holiday != nil) ? b.holiday!.0 : (b.singleTodo.last != nil) ?
                 b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
                 return aHeight < bHeight
-            }) else { return CGSize() }
+            }) else { return UICollectionViewCell() }
                 
         guard var todosHeight = (maxItem.holiday != nil) ?
                 maxItem.holiday?.0 : (maxItem.singleTodo.count != 0) ?
                 maxItem.singleTodo.last?.0 : (maxItem.periodTodo.count != 0) ?
-                maxItem.periodTodo.last?.0 : 0 else { return CGSize() }
+                maxItem.periodTodo.last?.0 : 0 else { return UICollectionViewCell() }
         
+        var height: CGFloat
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
-            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: cellHeight)
+            height = cellHeight
         } else {
-            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
+            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 120))
             mockCell.socialFill(periodTodoList: maxItem.periodTodo, singleTodoList: maxItem.singleTodo, holiday: maxItem.holiday)
             
             mockCell.layoutIfNeeded()
@@ -272,33 +288,9 @@ extension JoinedGroupCalendarViewController: UICollectionViewDelegateFlowLayout,
                 height: UIView.layoutFittingCompressedSize.height
             ))
             
-            let targetHeight = (estimatedSize.height > 116) ? estimatedSize.height : 116
+            let targetHeight = (estimatedSize.height > 120) ? estimatedSize.height : 120
             viewModel.cachedCellHeightForTodoCount[todosHeight] = targetHeight
-            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: targetHeight)
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        didTappedItemAt.onNext(indexPath.item)
-        return false
-    }
-    
-
-}
-
-extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel?.mainDayList.count ?? 0
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let viewModel,
-              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
-            return UICollectionViewCell()
+            height = targetHeight
         }
         
         let dayViewModel = viewModel.mainDayList[indexPath.item]
@@ -309,7 +301,8 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
             state: dayViewModel.state,
             weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
             isToday: dayViewModel.date == viewModel.today,
-            isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil
+            isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil,
+            height: height
         )
         
         cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
@@ -355,7 +348,46 @@ extension JoinedGroupCalendarViewController: UIPopoverPresentationControllerDele
     }
 }
 
+extension JoinedGroupCalendarViewController {
+    private func createLayout() -> UICollectionViewLayout {
+        
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(Double(1)/Double(7)),
+            heightDimension: .estimated(120)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .estimated(120)
+        )
+        
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 7)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        configuration.scrollDirection = .vertical
+                
+        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
+                                                       heightDimension: .absolute(80))
+        
+        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: sectionHeaderSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
+
+        section.boundarySupplementaryItems = [sectionHeader]
+        
+        let layout = UICollectionViewCompositionalLayout(section: section, configuration: configuration)
+        
+        return layout
+    }
+}
+
 protocol JoinedGroupCalendarViewControllerDelegate: AnyObject {
     func isLeader() -> Bool?
     func calendarViewControllerGetGroupTitle() -> String?
 }
+
