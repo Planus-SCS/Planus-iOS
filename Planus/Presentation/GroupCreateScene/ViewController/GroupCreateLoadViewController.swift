@@ -18,6 +18,8 @@ class GroupCreateLoadViewController: UIViewController {
         "조금만 기다려 주세요"
     ]
     
+    var failureHandler: ((String?) -> Void)?
+    
     var logoImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "EmptyResultLogo"))
         return imageView
@@ -110,6 +112,16 @@ class GroupCreateLoadViewController: UIViewController {
                 
                 navi.setViewControllers(children, animated: true)
 
+            })
+            .disposed(by: bag)
+        
+        output
+            .didCreateFailed
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.navigationController?.popViewController(animated: true)
+                vc.failureHandler?(message)
             })
             .disposed(by: bag)
     }

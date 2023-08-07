@@ -202,7 +202,15 @@ class GroupCreateViewController: UIViewController {
                 let viewModel = GroupCreateLoadViewModel(getTokenUseCase: getToken, refreshTokenUseCase: refToken, groupCreateUseCase: groupCreate)
                 viewModel.setGroupCreate(groupCreate: groupInfo.0, image: groupInfo.1)
                 let viewController = GroupCreateLoadViewController(viewModel: viewModel)
+                viewController.failureHandler = { message in
+                    vc.viewModel?.nowSaving = false
+                    
+                    if let message {
+                        vc.showToast(message: message, type: .warning)
+                    }
+                }
                 vc.navigationController?.pushViewController(viewController, animated: true)
+                
             })
             .disposed(by: bag)
         

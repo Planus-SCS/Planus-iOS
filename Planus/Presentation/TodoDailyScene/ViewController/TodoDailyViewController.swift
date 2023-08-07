@@ -252,14 +252,14 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
-        
+                
         cell.fill(
             title: todoItem.title,
             time: todoItem.startTime,
             category: category.color,
             isGroup: todoItem.isGroupTodo,
             isScheduled: todoItem.startDate != todoItem.endDate,
-            isMemo: todoItem.memo != nil,
+            isMemo: !(todoItem.memo ?? "").isEmpty,
             completion: todoItem.isCompleted,
             isOwner: true
         )

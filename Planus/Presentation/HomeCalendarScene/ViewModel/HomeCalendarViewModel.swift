@@ -472,30 +472,18 @@ class HomeCalendarViewModel {
     }
 
     func scrolledTo(index: Int) {
-        let indexBefore = currentIndex
-        currentIndex = index
-        
-        updateCurrentDate(direction: (indexBefore == index) ? .none : (indexBefore > index) ? .left : .right)
+        updateCurrentDate(index: index)
         checkCacheLoadNeed()
     }
     
-    func updateCurrentDate(direction: ScrollDirection) {
-        guard let previousDate = try? self.currentDate.value() else { return }
-        switch direction {
-        case .left:
-            currentDate.onNext(self.calendar.date(
-                                byAdding: DateComponents(month: -1),
-                                to: previousDate
-                        ))
-        case .right:
-            currentDate.onNext(self.calendar.date(
-                                byAdding: DateComponents(month: 1),
-                                to: previousDate
-                        ))
-        case .none:
-            return
-        }
+    func updateCurrentDate(index: Int) { //첫달부터 더해서 계산해야한다..! (첫달을 0에서 가져와도 되는건가..?)
+        let firstDate = self.calendar.startDayOfMonth(date: mainDays[0][7].date)
+        currentDate.onNext(self.calendar.date(
+            byAdding: DateComponents(month: index),
+            to: firstDate
+        ))
     }
+    
     
     // 여기만 하면 이제 당분간은 투두 받아오는 부분 걱정도 없을듯? 근데 애니메이션을 어케 적용해야되냐?????
     func checkCacheLoadNeed() {
