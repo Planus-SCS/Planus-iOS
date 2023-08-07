@@ -20,6 +20,7 @@ class MemberProfileViewController: UIViewController {
     var isSingleSelected = PublishSubject<IndexPath>()
     var indexChanged = PublishSubject<Int>()
     var isMonthChanged = PublishSubject<Date>()
+    var didInitialCalendarGenerated = false
     
     let headerView = MemberProfileHeaderView(frame: .zero)
     let calendarHeaderView = MemberProfileCalendarHeaderView(frame: .zero)
@@ -105,8 +106,12 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
-                vc.collectionView.reloadData()
-                vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
+                vc.collectionView.performBatchUpdates({
+                    vc.collectionView.reloadData()
+                }, completion: {
+                    vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)\
+                    vc.didInitialCalendarGenerated = true
+                })
             })
             .disposed(by: bag)
             
@@ -115,7 +120,6 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, rangeSet in
-                print("rangeSet fetched \(rangeSet)")
                 vc.collectionView.reloadSections(rangeSet)
             })
             .disposed(by: bag)
@@ -319,7 +323,7 @@ extension MemberProfileViewController: UICollectionViewDataSource, UICollectionV
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
-        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) else { return }
+        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && didInitialCalendarGenerated else { return }
         indexChanged.onNext(Int(round(floatedIndex)))
     }
     

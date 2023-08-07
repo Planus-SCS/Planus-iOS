@@ -22,6 +22,7 @@ class HomeCalendarViewController: UIViewController {
     var isGroupSelectedWithId = PublishSubject<Int?>()
     var refreshRequired = PublishSubject<Void>()
     var didFetchRefreshedData = PublishSubject<Void>()
+    var initialCalendarGenerated = false
     
     let indexChanged = PublishSubject<Int>()
     
@@ -139,8 +140,8 @@ class HomeCalendarViewController: UIViewController {
                     vc.collectionView.reloadData()
                 }, completion: { _ in
                     vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
+                    vc.initialCalendarGenerated = true
                 })
-                vc.collectionView.reloadData()
             })
             .disposed(by: bag)
             
@@ -368,9 +369,10 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                // 스크롤 하고, 인덱스 바꿔주고
-                print("scroll!!!!!")
-                vc.collectionView.setContentOffset(CGPoint(x: CGFloat(100) * vc.view.frame.width, y: 0), animated: true)
+                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+                                vc.collectionView.setContentOffset(
+                               CGPoint(x: CGFloat(100) * vc.view.frame.width, y: 0), animated: false)
+                            })
             })
             .disposed(by: bag)
             
@@ -468,9 +470,9 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
         return cell
     }
 
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) { //이거를 저거 끝나고 잇자
         let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
-        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) else { return }
+        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && initialCalendarGenerated else { return }
         indexChanged.onNext(Int(round(floatedIndex)))
     }
     
