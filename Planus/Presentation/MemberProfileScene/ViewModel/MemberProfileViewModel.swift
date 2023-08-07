@@ -47,7 +47,7 @@ class MemberProfileViewModel {
     var mainDayList = [[DayViewModel]]()
     var todos = [Date: [SocialTodoSummary]]()
     
-    var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 20), count: 42) //todoId
+    var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 30), count: 42) //todoId
     var filteredTodoCache = [FilteredSocialTodoViewModel](repeating: FilteredSocialTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
     var cachedCellHeightForTodoCount = [Int: Double]()
 

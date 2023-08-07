@@ -472,22 +472,23 @@ class HomeCalendarViewModel {
     }
 
     func scrolledTo(index: Int) {
+        currentIndex = index
         updateCurrentDate(index: index)
         checkCacheLoadNeed()
     }
     
     func updateCurrentDate(index: Int) { //첫달부터 더해서 계산해야한다..! (첫달을 0에서 가져와도 되는건가..?)
         let firstDate = self.calendar.startDayOfMonth(date: mainDays[0][7].date)
+        
         currentDate.onNext(self.calendar.date(
             byAdding: DateComponents(month: index),
             to: firstDate
         ))
     }
     
-    
-    // 여기만 하면 이제 당분간은 투두 받아오는 부분 걱정도 없을듯? 근데 애니메이션을 어케 적용해야되냐?????
     func checkCacheLoadNeed() {
         guard let currentDate = try? self.currentDate.value() else { return }
+        print(latestFollowingCacheRequestedIndex, currentIndex)
         if latestPrevCacheRequestedIndex - currentIndex == cachingIndexDiff {
             latestPrevCacheRequestedIndex = currentIndex //90 - 110
             // 100에서 시작해서 92에 도달함. 리로드하고 어디부터? 83-90
