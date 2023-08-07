@@ -108,8 +108,8 @@ class MemberProfileViewController: UIViewController {
             .subscribe(onNext: { vc, center in
                 vc.collectionView.performBatchUpdates({
                     vc.collectionView.reloadData()
-                }, completion: {
-                    vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)\
+                }, completion: { _ in
+                    vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
                     vc.didInitialCalendarGenerated = true
                 })
             })

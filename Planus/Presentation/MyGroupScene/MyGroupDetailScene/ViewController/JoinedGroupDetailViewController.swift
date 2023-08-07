@@ -185,7 +185,6 @@ class JoinedGroupDetailViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
-                print(message)
                 vc.showToast(message: message, type: .normal)
             })
             .disposed(by: bag)

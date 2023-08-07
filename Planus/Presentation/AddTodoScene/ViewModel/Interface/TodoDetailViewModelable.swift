@@ -129,13 +129,7 @@ protocol TodoDetailViewModelable: AnyObject {
 }
 
 extension TodoDetailViewModelable {
-    public func transform(input: TodoDetailViewModelableInput) -> TodoDetailViewModelableOutput { //여기서 양방향 바인딩 해야한다..!
-        
-        todoTitle
-            .subscribe(onNext: {
-                print("vm todoTitle: ", $0)
-            })
-            .disposed(by: bag)
+    public func transform(input: TodoDetailViewModelableInput) -> TodoDetailViewModelableOutput {
         
         input
             .titleTextChanged

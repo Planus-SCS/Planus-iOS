@@ -488,7 +488,6 @@ class HomeCalendarViewModel {
     
     func checkCacheLoadNeed() {
         guard let currentDate = try? self.currentDate.value() else { return }
-        print(latestFollowingCacheRequestedIndex, currentIndex)
         if latestPrevCacheRequestedIndex - currentIndex == cachingIndexDiff {
             latestPrevCacheRequestedIndex = currentIndex //90 - 110
             // 100에서 시작해서 92에 도달함. 리로드하고 어디부터? 83-90

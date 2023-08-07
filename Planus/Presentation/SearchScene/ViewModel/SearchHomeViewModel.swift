@@ -146,7 +146,6 @@ class SearchHomeViewModel {
             )
             .subscribe(onSuccess: { [weak self] list in
                 guard let self else { return }
-                print(self.page, self.size, list.count)
                 self.result += list
                 if isInitial {
                     self.didFetchInitialResult.onNext(())

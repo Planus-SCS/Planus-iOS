@@ -204,7 +204,6 @@ class GroupListViewController: UIViewController {
     
     @objc func refresh(_ sender: UIRefreshControl) {
         refreshRequired.onNext(())
-        print("ref required")
     }
 }
 

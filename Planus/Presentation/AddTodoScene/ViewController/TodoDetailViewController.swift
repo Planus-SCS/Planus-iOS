@@ -500,7 +500,6 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_dark")
         addTodoView.endDateButton.setTitle("\(dayPickerViewController.dateFormatter2.string(from: max))", for: .normal)
         addTodoView.endDateButton.setTitleColor(.black, for: .normal)
-        print("didSelect Multiple")
         didSelectedDateRange.onNext(DateRange(start: min, end: max))
     }
 }

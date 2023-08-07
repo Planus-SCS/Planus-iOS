@@ -29,7 +29,6 @@ class SearchHistoryHeaderView: UICollectionReusableView {
     }()
     
     @objc func removeAllBtnTapped(_ sender: UIButton) {
-        print("rem")
         closure?()
     }
     

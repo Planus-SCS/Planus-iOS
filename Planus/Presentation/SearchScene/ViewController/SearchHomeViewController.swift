@@ -184,8 +184,6 @@ class SearchHomeViewController: UIViewController {
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(resultCollectionView)
-//        self.view.addSubview(headerView)
-//        headerView.addSubview(searchBarField)
         self.view.addSubview(createGroupButton)
     }
     
@@ -203,9 +201,13 @@ class SearchHomeViewController: UIViewController {
     @objc func searchBtnTapped(_ sender: UIBarButtonItem) {}
     
     @objc func refresh(_ sender: UIRefreshControl) {
-        refreshRequired.onNext(())
-        isEnded = false
-        isLoading = true
+        if !isLoading {
+            isLoading = true
+            isEnded = false
+            refreshRequired.onNext(())
+        } else {
+            sender.endRefreshing()
+        }
     }
 }
 
@@ -222,7 +224,6 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
               let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
-        
         cell.fill(
             title: item.name,
             tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),

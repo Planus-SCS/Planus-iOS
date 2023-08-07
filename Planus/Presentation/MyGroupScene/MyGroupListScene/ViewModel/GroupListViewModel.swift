@@ -145,7 +145,6 @@ class GroupListViewModel {
             .subscribe(onNext: { vm, groupId in
                 guard let index = vm.groupList?.firstIndex(where: { $0.groupId == groupId }),
                       var group = vm.groupList?[index] else { return }
-                print("here")
                 group.isOnline = !group.isOnline
                 group.onlineCount = group.isOnline ? group.onlineCount + 1 : group.onlineCount - 1
                 vm.groupList?[index] = group
