@@ -93,7 +93,9 @@ class MonthlyCalendarCell: UICollectionViewCell {
     func fill(section: Int, viewModel: HomeCalendarViewModel?) {
         self.section = section
         self.viewModel = viewModel
-        collectionView.reloadData()
+        UIView.performWithoutAnimation({
+            collectionView.reloadData()
+        })
     }
     
     func fill(

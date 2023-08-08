@@ -109,7 +109,7 @@ class HomeCalendarViewModel {
         var groupListFetched: Observable<Void?>
         var needFilterGroupWithId: Observable<Int?>
         var didFinishRefreshing: Observable<Void>
-        var needScrollToHome: Observable<Void>?
+        var needScrollToHome: Observable<Void>
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -299,7 +299,19 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.nowRefreshing = true
+                vm.todos = [:]
                 vm.fetchAll()
+            })
+            .disposed(by: bag)
+        
+        let needScrollToHome = PublishSubject<Void>()
+        
+        homeTabReselected?
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.scrolledTo(index: -vm.endOfFirstIndex)
+                vm.fetchAll()
+                needScrollToHome.onNext(())
             })
             .disposed(by: bag)
         
@@ -318,7 +330,7 @@ class HomeCalendarViewModel {
             groupListFetched: initialReadGroup.asObservable(),
             needFilterGroupWithId: filteredGroupId.asObservable(),
             didFinishRefreshing: didFinishRefreshing.asObservable(),
-            needScrollToHome: homeTabReselected?.asObservable()
+            needScrollToHome: needScrollToHome.asObservable()
         )
     }
     
@@ -468,6 +480,8 @@ class HomeCalendarViewModel {
         let fromIndex = (currentIndex - cachingAmount >= 0) ? currentIndex - cachingAmount : 0
         let toIndex = currentIndex + cachingAmount + 1 < mainDays.count ? currentIndex + cachingAmount + 1 : mainDays.count-1
         
+        print(fromIndex, toIndex)
+        
         fetchTodoList(from: fromIndex, to: toIndex)
     }
 
@@ -513,6 +527,8 @@ class HomeCalendarViewModel {
         
         let fromMonthStart = calendar.date(byAdding: DateComponents(day: -7), to: calendar.startOfDay(for: fromMonth)) ?? Date()
         let toMonthStart = calendar.date(byAdding: DateComponents(day: 7), to: calendar.startOfDay(for: toMonth)) ?? Date()
+        
+        print(fromMonthStart, toMonthStart)
 
         getTokenUseCase
             .execute()
@@ -528,7 +544,7 @@ class HomeCalendarViewModel {
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] todoDict in
-                guard let self else { return }
+                guard let self else { return } //만약 위로 스크롤해서 업데이트한거면 애를 초기화시켜버려야한다..!!!!
                 self.todos.merge(todoDict) { (_, new) in new }
                 self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
                 

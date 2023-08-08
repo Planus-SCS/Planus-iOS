@@ -57,9 +57,7 @@ class SignInViewModel {
         self.actions = actions
     }
     
-    func transform(input: Input) -> Output {
-        let showAppleSignInPage = PublishSubject<Void>()
-        
+    func transform(input: Input) -> Output {        
         input
             .kakaoSignInTapped
             .withUnretained(self)

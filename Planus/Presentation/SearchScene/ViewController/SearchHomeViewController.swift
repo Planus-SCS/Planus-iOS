@@ -224,7 +224,6 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        print("\(indexPath.item), \(viewModel?.result.count)")
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
               let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
         cell.fill(

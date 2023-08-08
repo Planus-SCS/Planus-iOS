@@ -376,7 +376,8 @@ class JoinedGroupDetailViewController: UIViewController {
             refreshTokenUseCase: refreshTokenUseCase,
             fetchMyGroupMemberListUseCase: fetchMyGroupMemberListUseCase,
             fetchImageUseCase: fetchImageUseCase,
-            memberKickOutUseCase: DefaultMemberKickOutUseCase.shared
+            memberKickOutUseCase: DefaultMemberKickOutUseCase.shared,
+            setOnlineUseCase: DefaultSetOnlineUseCase.shared
         )
         noticeViewModel.setGroupId(id: groupId)
         let noticeViewController = JoinedGroupNoticeViewController(viewModel: noticeViewModel)

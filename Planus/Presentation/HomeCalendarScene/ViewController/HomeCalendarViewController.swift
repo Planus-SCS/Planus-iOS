@@ -364,8 +364,8 @@ class HomeCalendarViewController: UIViewController {
             })
             .disposed(by: bag)
         
-        output
-            .needScrollToHome?
+        output //이거는 처리를 하고 옮기기만 하는게 나을거같다..!!!! 그래도 될듯???
+            .needScrollToHome
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
@@ -474,6 +474,7 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
         let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
         guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && initialCalendarGenerated else { return }
         indexChanged.onNext(Int(round(floatedIndex)))
+        print(Int(round(floatedIndex)))
     }
     
 }
