@@ -84,7 +84,7 @@ class MyGroupInfoEditViewModel {
         fetchImageUseCase
             .execute(key: imageUrl)
             .subscribe(onSuccess: { [weak self] data in
-                self?.titleImage.onNext(ImageFile(filename: "original", data: data, type: "png"))
+                self?.titleImage.onNext(ImageFile(filename: "original", data: data, type: "jpeg"))
             })
             .disposed(by: bag)
     }

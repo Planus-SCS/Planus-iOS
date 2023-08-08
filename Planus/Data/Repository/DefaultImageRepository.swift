@@ -28,7 +28,8 @@ class DefaultImageRepository: ImageRepository {
     }
     
     func fetch(key: String) -> Single<Data> {
-        if let wrappedCache = memoryCache.object(forKey: NSString(string: key)) {
+        if let wrappedCache = memoryCache.object(forKey: NSString(string: key)),
+           wrappedCache.value.isImageData {
             let data = wrappedCache.value
             return Single.just(data)
         }
