@@ -143,7 +143,8 @@ class GroupListViewModel {
         setOnlineUseCase
             .didChangeOnlineState
             .withUnretained(self)
-            .subscribe(onNext: { vm, groupId in
+            .subscribe(onNext: { vm, arg in
+                let (groupId, memberId) = arg
                 guard let index = vm.groupList?.firstIndex(where: { $0.groupId == groupId }),
                       var group = vm.groupList?[index] else { return }
                 group.isOnline = !group.isOnline

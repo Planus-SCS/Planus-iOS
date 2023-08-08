@@ -162,7 +162,8 @@ class JoinedGroupDetailViewModel {
         setOnlineUseCase
             .didChangeOnlineState
             .withUnretained(self)
-            .subscribe(onNext: { vm, groupId in
+            .subscribe(onNext: { vm, arg in
+                let (groupId, memberId) = arg
                 if groupId == vm.groupId {
                     guard let exValue = try? vm.isOnline.value(),
                           let onlineCount = try? vm.onlineCount.value() else { return }

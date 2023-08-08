@@ -27,9 +27,8 @@ class GroupCreateTagView: UIView {
     }()
     
     lazy var tagCollectionView: UICollectionView = {
-        let layout = EqualSpacedCollectionViewLayout()
-        layout.estimatedItemSize = CGSize(width: 40, height: 40)
-        layout.minimumInteritemSpacing = 3
+        let layout = EqualSpacedCollectionViewLayout.createLayout()
+
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.register(GroupCreateTagCell.self, forCellWithReuseIdentifier: GroupCreateTagCell.reuseIdentifier)
         cv.register(GroupCreateTagAddCell.self, forCellWithReuseIdentifier: GroupCreateTagAddCell.reuseIdentifier)
@@ -310,24 +309,49 @@ extension GroupTagInputViewController {
     }
 }
 
-class EqualSpacedCollectionViewLayout: UICollectionViewFlowLayout {
+class EqualSpacedCollectionViewLayout: UICollectionViewCompositionalLayout {
+    private static let itemSize: NSCollectionLayoutSize = .init(
+        widthDimension: .estimated(40),
+        heightDimension: .absolute(40)
+    )
+    private static let sectionInset: NSDirectionalEdgeInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
+    private static let itemSpacing: CGFloat = 3
+    
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         let attributes = super.layoutAttributesForElements(in: rect)
         
-        var leftMargin = sectionInset.left
+        var leftMargin = Self.sectionInset.leading
         var maxY: CGFloat = -1.0
         attributes?.forEach { layoutAttribute in
             if layoutAttribute.frame.origin.y >= maxY {
-                leftMargin = sectionInset.left
+                leftMargin = Self.sectionInset.leading
             }
             
             layoutAttribute.frame.origin.x = leftMargin
-            
-            leftMargin += layoutAttribute.frame.width + minimumInteritemSpacing
+            leftMargin += layoutAttribute.frame.width + Self.itemSpacing
             maxY = max(layoutAttribute.frame.maxY , maxY)
         }
         
         return attributes
+    }
+    
+    static func createLayout() -> EqualSpacedCollectionViewLayout {
+        let itemSize = itemSize
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        item.contentInsets = .init(top: itemSpacing, leading: itemSpacing, bottom: itemSpacing, trailing: itemSpacing)
+        
+        let groupSize = itemSize
+        
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        configuration.scrollDirection = .horizontal
+        
+        let layout = EqualSpacedCollectionViewLayout(section: section, configuration: configuration)
+        
+        return layout
     }
 }
 

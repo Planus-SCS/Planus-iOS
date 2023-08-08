@@ -8,5 +8,5 @@
 import Foundation
 
 struct GroupSetOnlineResponseDTO: Codable {
-    var groupMemberId: Int
+    var memberId: Int
 }

@@ -99,7 +99,9 @@ class JoinedGroupNoticeViewModel {
         setOnlineUseCase
             .didChangeOnlineState
             .withUnretained(self)
-            .subscribe(onNext: { vm, memberId in
+            .subscribe(onNext: { vm, arg in
+                let (groupId, memberId) = arg
+
                 guard let index = vm.memberList?.firstIndex(where: { $0.memberId == memberId }),
                       var member = vm.memberList?[index] else { return }
                 
