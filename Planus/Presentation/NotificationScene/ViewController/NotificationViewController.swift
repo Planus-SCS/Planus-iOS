@@ -126,6 +126,15 @@ class NotificationViewController: UIViewController {
                 vc.emptyResultView.setAnimatedIsHidden(!(viewModel.joinAppliedList?.count == 0))
             })
             .disposed(by: bag)
+        
+        output
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+            })
+            .disposed(by: bag)
     }
     
     @objc func backBtnAction() {
