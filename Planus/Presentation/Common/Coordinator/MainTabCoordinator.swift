@@ -9,16 +9,16 @@ import UIKit
 
 enum TabBarPage: Int, CaseIterable {
     case calendar = 0
-    case todo = 1
-    case search = 2
-    case group = 3
+//    case todo
+    case search
+    case group
     
     func pageTitleValue() -> String {
         switch self {
         case .calendar:
             return "캘린더"
-        case .todo:
-            return "투두"
+//        case .todo:
+//            return "투두"
         case .search:
             return "검색"
         case .group:
@@ -30,8 +30,8 @@ enum TabBarPage: Int, CaseIterable {
         switch self {
         case .calendar:
             return UIImage(named: "calendarTab")
-        case .todo:
-            return UIImage(named: "todoTab")
+//        case .todo:
+//            return UIImage(named: "todoTab")
         case .search:
             return UIImage(named: "searchTab")
         case .group:
@@ -104,11 +104,11 @@ final class MainTabCoordinator: NSObject, Coordinator {
             homeCalendarCoordinator.finishDelegate = self
             childCoordinators.append(homeCalendarCoordinator)
             homeCalendarCoordinator.start()
-        case .todo:
-            let todoCoordinator = TodoCoordinator(navigationController: navigation)
-            todoCoordinator.finishDelegate = self
-            childCoordinators.append(todoCoordinator)
-            todoCoordinator.start()
+//        case .todo:
+//            let todoCoordinator = TodoCoordinator(navigationController: navigation)
+//            todoCoordinator.finishDelegate = self
+//            childCoordinators.append(todoCoordinator)
+//            todoCoordinator.start()
         case .search:
             let searchCoordinator = SearchCoordinator(navigationController: navigation)
             searchCoordinator.finishDelegate = self

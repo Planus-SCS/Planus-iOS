@@ -403,13 +403,13 @@ class JoinedGroupDetailViewController: UIViewController {
         calendarViewController.scrollDelegate = self
         self.calendarViewController = calendarViewController
         
-        let chattingViewController = JoinedGroupChattingViewController(nibName: nil, bundle: nil)
-        chattingViewController.scrollDelegate = self
-        self.chatViewController = chattingViewController
+//        let chattingViewController = JoinedGroupChattingViewController(nibName: nil, bundle: nil)
+//        chattingViewController.scrollDelegate = self
+//        self.chatViewController = chattingViewController
         
         childList.append(noticeViewController)
         childList.append(calendarViewController)
-        childList.append(chattingViewController)
+//        childList.append(chattingViewController)
         
         pageViewController.setViewControllers([childList[0]], direction: .forward, animated: true)
         currentIndex.onNext(0)
@@ -421,6 +421,8 @@ class JoinedGroupDetailViewController: UIViewController {
         pageViewController.view.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+        
+        headerTabView.setTabs(tabs: ["공지사항", "그룹 캘린더"])
     }
     
     func configureLayout() {

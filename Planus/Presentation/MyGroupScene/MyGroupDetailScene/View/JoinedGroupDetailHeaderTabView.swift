@@ -30,27 +30,14 @@ class JoinedGroupDetailHeaderTabView: UIView {
         return view
     }()
     
-    lazy var titleButtonList: [UIButton] = {
-        return ["공지사항", "그룹캘린더", "그룹채팅"].enumerated().map { [weak self] index, text in
-            let button = UIButton(frame: .zero)
-            button.tag = index
-            button.setTitle(text, for: .normal)
-            button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 14)
-            button.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
-            button.addTarget(self, action: #selector(self!.didTappedTitleButton), for: .touchUpInside)
-            return button
-        }
-    }()
+    var titleButtonList: [UIButton] = []
     
-    lazy var headerStack: UIStackView = {
+    var headerStack: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.alignment = .center
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
         stackView.backgroundColor = .white
-        titleButtonList.forEach {
-            stackView.addArrangedSubview($0)
-        }
         return stackView
     }()
     
@@ -72,6 +59,34 @@ class JoinedGroupDetailHeaderTabView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    public func setTabs(tabs: [String]) {
+        titleButtonList.removeAll()
+        titleButtonList = tabs.enumerated().map { [weak self] index, text in
+            let button = UIButton(frame: .zero)
+            button.tag = index
+            button.setTitle(text, for: .normal)
+            button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 14)
+            button.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
+            button.addTarget(self, action: #selector(self!.didTappedTitleButton), for: .touchUpInside)
+            return button
+        }
+        
+        headerStack.subviews.forEach {
+            headerStack.removeArrangedSubview($0)
+            $0.removeFromSuperview()
+        }
+        
+        titleButtonList.forEach {
+            headerStack.addArrangedSubview($0)
+        }
+        
+        statusBarView.snp.makeConstraints {
+            $0.width.equalToSuperview().dividedBy(tabs.count)
+            $0.top.bottom.equalToSuperview()
+            $0.leading.equalToSuperview()
+        }
     }
     
     func configureView() {
@@ -104,17 +119,11 @@ class JoinedGroupDetailHeaderTabView: UIView {
             $0.leading.trailing.bottom.equalToSuperview()
             $0.height.equalTo(3)
         }
-        
-        statusBarView.snp.makeConstraints {
-            $0.width.equalToSuperview().dividedBy(3)
-            $0.top.bottom.equalToSuperview()
-            $0.leading.equalToSuperview()
-        }
     }
     
     func scrollToTab(index: Int) {
         statusBarView.snp.updateConstraints {
-            $0.leading.equalTo(UIScreen.main.bounds.size.width/3*CGFloat(index))
+            $0.leading.equalTo(UIScreen.main.bounds.size.width/CGFloat(titleButtonList.count)*CGFloat(index))
         }
         (0..<titleButtonList.count).forEach {
             if $0 == index {
