@@ -127,6 +127,15 @@ class SignInViewController: UIViewController {
                 vc.showASAuthController(request: request)
             })
             .disposed(by: bag)
+        
+        output
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {

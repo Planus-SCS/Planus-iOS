@@ -82,11 +82,13 @@ class JoinedGroupDetailHeaderTabView: UIView {
             headerStack.addArrangedSubview($0)
         }
         
-        statusBarView.snp.makeConstraints {
+        statusBarView.snp.remakeConstraints {
             $0.width.equalToSuperview().dividedBy(tabs.count)
             $0.top.bottom.equalToSuperview()
             $0.leading.equalToSuperview()
         }
+        
+        titleButtonList.first?.setTitleColor(UIColor(hex: 0x6F81A9), for: .normal)
     }
     
     func configureView() {
@@ -98,7 +100,6 @@ class JoinedGroupDetailHeaderTabView: UIView {
         contentView.addSubview(headerStack)
         contentView.addSubview(statusBackGroundView)
         statusBackGroundView.addSubview(statusBarView)
-        titleButtonList.first?.setTitleColor(UIColor(hex: 0x6F81A9), for: .normal)
     }
     
     func configureLayout() {

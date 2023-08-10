@@ -20,6 +20,7 @@ class SignInViewModel {
     var actions: SignInViewModelActions?
     
     var showAppleSignInPageWith = PublishSubject<ASAuthorizationAppleIDRequest>()
+    var showMessage = PublishSubject<Message>()
 
     let kakaoSignInUseCase: KakaoSignInUseCase
     let googleSignInUseCase: GoogleSignInUseCase
@@ -37,6 +38,7 @@ class SignInViewModel {
     
     struct Output {
         var showAppleSignInPage: Observable<ASAuthorizationAppleIDRequest>
+        var showMessage: Observable<Message>
     }
     
     init(
@@ -92,7 +94,8 @@ class SignInViewModel {
             .disposed(by: bag)
         
         return Output(
-            showAppleSignInPage: showAppleSignInPageWith.asObservable()
+            showAppleSignInPage: showAppleSignInPageWith.asObservable(),
+            showMessage: showMessage.asObservable()
         )
     }
     
@@ -108,11 +111,14 @@ class SignInViewModel {
         actions?.showWebViewSignInPage?(.kakao) { [weak self] code in
             guard let self else { return }
             self.kakaoSignInUseCase.execute(code: code)
-                .subscribe(onSuccess: { token in
-                    self.setTokenUseCase.execute(token: token)
-                    self.actions?.showMainTabFlow?()
-                }, onFailure: { error in
-                    print(error)
+                .subscribe(onSuccess: { [weak self] token in
+                    self?.setTokenUseCase.execute(token: token)
+                    self?.actions?.showMainTabFlow?()
+                }, onFailure: { [weak self] error in
+                    guard let error = error as? NetworkManagerError,
+                          case NetworkManagerError.clientError(let status, let message) = error,
+                          let message = message else { return }
+                    self?.showMessage.onNext(Message(text: message, state: .warning))
                 })
                 .disposed(by: self.bag)
         }
@@ -122,12 +128,14 @@ class SignInViewModel {
         actions?.showWebViewSignInPage?(.google) { [weak self] code in
             guard let self else { return }
             self.googleSignInUseCase.execute(code: code)
-                .subscribe(onSuccess: { token in
-                    self.setTokenUseCase.execute(token: token)
-                    print(token)
-                    self.actions?.showMainTabFlow?()
-                }, onFailure: { error in
-                    
+                .subscribe(onSuccess: { [weak self] token in
+                    self?.setTokenUseCase.execute(token: token)
+                    self?.actions?.showMainTabFlow?()
+                }, onFailure: { [weak self] error in
+                    guard let error = error as? NetworkManagerError,
+                          case NetworkManagerError.clientError(let status, let message) = error,
+                          let message = message else { return }
+                    self?.showMessage.onNext(Message(text: message, state: .warning))
                 })
                 .disposed(by: self.bag)
         }
@@ -138,8 +146,11 @@ class SignInViewModel {
             .subscribe(onSuccess: { [weak self] token in
                 self?.setTokenUseCase.execute(token: token)
                 self?.actions?.showMainTabFlow?()
-            }, onFailure: { error in
-                
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }

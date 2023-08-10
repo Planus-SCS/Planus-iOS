@@ -158,7 +158,7 @@ class MyPageEditViewController: UIViewController {
         
         let input = MyPageEditViewModel.Input(
             viewDidLoad: Observable.just(()),
-            didChangeName: nameField.rx.text.asObservable(),
+            didChangeName: nameField.rx.text.skip(1).asObservable(),
             didChangeIntroduce: introduceField.rx.text.skip(1).asObservable(),
             didChangeImage: didChangedImage.asObservable(),
             saveBtnTapped: saveButton.rx.tap.asObservable()
@@ -207,6 +207,15 @@ class MyPageEditViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: bag)
+        
+        output
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
             })
             .disposed(by: bag)
     }
