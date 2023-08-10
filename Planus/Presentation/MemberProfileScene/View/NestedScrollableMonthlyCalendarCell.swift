@@ -83,15 +83,18 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
         }
         
         let screenWidth = UIScreen.main.bounds.width
-        if indexPath.item%7 == 0 {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2
+        
+        let currentDate = viewModel.mainDayList[section][indexPath.item].date
+        
+        if viewModel.filteredWeeksOfYear[indexPath.item/7] != calendar.component(.weekOfYear, from: currentDate) {
+            viewModel.filteredWeeksOfYear[indexPath.item/7] = calendar.component(.weekOfYear, from: currentDate) //애만 저장하면 위험함. 차라리 첫날을 저장하자
             (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
                 viewModel.blockMemo[$0] = [Int?](repeating: nil, count: 20)
             }
-
-            var calendar = Calendar.current
-            calendar.firstWeekday = 2
             
-            for (item, dayViewModel) in Array(viewModel.mainDayList[section].enumerated())[indexPath.item..<indexPath.item+7] {
+            for (item, dayViewModel) in Array(viewModel.mainDayList[section].enumerated())[indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7] {
                 var filteredTodoList = viewModel.todos[dayViewModel.date] ?? []
                 
                 var periodList = filteredTodoList.filter { $0.startDate != $0.endDate }

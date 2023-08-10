@@ -137,6 +137,7 @@ class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
                 vc.collectionView.performBatchUpdates({
+                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                     vc.collectionView.reloadData()
                 }, completion: { _ in
                     vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
@@ -150,6 +151,7 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, rangeSet in //여기서 추가로 리로드중인게 있는지 확인해야하나???
+                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                 vc.collectionView.reloadSections(IndexSet(rangeSet.0..<rangeSet.1))
             })
             .disposed(by: bag)
@@ -304,6 +306,7 @@ class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, indexSet in
                 UIView.performWithoutAnimation({
+                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                     vc.collectionView.reloadSections(indexSet)
                 })
             })
@@ -314,6 +317,7 @@ class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 UIView.performWithoutAnimation({
+                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                     vc.collectionView.reloadData()
                 })
             })
@@ -351,6 +355,7 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                 vc.collectionView.reloadData()
             })
             .disposed(by: bag)

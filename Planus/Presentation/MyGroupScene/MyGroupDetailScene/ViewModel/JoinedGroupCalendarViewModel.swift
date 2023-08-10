@@ -40,6 +40,8 @@ class JoinedGroupCalendarViewModel {
     var todos = [Date: [SocialTodoSummary]]()
     
     var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 20), count: 42) //todoId
+    
+    var filteredWeeksOfYear = [Int](repeating: -1, count: 6)
     var filteredTodoCache = [FilteredSocialTodoViewModel](repeating: FilteredSocialTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
     var cachedCellHeightForTodoCount = [Int: Double]()
         

@@ -148,16 +148,20 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
               let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
             return UICollectionViewCell()
         }
-
         
-        if indexPath.item%7 == 0 {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2
+        
+        let currentDate = viewModel.mainDays[section][indexPath.item].date
+        
+        if viewModel.filteredWeeksOfYear[indexPath.item/7] != calendar.component(.weekOfYear, from: currentDate) {
+            print(calendar.component(.weekOfYear, from: currentDate))
+            viewModel.filteredWeeksOfYear[indexPath.item/7] = calendar.component(.weekOfYear, from: currentDate)
             (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
                 viewModel.blockMemo[$0] = [(Int, Bool)?](repeating: nil, count: 20)
             }
-            var calendar = Calendar.current
-            calendar.firstWeekday = 2
             
-            for (item, dayViewModel) in Array(viewModel.mainDays[section].enumerated())[indexPath.item..<indexPath.item+7] {
+            for (item, dayViewModel) in Array(viewModel.mainDays[section].enumerated())[indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7] {
                 var filteredTodoList = viewModel.todos[dayViewModel.date] ?? []
                 if let filterGroupId = try? viewModel.filteredGroupId.value() {
                     filteredTodoList = filteredTodoList.filter( { $0.groupId == filterGroupId })
@@ -246,12 +250,12 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
                 return aHeight < bHeight
             }) else { return UICollectionViewCell() }
-                
+        
         guard var todosHeight = (maxItem.holiday != nil) ?
                 maxItem.holiday?.0 : (maxItem.singleTodo.count != 0) ?
                 maxItem.singleTodo.last?.0 : (maxItem.periodTodo.count != 0) ?
                 maxItem.periodTodo.last?.0 : 0 else { return UICollectionViewCell() }
-
+        
         var height: CGFloat
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
             height = cellHeight
@@ -270,16 +274,14 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 width: Double(1)/Double(7) * UIScreen.main.bounds.width,
                 height: UIView.layoutFittingCompressedSize.height
             ))
-
-            // 왜 이게 0으로 나오는가..? 이해할수가 없구만,,,
+            
             let targetHeight = (estimatedSize.height > 120) ? estimatedSize.height : 120
             height = targetHeight
         }
         
-        
         let dayViewModel = viewModel.mainDays[section][indexPath.item]
         let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
-
+        
         cell.delegate = self
         cell.fill(
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
@@ -289,7 +291,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil,
             height: height
         )
-
+        
         cell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
         // 여기서 총 높이를 구해서 viewModel에다가 저장해둬야함..! fill 메서드에서 계산하니까 저기서 직접 해줘도 될거같은데?
         
@@ -306,10 +308,10 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
     
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
         return collectionView.indexPathsForSelectedItems?.contains(indexPath) == false
-
+        
     }
     
-
+    
 }
 
 extension MonthlyCalendarCell {
@@ -320,24 +322,24 @@ extension MonthlyCalendarCell {
             guard let nowIndexPath = collectionView.indexPathForItem(at: location) else { return }
             
             selectionState = true
-
+            
             self.firstPressedIndexPath = nowIndexPath
             self.lastPressedIndexPath = nowIndexPath
             collectionView.selectItem(at: nowIndexPath, animated: true, scrollPosition: [])
             Vibration.selection.vibrate()
         case .ended:
             selectionState = false
-
+            
             guard let section,
                   let firstPressedItem = self.firstPressedIndexPath?.item,
                   let lastPressedItem = self.lastPressedIndexPath?.item else { return }
             self.isMultipleSelected?.onNext((section, (firstPressedItem, lastPressedItem)))
-
+            
             firstPressedIndexPath = nil
             lastPressedIndexPath = nil
-
+            
             self.isMultipleSelecting?.onNext(false)
-
+            
             collectionView.isScrollEnabled = true
             collectionView.isUserInteractionEnabled = true
         default:
@@ -354,7 +356,7 @@ extension MonthlyCalendarCell {
             return
         }
         let location = gestureRecognizer.location(in: collectionView)
-
+        
         guard let nowIndexPath = collectionView.indexPathForItem(at: location) else { return }
         switch gestureRecognizer.state {
         case .began:
@@ -387,7 +389,7 @@ extension MonthlyCalendarCell {
                 }
             } else if (firstPressedIndexPath.item > lastPressedIndexPath.item) {
                 if (firstPressedIndexPath.item < nowIndexPath.item) {
-
+                    
                     (lastPressedIndexPath.item..<firstPressedIndexPath.item).forEach {
                         self.collectionView.deselectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true)
                     }
@@ -395,24 +397,24 @@ extension MonthlyCalendarCell {
                         self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
                     }
                 } else if lastPressedIndexPath.item < nowIndexPath.item {
-
+                    
                     (lastPressedIndexPath.item..<nowIndexPath.item).forEach {
                         self.collectionView.deselectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true)
                     }
                 } else if nowIndexPath.item < lastPressedIndexPath.item {
-
+                    
                     (nowIndexPath.item..<lastPressedIndexPath.item).forEach {
                         self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
                     }
                 }
             } else {
                 if nowIndexPath.item > lastPressedIndexPath.item {
-
+                    
                     (lastPressedIndexPath.item+1...nowIndexPath.item).forEach {
                         self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
                     }
                 } else {
-
+                    
                     (nowIndexPath.item..<lastPressedIndexPath.item).forEach {
                         self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
                     }

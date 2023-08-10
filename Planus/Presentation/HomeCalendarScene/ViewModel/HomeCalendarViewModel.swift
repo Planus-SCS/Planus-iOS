@@ -48,7 +48,8 @@ class HomeCalendarViewModel {
     var todos = [Date: [Todo]]()
     
     var blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 20), count: 42) //todoId, groupTodo인가?
-    var filteredTodoCache = [FilteredTodoViewModel](repeating: FilteredTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
+    var filteredWeeksOfYear = [Int](repeating: -1, count: 6)
+    var filteredTodoCache = [FilteredTodoViewModel](repeating: FilteredTodoViewModel(periodTodo: [], singleTodo: []), count: 42) //월-일 어디든 상관없이 해당 주차에 첫 진입하면 주차를 전부 캐시로 만들어서 넣어둬야함
     var cachedCellHeightForTodoCount = [Int: Double]()
     
     var groups = [Int: GroupName]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
@@ -783,7 +784,7 @@ class HomeCalendarViewModel {
         return maxItem
     }
     
-    func generateFilteredTodoOffsetOfWeek(indexPath: IndexPath) {
+    func createFilteredTodosInWeek(indexPath: IndexPath) {
         
     }
 }

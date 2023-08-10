@@ -107,6 +107,7 @@ class MemberProfileViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
                 vc.collectionView.performBatchUpdates({
+                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                     vc.collectionView.reloadData()
                 }, completion: { _ in
                     vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
@@ -120,6 +121,7 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, rangeSet in
+                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                 vc.collectionView.reloadSections(rangeSet)
             })
             .disposed(by: bag)
