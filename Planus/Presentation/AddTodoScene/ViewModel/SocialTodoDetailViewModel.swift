@@ -46,6 +46,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     
     var groupListChanged = PublishSubject<Void>()
     var showMessage = PublishSubject<Message>()
+    var showSaveConstMessagePopUp = PublishSubject<Void>()
     
     let moveFromAddToSelect = PublishSubject<Void>()
     let moveFromSelectToCreate = PublishSubject<Void>()
@@ -54,6 +55,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     let needReloadCategoryList = PublishSubject<Void>()
     let removeKeyboard = PublishSubject<Void>()
     var nowSaving: Bool = false
+    var isSaveEnabled: Bool?
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase

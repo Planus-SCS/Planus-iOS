@@ -15,6 +15,7 @@ final class CustomAlertViewController: UIViewController {
         let view = UIView()
         view.backgroundColor = UIColor(hex: 0xF5F5FB)
         view.layer.cornerRadius = 12
+        view.layer.masksToBounds = true
         view.layer.cornerCurve = .continuous
         view.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
         return view
@@ -24,7 +25,6 @@ final class CustomAlertViewController: UIViewController {
         let view = UIStackView()
         view.axis = .vertical
         view.alignment = .center
-        view.spacing = 12
         return view
     }()
     
@@ -39,7 +39,7 @@ final class CustomAlertViewController: UIViewController {
         let label = UILabel()
         label.text = titleText
         label.textAlignment = .center
-        label.font = UIFont(name: "Pretendard-SemiBold", size: 18)
+        label.font = UIFont(name: "Pretendard-SemiBold", size: 16)
         label.numberOfLines = 0
         label.textColor = .black.withAlphaComponent(0.9)
         return label
@@ -49,7 +49,7 @@ final class CustomAlertViewController: UIViewController {
         let label = UILabel()
         label.text = messageText
         label.textAlignment = .center
-        label.font = UIFont(name: "Pretendard-Regular", size: 14)
+        label.font = UIFont(name: "Pretendard-Regular", size: 12)
         label.textColor = .black.withAlphaComponent(0.9)
         label.numberOfLines = 0
         return label
@@ -81,8 +81,8 @@ final class CustomAlertViewController: UIViewController {
         super.viewWillAppear(animated)
         containerView.alpha = 0.0
         containerView.isHidden = false
-        UIView.animate(withDuration: 0.1, delay: 0.0, options: .curveEaseOut) { [weak self] in
-            self?.containerView.transform = .identity
+        UIView.animate(withDuration: 0.2, delay: 0.0) { [weak self] in
+//            self?.containerView.transform = .identity
             self?.containerView.alpha = 1.0
         }
     }
@@ -91,10 +91,10 @@ final class CustomAlertViewController: UIViewController {
         super.viewWillDisappear(animated)
 
         UIView.animate(
-            withDuration: 0.1,
+            withDuration: 0.2,
             delay: 0.0,
             animations: { [weak self] in
-                self?.containerView.transform = .identity
+//                self?.containerView.transform = .identity
                 self?.containerView.alpha = 0.0
             },
             completion: { [weak self] _ in
@@ -110,6 +110,8 @@ final class CustomAlertViewController: UIViewController {
         containerStackView.addArrangedSubview(titleLabel)
         containerStackView.addArrangedSubview(messageLabel)
         containerStackView.addArrangedSubview(buttonStackView)
+        containerStackView.setCustomSpacing(12, after: titleLabel)
+        containerStackView.setCustomSpacing(18, after: messageLabel)
         view.backgroundColor = .black.withAlphaComponent(0.4)
     }
 
@@ -126,7 +128,7 @@ final class CustomAlertViewController: UIViewController {
         }
         
         buttonStackView.snp.makeConstraints {
-            $0.height.equalTo(30)
+            $0.height.equalTo(40)
             $0.width.equalTo(containerStackView.snp.width)
         }
     }
@@ -137,7 +139,7 @@ final class CustomAlertViewController: UIViewController {
                                   backgroundColor: UIColor,
                                   completion: (() -> Void)? = nil) {
         let button = SpringableButton(frame: .zero)
-        button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 16)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Regular", size: 14)
         button.setTitle(title, for: .normal)
         button.setTitleColor(titleColor, for: .normal)
         button.backgroundColor = backgroundColor
@@ -168,7 +170,7 @@ enum AlertType {
     var textColor: UIColor {
         switch self {
         case .normal:
-            return .systemGray2
+            return UIColor(hex: 0x3D458A)
         case .warning:
             return .systemPink
         }
@@ -188,7 +190,7 @@ extension UIViewController {
             
             customAlert.addActionToButton(title: attr.title,
                                           titleColor: attr.type.textColor,
-                                          backgroundColor: .clear) {
+                                          backgroundColor: UIColor(hex: 0xDFDFE3)) {
                 customAlert.dismiss(animated: false, completion: attr.actionHandler)
             }
         }
@@ -201,7 +203,7 @@ extension UIViewController {
             
             customAlert.addActionToButton(title: alertAttr.title,
                                           titleColor: alertAttr.type.textColor,
-                                          backgroundColor: .clear) {
+                                          backgroundColor: UIColor(hex: 0xDFDFE3)) {
                 alertAttr.actionHandler()
             }
         

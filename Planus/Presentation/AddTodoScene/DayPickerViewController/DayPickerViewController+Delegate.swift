@@ -16,10 +16,7 @@ extension DayPickerViewController: UICollectionViewDelegate {
                 firstSelectedDate = first
                 lastSelectedDate = nil
                 delegate?.dayPickerViewController(self, didSelectDate: first)
-            } else if first == days[indexPath.section][indexPath.item].date { //같은놈이면 선택 해제
-                firstSelectedDate = nil
-                delegate?.unHighlightAllItem(self)
-            } else {
+            } else if first != days[indexPath.section][indexPath.item].date {
                 var last = days[indexPath.section][indexPath.item].date
                 if first > last {
                     swap(&first, &last)
@@ -29,6 +26,7 @@ extension DayPickerViewController: UICollectionViewDelegate {
                 lastSelectedDate = last
                 delegate?.dayPickerViewController(self, didSelectDateInRange: (first, last))
             }
+            //같은놈이면 그냥 놧두자
         } else { //만약 둘다 선택되있거나, 아무것도 선택안되었거나
             let first = days[indexPath.section][indexPath.item].date
             firstSelectedDate = first

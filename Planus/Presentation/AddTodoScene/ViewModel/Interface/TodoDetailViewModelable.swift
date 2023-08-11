@@ -69,7 +69,6 @@ struct TodoDetailViewModelableOutput {
     var timeValueChanged: Observable<String?>
     var groupChanged: Observable<GroupName?>
     var memoValueChanged: Observable<String?>
-    var todoSaveBtnEnabled: Observable<Bool>
     var newCategorySaveBtnEnabled: Observable<Bool>
     var newCategorySaved: Observable<Void>
     var moveFromAddToSelect: Observable<Void>
@@ -79,6 +78,7 @@ struct TodoDetailViewModelableOutput {
     var removeKeyboard: Observable<Void>
     var needDismiss: Observable<Void>
     var showMessage: Observable<Message>
+    var showSaveConstMessagePopUp: Observable<Void>
 }
 
 protocol TodoDetailViewModelable: AnyObject {
@@ -115,8 +115,10 @@ protocol TodoDetailViewModelable: AnyObject {
     var needReloadCategoryList: PublishSubject<Void> { get }
     var removeKeyboard: PublishSubject<Void> { get }
     var nowSaving: Bool { get set }
+    var isSaveEnabled: Bool? { get set }
     
     var showMessage: PublishSubject<Message> { get }
+    var showSaveConstMessagePopUp: PublishSubject<Void> { get }
     
     // 메서드는 뭐가있을까..? 카테고리 패치랑 그룹 패치
     func initFetch()
@@ -224,17 +226,6 @@ extension TodoDetailViewModelable {
             .disposed(by: bag)
         
         input
-            .todoRemoveBtnTapped
-            .withUnretained(self)
-            .subscribe(onNext: { vm, _ in
-                if !vm.nowSaving {
-                    vm.nowSaving = true
-                    vm.removeDetail()
-                }
-            })
-            .disposed(by: bag)
-        
-        input
             .newCategoryAddBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
@@ -293,7 +284,7 @@ extension TodoDetailViewModelable {
             })
             .disposed(by: bag)
         
-        let todoSaveBtnEnabled = Observable
+        Observable
             .combineLatest(
                 todoTitle.asObservable(),
                 todoCategory.asObservable(),
@@ -311,6 +302,25 @@ extension TodoDetailViewModelable {
                 
                 return !title.isEmpty && isTimeStructured
             }
+            .subscribe(onNext: { [weak self] isEnabled in
+                self?.isSaveEnabled = isEnabled
+            })
+            .disposed(by: bag)
+        
+        input
+            .todoSaveBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                if vm.isSaveEnabled ?? false {
+                    if !vm.nowSaving {
+                        vm.nowSaving = true
+                        vm.saveDetail()
+                    }
+                } else {
+                    vm.showSaveConstMessagePopUp.onNext(())
+                }
+            })
+            .disposed(by: bag)
         
         let newCategorySaveBtnEnabled = Observable
             .combineLatest(
@@ -332,7 +342,6 @@ extension TodoDetailViewModelable {
             timeValueChanged: todoTime.distinctUntilChanged().asObservable(),
             groupChanged: todoGroup.distinctUntilChanged().asObservable(),
             memoValueChanged: todoMemo.distinctUntilChanged().asObservable(),
-            todoSaveBtnEnabled: todoSaveBtnEnabled.asObservable(),
             newCategorySaveBtnEnabled: newCategorySaveBtnEnabled.asObservable(),
             newCategorySaved: needReloadCategoryList.asObservable(),
             moveFromAddToSelect: moveFromAddToSelect.asObservable(),
@@ -341,7 +350,8 @@ extension TodoDetailViewModelable {
             moveFromSelectToAdd: moveFromSelectToAdd.asObservable(),
             removeKeyboard: removeKeyboard.asObservable(),
             needDismiss: needDismiss.asObservable(),
-            showMessage: showMessage.asObservable()
+            showMessage: showMessage.asObservable(),
+            showSaveConstMessagePopUp: showSaveConstMessagePopUp.asObservable()
         )
     }
 }

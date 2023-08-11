@@ -12,6 +12,7 @@ class TodoDetailViewController: UIViewController {
     var keyboardBag: DisposeBag?
     var bag = DisposeBag()
     var completionHandler: (() -> Void)?
+    var firstAppear = true
     
     var didSelectCategoryAt = PublishSubject<Int?>()
     var didRequestEditCategoryAt = PublishSubject<Int>() // 생성도 이걸로하자!
@@ -66,7 +67,6 @@ class TodoDetailViewController: UIViewController {
     func configureAddTodoView() {
         dayPickerViewController.delegate = self
         addTodoView.titleField.delegate = self
-        addTodoView.memoTextView.delegate = self
         addTodoView.timeField.delegate = self
         
         groupPickerView.dataSource = self
@@ -89,14 +89,17 @@ class TodoDetailViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
-             self.addTodoView.snp.remakeConstraints {
-                 $0.bottom.leading.trailing.equalToSuperview()
-                 $0.height.lessThanOrEqualTo(700)
-             }
-             self.dimmedView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
-             self.view.layoutIfNeeded()
-         }, completion: nil)
+        if firstAppear {
+            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+                 self.addTodoView.snp.remakeConstraints {
+                     $0.bottom.leading.trailing.equalToSuperview()
+                     $0.height.lessThanOrEqualTo(700)
+                 }
+                 self.dimmedView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
+                 self.view.layoutIfNeeded()
+             }, completion: nil)
+            firstAppear = false
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -275,16 +278,6 @@ class TodoDetailViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .todoSaveBtnEnabled
-            .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, isEnabled in
-                vc.addTodoView.saveButton.isEnabled = isEnabled
-                vc.addTodoView.saveButton.alpha = isEnabled ? 1.0 : 0.5
-            })
-            .disposed(by: bag)
-        
-        output
             .newCategorySaveBtnEnabled
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
@@ -357,6 +350,15 @@ class TodoDetailViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.dismiss(animated: true)
+            })
+            .disposed(by: bag)
+        
+        output
+            .showSaveConstMessagePopUp
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.showPopUp(title: "이름, 카테고리는 꼭 입력해주세요", message: "그러나 아무것도 안하는 것도\n충분히 중요한 일이죠😌", alertAttrs: [CustomAlertAttr(title: "확인", actionHandler: {}, type: .normal)])
             })
             .disposed(by: bag)
         
@@ -449,12 +451,7 @@ class TodoDetailViewController: UIViewController {
         
         switch pageType {
         case .addTodo:
-            dayPickerViewController.view.snp.remakeConstraints {
-                $0.top.equalTo(addTodoView.contentStackView.snp.bottom)
-                $0.leading.trailing.equalToSuperview().inset(10)
-                $0.height.equalTo(300)
-                $0.bottom.equalToSuperview()
-            }
+            return
         case .selectCategory:
             return
         case .createCategory:
@@ -751,7 +748,4 @@ extension TodoDetailViewController: UITextFieldDelegate {
         }
         return true
     }
-}
-
-extension TodoDetailViewController: UITextViewDelegate {
 }
