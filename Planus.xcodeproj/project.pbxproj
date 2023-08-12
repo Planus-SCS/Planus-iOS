@@ -540,6 +540,8 @@
 		6AC079A62A0B5FE7007ACDB8 /* MyGroupSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079A52A0B5FE7007ACDB8 /* MyGroupSummary.swift */; };
 		6AC079A82A0B639F007ACDB8 /* DefaultFetchMyGroupListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079A72A0B639F007ACDB8 /* DefaultFetchMyGroupListUseCase.swift */; };
 		6AC079AA2A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079A92A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift */; };
+		6AF5383D2A87C75A008DB923 /* DefaultGetAppleTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF5383C2A87C75A008DB923 /* DefaultGetAppleTokenUseCase.swift */; };
+		6AF5383F2A87C7EA008DB923 /* GetAppleTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF5383E2A87C7EA008DB923 /* GetAppleTokenUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1079,6 +1081,8 @@
 		6AC079A52A0B5FE7007ACDB8 /* MyGroupSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupSummary.swift; sourceTree = "<group>"; };
 		6AC079A72A0B639F007ACDB8 /* DefaultFetchMyGroupListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMyGroupListUseCase.swift; sourceTree = "<group>"; };
 		6AC079A92A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMyGroupListUseCase.swift; sourceTree = "<group>"; };
+		6AF5383C2A87C75A008DB923 /* DefaultGetAppleTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultGetAppleTokenUseCase.swift; sourceTree = "<group>"; };
+		6AF5383E2A87C7EA008DB923 /* GetAppleTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetAppleTokenUseCase.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -2447,6 +2451,7 @@
 				6A08ADD529C8D048005947D2 /* DefaultKakaoSignInUseCase.swift */,
 				6A24F84D29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift */,
 				6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */,
+				6AF5383C2A87C75A008DB923 /* DefaultGetAppleTokenUseCase.swift */,
 			);
 			path = SignIn;
 			sourceTree = "<group>";
@@ -2501,6 +2506,7 @@
 				6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */,
 				6A24F84B29CB6DC60000FD64 /* GoogleSignInUseCase.swift */,
 				6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */,
+				6AF5383E2A87C7EA008DB923 /* GetAppleTokenUseCase.swift */,
 			);
 			path = SignIn;
 			sourceTree = "<group>";
@@ -3207,6 +3213,7 @@
 				6A9AAB2929FA5A6C002A6DAF /* DefaultDeleteCategoryUseCase.swift in Sources */,
 				6A08AD9E29C89D93005947D2 /* SignInViewController.swift in Sources */,
 				6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */,
+				6AF5383D2A87C75A008DB923 /* DefaultGetAppleTokenUseCase.swift in Sources */,
 				6A987A0029DBD10500C27D09 /* JoinedGroupDetailCoordinator.swift in Sources */,
 				6A2C00DA2A713734003D6B95 /* FetchGroupTodoDetailUseCase.swift in Sources */,
 				6AC078FE2A0515C9007ACDB8 /* UIButton+Ext.swift in Sources */,
@@ -3256,6 +3263,7 @@
 				6A08ADB229C89E77005947D2 /* SignInViewModel.swift in Sources */,
 				6A9AAAC429F7FCF2002A6DAF /* MyPageMainSelectableCell.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
+				6AF5383F2A87C7EA008DB923 /* GetAppleTokenUseCase.swift in Sources */,
 				6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */,
 				6A987A7B29DF0E7600C27D09 /* SmallCalendarViewController.swift in Sources */,
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,

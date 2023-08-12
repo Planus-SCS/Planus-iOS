@@ -12,4 +12,5 @@ protocol SocialAuthRepository {
     func kakaoSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>>
     func googleSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>>
     func appleSignIn(requestDTO: AppleSignInRequestDTO) -> Single<ResponseDTO<TokenResponseDataDTO>>
+    func getAppleToken(authorizationCode: String) -> Single<ResponseDTO<TokenRefreshResponseDataDTO>>
 }

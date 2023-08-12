@@ -60,6 +60,21 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
             type: ResponseDTO<TokenResponseDataDTO>.self
         )
     }
+    
+    func getAppleToken(authorizationCode: String) -> Single<ResponseDTO<TokenRefreshResponseDataDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.oauthApple + "/token",
+            requestType: .get,
+            body: nil,
+            query: ["code": authorizationCode],
+            header: nil
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<TokenRefreshResponseDataDTO>.self
+        )
+    }
 }
 
 struct AppleSignInRequestDTO: Codable {
