@@ -215,17 +215,6 @@ extension TodoDetailViewModelable {
             .disposed(by: bag)
         
         input
-            .todoSaveBtnTapped
-            .withUnretained(self)
-            .subscribe(onNext: { vm, _ in //이부분은 구현체쪽에 구현하면 되지 않을까? 그럼 state유지하는 놈도 필요 없음
-                if !vm.nowSaving {
-                    vm.nowSaving = true
-                    vm.saveDetail()
-                }
-            })
-            .disposed(by: bag)
-        
-        input
             .newCategoryAddBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in

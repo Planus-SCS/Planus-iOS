@@ -274,8 +274,8 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 width: Double(1)/Double(7) * UIScreen.main.bounds.width,
                 height: UIView.layoutFittingCompressedSize.height
             ))
-            
-            let targetHeight = (estimatedSize.height > 120) ? estimatedSize.height : 120
+            let estimatedHeight = estimatedSize.height + mockCell.stackView.topY + 3
+            let targetHeight = (estimatedHeight > 120) ? estimatedHeight : 120
             height = targetHeight
         }
         
@@ -451,13 +451,13 @@ extension MonthlyCalendarCell {
         
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(Double(1)/Double(7)),
-            heightDimension: .estimated(120)
+            heightDimension: .estimated(140)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(120)
+            heightDimension: .estimated(140)
         )
         
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 7)

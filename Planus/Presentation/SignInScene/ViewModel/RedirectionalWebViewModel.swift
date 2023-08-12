@@ -81,12 +81,21 @@ enum SocialRedirectionType {
         }
     }
     
-    var deeplink: [String] {
+    var URLSchemes: [String] {
         switch self {
         case .kakao:
             return ["kakaokompassauth", "kakaolink", "kakaoplus", "kakaotalk"]
         case .google:
             return []
+        }
+    }
+    
+    var storeAppId: String? {
+        switch self {
+        case .kakao:
+            return "id362057947"
+        case .google:
+            return nil
         }
     }
 }

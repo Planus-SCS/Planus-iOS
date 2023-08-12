@@ -79,6 +79,9 @@
 		6A1B3F1529D7252900BFB3A6 /* notificationIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1B3F1229D7252900BFB3A6 /* notificationIcon@3x.png */; };
 		6A1B3F1629D7252900BFB3A6 /* notificationIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1B3F1329D7252900BFB3A6 /* notificationIcon@2x.png */; };
 		6A1B3F1829D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1B3F1729D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift */; };
+		6A1C81C82A871BBA002326AC /* today@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1C81C52A871BBA002326AC /* today@3x.png */; };
+		6A1C81C92A871BBA002326AC /* today@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1C81C62A871BBA002326AC /* today@2x.png */; };
+		6A1C81CA2A871BBA002326AC /* today.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1C81C72A871BBA002326AC /* today.png */; };
 		6A2186042A7D11FD005CF505 /* PlaceholderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */; };
 		6A2186262A811CEA005CF505 /* DefaultAppleSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */; };
 		6A2186282A811D53005CF505 /* AppleSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */; };
@@ -614,6 +617,9 @@
 		6A1B3F1229D7252900BFB3A6 /* notificationIcon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "notificationIcon@3x.png"; sourceTree = "<group>"; };
 		6A1B3F1329D7252900BFB3A6 /* notificationIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "notificationIcon@2x.png"; sourceTree = "<group>"; };
 		6A1B3F1729D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupSectionHeaderView.swift; sourceTree = "<group>"; };
+		6A1C81C52A871BBA002326AC /* today@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "today@3x.png"; sourceTree = "<group>"; };
+		6A1C81C62A871BBA002326AC /* today@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "today@2x.png"; sourceTree = "<group>"; };
+		6A1C81C72A871BBA002326AC /* today.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = today.png; sourceTree = "<group>"; };
 		6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTextView.swift; sourceTree = "<group>"; };
 		6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultAppleSignInUseCase.swift; sourceTree = "<group>"; };
 		6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInUseCase.swift; sourceTree = "<group>"; };
@@ -1231,6 +1237,9 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A1C81C72A871BBA002326AC /* today.png */,
+				6A1C81C62A871BBA002326AC /* today@2x.png */,
+				6A1C81C52A871BBA002326AC /* today@3x.png */,
 				6A9199DC2A16A15100108BF4 /* whitePlusBtn.png */,
 				6A9199DD2A16A15100108BF4 /* whitePlusBtn@2x.png */,
 				6A9199DE2A16A15100108BF4 /* whitePlusBtn@3x.png */,
@@ -2760,6 +2769,7 @@
 				6A987A6C29DEE44D00C27D09 /* DefaultProfileMedium2@2x.png in Resources */,
 				6A9199DF2A16A15100108BF4 /* whitePlusBtn.png in Resources */,
 				6A24F8B729CE3F800000FD64 /* Pretendard-Bold.otf in Resources */,
+				6A1C81C82A871BBA002326AC /* today@3x.png in Resources */,
 				6AC079442A0A368E007ACDB8 /* uncheck@3x.png in Resources */,
 				6A08ADB829C8A2B0005947D2 /* logo@2x.png in Resources */,
 				6A9199E12A16A15200108BF4 /* whitePlusBtn@3x.png in Resources */,
@@ -2803,6 +2813,7 @@
 				6A9AAAE429F80F73002A6DAF /* checkedBox@2x.png in Resources */,
 				6A24F8F729D1D6470000FD64 /* chevron-left@3x.png in Resources */,
 				6A9AAADE29F80F69002A6DAF /* uncheckedBox@2x.png in Resources */,
+				6A1C81C92A871BBA002326AC /* today@2x.png in Resources */,
 				6A1B3EFF29D710BC00BFB3A6 /* JoinNotificationProfile@3x.png in Resources */,
 				6A987A6E29DEE44D00C27D09 /* DefaultProfileMedium2.png in Resources */,
 				6AC0794A2A0A369C007ACDB8 /* check@3x.png in Resources */,
@@ -2828,6 +2839,7 @@
 				6A9199C92A15F27500108BF4 /* DefaultProfileMedium@2x.png in Resources */,
 				6A95DFBD29D4E2E6009017D8 /* searchBarIcon.png in Resources */,
 				6AC0792C2A093AD2007ACDB8 /* cloud.png in Resources */,
+				6A1C81CA2A871BBA002326AC /* today.png in Resources */,
 				6A0BF76529D35D2C006F2604 /* edit_swipe@2x.png in Resources */,
 				6A95E00429D5B756009017D8 /* GroupAddBtn@3x.png in Resources */,
 				6A1B3F1029D7192A00BFB3A6 /* onlineIcon.png in Resources */,

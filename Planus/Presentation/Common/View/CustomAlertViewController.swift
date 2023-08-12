@@ -17,7 +17,6 @@ final class CustomAlertViewController: UIViewController {
         view.layer.cornerRadius = 12
         view.layer.masksToBounds = true
         view.layer.cornerCurve = .continuous
-        view.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
         return view
     }()
     
@@ -39,7 +38,7 @@ final class CustomAlertViewController: UIViewController {
         let label = UILabel()
         label.text = titleText
         label.textAlignment = .center
-        label.font = UIFont(name: "Pretendard-SemiBold", size: 16)
+        label.font = UIFont(name: "Pretendard-Bold", size: 16)
         label.numberOfLines = 0
         label.textColor = .black.withAlphaComponent(0.9)
         return label
@@ -80,10 +79,11 @@ final class CustomAlertViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         containerView.alpha = 0.0
+        view.backgroundColor = .black.withAlphaComponent(0)
         containerView.isHidden = false
-        UIView.animate(withDuration: 0.2, delay: 0.0) { [weak self] in
-//            self?.containerView.transform = .identity
+        UIView.animate(withDuration: 0.15, delay: 0.0, options: .curveEaseIn) { [weak self] in
             self?.containerView.alpha = 1.0
+            self?.view.backgroundColor = .black.withAlphaComponent(0.4)
         }
     }
 
@@ -91,11 +91,12 @@ final class CustomAlertViewController: UIViewController {
         super.viewWillDisappear(animated)
 
         UIView.animate(
-            withDuration: 0.2,
+            withDuration: 0.15,
             delay: 0.0,
+            options: .curveEaseOut,
             animations: { [weak self] in
-//                self?.containerView.transform = .identity
                 self?.containerView.alpha = 0.0
+                self?.view.backgroundColor = .black.withAlphaComponent(0)
             },
             completion: { [weak self] _ in
                 self?.containerView.isHidden = true
@@ -112,19 +113,19 @@ final class CustomAlertViewController: UIViewController {
         containerStackView.addArrangedSubview(buttonStackView)
         containerStackView.setCustomSpacing(12, after: titleLabel)
         containerStackView.setCustomSpacing(18, after: messageLabel)
-        view.backgroundColor = .black.withAlphaComponent(0.4)
     }
 
     private func configureLayout() {
         containerView.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.leading.trailing.equalToSuperview().inset(26)
+            $0.leading.trailing.equalToSuperview().inset(50)
             $0.top.greaterThanOrEqualToSuperview().inset(32)
             $0.bottom.lessThanOrEqualToSuperview().inset(32)
         }
 
         containerStackView.snp.makeConstraints {
-            $0.top.bottom.leading.trailing.equalTo(containerView).inset(24)
+            $0.top.equalToSuperview().inset(28)
+            $0.bottom.leading.trailing.equalTo(containerView).inset(24)
         }
         
         buttonStackView.snp.makeConstraints {
@@ -139,7 +140,7 @@ final class CustomAlertViewController: UIViewController {
                                   backgroundColor: UIColor,
                                   completion: (() -> Void)? = nil) {
         let button = SpringableButton(frame: .zero)
-        button.titleLabel?.font = UIFont(name: "Pretendard-Regular", size: 14)
+        button.titleLabel?.font = UIFont(name: "Pretendard-Regular", size: 12)
         button.setTitle(title, for: .normal)
         button.setTitleColor(titleColor, for: .normal)
         button.backgroundColor = backgroundColor

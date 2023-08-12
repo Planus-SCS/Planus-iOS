@@ -363,7 +363,7 @@ class TodoDetailViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.showPopUp(title: "이름, 카테고리는 꼭 입력해주세요", message: "그러나 아무것도 안하는 것도\n충분히 중요한 일이죠😌", alertAttrs: [CustomAlertAttr(title: "확인", actionHandler: {}, type: .normal)])
+                vc.showPopUp(title: "일정, 카테고리는 필수에요", message: "그러나 아무것도 안하는 것도\n충분히 중요한 일이죠 😌", alertAttrs: [CustomAlertAttr(title: "확인", actionHandler: {}, type: .normal)])
             })
             .disposed(by: bag)
         

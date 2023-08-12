@@ -123,9 +123,13 @@ extension RedirectionalWebViewController: WKNavigationDelegate {
         print("navigate: ", navigationAction.request.url)
         if let url = navigationAction.request.url,
            let scheme = url.scheme,
-           viewModel.type.deeplink.contains(scheme) {
+           viewModel.type.URLSchemes.contains(scheme) {
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            } else {
+                if let appId = viewModel.type.storeAppId {
+                    UIApplication.shared.open(URL(string: "itms-apps://itunes.apple.com/app/" + appId)!, options: [:], completionHandler: nil)
+                }
             }
             
             
@@ -139,10 +143,10 @@ extension RedirectionalWebViewController: WKNavigationDelegate {
                 url.port == redirectURL.port,
                 url.path == redirectURL.path {
             
-            guard let url = URLComponents(url: url, resolvingAgainstBaseURL: true),
-                  let code = url.queryItems?.filter({ $0.name == "code" }).first?.value else { return }
-
-            self.code.onNext(code)
+            guard let url = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return }
+            if let code = url.queryItems?.filter({ $0.name == "code" }).first?.value {
+                self.code.onNext(code)
+            }
             decisionHandler(.cancel)
             
             return
