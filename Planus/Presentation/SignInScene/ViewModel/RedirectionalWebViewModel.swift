@@ -19,7 +19,7 @@ class RedirectionalWebViewModel {
     var actions: RedirectionalWebViewActions?
     
     var type: SocialRedirectionType
-    var completion: (String) -> Void
+    var completion: ((String) -> Void)?
     
     var needToDismiss = PublishSubject<Void>()
     
@@ -54,7 +54,7 @@ class RedirectionalWebViewModel {
 
     func codeFetched(code: String) {
         needToDismiss.onNext(())
-        completion(code)
+        completion?(code)
     }
     
 }
@@ -78,6 +78,15 @@ enum SocialRedirectionType {
             return KakaoAuthURL.redirectURI
         case .google:
             return GoogleAuthURL.redirectURI
+        }
+    }
+    
+    var deeplink: [String] {
+        switch self {
+        case .kakao:
+            return ["kakaokompassauth", "kakaolink", "kakaoplus", "kakaotalk"]
+        case .google:
+            return []
         }
     }
 }

@@ -47,12 +47,15 @@ class NetworkManager: APIProvider {
                     emitter(.failure(NetworkManagerError.nilDataError))
                     return
                 }
-                print(request.url)
-                if let body = request.httpBody {
-                    print(String(data: body, encoding: .utf8))
-                }
                 
-                print(String(data: data, encoding: .utf8))
+                DispatchQueue.main.async {
+                    print(request.url)
+                    if let body = request.httpBody {
+                        print(String(data: body, encoding: .utf8))
+                    }
+                    
+                    print(String(data: data, encoding: .utf8))
+                }
 
                 guard let httpResponse = response as? HTTPURLResponse else { return }
                 switch httpResponse.statusCode {

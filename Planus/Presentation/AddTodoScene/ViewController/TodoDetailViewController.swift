@@ -231,7 +231,12 @@ class TodoDetailViewController: UIViewController {
         
         output
             .memoValueChanged
-            .bind(to: addTodoView.memoTextView.rx.text)
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, text in
+                vc.addTodoView.memoTextView.text = text
+                vc.addTodoView.layoutTextViewLines()
+            })
             .disposed(by: bag)
         
         output //계속 뺑그르르 돌고있다...

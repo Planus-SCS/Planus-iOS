@@ -278,17 +278,22 @@ class AddTodoView: UIView {
             $0.top.equalTo(headerBarView.snp.bottom)
         }
     }
-}
-
-extension AddTodoView: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) { //줄단위로 말고 const 단위로 맞추자
-
-        let lines = textView.numberOfLines
+    
+    func layoutTextViewLines() {
+        let lines = memoTextView.numberOfLines
         if lines >= 2 {
             self.memoHeightConstraint.constant = memoMaxHeight
         } else {
             self.memoHeightConstraint.constant = fieldInitHeight
         }
-        textView.layoutIfNeeded()
+        memoTextView.layoutIfNeeded()
+    }
+}
+
+extension AddTodoView: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) { //줄단위로 말고 const 단위로 맞추자
+        if textView == memoTextView {
+            layoutTextViewLines()
+        }
     }
 }

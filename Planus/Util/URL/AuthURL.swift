@@ -8,7 +8,7 @@
 import Foundation
 
 struct KakaoAuthURL {
-    static let kakaoAuthCodeURL = "https://kauth.kakao.com/oauth/authorize?client_id=e3db77b879bd944542d59883a7d1f448&redirect_uri=\(redirectURI)&response_type=code"
+    static let kakaoAuthCodeURL = "https://kauth.kakao.com/oauth/authorize?client_id=e3db77b879bd944542d59883a7d1f448&redirect_uri=\(redirectURI)&response_type=code&prompt=select_account"
     static let redirectURI = "https://planus.shop/app/oauth/kakao"
 }
 
