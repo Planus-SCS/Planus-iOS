@@ -7,6 +7,7 @@
 
 import Foundation
 import RxSwift
+import AuthenticationServices
 
 class MyPageMainViewModel {
     var bag = DisposeBag()
@@ -21,6 +22,8 @@ class MyPageMainViewModel {
     
     var didRefreshUserProfile = BehaviorSubject<Void?>(value: nil)
     var didResigned = PublishSubject<Void>()
+    var didRequireAppleSignInWithRequest = PublishSubject<ASAuthorizationAppleIDRequest>()
+    var nowResigning: Bool = false
     
     lazy var titleList: [MyPageMainTitleViewModel] = [ //이 리스트까지 이넘으로 해서 caseIterable쓸까?
 //        MyPageMainTitleViewModel(title: "푸시 알림 ~ 🚧 개발중 👷‍♂️", type: .toggle(self.isPushOn)),
@@ -37,11 +40,13 @@ class MyPageMainViewModel {
         var didSelectedAt: Observable<Int>
         var signOut: Observable<Void>
         var resign: Observable<Void>
+        var didReceiveAppleAuthCode: Observable<Data>
     }
     
     struct Output {
         var didRefreshUserProfile: Observable<Void?>
         var didResigned: Observable<Void>
+        var didRequireAppleSignInWithRequest: Observable<ASAuthorizationAppleIDRequest>
     }
     
     var updateProfileUseCase: UpdateProfileUseCase
@@ -50,6 +55,9 @@ class MyPageMainViewModel {
     var removeTokenUseCase: RemoveTokenUseCase
     var removeProfileUseCase: RemoveProfileUseCase
     var fetchImageUseCase: FetchImageUseCase
+    var getSignedInSNSTypeUseCase: GetSignedInSNSTypeUseCase
+    var convertToSha256UseCase: ConvertToSha256UseCase
+    var revokeAppleTokenUseCase: RevokeAppleTokenUseCase
     
     init(
         updateProfileUseCase: UpdateProfileUseCase,
@@ -57,7 +65,10 @@ class MyPageMainViewModel {
         refreshTokenUseCase: RefreshTokenUseCase,
         removeTokenUseCase: RemoveTokenUseCase,
         removeProfileUseCase: RemoveProfileUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        fetchImageUseCase: FetchImageUseCase,
+        getSignedInSNSTypeUseCase: GetSignedInSNSTypeUseCase,
+        convertToSha256UseCase: ConvertToSha256UseCase,
+        revokeAppleTokenUseCase: RevokeAppleTokenUseCase
     ) {
         self.updateProfileUseCase = DefaultUpdateProfileUseCase.shared
         self.getTokenUseCase = getTokenUseCase
@@ -65,6 +76,9 @@ class MyPageMainViewModel {
         self.removeTokenUseCase = removeTokenUseCase
         self.removeProfileUseCase = removeProfileUseCase
         self.fetchImageUseCase = fetchImageUseCase
+        self.getSignedInSNSTypeUseCase = getSignedInSNSTypeUseCase
+        self.convertToSha256UseCase = convertToSha256UseCase
+        self.revokeAppleTokenUseCase = revokeAppleTokenUseCase
     }
     
     func setProfile(profile: Profile) {
@@ -97,7 +111,20 @@ class MyPageMainViewModel {
             })
             .disposed(by: bag)
         
-        return Output(didRefreshUserProfile: didRefreshUserProfile.asObservable(), didResigned: didResigned.asObservable())
+        input
+            .didReceiveAppleAuthCode
+            .withUnretained(self)
+            .subscribe(onNext: { vm, authData in
+                guard let authCodeStr = String(data: authData, encoding: .utf8) else { return }
+                vm.revokeAppleToken(code: authCodeStr)
+            })
+            .disposed(by: bag)
+        
+        return Output(
+            didRefreshUserProfile: didRefreshUserProfile.asObservable(),
+            didResigned: didResigned.asObservable(),
+            didRequireAppleSignInWithRequest: didRequireAppleSignInWithRequest.asObservable()
+        )
     }
     
     func bindUseCase() {
@@ -117,7 +144,21 @@ class MyPageMainViewModel {
         removeTokenUseCase.execute()
     }
     
+    func resignTapped() {
+        nowResigning = true
+        guard let authType = getSignedInSNSTypeUseCase.execute() else { return }
+        
+        switch authType {
+        case .kakao, .google:
+            resign()
+        case .apple:
+            let request = generateAppleSignInRequest()
+            didRequireAppleSignInWithRequest.onNext(request)
+        }
+    }
+    
     func resign() {
+        guard nowResigning else { return }
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
@@ -133,6 +174,8 @@ class MyPageMainViewModel {
             .subscribe(onSuccess: { [weak self] _ in
                 self?.signOut()
                 self?.didResigned.onNext(())
+            }, onFailure: { [weak self] error in
+                self?.nowResigning = false
             })
             .disposed(by: bag)
     }
@@ -140,5 +183,24 @@ class MyPageMainViewModel {
     func fetchImage(key: String) -> Single<Data> {
         return fetchImageUseCase.execute(key: key)
     }
+    
+    func generateAppleSignInRequest() -> ASAuthorizationAppleIDRequest {
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = convertToSha256UseCase.execute(AppleSignInNonce.nonce)
+        return request
+    }
 
+    func revokeAppleToken(code: String) {
+        revokeAppleTokenUseCase
+            .execute(authorizationCode: code)
+            .subscribe(onSuccess: { [weak self] in
+                print("revoke 성공!")
+                self?.resign()
+            }, onFailure: { [weak self] error in
+                self?.nowResigning = false
+            })
+            .disposed(by: bag)
+    }
 }

@@ -197,21 +197,8 @@ extension SignInViewController: ASAuthorizationControllerDelegate {
                let familyName = userFullName.familyName {
                 fullName = PersonNameComponents(givenName: givenName, familyName: familyName)
             }
-            print(appleIDCredential.authorizationCode)
-            if let code = appleIDCredential.authorizationCode,
-               let codeString = String(data: code, encoding: .utf8) {
-                viewModel?.getAppleTokenUseCase.execute(authorizationCode: codeString)
-                    .subscribe(onSuccess: {
-                        print($0)
-                    }, onFailure: {
-                        print($0)
-                    })
-                    .disposed(by: bag)
 
-            }
-            
-            
-//            didReceiveAppleIdentityToken.onNext((identityToken, fullName))
+            didReceiveAppleIdentityToken.onNext((identityToken, fullName))
         }
     }
 

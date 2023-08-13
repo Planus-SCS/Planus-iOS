@@ -28,18 +28,20 @@ class SignInCoordinator: Coordinator {
     lazy var showLoginPage: () -> Void = { [weak self] in
         let api = NetworkManager()
         let keyChain = KeyChainManager()
-        let repo = DefaultSocialAuthRepository(apiProvider: api)
+        let socialAuthRepo = DefaultSocialAuthRepository(apiProvider: api, keyValueStorage: UserDefaultsManager())
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
-        let kakaoSignInUseCase = DefaultKakaoSignInUseCase(socialAuthRepository: repo)
-        let googleSignInUseCase = DefaultGoogleSignInUseCase(socialAuthRepository: repo)
-        let appleSignInUseCase = DefaultAppleSignInUseCase(socialAuthRepository: repo)
+        let kakaoSignInUseCase = DefaultKakaoSignInUseCase(socialAuthRepository: socialAuthRepo)
+        let googleSignInUseCase = DefaultGoogleSignInUseCase(socialAuthRepository: socialAuthRepo)
+        let appleSignInUseCase = DefaultAppleSignInUseCase(socialAuthRepository: socialAuthRepo)
         let converter = DefaultConvertToSha256UseCase()
+        let setSignedInSNSTypeUseCase = DefaultSetSignedInSNSTypeUseCase(socialAuthRepository: socialAuthRepo)
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
         let vm = SignInViewModel(
             kakaoSignInUseCase: kakaoSignInUseCase,
             googleSignInUseCase: googleSignInUseCase,
             appleSignInUseCase: appleSignInUseCase,
             convertToSha256UseCase: converter,
+            setSignedInSNSTypeUseCase: setSignedInSNSTypeUseCase,
             setTokenUseCase: setTokenUseCase
         )
         

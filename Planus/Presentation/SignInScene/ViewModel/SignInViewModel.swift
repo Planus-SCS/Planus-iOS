@@ -26,8 +26,7 @@ class SignInViewModel {
     let googleSignInUseCase: GoogleSignInUseCase
     let appleSignInUseCase: AppleSignInUseCase
     let convertToSha256UseCase: ConvertToSha256UseCase
-    
-    let getAppleTokenUseCase = DefaultFetchAppleTokenUseCase(socialAuthRepository: DefaultSocialAuthRepository(apiProvider: NetworkManager()))
+    let setSignedInSNSTypeUseCase: SetSignedInSNSTypeUseCase
     
     let setTokenUseCase: SetTokenUseCase
         
@@ -48,13 +47,16 @@ class SignInViewModel {
         googleSignInUseCase: GoogleSignInUseCase,
         appleSignInUseCase: AppleSignInUseCase,
         convertToSha256UseCase: ConvertToSha256UseCase,
+        setSignedInSNSTypeUseCase: SetSignedInSNSTypeUseCase,
         setTokenUseCase: SetTokenUseCase
     ) {
         self.kakaoSignInUseCase = kakaoSignInUseCase
         self.googleSignInUseCase = googleSignInUseCase
         self.appleSignInUseCase = appleSignInUseCase
         self.convertToSha256UseCase = convertToSha256UseCase
+        self.setSignedInSNSTypeUseCase = setSignedInSNSTypeUseCase
         self.setTokenUseCase = setTokenUseCase
+        
     }
     
     func setActions(actions: SignInViewModelActions) {
@@ -115,6 +117,7 @@ class SignInViewModel {
             self.kakaoSignInUseCase.execute(code: code)
                 .subscribe(onSuccess: { [weak self] token in
                     self?.setTokenUseCase.execute(token: token)
+                    self?.setSignedInSNSTypeUseCase.execute(type: .kakao)
                     self?.actions?.showMainTabFlow?()
                 }, onFailure: { [weak self] error in
                     guard let error = error as? NetworkManagerError,
@@ -132,6 +135,7 @@ class SignInViewModel {
             self.googleSignInUseCase.execute(code: code)
                 .subscribe(onSuccess: { [weak self] token in
                     self?.setTokenUseCase.execute(token: token)
+                    self?.setSignedInSNSTypeUseCase.execute(type: .google)
                     self?.actions?.showMainTabFlow?()
                 }, onFailure: { [weak self] error in
                     guard let error = error as? NetworkManagerError,
@@ -147,6 +151,7 @@ class SignInViewModel {
         self.appleSignInUseCase.execute(identityToken: identityToken, fullName: fullName)
             .subscribe(onSuccess: { [weak self] token in
                 self?.setTokenUseCase.execute(token: token)
+                self?.setSignedInSNSTypeUseCase.execute(type: .apple)
                 self?.actions?.showMainTabFlow?()
             }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,

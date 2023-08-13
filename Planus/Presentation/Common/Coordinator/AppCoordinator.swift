@@ -54,6 +54,7 @@ final class AppCoordinator: Coordinator {
                    case NetworkManagerError.clientError(let int, let string) = ne {
                     print(string)
                 }
+                print("signIn!!")
                 self?.showSignInFlow()
             })
             .disposed(by: bag)
