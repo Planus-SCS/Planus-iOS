@@ -92,7 +92,7 @@ class CategorySelectView: UIView {
         addNewItemButton.snp.remakeConstraints {
             $0.top.equalTo(self.headerBarView.snp.bottom)
             $0.leading.equalToSuperview().inset(20)
-            $0.width.equalTo(140)
+            $0.width.equalTo(130)
             $0.height.equalTo(40)
         }
         

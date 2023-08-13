@@ -311,6 +311,17 @@ extension TodoDetailViewModelable {
             })
             .disposed(by: bag)
         
+        input
+            .todoRemoveBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                if !vm.nowSaving {
+                    vm.nowSaving = true
+                    vm.removeDetail()
+                }
+            })
+            .disposed(by: bag)
+        
         let newCategorySaveBtnEnabled = Observable
             .combineLatest(
                 newCategoryName,

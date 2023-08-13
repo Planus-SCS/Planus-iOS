@@ -1,5 +1,5 @@
 //
-//  DefaultGetAppleTokenUseCase.swift
+//  DefaultFetchAppleTokenUseCase.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/08/12.
@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultGetAppleTokenUseCase: GetAppleTokenUseCase {
+class DefaultFetchAppleTokenUseCase: FetchAppleTokenUseCase {
     let socialAuthRepository: SocialAuthRepository
     
     init(

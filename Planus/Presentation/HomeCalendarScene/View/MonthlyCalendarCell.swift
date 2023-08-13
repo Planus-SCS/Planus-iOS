@@ -260,7 +260,8 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
             height = cellHeight
         } else {
-            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: 120))
+            // 이부분 좀 이상하다..! 수정 필요..!!!
+            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: 110))
             mockCell.delegate = self
             mockCell.fill(
                 periodTodoList: maxItem.periodTodo,
@@ -275,7 +276,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 height: UIView.layoutFittingCompressedSize.height
             ))
             let estimatedHeight = estimatedSize.height + mockCell.stackView.topY + 3
-            let targetHeight = (estimatedHeight > 120) ? estimatedHeight : 120
+            let targetHeight = (estimatedHeight > 110) ? estimatedHeight : 110
             height = targetHeight
         }
         
@@ -451,13 +452,13 @@ extension MonthlyCalendarCell {
         
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(Double(1)/Double(7)),
-            heightDimension: .estimated(140)
+            heightDimension: .estimated(110)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(140)
+            heightDimension: .estimated(110)
         )
         
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 7)

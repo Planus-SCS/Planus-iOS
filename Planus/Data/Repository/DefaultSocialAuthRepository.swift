@@ -11,9 +11,14 @@ import RxSwift
 class DefaultSocialAuthRepository: SocialAuthRepository {
     
     let apiProvider: APIProvider
+    let keyValueStorage: KeyValueStorage
     
-    init(apiProvider: APIProvider) {
+    init(
+        apiProvider: APIProvider,
+        keyValueStorage: KeyValueStorage
+    ) {
         self.apiProvider = apiProvider
+        self.keyValueStorage = keyValueStorage
     }
     
     func kakaoSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>> {
@@ -48,7 +53,7 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
     
     func appleSignIn(requestDTO: AppleSignInRequestDTO) -> Single<ResponseDTO<TokenResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: URLPool.oauthApple,
+            url: URLPool.oauthAppleSignIn,
             requestType: .post,
             body: requestDTO,
             query: nil,
@@ -63,7 +68,7 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
     
     func getAppleToken(authorizationCode: String) -> Single<ResponseDTO<TokenRefreshResponseDataDTO>> {
         let endPoint = APIEndPoint(
-            url: URLPool.oauthApple + "/token",
+            url: URLPool.oauthAppleToken,
             requestType: .get,
             body: nil,
             query: ["code": authorizationCode],
@@ -74,6 +79,15 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
             endPoint: endPoint,
             type: ResponseDTO<TokenRefreshResponseDataDTO>.self
         )
+    }
+    
+    func getSignedInSNSType() -> SocialAuthType? {
+        let typeString = keyValueStorage.get(key: SocialAuthType.authType) as? String
+        return SocialAuthType(rawValue: typeString ?? String())
+    }
+    
+    func setSignedInSNSType(type: SocialAuthType) {
+        keyValueStorage.set(key: SocialAuthType.authType, value: type.rawValue)
     }
 }
 

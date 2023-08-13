@@ -18,7 +18,8 @@ struct URLPool {
     static let refreshToken = Base.main + Path.app + Path.auth + Path.tokenReissue
     static let oauthKakao = Base.main + Path.app + Path.oauth + Path.kakao
     static let oauthGoogle = Base.main + Path.app + Path.oauth + Path.google
-    static let oauthApple = Base.main + Path.app + Path.oauth + Path.apple
+    static let oauthAppleSignIn = Base.main + Path.app + Path.oauth + Path.appleLogin
+    static let oauthAppleToken = Base.main + Path.app + Path.oauth + Path.apple + Path.token
     static let groups = Base.main + Path.app + Path.groups
     static let groupJoin = Base.main + Path.app + Path.joins
     static let myGroup = Base.main + Path.app + Path.myGroups

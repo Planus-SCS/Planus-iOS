@@ -62,7 +62,7 @@ class DefaultTokenRepository: TokenRepository {
     }
     
     func delete() {
-        keyChainManager.delete(key: "accessToken")
-        keyChainManager.delete(key: "refreshToken")
+        keyChainManager.remove(key: "accessToken")
+        keyChainManager.remove(key: "refreshToken")
     }
 }

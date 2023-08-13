@@ -105,7 +105,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         }
         
         self.addSubview(stackView)
-        stackView.frame = CGRect(x: 2, y: 25, width: UIScreen.main.bounds.width, height: 500)
+        stackView.frame = CGRect(x: 0, y: 25, width: UIScreen.main.bounds.width, height: 500)
         
         contentView.snp.makeConstraints {
             $0.edges.equalToSuperview()
@@ -113,7 +113,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         
         contentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.snp.makeConstraints {
-            $0.height.equalTo(120)
+            $0.height.equalTo(110)
         }
         
         contentViewHeightConst = contentView.constraints.first(where: { $0.firstAttribute == .height })
@@ -260,12 +260,12 @@ class DailyCalendarCell: SpringableCollectionViewCell {
 extension DailyCalendarCell {
     func generateSmallTodoView(title: String, color: CategoryColor, startDate: Date, endDate: Date, isComplete: Bool?) -> SmallTodoView {
         let diff = (Calendar.current.dateComponents([.day], from: startDate, to: endDate).day ?? 0) + 1
-        var todoView = SmallTodoView(frame: CGRect(x: 0, y: 0, width: (UIScreen.main.bounds.width/7)*CGFloat(diff)-8, height: 18), text: title, categoryColor: color, isComplete: isComplete)
+        var todoView = SmallTodoView(frame: CGRect(x: 4, y: 0, width: (UIScreen.main.bounds.width/7)*CGFloat(diff)-8, height: 18), text: title, categoryColor: color, isComplete: isComplete)
         return todoView
     }
         
     func generateClearView() -> UIView {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: (UIScreen.main.bounds.width/7) - 8, height: 18))
+        let view = UIView(frame: CGRect(x: 4, y: 0, width: (UIScreen.main.bounds.width/7) - 8, height: 18))
         view.backgroundColor = .clear
         return view
     }
@@ -281,7 +281,7 @@ extension DailyCalendarCell {
         }()
         titleLabel.text = title
         
-        titleLabel.frame = CGRect(x: 0, y: 0, width: (UIScreen.main.bounds.width/7) - 8, height: 18)
+        titleLabel.frame = CGRect(x: 4, y: 0, width: (UIScreen.main.bounds.width/7) - 8, height: 18)
 
         return titleLabel
     }
@@ -294,7 +294,7 @@ protocol DailyCalendarCellDelegate: NSObject {
 
 class TodoStackView: UIView {
     var topY: CGFloat = 0
-    var spacing: CGFloat = 4
+    var spacing: CGFloat = 0
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -305,7 +305,7 @@ class TodoStackView: UIView {
     }
     
     func addArrangedSubview(_ view: UIView) {
-        view.frame = CGRect(x: self.frame.minX, y: topY + spacing, width: view.frame.width, height: view.frame.height)
+        view.frame = CGRect(x: view.frame.minX, y: topY + spacing, width: view.frame.width, height: view.frame.height)
         topY += (view.frame.height + spacing)
         self.addSubview(view)
     }

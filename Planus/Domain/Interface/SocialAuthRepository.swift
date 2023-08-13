@@ -13,4 +13,6 @@ protocol SocialAuthRepository {
     func googleSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>>
     func appleSignIn(requestDTO: AppleSignInRequestDTO) -> Single<ResponseDTO<TokenResponseDataDTO>>
     func getAppleToken(authorizationCode: String) -> Single<ResponseDTO<TokenRefreshResponseDataDTO>>
+    func getSignedInSNSType() -> SocialAuthType?
+    func setSignedInSNSType(type: SocialAuthType)
 }

@@ -27,6 +27,8 @@ class SignInViewModel {
     let appleSignInUseCase: AppleSignInUseCase
     let convertToSha256UseCase: ConvertToSha256UseCase
     
+    let getAppleTokenUseCase = DefaultFetchAppleTokenUseCase(socialAuthRepository: DefaultSocialAuthRepository(apiProvider: NetworkManager()))
+    
     let setTokenUseCase: SetTokenUseCase
         
     struct Input {
