@@ -282,18 +282,21 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
             height = cellHeight
         } else {
-            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 120))
-            mockCell.socialFill(periodTodoList: maxItem.periodTodo, singleTodoList: maxItem.singleTodo, holiday: maxItem.holiday)
+            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: 110))
+            mockCell.socialFill(
+                periodTodoList: maxItem.periodTodo,
+                singleTodoList: maxItem.singleTodo,
+                holiday: maxItem.holiday
+            )
             
             mockCell.layoutIfNeeded()
             
             let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
-                width: Double(1)/Double(7) * screenWidth,
+                width: Double(1)/Double(7) * UIScreen.main.bounds.width,
                 height: UIView.layoutFittingCompressedSize.height
             ))
-            
-            let targetHeight = (estimatedSize.height > 120) ? estimatedSize.height : 120
-            viewModel.cachedCellHeightForTodoCount[todosHeight] = targetHeight
+            let estimatedHeight = estimatedSize.height + mockCell.stackView.topY + 3
+            let targetHeight = (estimatedHeight > 110) ? estimatedHeight : 110
             height = targetHeight
         }
         
@@ -357,13 +360,13 @@ extension JoinedGroupCalendarViewController {
         
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(Double(1)/Double(7)),
-            heightDimension: .estimated(120)
+            heightDimension: .estimated(110)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(120)
+            heightDimension: .estimated(110)
         )
         
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 7)

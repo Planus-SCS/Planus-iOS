@@ -260,7 +260,6 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
             height = cellHeight
         } else {
-            // 이부분 좀 이상하다..! 수정 필요..!!!
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: 110))
             mockCell.delegate = self
             mockCell.fill(
