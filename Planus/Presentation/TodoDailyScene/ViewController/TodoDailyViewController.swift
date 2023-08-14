@@ -94,17 +94,18 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                if indexPath.section == 0 {
-                    if vm.viewModel?.scheduledTodoList?.count == 1 {
-                        vm.collectionView.deleteItems(at: [indexPath])
+                vm.collectionView.performBatchUpdates({
+                    if indexPath.section == 0,
+                       vm.viewModel?.scheduledTodoList?.count == 1 {
+                        vm.collectionView.reloadItems(at: [indexPath])
                     }
-                } else if indexPath.section == 1 {
-                    if vm.viewModel?.unscheduledTodoList?.count == 1 {
-                        vm.collectionView.deleteItems(at: [indexPath])
+                    else if indexPath.section == 1,
+                            vm.viewModel?.unscheduledTodoList?.count == 1 {
+                        vm.collectionView.reloadItems(at: [indexPath])
+                    } else {
+                        vm.collectionView.insertItems(at: [indexPath])
                     }
-                }
-                
-                vm.collectionView.insertItems(at: [indexPath])
+                })
             })
             .disposed(by: bag)
             
@@ -113,21 +114,16 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.performBatchUpdates({
+                if indexPath.section == 0,
+                   vm.viewModel?.scheduledTodoList?.count == 0 {
+                    vm.collectionView.reloadItems(at: [indexPath])
+                    
+                } else if indexPath.section == 1,
+                          vm.viewModel?.unscheduledTodoList?.count == 0 {
+                    vm.collectionView.reloadItems(at: [indexPath])
+                    
+                } else {
                     vm.collectionView.deleteItems(at: [indexPath])
-                }, completion: { _ in
-                    UIView.performWithoutAnimation {
-                        vm.collectionView.reloadSections(IndexSet(0...1))
-                    }
-                })
-                if indexPath.section == 0 {
-                    if vm.viewModel?.scheduledTodoList?.count == 0 {
-                        vm.collectionView.insertItems(at: [indexPath])
-                    }
-                } else if indexPath.section == 1 {
-                    if vm.viewModel?.unscheduledTodoList?.count == 0 {
-                        vm.collectionView.insertItems(at: [indexPath])
-                    }
                 }
             })
             .disposed(by: bag)

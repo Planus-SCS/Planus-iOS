@@ -215,6 +215,7 @@ class SearchResultViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.historyView.isHidden = true
+                vc.spinner.setAnimatedIsHidden(false)
                 vc.spinner.startAnimating()
                 vc.needFetchHistory.onNext(())
             })
@@ -225,6 +226,8 @@ class SearchResultViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                vc.spinner.stopAnimating()
+                vc.spinner.setAnimatedIsHidden(true)
                 vc.resultCollectionView.performBatchUpdates({
                     vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
                 }, completion: { _ in
@@ -288,7 +291,7 @@ class SearchResultViewController: UIViewController {
         
         spinner.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.top.equalToSuperview().inset(50)
+            $0.top.equalTo(self.view.safeAreaLayoutGuide).inset(50)
         }
         
         emptyResultView.snp.makeConstraints {

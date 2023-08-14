@@ -177,7 +177,7 @@ extension NotificationViewController: UICollectionViewDataSource, UICollectionVi
         guard let item = viewModel?.joinAppliedList?[indexPath.item],
               let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupJoinNotificationCell.reuseIdentifier, for: indexPath) as? GroupJoinNotificationCell else { return UICollectionViewCell() }
         
-        var bag = DisposeBag()
+        let bag = DisposeBag()
         cell.fill(bag: bag, indexPath: indexPath, isAllowTapped: didAllowBtnTappedAt, isDenyTapped: didDenyBtnTappedAt)
         cell.fill(groupName: item.groupName, memberName: item.memberName, memberDesc: item.memberDescription)
         

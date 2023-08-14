@@ -25,6 +25,7 @@ class NotificationViewModel {
     }
     
     var joinAppliedList: [GroupJoinApplied]?
+    var nowProcessingJoinId: [Int] = []
     var didFetchJoinApplyList = BehaviorSubject<FetchType?>(value: nil)
     var needRemoveAt = PublishSubject<Int>()
     
@@ -99,8 +100,9 @@ class NotificationViewModel {
     }
     
     func acceptGroupJoinAt(index: Int) {
-        guard let id = joinAppliedList?[index].groupJoinId else { return }
-
+        guard let id = joinAppliedList?[index].groupJoinId,
+              nowProcessingJoinId.filter({ $0 == id }).isEmpty else { return }
+        nowProcessingJoinId.append(id)
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
@@ -115,6 +117,7 @@ class NotificationViewModel {
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
+                self?.nowProcessingJoinId.removeAll(where: { $0 == id })
                 self?.joinAppliedList?.remove(at: index)
                 self?.needRemoveAt.onNext(index)
             }, onFailure: { [weak self] error in
@@ -127,8 +130,9 @@ class NotificationViewModel {
     }
     
     func denyGroupJoinAt(index: Int) {
-        guard let id = joinAppliedList?[index].groupJoinId else { return }
-        
+        guard let id = joinAppliedList?[index].groupJoinId,
+              nowProcessingJoinId.filter({ $0 == id }).isEmpty else { return }
+        nowProcessingJoinId.append(id)
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
@@ -143,9 +147,10 @@ class NotificationViewModel {
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
+                self?.nowProcessingJoinId.removeAll(where: { $0 == id })
                 self?.joinAppliedList?.remove(at: index)
                 self?.needRemoveAt.onNext(index)
-            }, onError: { [weak self] error in
+            }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,
                       case NetworkManagerError.clientError(let status, let message) = error,
                       let message = message else { return }
