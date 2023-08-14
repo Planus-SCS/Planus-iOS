@@ -204,7 +204,8 @@ class GroupCreateViewController: UIViewController {
                 let viewController = GroupCreateLoadViewController(viewModel: viewModel)
                 viewController.failureHandler = { message in
                     vc.viewModel?.nowSaving = false
-                    
+                    vc.view.endEditing(true)
+
                     if let message {
                         vc.showToast(message: message, type: .warning)
                     }
