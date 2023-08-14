@@ -198,7 +198,7 @@ extension UIViewController {
         present(customAlert, animated: false, completion: nil)
     }
     
-    func showErrorPopUp(title: String, message: String?, alertAttr: CustomAlertAttr) -> (() -> Void) {
+    func showErrorPopUp(title: String, message: String?, alertAttr: CustomAlertAttr) -> CustomAlertViewController {
         let customAlert = CustomAlertViewController(titleText: title,
                                       messageText: message)
             
@@ -209,6 +209,6 @@ extension UIViewController {
             }
         
         present(customAlert, animated: false, completion: nil)
-        return { customAlert.dismiss(animated: false) }
+        return customAlert
     }
 }

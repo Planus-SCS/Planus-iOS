@@ -15,9 +15,8 @@ final class NetworkMonitor {
     private let monitor: NWPathMonitor
     public private(set) var isConnected: Bool = false
     public private(set) var connectionType: ConnectionType = .unknown
+    private var alertVCs: [CustomAlertViewController?] = []
     
-    private var connectHandler: (() -> Void)?
-
     // 연결타입
     enum ConnectionType {
         case wifi
@@ -35,7 +34,6 @@ final class NetworkMonitor {
     public func startMonitoring() {
         monitor.start(queue: queue)
         monitor.pathUpdateHandler = { [weak self] path in
-
             self?.isConnected = path.status == .satisfied
             self?.getConnectionType(path)
 
@@ -67,21 +65,23 @@ final class NetworkMonitor {
     
     func showNetworkVCOnRoot() {
         DispatchQueue.main.async { [weak self] in
-            let connectHandler = UIApplication.shared.windows.first?.rootViewController?.showErrorPopUp(title: "❌ 연결 유실 ❌", message: "네트워크 상태를 확인해 주세요 🥹", alertAttr: CustomAlertAttr(title: "네트워크 설정하기", actionHandler: {
+            let vc = UIApplication.shared.windows.first?.rootViewController?.showErrorPopUp(title: "❌ 연결 유실 ❌", message: "네트워크 상태를 확인해 주세요 🥹", alertAttr: CustomAlertAttr(title: "네트워크 설정하기", actionHandler: {
                 guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
                 if UIApplication.shared.canOpenURL(url) {
                     UIApplication.shared.open(url)
                 }
             }, type: .normal))
             
-            self?.connectHandler = connectHandler
+            self?.alertVCs.append(vc)
         }
     }
     
     func hideNetworkVCOnRoot() {
         DispatchQueue.main.async { [weak self] in
-            self?.connectHandler?()
-            self?.connectHandler = nil
+            self?.alertVCs.forEach {
+                $0?.dismiss(animated: true)
+            }
+            self?.alertVCs.removeAll()
         }
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 class DefaultRevokeAppleTokenUseCase: RevokeAppleTokenUseCase {
-    let clientId: String = "QDZ5VUDS9T"
+    let clientId: String = "com.SCSY.Planus"
     let socialAuthRepository: SocialAuthRepository
     
     init(socialAuthRepository: SocialAuthRepository) {

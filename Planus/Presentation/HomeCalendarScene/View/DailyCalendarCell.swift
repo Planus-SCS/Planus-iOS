@@ -82,6 +82,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         super.prepareForReuse()
         
         stackView.removeAllSubview()
+        numberLabel.font = UIFont(name: "Pretendard-Regular", size: 10)
     }
     
     override func layoutSubviews() {
@@ -137,6 +138,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         
         if isToday {
             numberLabel.textColor = .white
+            numberLabel.font = UIFont(name: "Pretendard-Bold", size: 10)
             todayImageView.isHidden = false
         } else {
             todayImageView.isHidden = true
@@ -281,7 +283,7 @@ extension DailyCalendarCell {
         }()
         titleLabel.text = title
         
-        titleLabel.frame = CGRect(x: 4, y: 0, width: (UIScreen.main.bounds.width/7) - 8, height: 18)
+        titleLabel.frame = CGRect(x: 4, y: 0, width: (UIScreen.main.bounds.width/7) - 8, height: 12)
 
         return titleLabel
     }

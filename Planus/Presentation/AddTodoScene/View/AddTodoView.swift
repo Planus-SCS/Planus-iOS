@@ -90,7 +90,7 @@ class AddTodoView: UIView {
     
     var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.text = "일정/투두 관리"
+        label.text = "일정/할일 관리"
         label.font = UIFont(name: "Pretendard-Light", size: 16)
         label.sizeToFit()
         return label

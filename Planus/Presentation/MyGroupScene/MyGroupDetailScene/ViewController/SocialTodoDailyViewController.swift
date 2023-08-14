@@ -245,7 +245,7 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
         case 0:
             title = "일정"
         case 1:
-            title = "투두"
+            title = "할일"
         default:
             return UICollectionReusableView()
         }

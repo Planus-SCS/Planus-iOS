@@ -68,7 +68,7 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
     
     func fetchAppleClientSecret() -> Single<ResponseDTO<AppleClientSecret>> {
         let endPoint = APIEndPoint(
-            url: BaseURL.main + "/oauth/apple/secret",
+            url: URLPool.oauthAppleSecret,
             requestType: .get,
             body: nil,
             query: nil,

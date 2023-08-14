@@ -19,6 +19,7 @@ struct URLPool {
     static let oauthKakao = Base.main + Path.app + Path.oauth + Path.kakao
     static let oauthGoogle = Base.main + Path.app + Path.oauth + Path.google
     static let oauthAppleSignIn = Base.main + Path.app + Path.oauth + Path.appleLogin
+    static let oauthAppleSecret = Base.main + Path.app + Path.oauth + Path.apple + "/client-secret"
     static let oauthAppleToken = "https://appleid.apple.com/auth/token"
     static let oauthAppleRevoke = "https://appleid.apple.com/auth/revoke"
     static let groups = Base.main + Path.app + Path.groups

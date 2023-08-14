@@ -140,7 +140,6 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
 //        self.navigationItem.setRightBarButton(shareButton, animated: false)
 //        self.navigationItem.title = "dkssddd"
         navigationItem.setLeftBarButton(backButton, animated: false)
-        navigationItem.setRightBarButton(shareButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
 
         let initialAppearance = UINavigationBarAppearance()

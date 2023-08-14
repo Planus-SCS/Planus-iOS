@@ -104,10 +104,19 @@ class MyPageMainViewModel {
             .disposed(by: bag)
         
         input
+            .signOut
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.signOut()
+                vm.didResigned.onNext(())
+            })
+            .disposed(by: bag)
+        
+        input
             .resign
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.resign()
+                vm.resignTapped()
             })
             .disposed(by: bag)
         
@@ -158,7 +167,9 @@ class MyPageMainViewModel {
     }
     
     func resign() {
+        print("resign")
         guard nowResigning else { return }
+        print("resign2")
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
@@ -174,8 +185,10 @@ class MyPageMainViewModel {
             .subscribe(onSuccess: { [weak self] _ in
                 self?.signOut()
                 self?.didResigned.onNext(())
+                print("resigned")
             }, onFailure: { [weak self] error in
                 self?.nowResigning = false
+                print(error)
             })
             .disposed(by: bag)
     }

@@ -195,8 +195,7 @@ class JoinedGroupDetailViewController: UIViewController {
         let image = UIImage(named: "dotBtn")
         var item: UIBarButtonItem
         var menuChild = [UIAction]()
-        let link = UIAction(title: "공유하기", image: UIImage(systemName: "square.and.arrow.up"), handler: { _ in print("전체 캘린더 조회") })
-        menuChild.append(link)
+
         if isLeader ?? false {
             let editInfo = UIAction(title: "그룹 정보 수정", image: UIImage(systemName: "pencil"), handler: { [weak self] _ in
                 self?.editInfo()
