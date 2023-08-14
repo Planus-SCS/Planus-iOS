@@ -31,7 +31,7 @@ enum GroupIntroduceSectionKind: Int, CaseIterable {
         case .info:
             return ""
         case .notice:
-            return "우리 이렇게 공부해요"
+            return "우리 이렇게 진행해요"
         case .member:
             return "우리 함께해요"
         }
@@ -357,7 +357,7 @@ extension GroupIntroduceViewController {
         let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(1), heightDimension: .absolute(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(1),heightDimension: .absolute(1))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)

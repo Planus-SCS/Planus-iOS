@@ -54,14 +54,14 @@ class MemberProfileCalendarHeaderView: UIView {
     func configureLayout() {
         yearMonthButton.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.top.equalToSuperview().inset(19)
-            $0.height.equalTo(16)
+            $0.top.equalToSuperview()
+            $0.height.equalTo(50)
             $0.width.equalTo(120)
         }
         
         weekStackView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
-            $0.top.equalTo(yearMonthButton.snp.bottom).offset(20)
+            $0.top.equalTo(yearMonthButton.snp.bottom)
             $0.bottom.equalToSuperview()
         }
     }

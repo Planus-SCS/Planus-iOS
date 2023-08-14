@@ -457,8 +457,10 @@ extension GroupCreateViewController {
         vc.modalPresentationStyle = .popover
         let popover: UIPopoverPresentationController = vc.popoverPresentationController!
         popover.delegate = self
-        popover.sourceView = self.view
-        popover.sourceItem = collectionViewCell
+        popover.sourceView = self.scrollView
+        let globalFrame = collectionViewCell.convert(collectionViewCell.bounds, to: self.scrollView)
+        popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.midY, width: 0, height: 0)
+        popover.permittedArrowDirections = [.up, .left, .right]
         
         self.present(vc, animated: true, completion: nil)
     }

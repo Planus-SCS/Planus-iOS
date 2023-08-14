@@ -315,41 +315,26 @@ class EqualSpacedCollectionViewLayout: UICollectionViewCompositionalLayout {
         heightDimension: .absolute(40)
     )
     private static let sectionInset: NSDirectionalEdgeInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
-    private static let itemSpacing: CGFloat = 3
-    
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        let attributes = super.layoutAttributesForElements(in: rect)
-        
-        var leftMargin = Self.sectionInset.leading
-        var maxY: CGFloat = -1.0
-        attributes?.forEach { layoutAttribute in
-            if layoutAttribute.frame.origin.y >= maxY {
-                leftMargin = Self.sectionInset.leading
-            }
-            
-            layoutAttribute.frame.origin.x = leftMargin
-            leftMargin += layoutAttribute.frame.width + Self.itemSpacing
-            maxY = max(layoutAttribute.frame.maxY , maxY)
-        }
-        
-        return attributes
-    }
-    
+    private static let interItemSpacing: CGFloat = 5
+
     static func createLayout() -> EqualSpacedCollectionViewLayout {
         let itemSize = itemSize
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = .init(top: itemSpacing, leading: itemSpacing, bottom: itemSpacing, trailing: itemSpacing)
         
-        let groupSize = itemSize
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
-        
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        group.contentInsets = .init(top: 0, leading: 3, bottom: 0, trailing: 3)
+        group.interItemSpacing = .fixed(interItemSpacing)
         let section = NSCollectionLayoutSection(group: group)
+
+        let config = UICollectionViewCompositionalLayoutConfiguration()
         
-        let configuration = UICollectionViewCompositionalLayoutConfiguration()
-        configuration.scrollDirection = .horizontal
+        config.scrollDirection = .vertical
+        section.interGroupSpacing = interItemSpacing
         
-        let layout = EqualSpacedCollectionViewLayout(section: section, configuration: configuration)
+        let layout = EqualSpacedCollectionViewLayout(section: section)
+        layout.configuration = config
         
         return layout
     }

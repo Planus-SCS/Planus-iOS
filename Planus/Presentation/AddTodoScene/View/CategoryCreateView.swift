@@ -154,7 +154,8 @@ class CategoryCreateView: UIView {
             heightDimension: .absolute(66)
         )
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 4)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+
         group.contentInsets = .init(top: 15, leading: 0, bottom: 15, trailing: 0)
         
         let section = NSCollectionLayoutSection(group: group)

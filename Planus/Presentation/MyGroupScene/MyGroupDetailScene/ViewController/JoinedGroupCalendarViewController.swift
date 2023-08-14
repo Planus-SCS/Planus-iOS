@@ -330,18 +330,21 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
                 let firstMonth = Calendar.current.date(byAdding: DateComponents(month: -100), to: dateMonth) ?? Date()
                 let lastMonth = Calendar.current.date(byAdding: DateComponents(month: 500), to: dateMonth) ?? Date()
                 
-                let vc = MonthPickerViewController(firstYear: firstMonth, lastYear: lastMonth, currentDate: dateMonth) { [weak self] date in
-                    self?.didChangedMonth.onNext(date)
+                let viewController = MonthPickerViewController(firstYear: firstMonth, lastYear: lastMonth, currentDate: dateMonth) { date in
+                    vc.didChangedMonth.onNext(date)
                 }
 
-                vc.preferredContentSize = CGSize(width: 320, height: 290)
-                vc.modalPresentationStyle = .popover
-                let popover: UIPopoverPresentationController = vc.popoverPresentationController!
-                popover.delegate = self
-                popover.sourceView = self.view
-                popover.sourceItem = view.yearMonthButton
+                viewController.preferredContentSize = CGSize(width: 320, height: 290)
+                viewController.modalPresentationStyle = .popover
+                let popover: UIPopoverPresentationController = viewController.popoverPresentationController!
+                popover.delegate = vc
+                popover.sourceView = vc.view
                 
-                self.present(vc, animated: true, completion:nil)
+                let globalFrame = view.yearMonthButton.convert(view.yearMonthButton.bounds, to: vc.view)
+
+                popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
+                popover.permittedArrowDirections = [.up]
+                vc.present(viewController, animated: true, completion:nil)
             })
             .disposed(by: bag)
         view.bag = bag
@@ -369,7 +372,7 @@ extension JoinedGroupCalendarViewController {
             heightDimension: .estimated(110)
         )
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 7)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
         

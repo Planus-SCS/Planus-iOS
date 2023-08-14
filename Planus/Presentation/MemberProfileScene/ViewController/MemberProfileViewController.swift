@@ -174,9 +174,12 @@ class MemberProfileViewController: UIViewController {
                 let popover: UIPopoverPresentationController = vc.popoverPresentationController!
                 popover.delegate = self
                 popover.sourceView = self.view
-                popover.sourceItem = self.calendarHeaderView.yearMonthButton
-                
-                self.present(vc, animated: true, completion:nil)
+//                popover.sourceItem = self.calendarHeaderView.yearMonthButton
+                let globalFrame = self.calendarHeaderView.yearMonthButton.convert(self.calendarHeaderView.yearMonthButton.bounds, to: self.view)
+                popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
+                popover.permittedArrowDirections = [.up]
+                self.present(vc, animated: true, completion: nil)
+                print(globalFrame)
             })
             .disposed(by: bag)
         
@@ -347,7 +350,7 @@ extension MemberProfileViewController {
             heightDimension: .fractionalHeight(1)
         )
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging

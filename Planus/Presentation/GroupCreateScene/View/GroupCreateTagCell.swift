@@ -43,8 +43,8 @@ class GroupCreateTagCell: SpringableCollectionViewCell {
         self.layer.cornerRadius = 10
         self.layer.cornerCurve = .continuous
         
-        self.addSubview(label)
-        self.addSubview(removeButton)
+        self.contentView.addSubview(label)
+        self.contentView.addSubview(removeButton)
     }
     
     func configureLayout() {

@@ -279,8 +279,9 @@ class HomeCalendarViewController: UIViewController {
                 let popover: UIPopoverPresentationController = vc.popoverPresentationController!
                 popover.delegate = self
                 popover.sourceView = self.view
-                popover.sourceItem = self.yearMonthButton
-                
+                let globalFrame = self.yearMonthButton.convert(self.yearMonthButton.bounds, to: nil)
+                popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
+                popover.permittedArrowDirections = [.up]
                 self.present(vc, animated: true, completion:nil)
             })
             .disposed(by: bag)
@@ -535,7 +536,7 @@ extension HomeCalendarViewController {
             heightDimension: .fractionalHeight(1)
         )
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging

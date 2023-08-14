@@ -65,7 +65,6 @@ class SocialTodoDailyViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationItem.titleView = dateTitleButton
-        navigationItem.setRightBarButton(addTodoButton, animated: false)
     }
     
     func bind() {
@@ -101,9 +100,9 @@ class SocialTodoDailyViewController: UIViewController {
         
         switch type {
         case .member(let id):
-            addTodoButton.isHidden = true
+            navigationItem.setRightBarButton(nil, animated: false)
         case .group(let isLeader):
-            addTodoButton.isHidden = !(isLeader ?? false)
+            navigationItem.setRightBarButton((isLeader ?? false) ? addTodoButton : nil, animated: false)
         }
     }
     
