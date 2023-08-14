@@ -23,11 +23,14 @@ class MyGroupMemberEditViewModel {
     struct Output {
         var didResignedAt: Observable<Int>
         var didFetchMemberList: Observable<Void?>
+        var showMessage: Observable<Message>
     }
     
     var resignRequested = PublishSubject<Void>()
     var resignedAt = PublishSubject<Int>()
+    var nowProcessingMemberId: [Int] = []
     var didFetchMemberList = BehaviorSubject<Void?>(value: nil)
+    var showMessage = PublishSubject<Message>()
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
@@ -74,7 +77,8 @@ class MyGroupMemberEditViewModel {
         
         return Output(
             didResignedAt: resignedAt.asObservable(),
-            didFetchMemberList: didFetchMemberList.asObservable()
+            didFetchMemberList: didFetchMemberList.asObservable(),
+            showMessage: showMessage.asObservable()
         )
     }
     
@@ -93,8 +97,9 @@ class MyGroupMemberEditViewModel {
     
     func resignMember(index: Int) {
         guard let groupId,
-              let memberId = memberList?[index].memberId else { return }
-        
+              let memberId = memberList?[index].memberId,
+              nowProcessingMemberId.filter({ $0 == memberId }).isEmpty else { return }
+        nowProcessingMemberId.append(memberId)
         let memberKickOutUseCase = self.memberKickOutUseCase
         
         getTokenUseCase
@@ -107,8 +112,17 @@ class MyGroupMemberEditViewModel {
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
-            .subscribe(onSuccess: { [weak self] _ in //연속적으로 삭제요청했다면 인덱스가 바뀌어있을수도있음. 따라서 id로 찾는게 적합..!
-                
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.nowProcessingMemberId.removeAll(where: { $0 == memberId})
+                guard let index = self?.memberList?.firstIndex(where: { $0.memberId == memberId }) else { return }
+                self?.memberList?.remove(at: index)
+                self?.resignedAt.onNext(index)
+            }, onFailure: { [weak self] error in
+                self?.nowProcessingMemberId.removeAll(where: { $0 == memberId})
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
         

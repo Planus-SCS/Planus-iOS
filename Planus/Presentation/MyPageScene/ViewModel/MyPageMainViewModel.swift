@@ -182,10 +182,10 @@ class MyPageMainViewModel {
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.signOut()
+                self?.nowResigning = false
                 self?.didResigned.onNext(())
             }, onFailure: { [weak self] error in
                 self?.nowResigning = false
-                print(error)
             })
             .disposed(by: bag)
     }

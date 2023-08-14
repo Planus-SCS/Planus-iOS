@@ -184,7 +184,7 @@ extension JoinedGroupCalendarViewController: UICollectionViewDataSource {
         print("itemPath: ", indexPath.item)
         if viewModel.filteredWeeksOfYear[indexPath.item/7] != calendar.component(.weekOfYear, from: currentDate) {
             viewModel.filteredWeeksOfYear[indexPath.item/7] = calendar.component(.weekOfYear, from: currentDate)
-            (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
+            (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
                 viewModel.blockMemo[$0] = [Int?](repeating: nil, count: 20)
             }
             print("week: ", indexPath.item/7)

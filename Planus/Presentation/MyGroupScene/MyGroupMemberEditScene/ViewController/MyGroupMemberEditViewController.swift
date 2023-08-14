@@ -90,6 +90,15 @@ class MyGroupMemberEditViewController: UIViewController {
                 vc.memberCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
             })
             .disposed(by: bag)
+        
+        output
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {

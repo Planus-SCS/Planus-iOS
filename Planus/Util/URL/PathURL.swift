@@ -18,7 +18,7 @@ struct URLPathComponent {
     static let token = "/token"
     static let kakao = "/kakao"
     static let google = "/google"
-    static let appleLogin = "/apple/login"
+    static let login = "/login"
     static let apple = "/apple"
     static let members = "/members"
     static let groups = "/groups"

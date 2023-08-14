@@ -27,6 +27,7 @@ class SignInViewModel {
     let appleSignInUseCase: AppleSignInUseCase
     let convertToSha256UseCase: ConvertToSha256UseCase
     let setSignedInSNSTypeUseCase: SetSignedInSNSTypeUseCase
+    let revokeAppleTokenUseCase: RevokeAppleTokenUseCase
     
     let setTokenUseCase: SetTokenUseCase
         
@@ -48,7 +49,8 @@ class SignInViewModel {
         appleSignInUseCase: AppleSignInUseCase,
         convertToSha256UseCase: ConvertToSha256UseCase,
         setSignedInSNSTypeUseCase: SetSignedInSNSTypeUseCase,
-        setTokenUseCase: SetTokenUseCase
+        setTokenUseCase: SetTokenUseCase,
+        revokeAppleTokenUseCase: RevokeAppleTokenUseCase
     ) {
         self.kakaoSignInUseCase = kakaoSignInUseCase
         self.googleSignInUseCase = googleSignInUseCase
@@ -56,6 +58,7 @@ class SignInViewModel {
         self.convertToSha256UseCase = convertToSha256UseCase
         self.setSignedInSNSTypeUseCase = setSignedInSNSTypeUseCase
         self.setTokenUseCase = setTokenUseCase
+        self.revokeAppleTokenUseCase = revokeAppleTokenUseCase
         
     }
     

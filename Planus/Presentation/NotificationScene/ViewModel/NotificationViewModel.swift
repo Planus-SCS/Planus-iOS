@@ -125,6 +125,7 @@ class NotificationViewModel {
                       case NetworkManagerError.clientError(let status, let message) = error,
                       let message = message else { return }
                 self?.showMessage.onNext(Message(text: message, state: .warning))
+                self?.nowProcessingJoinId.removeAll(where: { $0 == id })
             })
             .disposed(by: bag)
     }
@@ -155,6 +156,7 @@ class NotificationViewModel {
                       case NetworkManagerError.clientError(let status, let message) = error,
                       let message = message else { return }
                 self?.showMessage.onNext(Message(text: message, state: .warning))
+                self?.nowProcessingJoinId.removeAll(where: { $0 == id })
             })
             .disposed(by: bag)
     }

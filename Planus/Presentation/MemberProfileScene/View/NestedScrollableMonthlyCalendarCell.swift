@@ -90,7 +90,7 @@ extension NestedScrollableMonthlyCalendarCell: UICollectionViewDataSource, UICol
         
         if viewModel.filteredWeeksOfYear[indexPath.item/7] != calendar.component(.weekOfYear, from: currentDate) {
             viewModel.filteredWeeksOfYear[indexPath.item/7] = calendar.component(.weekOfYear, from: currentDate) //애만 저장하면 위험함. 차라리 첫날을 저장하자
-            (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
+            (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
                 viewModel.blockMemo[$0] = [Int?](repeating: nil, count: 20)
             }
             
