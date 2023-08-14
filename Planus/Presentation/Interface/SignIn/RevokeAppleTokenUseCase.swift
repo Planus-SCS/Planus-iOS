@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol RevokeAppleTokenUseCase {
-    func execute(authorizationCode: String) -> Single<Void>
+    func execute(token: Token, authorizationCode: String) -> Single<Void>
 }

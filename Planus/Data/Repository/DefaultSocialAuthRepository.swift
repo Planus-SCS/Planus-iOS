@@ -66,13 +66,13 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
         )
     }
     
-    func fetchAppleClientSecret() -> Single<ResponseDTO<AppleClientSecret>> {
+    func fetchAppleClientSecret(token: String) -> Single<ResponseDTO<AppleClientSecret>> {
         let endPoint = APIEndPoint(
             url: URLPool.oauthAppleSecret,
             requestType: .get,
             body: nil,
             query: nil,
-            header: nil
+            header:  ["Authorization": "Bearer \(token)"]
         )
         
         return apiProvider.requestCodable(endPoint: endPoint, type: ResponseDTO<AppleClientSecret>.self)

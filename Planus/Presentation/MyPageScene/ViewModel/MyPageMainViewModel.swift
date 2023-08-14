@@ -167,9 +167,7 @@ class MyPageMainViewModel {
     }
     
     func resign() {
-        print("resign")
         guard nowResigning else { return }
-        print("resign2")
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
@@ -185,7 +183,6 @@ class MyPageMainViewModel {
             .subscribe(onSuccess: { [weak self] _ in
                 self?.signOut()
                 self?.didResigned.onNext(())
-                print("resigned")
             }, onFailure: { [weak self] error in
                 self?.nowResigning = false
                 print(error)
@@ -206,10 +203,18 @@ class MyPageMainViewModel {
     }
 
     func revokeAppleToken(code: String) {
-        revokeAppleTokenUseCase
-            .execute(authorizationCode: code)
-            .subscribe(onSuccess: { [weak self] in
-                print("revoke 성공!")
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else { throw DefaultError.noCapturedSelf }
+                return self.revokeAppleTokenUseCase
+                    .execute(token: token, authorizationCode: code)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: NetworkManagerError.tokenExpired
+            )
+            .subscribe(onSuccess: { [weak self] _ in
                 self?.resign()
             }, onFailure: { [weak self] error in
                 self?.nowResigning = false

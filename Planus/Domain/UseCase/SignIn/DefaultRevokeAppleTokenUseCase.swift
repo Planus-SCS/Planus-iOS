@@ -16,9 +16,9 @@ class DefaultRevokeAppleTokenUseCase: RevokeAppleTokenUseCase {
         self.socialAuthRepository = socialAuthRepository
     }
     
-    func execute(authorizationCode: String) -> Single<Void> {
+    func execute(token: Token, authorizationCode: String) -> Single<Void> {
         socialAuthRepository
-            .fetchAppleClientSecret()
+            .fetchAppleClientSecret(token: token.accessToken)
             .map { $0.data }
             .flatMap { [weak self] secret -> Single<(AppleClientSecret, Token)> in
                 guard let self else { throw DefaultError.noCapturedSelf }
