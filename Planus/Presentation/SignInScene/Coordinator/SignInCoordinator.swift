@@ -35,6 +35,7 @@ class SignInCoordinator: Coordinator {
         let appleSignInUseCase = DefaultAppleSignInUseCase(socialAuthRepository: socialAuthRepo)
         let converter = DefaultConvertToSha256UseCase()
         let setSignedInSNSTypeUseCase = DefaultSetSignedInSNSTypeUseCase(socialAuthRepository: socialAuthRepo)
+        let revokeTokenUseCase = DefaultRevokeAppleTokenUseCase(socialAuthRepository: socialAuthRepo)
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
         let vm = SignInViewModel(
             kakaoSignInUseCase: kakaoSignInUseCase,
@@ -42,7 +43,8 @@ class SignInCoordinator: Coordinator {
             appleSignInUseCase: appleSignInUseCase,
             convertToSha256UseCase: converter,
             setSignedInSNSTypeUseCase: setSignedInSNSTypeUseCase,
-            setTokenUseCase: setTokenUseCase
+            setTokenUseCase: setTokenUseCase,
+            revokeAppleTokenUseCase: revokeTokenUseCase
         )
         
         vm.setActions(actions:SignInViewModelActions(

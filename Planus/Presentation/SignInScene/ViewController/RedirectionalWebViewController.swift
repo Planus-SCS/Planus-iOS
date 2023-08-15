@@ -104,7 +104,10 @@ class RedirectionalWebViewController: UIViewController {
         
         if let url = URL(string: viewModel.type.requestURL) {
             let request = URLRequest(url: url)
-            webView.load(request)
+            DispatchQueue.main.async {
+                webView.load(request)
+            }
+            
         }
     }
     
