@@ -228,6 +228,9 @@
 		6A6C7B932A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B922A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift */; };
 		6A6C7B952A275273005BAEEC /* DefaultTodoCompleteUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B942A275273005BAEEC /* DefaultTodoCompleteUseCase.swift */; };
 		6A6C7B972A275389005BAEEC /* TodoCompleteUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B962A275389005BAEEC /* TodoCompleteUseCase.swift */; };
+		6A876DA72A94AC70001D800E /* MyGroupDetailViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DA62A94AC70001D800E /* MyGroupDetailViewController2.swift */; };
+		6A876DA92A94AE3A001D800E /* MyGroupDetailViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */; };
+		6A876DAB2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */; };
 		6A9191982A82780D006C3F80 /* Data+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9191972A82780D006C3F80 /* Data+Ext.swift */; };
 		6A9199532A11FF2900108BF4 /* MyGroupInfoEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */; };
 		6A9199562A11FFC000108BF4 /* GroupEditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */; };
@@ -776,6 +779,9 @@
 		6A6C7B922A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchAllGroupCategoryListUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B942A275273005BAEEC /* DefaultTodoCompleteUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTodoCompleteUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B962A275389005BAEEC /* TodoCompleteUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCompleteUseCase.swift; sourceTree = "<group>"; };
+		6A876DA62A94AC70001D800E /* MyGroupDetailViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailViewController2.swift; sourceTree = "<group>"; };
+		6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailViewModel2.swift; sourceTree = "<group>"; };
+		6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailLoadingCell.swift; sourceTree = "<group>"; };
 		6A9191972A82780D006C3F80 /* Data+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Ext.swift"; sourceTree = "<group>"; };
 		6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupInfoEditViewController.swift; sourceTree = "<group>"; };
 		6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEditInfoView.swift; sourceTree = "<group>"; };
@@ -1704,6 +1710,7 @@
 		6A24F82629CB44940000FD64 /* MyGroupScene */ = {
 			isa = PBXGroup;
 			children = (
+				6A876DA22A94AC15001D800E /* NewMyGroupDetailScene */,
 				6A9199502A11FF0800108BF4 /* MyGroupInfoEditScene */,
 				6A987A3829DDA60000C27D09 /* MyGroupMemberEditScene */,
 				6A987A3429DD9F0500C27D09 /* MyGroupNoticeEditScene */,
@@ -1969,6 +1976,40 @@
 				6AD888C22A891E2D00F4B887 /* SocialAuthType.swift */,
 			);
 			path = Entity;
+			sourceTree = "<group>";
+		};
+		6A876DA22A94AC15001D800E /* NewMyGroupDetailScene */ = {
+			isa = PBXGroup;
+			children = (
+				6A876DA52A94AC35001D800E /* ViewModel */,
+				6A876DA42A94AC2C001D800E /* ViewController */,
+				6A876DA32A94AC27001D800E /* View */,
+			);
+			path = NewMyGroupDetailScene;
+			sourceTree = "<group>";
+		};
+		6A876DA32A94AC27001D800E /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		6A876DA42A94AC2C001D800E /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6A876DA62A94AC70001D800E /* MyGroupDetailViewController2.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		6A876DA52A94AC35001D800E /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		6A91994F2A11FEB000108BF4 /* MyGroupListScene */ = {
@@ -3045,6 +3086,7 @@
 				6AC0796B2A0A5945007ACDB8 /* DefaultGroupRepository.swift in Sources */,
 				6A2C00E82A72ADD6003D6B95 /* FailureDTO.swift in Sources */,
 				6A9AAB0429F8FE48002A6DAF /* CategoryRepository.swift in Sources */,
+				6A876DA92A94AE3A001D800E /* MyGroupDetailViewModel2.swift in Sources */,
 				6A9AAB2729FA595B002A6DAF /* DefaultReadCategoryListUseCase.swift in Sources */,
 				6A9199DB2A16A0E000108BF4 /* GroupCreateTagAddCell.swift in Sources */,
 				6AC079802A0A88F2007ACDB8 /* GroupJoinAppliedDTO.swift in Sources */,
@@ -3065,6 +3107,7 @@
 				6A2C00C22A70F81B003D6B95 /* FetchGroupCategorysUseCase.swift in Sources */,
 				6A95DFD929D51C23009017D8 /* GroupIntroduceViewController.swift in Sources */,
 				6A24F90829D210450000FD64 /* TodoMainViewModel.swift in Sources */,
+				6A876DAB2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift in Sources */,
 				6A08ADCA29C8C1F3005947D2 /* APIEndPoint.swift in Sources */,
 				6AC0799E2A0AAA74007ACDB8 /* DefaultDenyGroupJoinUseCase.swift in Sources */,
 				6A987A5029DE4A1400C27D09 /* MemberProfileViewController.swift in Sources */,
@@ -3299,6 +3342,7 @@
 				6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */,
 				6A987A7B29DF0E7600C27D09 /* SmallCalendarViewController.swift in Sources */,
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,
+				6A876DA72A94AC70001D800E /* MyGroupDetailViewController2.swift in Sources */,
 				6A987A8E29DF119300C27D09 /* SmallCalendarCollectionView.swift in Sources */,
 				6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */,
 				6AC079192A08D9DB007ACDB8 /* ImageRepository.swift in Sources */,
