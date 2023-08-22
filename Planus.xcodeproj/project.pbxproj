@@ -231,6 +231,7 @@
 		6A876DA72A94AC70001D800E /* MyGroupDetailViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DA62A94AC70001D800E /* MyGroupDetailViewController2.swift */; };
 		6A876DA92A94AE3A001D800E /* MyGroupDetailViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */; };
 		6A876DAB2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */; };
+		6A876DAD2A94F5D5001D800E /* AnimatedStrechButtonListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DAC2A94F5D5001D800E /* AnimatedStrechButtonListView.swift */; };
 		6A9191982A82780D006C3F80 /* Data+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9191972A82780D006C3F80 /* Data+Ext.swift */; };
 		6A9199532A11FF2900108BF4 /* MyGroupInfoEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */; };
 		6A9199562A11FFC000108BF4 /* GroupEditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */; };
@@ -782,6 +783,7 @@
 		6A876DA62A94AC70001D800E /* MyGroupDetailViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailViewController2.swift; sourceTree = "<group>"; };
 		6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailViewModel2.swift; sourceTree = "<group>"; };
 		6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailLoadingCell.swift; sourceTree = "<group>"; };
+		6A876DAC2A94F5D5001D800E /* AnimatedStrechButtonListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedStrechButtonListView.swift; sourceTree = "<group>"; };
 		6A9191972A82780D006C3F80 /* Data+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Ext.swift"; sourceTree = "<group>"; };
 		6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupInfoEditViewController.swift; sourceTree = "<group>"; };
 		6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEditInfoView.swift; sourceTree = "<group>"; };
@@ -1992,6 +1994,7 @@
 			isa = PBXGroup;
 			children = (
 				6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */,
+				6A876DAC2A94F5D5001D800E /* AnimatedStrechButtonListView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -3388,6 +3391,7 @@
 				6AD888CE2A89221A00F4B887 /* SetSignedInSNSTypeUseCase.swift in Sources */,
 				6A9A07FB29D40BA90051AD43 /* DayPickerViewController+DataSource.swift in Sources */,
 				6A9AAB0D29F906A3002A6DAF /* DefaultCreateCategoryUseCase.swift in Sources */,
+				6A876DAD2A94F5D5001D800E /* AnimatedStrechButtonListView.swift in Sources */,
 				6A24F8EE29D1D5510000FD64 /* MonthPickerViewController.swift in Sources */,
 				6A9AAB0929F8FFD6002A6DAF /* Category.swift in Sources */,
 				6AA3BADD2A24E86E00E5B8A2 /* WithdrawGroupUseCase.swift in Sources */,

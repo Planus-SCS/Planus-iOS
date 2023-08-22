@@ -18,6 +18,23 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     var nowLoading: Bool = true
     var didTappedButtonAt = PublishSubject<Int>()
     
+    lazy var button0: UIButton = {
+        let button = UIButton(frame: .zero)
+        button.backgroundColor = .brown
+        button.addTarget(self, action: #selector(aaa), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc func aaa() {
+        print("AAA tap!")
+        switch buttonsView.state {
+        case .shrinked:
+            buttonsView.stretch()
+        case .stretched:
+            buttonsView.shrink()
+        }
+    }
+    
     lazy var button1: UIButton = {
         let button = UIButton(frame: .zero)
         button.backgroundColor = .green
@@ -32,6 +49,11 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         button.tag = 1
         button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
         return button
+    }()
+    
+    var buttonsView: AnimatedStrechButtonListView = {
+        let stretchButtonView = AnimatedStrechButtonListView(axis: .up)
+        return stretchButtonView
     }()
     
     var viewModel: MyGroupDetailViewModel2?
@@ -196,24 +218,32 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(collectionView)
-        self.view.addSubview(button1)
-        self.view.addSubview(button2)
     }
     
     func configureLayout() {
         collectionView.snp.makeConstraints {
             $0.top.leading.trailing.bottom.equalToSuperview()
         }
-        button1.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
+        button0.snp.makeConstraints {
             $0.width.height.equalTo(30)
-            $0.leading.equalToSuperview().inset(20)
+        }
+        button1.snp.makeConstraints {
+            $0.width.height.equalTo(30)
         }
         
         button2.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
             $0.width.height.equalTo(30)
-            $0.leading.equalTo(button1).offset(30)
+        }
+        
+        self.view.addSubview(buttonsView)
+        buttonsView.addButton(button: button0)
+        buttonsView.addButton(button: button1)
+        buttonsView.addButton(button: button2)
+        
+        
+        buttonsView.snp.makeConstraints {
+            $0.bottom.equalToSuperview().inset(50)
+            $0.trailing.equalToSuperview().inset(50)
         }
     }
     
