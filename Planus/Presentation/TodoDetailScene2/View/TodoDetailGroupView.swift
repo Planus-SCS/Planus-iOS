@@ -33,7 +33,8 @@ class TodoDetailGroupView: UIView {
     func configureLayout() {
         groupPickerView.snp.makeConstraints {
             $0.height.equalTo(100)
-            $0.leading.trailing.equalToSuperview()
+            $0.width.equalTo(250)
+            $0.centerX.equalToSuperview()
             $0.top.bottom.equalToSuperview().inset(20)
         }
     }

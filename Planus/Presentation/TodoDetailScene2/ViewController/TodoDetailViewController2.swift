@@ -21,6 +21,7 @@ class TodoDetailViewController2: UIViewController {
     
     var titleView = TodoDetailTitleView(frame: .zero)
     var dateView = TodoDetailDateView(frame: .zero)
+    var clockView = TodoDetailClockView(frame: .zero)
     var groupView = TodoDetailGroupView(frame: .zero)
     var memoView = TodoDetailMemoView(frame: .zero)
     var icnView = TodoDetailIcnView(frame: .zero)
@@ -32,6 +33,7 @@ class TodoDetailViewController2: UIViewController {
         configureView()
         configureLayout()
         
+        configureData()
     }
     
     func configureData() {
@@ -47,6 +49,7 @@ class TodoDetailViewController2: UIViewController {
         
         contentStackView.addArrangedSubview(titleView)
         contentStackView.addArrangedSubview(dateView)
+        contentStackView.addArrangedSubview(clockView)
         contentStackView.addArrangedSubview(groupView)
         contentStackView.addArrangedSubview(memoView)
         contentStackView.addArrangedSubview(icnView)
@@ -62,7 +65,7 @@ class TodoDetailViewController2: UIViewController {
         }
         
     }
-    
+    var pickerData = ["그룹 선택", "그룹1", "그룹2", "그룹3", "그룹4"]
 }
 
 extension TodoDetailViewController2: UIPickerViewDelegate, UIPickerViewDataSource {
@@ -71,11 +74,11 @@ extension TodoDetailViewController2: UIPickerViewDelegate, UIPickerViewDataSourc
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return 1
+        return pickerData.count
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return "그룹 선택"
+        return pickerData[row]
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
