@@ -22,6 +22,7 @@ class TodoDetailViewController2: UIViewController {
     var titleView = TodoDetailTitleView(frame: .zero)
     var dateView = TodoDetailDateView(frame: .zero)
     var groupView = TodoDetailGroupView(frame: .zero)
+    var memoView = TodoDetailMemoView(frame: .zero)
     var icnView = TodoDetailIcnView(frame: .zero)
 
     override func viewDidLoad() {
@@ -47,6 +48,7 @@ class TodoDetailViewController2: UIViewController {
         contentStackView.addArrangedSubview(titleView)
         contentStackView.addArrangedSubview(dateView)
         contentStackView.addArrangedSubview(groupView)
+        contentStackView.addArrangedSubview(memoView)
         contentStackView.addArrangedSubview(icnView)
     }
     
@@ -58,7 +60,7 @@ class TodoDetailViewController2: UIViewController {
         contentStackView.snp.makeConstraints {
             $0.edges.width.equalToSuperview()
         }
-
+        
     }
     
 }
