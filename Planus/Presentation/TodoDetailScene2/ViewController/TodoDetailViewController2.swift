@@ -10,7 +10,7 @@ import RxSwift
 
 class TodoDetailViewController2: UIViewController {
     var bag = DisposeBag()
-    
+    var scrollView = UIScrollView(frame: .zero)
     var contentStackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .vertical
@@ -20,11 +20,10 @@ class TodoDetailViewController2: UIViewController {
     }()
     
     var titleView = TodoDetailTitleView(frame: .zero)
-    
+    var dateView = TodoDetailDateView(frame: .zero)
+    var groupView = TodoDetailGroupView(frame: .zero)
     var icnView = TodoDetailIcnView(frame: .zero)
 
-    
-    var a = false
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .gray
@@ -34,20 +33,51 @@ class TodoDetailViewController2: UIViewController {
         
     }
     
+    func configureData() {
+        groupView.groupPickerView.dataSource = self
+        groupView.groupPickerView.delegate = self
+    }
+    
     // 스택뷰를 쓸것인가??? 애네는 일단 그냥 뷰에 담ㅈ
     func configureView() {
+        self.view.addSubview(scrollView)
+        scrollView.addSubview(contentStackView)
         contentStackView.backgroundColor = .white
         
-        self.view.addSubview(contentStackView)
         contentStackView.addArrangedSubview(titleView)
+        contentStackView.addArrangedSubview(dateView)
+        contentStackView.addArrangedSubview(groupView)
         contentStackView.addArrangedSubview(icnView)
     }
     
     func configureLayout() {
-        contentStackView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview()
-            $0.centerY.equalToSuperview()
+        scrollView.snp.makeConstraints {
+            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
+        
+        contentStackView.snp.makeConstraints {
+            $0.edges.width.equalToSuperview()
+        }
+
+    }
+    
+}
+
+extension TodoDetailViewController2: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return "그룹 선택"
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        print(row)
     }
     
 }

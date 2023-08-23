@@ -1,5 +1,5 @@
 //
-//  TodoDetailCalendarView.swift
+//  TodoDetailDateView.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/08/23.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TodoDetailCalendarView: UIView {
+class TodoDetailDateView: UIView {
     var startDateLabel: UILabel = {
         let label = PaddingLabel(inset: .init(top: 10, left: 18, bottom: 10, right: 18))
         label.textColor = .black
