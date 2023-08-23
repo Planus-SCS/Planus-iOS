@@ -584,6 +584,8 @@
 		6AF077C62A960E370086692B /* CategoryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF077C52A960E370086692B /* CategoryButton.swift */; };
 		6AF077C82A960E5F0086692B /* TodoDetailTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF077C72A960E5F0086692B /* TodoDetailTitleView.swift */; };
 		6AF077CA2A9614AE0086692B /* TodoDetailIcnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF077C92A9614AE0086692B /* TodoDetailIcnView.swift */; };
+		6AF077CC2A9614EC0086692B /* TodoDetailCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF077CB2A9614EC0086692B /* TodoDetailCalendarView.swift */; };
+		6AF077CE2A9615F10086692B /* PaddedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF077CD2A9615F10086692B /* PaddedLabel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1167,6 +1169,8 @@
 		6AF077C52A960E370086692B /* CategoryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryButton.swift; sourceTree = "<group>"; };
 		6AF077C72A960E5F0086692B /* TodoDetailTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailTitleView.swift; sourceTree = "<group>"; };
 		6AF077C92A9614AE0086692B /* TodoDetailIcnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailIcnView.swift; sourceTree = "<group>"; };
+		6AF077CB2A9614EC0086692B /* TodoDetailCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailCalendarView.swift; sourceTree = "<group>"; };
+		6AF077CD2A9615F10086692B /* PaddedLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedLabel.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -2785,6 +2789,7 @@
 				6A919A042A20E67D00108BF4 /* SpringableCollectionViewCell.swift */,
 				6AA3BAD42A24D75B00E5B8A2 /* CustomAlertViewController.swift */,
 				6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */,
+				6AF077CD2A9615F10086692B /* PaddedLabel.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2879,6 +2884,7 @@
 				6AF077C52A960E370086692B /* CategoryButton.swift */,
 				6AF077C72A960E5F0086692B /* TodoDetailTitleView.swift */,
 				6AF077C92A9614AE0086692B /* TodoDetailIcnView.swift */,
+				6AF077CB2A9614EC0086692B /* TodoDetailCalendarView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -3249,6 +3255,7 @@
 				6A2C00E62A71399D003D6B95 /* DeleteGroupTodoUseCase.swift in Sources */,
 				6AC079172A08D788007ACDB8 /* DefaultImageRepository.swift in Sources */,
 				6AC079962A0AA573007ACDB8 /* GroupJoinApplingDTO.swift in Sources */,
+				6AF077CE2A9615F10086692B /* PaddedLabel.swift in Sources */,
 				6A9AAB2129FA5775002A6DAF /* GetTokenRepository.swift in Sources */,
 				6A61C3F42A6E9CC500DCA088 /* NetworkMonitor.swift in Sources */,
 				6AC079AA2A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift in Sources */,
@@ -3391,6 +3398,7 @@
 				6A08ADD629C8D048005947D2 /* DefaultKakaoSignInUseCase.swift in Sources */,
 				6A9A07C829D3D83B0051AD43 /* AddTodoControllerPageType.swift in Sources */,
 				6A9AAB2329FA57E0002A6DAF /* RefreshTokenUseCase.swift in Sources */,
+				6AF077CC2A9614EC0086692B /* TodoDetailCalendarView.swift in Sources */,
 				6A24F8BC29CE50DC0000FD64 /* ScrollDirection.swift in Sources */,
 				6A2C00D12A712C76003D6B95 /* DefaultFetchGroupMemberTodoDetailUseCase.swift in Sources */,
 				6AC079062A08C28B007ACDB8 /* DefaultProfileRepository.swift in Sources */,
