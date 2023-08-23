@@ -232,6 +232,18 @@
 		6A876DA92A94AE3A001D800E /* MyGroupDetailViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */; };
 		6A876DAB2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */; };
 		6A876DAD2A94F5D5001D800E /* AnimatedStrechButtonListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DAC2A94F5D5001D800E /* AnimatedStrechButtonListView.swift */; };
+		6A876DD42A951784001D800E /* NoticeCircleBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DD12A951783001D800E /* NoticeCircleBtn.png */; };
+		6A876DD52A951784001D800E /* NoticeCircleBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DD22A951783001D800E /* NoticeCircleBtn@2x.png */; };
+		6A876DD62A951784001D800E /* NoticeCircleBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DD32A951784001D800E /* NoticeCircleBtn@3x.png */; };
+		6A876DDA2A9517B0001D800E /* CalendarCircleBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DD72A9517B0001D800E /* CalendarCircleBtn@2x.png */; };
+		6A876DDB2A9517B0001D800E /* CalendarCircleBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DD82A9517B0001D800E /* CalendarCircleBtn.png */; };
+		6A876DDC2A9517B0001D800E /* CalendarCircleBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DD92A9517B0001D800E /* CalendarCircleBtn@3x.png */; };
+		6A876DE02A9517CF001D800E /* ChatCircleBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DDD2A9517CF001D800E /* ChatCircleBtn@3x.png */; };
+		6A876DE12A9517CF001D800E /* ChatCircleBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DDE2A9517CF001D800E /* ChatCircleBtn.png */; };
+		6A876DE22A9517CF001D800E /* ChatCircleBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DDF2A9517CF001D800E /* ChatCircleBtn@2x.png */; };
+		6A876DE62A9517F2001D800E /* logoDotCircleBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DE32A9517F1001D800E /* logoDotCircleBtn@3x.png */; };
+		6A876DE72A9517F2001D800E /* logoDotCircleBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DE42A9517F1001D800E /* logoDotCircleBtn@2x.png */; };
+		6A876DE82A9517F2001D800E /* logoDotCircleBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DE52A9517F1001D800E /* logoDotCircleBtn.png */; };
 		6A9191982A82780D006C3F80 /* Data+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9191972A82780D006C3F80 /* Data+Ext.swift */; };
 		6A9199532A11FF2900108BF4 /* MyGroupInfoEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */; };
 		6A9199562A11FFC000108BF4 /* GroupEditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */; };
@@ -784,6 +796,18 @@
 		6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailViewModel2.swift; sourceTree = "<group>"; };
 		6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailLoadingCell.swift; sourceTree = "<group>"; };
 		6A876DAC2A94F5D5001D800E /* AnimatedStrechButtonListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedStrechButtonListView.swift; sourceTree = "<group>"; };
+		6A876DD12A951783001D800E /* NoticeCircleBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NoticeCircleBtn.png; sourceTree = "<group>"; };
+		6A876DD22A951783001D800E /* NoticeCircleBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "NoticeCircleBtn@2x.png"; sourceTree = "<group>"; };
+		6A876DD32A951784001D800E /* NoticeCircleBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "NoticeCircleBtn@3x.png"; sourceTree = "<group>"; };
+		6A876DD72A9517B0001D800E /* CalendarCircleBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CalendarCircleBtn@2x.png"; sourceTree = "<group>"; };
+		6A876DD82A9517B0001D800E /* CalendarCircleBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CalendarCircleBtn.png; sourceTree = "<group>"; };
+		6A876DD92A9517B0001D800E /* CalendarCircleBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CalendarCircleBtn@3x.png"; sourceTree = "<group>"; };
+		6A876DDD2A9517CF001D800E /* ChatCircleBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ChatCircleBtn@3x.png"; sourceTree = "<group>"; };
+		6A876DDE2A9517CF001D800E /* ChatCircleBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ChatCircleBtn.png; sourceTree = "<group>"; };
+		6A876DDF2A9517CF001D800E /* ChatCircleBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ChatCircleBtn@2x.png"; sourceTree = "<group>"; };
+		6A876DE32A9517F1001D800E /* logoDotCircleBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logoDotCircleBtn@3x.png"; sourceTree = "<group>"; };
+		6A876DE42A9517F1001D800E /* logoDotCircleBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logoDotCircleBtn@2x.png"; sourceTree = "<group>"; };
+		6A876DE52A9517F1001D800E /* logoDotCircleBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logoDotCircleBtn.png; sourceTree = "<group>"; };
 		6A9191972A82780D006C3F80 /* Data+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Ext.swift"; sourceTree = "<group>"; };
 		6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupInfoEditViewController.swift; sourceTree = "<group>"; };
 		6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEditInfoView.swift; sourceTree = "<group>"; };
@@ -1263,6 +1287,18 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A876DE52A9517F1001D800E /* logoDotCircleBtn.png */,
+				6A876DE42A9517F1001D800E /* logoDotCircleBtn@2x.png */,
+				6A876DE32A9517F1001D800E /* logoDotCircleBtn@3x.png */,
+				6A876DDE2A9517CF001D800E /* ChatCircleBtn.png */,
+				6A876DDF2A9517CF001D800E /* ChatCircleBtn@2x.png */,
+				6A876DDD2A9517CF001D800E /* ChatCircleBtn@3x.png */,
+				6A876DD82A9517B0001D800E /* CalendarCircleBtn.png */,
+				6A876DD72A9517B0001D800E /* CalendarCircleBtn@2x.png */,
+				6A876DD92A9517B0001D800E /* CalendarCircleBtn@3x.png */,
+				6A876DD12A951783001D800E /* NoticeCircleBtn.png */,
+				6A876DD22A951783001D800E /* NoticeCircleBtn@2x.png */,
+				6A876DD32A951784001D800E /* NoticeCircleBtn@3x.png */,
 				6A1C81C72A871BBA002326AC /* today.png */,
 				6A1C81C62A871BBA002326AC /* today@2x.png */,
 				6A1C81C52A871BBA002326AC /* today@3x.png */,
@@ -2842,9 +2878,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6A876DDA2A9517B0001D800E /* CalendarCircleBtn@2x.png in Resources */,
 				6AC0792A2A093AD2007ACDB8 /* cloud@2x.png in Resources */,
 				6A1B3F0E29D7192A00BFB3A6 /* onlineIcon@3x.png in Resources */,
 				6A08AD8C29C892E0005947D2 /* search-sm.png in Resources */,
+				6A876DD52A951784001D800E /* NoticeCircleBtn@2x.png in Resources */,
 				6A987A6C29DEE44D00C27D09 /* DefaultProfileMedium2@2x.png in Resources */,
 				6A9199DF2A16A15100108BF4 /* whitePlusBtn.png in Resources */,
 				6A24F8B729CE3F800000FD64 /* Pretendard-Bold.otf in Resources */,
@@ -2875,11 +2913,14 @@
 				6A987A3129DD995400C27D09 /* editBlack@3x.png in Resources */,
 				6A24F8B829CE3F800000FD64 /* Pretendard-Light.otf in Resources */,
 				6A987A3229DD995400C27D09 /* editBlack@2x.png in Resources */,
+				6A876DE82A9517F2001D800E /* logoDotCircleBtn.png in Resources */,
 				6A95E01829D5D145009017D8 /* GroupCreateDefaultImage@2x.png in Resources */,
 				6A9AAAD629F80A0D002A6DAF /* todoMemo@3x.png in Resources */,
 				6A24F8B629CE3F800000FD64 /* Pretendard-ExtraLight.otf in Resources */,
 				6A9AAAD829F80A0D002A6DAF /* todoMemo.png in Resources */,
+				6A876DE62A9517F2001D800E /* logoDotCircleBtn@3x.png in Resources */,
 				6A9AAAF429F8151A002A6DAF /* todoCheck.png in Resources */,
+				6A876DE02A9517CF001D800E /* ChatCircleBtn@3x.png in Resources */,
 				6A24F8F929D1D6470000FD64 /* chevron-left.png in Resources */,
 				6A0BF76429D35D2C006F2604 /* edit_swipe.png in Resources */,
 				6A9AAADD29F80F69002A6DAF /* uncheckedBox.png in Resources */,
@@ -2887,6 +2928,7 @@
 				6A24F8EC29D1D4A40000FD64 /* user-circle@3x.png in Resources */,
 				6A08AD8829C892E0005947D2 /* search-sm@3x.png in Resources */,
 				6A08AD8D29C892E0005947D2 /* users-02@2x.png in Resources */,
+				6A876DE12A9517CF001D800E /* ChatCircleBtn.png in Resources */,
 				6A95E01729D5D145009017D8 /* GroupCreateDefaultImage.png in Resources */,
 				6A08AD8629C892E0005947D2 /* check-done-01@3x.png in Resources */,
 				6A9AAAE429F80F73002A6DAF /* checkedBox@2x.png in Resources */,
@@ -2901,6 +2943,7 @@
 				6A08ADAB29C89DEE005947D2 /* kakaoBtn@2x.png in Resources */,
 				6A9199D32A16921B00108BF4 /* removeBtn.png in Resources */,
 				6A9A07B329D3C7E70051AD43 /* arrow_white@3x.png in Resources */,
+				6A876DE22A9517CF001D800E /* ChatCircleBtn@2x.png in Resources */,
 				6A9AAAD729F80A0D002A6DAF /* todoMemo@2x.png in Resources */,
 				6A1B3F0F29D7192A00BFB3A6 /* onlineIcon@2x.png in Resources */,
 				6A24F8B329CE3F800000FD64 /* Pretendard-Medium.otf in Resources */,
@@ -2910,6 +2953,7 @@
 				6A987A0E29DBE60600C27D09 /* DefaultProfileSmall.png in Resources */,
 				6A95DFFF29D5B5A9009017D8 /* PlanusGroup@2x.png in Resources */,
 				6A987A6729DEE31600C27D09 /* downButton@3x.png in Resources */,
+				6A876DD42A951784001D800E /* NoticeCircleBtn.png in Resources */,
 				6AC079932A0A9507007ACDB8 /* EmptyResultLogo.png in Resources */,
 				6A08AD8929C892E0005947D2 /* calendar-date@2x.png in Resources */,
 				6A24F8E929D1D4A40000FD64 /* user-circle.png in Resources */,
@@ -2972,6 +3016,7 @@
 				6A95DFC629D4EB7C009017D8 /* peopleSmall.png in Resources */,
 				6A08AD8429C892E0005947D2 /* calendar-date@3x.png in Resources */,
 				6A95DFBE29D4E2E6009017D8 /* searchBarIcon@2x.png in Resources */,
+				6A876DD62A951784001D800E /* NoticeCircleBtn@3x.png in Resources */,
 				6A1B3F1529D7252900BFB3A6 /* notificationIcon@3x.png in Resources */,
 				6A987A3329DD995400C27D09 /* editBlack.png in Resources */,
 				6A9199E02A16A15100108BF4 /* whitePlusBtn@2x.png in Resources */,
@@ -2980,14 +3025,17 @@
 				6A08ADB029C89DEE005947D2 /* googleBtn@2x.png in Resources */,
 				6A0BF76B29D35D47006F2604 /* remove_swipe.png in Resources */,
 				6A987A0F29DBE60600C27D09 /* DefaultProfileSmall@2x.png in Resources */,
+				6A876DE72A9517F2001D800E /* logoDotCircleBtn@2x.png in Resources */,
 				6A1B3F1429D7252900BFB3A6 /* notificationIcon.png in Resources */,
 				6AC079432A0A368E007ACDB8 /* uncheck@2x.png in Resources */,
 				6A95DFF829D5B3FF009017D8 /* share@2x.png in Resources */,
 				6A24F8EB29D1D4A40000FD64 /* list.png in Resources */,
+				6A876DDC2A9517B0001D800E /* CalendarCircleBtn@3x.png in Resources */,
 				6A95DFF929D5B400009017D8 /* share@3x.png in Resources */,
 				6A08ADBA29C8A2B0005947D2 /* logo@3x.png in Resources */,
 				6A08ADAE29C89DEE005947D2 /* googleBtn.png in Resources */,
 				6A08AD5A29C87C63005947D2 /* Assets.xcassets in Resources */,
+				6A876DDB2A9517B0001D800E /* CalendarCircleBtn.png in Resources */,
 				6A24F8FC29D1D6470000FD64 /* chevron-right@2x.png in Resources */,
 				6A08AD8329C892E0005947D2 /* check-done-01.png in Resources */,
 				6A95E00529D5B756009017D8 /* GroupAddBtn.png in Resources */,

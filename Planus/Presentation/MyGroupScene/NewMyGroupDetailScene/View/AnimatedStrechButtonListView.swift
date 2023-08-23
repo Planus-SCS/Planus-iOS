@@ -65,28 +65,31 @@ class AnimatedStrechButtonListView: UIView {
         case .up:
             button.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
             newConst = button.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+            self.constraints.first(where: { $0.firstAttribute == .height })?.constant += spacing + buttonHeight
+            self.constraints.first(where: { $0.firstAttribute == .width })?.constant = itemMaxWidth
         case .down:
             button.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
             newConst = button.topAnchor.constraint(equalTo: self.topAnchor)
+            self.constraints.first(where: { $0.firstAttribute == .height })?.constant = spacing + buttonHeight
+            self.constraints.first(where: { $0.firstAttribute == .width })?.constant = itemMaxWidth
         case .left:
             button.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
             newConst = button.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+            self.constraints.first(where: { $0.firstAttribute == .width })?.constant = spacing + buttonWidth
+            self.constraints.first(where: { $0.firstAttribute == .height })?.constant = itemMaxHeight
         case .right:
             button.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
             newConst = button.leadingAnchor.constraint(equalTo: self.leadingAnchor)
+            self.constraints.first(where: { $0.firstAttribute == .width })?.constant = spacing + buttonWidth
+            self.constraints.first(where: { $0.firstAttribute == .height })?.constant = itemMaxHeight
         }
         
         newConst.isActive = true
         anchorConstraints.append(newConst)
-
-        self.constraints.first(where: { $0.firstAttribute == .width })?.constant = itemMaxWidth
-        self.constraints.first(where: { $0.firstAttribute == .height })?.constant = itemMaxHeight
-
     }
     
     func stretch() {
         self.state = .stretched
-        print("stretch!")
         var offset: CGFloat = 0
         for i in 0..<buttons.count {
             anchorConstraints[i].isActive = false
@@ -108,21 +111,13 @@ class AnimatedStrechButtonListView: UIView {
             newConst.isActive = true
             anchorConstraints[i] = newConst
         }
-        
-        UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
-            self.layoutIfNeeded()
-        }, completion: { _ in
-            switch self.axis {
-            case .up, .down:
-                self.constraints.first(where: { $0.firstAttribute == .height })?.constant = abs(offset) - self.spacing
-            case .left, .right:
-                self.constraints.first(where: { $0.firstAttribute == .width })?.constant = abs(offset) - self.spacing
-            }
+//
+        UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseIn, animations: {
             self.layoutIfNeeded()
         })
     }
     
-    func shrink() {
+    func shrink(_ completion: (() -> Void)? = nil) {
         self.state = .shrinked
         for i in 0..<buttons.count {
             anchorConstraints[i].isActive = false
@@ -140,17 +135,12 @@ class AnimatedStrechButtonListView: UIView {
             newConst.isActive = true
             anchorConstraints[i] = newConst
         }
-        
-        UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseIn, animations: {
+//
+        UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
             self.layoutIfNeeded()
         }, completion: { _ in
-            switch self.axis {
-            case .up, .down:
-                self.constraints.first(where: { $0.firstAttribute == .height })?.constant = self.itemMaxHeight
-            case .left, .right:
-                self.constraints.first(where: { $0.firstAttribute == .width })?.constant = self.itemMaxWidth
-            }
-            self.layoutIfNeeded()
+            completion?()
         })
+        
     }
 }

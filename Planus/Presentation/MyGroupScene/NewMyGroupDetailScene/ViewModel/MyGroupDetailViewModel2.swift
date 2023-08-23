@@ -8,17 +8,13 @@
 import Foundation
 import RxSwift
 
-enum MyGroupDetailMode: Int { //일케하면 데드락 생길수도 있음. 로딩을 분리? 아니면 아에 fetch 메서드를 다르게 가져갈까?
+enum MyGroupDetailMode: Int, CaseIterable { //일케하면 데드락 생길수도 있음. 로딩을 분리? 아니면 아에 fetch 메서드를 다르게 가져갈까?
     // 이걸로 구분하면 0눌렀을때 로딩중 바뀌고 fetch 시작, 다되기 전에 1눌러서 fetch 시작, 그럼 1결과를 보여주기 전에 0을 먼저 보여줄 수 있음.
-    case notice = 0
+    case dot = 0
+    case notice
     case calendar
     case chat
 }
-//
-//enum MyGroupDetailLoadingState {
-//    case notice
-//    case calendar
-//}
 
 enum MyGroupSecionType {
     case info

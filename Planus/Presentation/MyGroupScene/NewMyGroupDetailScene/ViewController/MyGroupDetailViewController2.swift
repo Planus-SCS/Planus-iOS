@@ -8,6 +8,21 @@
 import UIKit
 import RxSwift
 
+extension MyGroupDetailMode {
+    var imageTitle: String {
+        switch self {
+        case .dot:
+            return "logoDotCircleBtn"
+        case .notice:
+            return "NoticeCircleBtn"
+        case .calendar:
+            return "CalendarCircleBtn"
+        case .chat:
+            return "ChatCircleBtn"
+        }
+    }
+}
+
 class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegate {
     var bag = DisposeBag()
     
@@ -18,39 +33,29 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     var nowLoading: Bool = true
     var didTappedButtonAt = PublishSubject<Int>()
     
-    lazy var button0: UIButton = {
-        let button = UIButton(frame: .zero)
-        button.backgroundColor = .brown
-        button.addTarget(self, action: #selector(aaa), for: .touchUpInside)
-        return button
-    }()
+    var clearPanningView: UIView?
     
-    @objc func aaa() {
-        print("AAA tap!")
-        switch buttonsView.state {
-        case .shrinked:
-            buttonsView.stretch()
-        case .stretched:
-            buttonsView.shrink()
+    let initialTrailing: CGFloat = -27
+    let targetTrailing: CGFloat = 20
+    var firstXOffset: CGFloat?
+    
+    lazy var buttonList: [UIButton] = {
+        return MyGroupDetailMode.allCases.map { [weak self] in
+            let image = UIImage(named: $0.imageTitle) ?? UIImage()
+            let button = SpringableButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
+            button.setImage(image, for: .normal)
+            button.tag = $0.rawValue
+            button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+
+            if $0 == .dot {
+                let view = UIView(frame: button.frame)
+                button.addSubview(view)
+                self?.clearPanningView = view
+            }
+            return button
         }
-    }
-    
-    lazy var button1: UIButton = {
-        let button = UIButton(frame: .zero)
-        button.backgroundColor = .green
-        button.tag = 0
-        button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-        return button
     }()
-    
-    lazy var button2: UIButton = {
-        let button = UIButton(frame: .zero)
-        button.backgroundColor = .blue
-        button.tag = 1
-        button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-        return button
-    }()
-    
+
     var buttonsView: AnimatedStrechButtonListView = {
         let stretchButtonView = AnimatedStrechButtonListView(axis: .up)
         return stretchButtonView
@@ -224,31 +229,112 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         collectionView.snp.makeConstraints {
             $0.top.leading.trailing.bottom.equalToSuperview()
         }
-        button0.snp.makeConstraints {
-            $0.width.height.equalTo(30)
-        }
-        button1.snp.makeConstraints {
-            $0.width.height.equalTo(30)
-        }
-        
-        button2.snp.makeConstraints {
-            $0.width.height.equalTo(30)
-        }
-        
+
         self.view.addSubview(buttonsView)
-        buttonsView.addButton(button: button0)
-        buttonsView.addButton(button: button1)
-        buttonsView.addButton(button: button2)
-        
-        
+        buttonList.forEach {
+            buttonsView.addButton(button: $0)
+        }
+
         buttonsView.snp.makeConstraints {
             $0.bottom.equalToSuperview().inset(50)
-            $0.trailing.equalToSuperview().inset(50)
+            $0.trailing.equalToSuperview().inset(initialTrailing)
+        }
+
+        var swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(ppp))
+        swipeLeft.direction = .left
+        clearPanningView?.addGestureRecognizer(swipeLeft)
+    }
+    @objc func ppp(_ gestureRecognizer: UISwipeGestureRecognizer) {
+        print(gestureRecognizer.direction)
+        if gestureRecognizer.direction == .left {
+            buttonsView.snp.remakeConstraints {
+                $0.bottom.equalToSuperview().inset(50)
+                $0.trailing.equalTo(self.view).inset(targetTrailing)
+            }
+//            UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
+//                self.view.layoutIfNeeded()
+//            }, completion: { _ in
+                
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+                self.view.layoutIfNeeded()
+            }, completion: { _ in
+                self.buttonsView.stretch()
+            })
+                self.clearPanningView?.isHidden = true
+//            })
+        }
+    }
+    @objc func pan(_ gestureRecognizer: UIPanGestureRecognizer) {
+        let location = gestureRecognizer.location(in: view)
+        
+        switch gestureRecognizer.state {
+        case .began:
+            firstXOffset = location.x
+        case .changed:
+            // 보정된 x
+            guard let firstXOffset else { return }
+            let move = firstXOffset < location.x ? 0
+            : firstXOffset - location.x > targetTrailing ? targetTrailing
+            : firstXOffset - location.x
+
+            print("move: ", move)
+            buttonsView.snp.remakeConstraints {
+                $0.bottom.equalToSuperview().inset(50)
+                $0.trailing.equalToSuperview().inset(move)
+            }
+        case .ended:
+            guard let firstXOffset else { return }
+
+            let move = firstXOffset < location.x ? 0
+            : firstXOffset - location.x > targetTrailing ? targetTrailing
+            : firstXOffset - location.x
+            
+            if move < targetTrailing/4 {
+                buttonsView.snp.remakeConstraints {
+                    $0.bottom.equalToSuperview().inset(50)
+                    $0.trailing.equalTo(self.view).inset(initialTrailing)
+                }
+                UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseIn, animations: {
+                    self.view.layoutIfNeeded()
+                })
+            } else {
+                print("viewFrameWidth", view.frame.width, "screenWidth", UIScreen.main.bounds.width)
+                print("targetTrail: ", targetTrailing)
+                buttonsView.snp.remakeConstraints {
+                    $0.bottom.equalToSuperview().inset(50)
+                    $0.trailing.equalTo(self.view).inset(targetTrailing)
+                }
+                UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
+                    self.view.layoutIfNeeded()
+                }, completion: { _ in
+                    self.buttonsView.stretch()
+                    self.clearPanningView?.isHidden = true
+                })
+            }
+        default:
+            break
         }
     }
     
     @objc func buttonTapped(_ sender: UIButton) {
-        didTappedButtonAt.onNext(sender.tag)
+        if sender.tag == 0 {
+            buttonsView.shrink { [weak self] in
+//            buttonsView.shrink()
+                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
+                    self?.buttonsView.snp.remakeConstraints {
+                        $0.bottom.equalToSuperview().inset(50)
+                        $0.trailing.equalToSuperview().inset(self?.initialTrailing ?? 0)
+                    }
+                    self?.view.layoutIfNeeded()
+                }, completion: { _ in
+                    self?.clearPanningView?.isHidden = false
+                })
+            }
+            
+            
+        } else {
+            didTappedButtonAt.onNext(sender.tag)
+        }
     }
     
     @objc func backBtnAction() {
@@ -274,7 +360,7 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource {
             return 2
         case .chat:
             return 2
-        case .none:
+        default:
             return 0
         }
     }
@@ -314,7 +400,7 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource {
             }
         case .chat:
             return 0
-        case .none:
+        default:
             return 0
         }
     }
@@ -375,7 +461,7 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource {
             }
         case .chat:
             return UICollectionViewCell()
-        case .none:
+        default:
             return UICollectionViewCell()
         }
     
@@ -442,7 +528,7 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource {
             return view
         case .chat:
             return UICollectionReusableView()
-        case .none:
+        default:
             return UICollectionReusableView()
         }
         
@@ -715,6 +801,8 @@ extension MyGroupDetailViewController2 {
             case .calendar:
                 return self.createCalendarSection()
             case .chat:
+                return nil
+            default:
                 return nil
             }
         }
