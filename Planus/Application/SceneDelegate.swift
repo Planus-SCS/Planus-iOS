@@ -25,15 +25,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let vm = GroupCreateViewModel(getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), setTokenUseCase: DefaultSetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), groupCreateUseCase: DefaultGroupCreateUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager())))
 //        let vc = GroupCreateViewController(viewModel: vm)
 //        let navi = UINavigationController(rootViewController: vc)
-        let vc = TodoDetailViewController(nibName: nil, bundle: nil)
-        
-        window.rootViewController = vc
-
-        window.makeKeyAndVisible()
+//        let vc = TodoDetailViewController(nibName: nil, bundle: nil)
+//
+//        window.rootViewController = vc
+//
+//        window.makeKeyAndVisible()
 //
 
-//        self.appCoordinator = AppCoordinator(window: window)
-//        self.appCoordinator?.start()
+        self.appCoordinator = AppCoordinator(window: window)
+        self.appCoordinator?.start()
 ////
     }
 

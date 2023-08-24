@@ -35,7 +35,7 @@ class TodoDetailMemoView: UIView, TodoDetailAttributeView {
         textView.layer.cornerCurve = .continuous
         textView.layer.cornerRadius = 10
         textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.isScrollEnabled = false
+        textView.isScrollEnabled = true
         return textView
     }()
     
@@ -74,19 +74,3 @@ class TodoDetailMemoView: UIView, TodoDetailAttributeView {
         }
     }
 }
-
-
-//extension TodoDetailMemoView: UITextViewDelegate {
-//    func layoutTextViewLines() {
-//        let lines = memoTextView.numberOfLines
-//        if lines >= 4 {
-//            memoTextView.isScrollEnabled = true
-//            memoHeightConstraint.isActive = true
-//        } else {
-//            memoTextView.isScrollEnabled = false
-//            memoHeightConstraint.isActive = false
-//            memoTextView.sizeToFit()
-//        }
-//        memoTextView.layoutIfNeeded()
-//    }
-//}

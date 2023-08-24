@@ -63,39 +63,36 @@ class TodoDetailView2: UIView {
         super.init(frame: frame)
         
         self.backgroundColor = .gray
-        titleView.backgroundColor = .white
         configureView()
         configureLayout()
-        
-        configureData()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureData() {
-        icnView.delegate = self
-        groupView.groupPickerView.dataSource = self
-        groupView.groupPickerView.delegate = self
-    }
-    
     func configureView() {
+        
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.layer.cornerRadius = 10
+        self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        self.clipsToBounds = true
+        
+        self.addSubview(headerBarView)
+        headerBarView.addSubview(removeButton)
+        headerBarView.addSubview(titleLabel)
+        headerBarView.addSubview(saveButton)
         self.addSubview(titleView)
         self.addSubview(contentView)
         attributeViewGroup.filter { $0 != titleView }.forEach {
             contentView.addSubview($0)
-            $0.isHidden = true
+            $0.alpha = 0
         }
         self.addSubview(icnView)
-        
-        icnView.backgroundColor = .white
-        contentView.backgroundColor = .white
     }
     
     func configureLayout() {
         icnView.snp.makeConstraints {
-            $0.bottom.equalToSuperview()
             $0.leading.trailing.equalToSuperview()
         }
         
@@ -123,8 +120,8 @@ class TodoDetailView2: UIView {
         
         headerBarView.snp.makeConstraints {
             $0.top.leading.trailing.equalToSuperview()
-            $0.height.equalTo(84)
-            $0.bottom.equalTo(contentView.snp.top)
+            $0.height.equalTo(60)
+            $0.bottom.equalTo(titleView.snp.top)
         }
         
         titleLabel.snp.makeConstraints {
@@ -142,52 +139,5 @@ class TodoDetailView2: UIView {
         }
         
     }
-    var pickerData = ["그룹 선택", "그룹1", "그룹2", "그룹3", "그룹4"]
 }
 
-extension TodoDetailView2: UIPickerViewDelegate, UIPickerViewDataSource {
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return pickerData.count
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return pickerData[row]
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        print(row)
-    }
-    
-}
-
-extension TodoDetailView2: TodoDetailIcnViewDelegate {
-    func deactivate(attr: TodoDetailAttribute) {
-    }
-    
-    func move(from: TodoDetailAttribute, to: TodoDetailAttribute) {
-        guard from != to else { return }
-        if to != .title {
-            titleView.set1line()
-        } else {
-            titleView.set2lines()
-        }
-        
-        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-            if from != .title {
-                self.attributeViewGroup[from.rawValue].bottomConstraint.isActive = false
-                self.attributeViewGroup[from.rawValue].setAnimatedIsHidden(true, duration: 0.1)
-            }
-            if to != .title {
-                let newAnchor = self.attributeViewGroup[to.rawValue].bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor)
-                self.attributeViewGroup[to.rawValue].bottomConstraint = newAnchor
-                newAnchor.isActive = true
-                self.attributeViewGroup[to.rawValue].setAnimatedIsHidden(false, duration: 0.1)
-            }
-            self.layoutIfNeeded()
-        })
-    }
-}

@@ -47,8 +47,6 @@ struct TodoDetailViewModelableInput {
     
     // MARK: Control Event
     var categoryEditRequested: Observable<Int>
-    var startDayButtonTapped: Observable<Void>
-    var endDayButtonTapped: Observable<Void>
     var categorySelectBtnTapped: Observable<Void>
     var todoSaveBtnTapped: Observable<Void>
     var todoRemoveBtnTapped: Observable<Void>
@@ -176,6 +174,12 @@ extension TodoDetailViewModelable {
             .disposed(by: bag)
         
         input
+            .memoTextChanged
+            .subscribe(onNext: { text in
+                print("vm memo: ", text)
+            }).disposed(by: bag)
+        
+        input
             .creatingCategoryNameTextChanged
             .bind(to: newCategoryName)
             .disposed(by: bag)
@@ -254,22 +258,6 @@ extension TodoDetailViewModelable {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.moveFromCreateToSelect.onNext(())
-            })
-            .disposed(by: bag)
-        
-        input
-            .startDayButtonTapped
-            .withUnretained(self)
-            .subscribe(onNext: { vm, _ in
-                vm.removeKeyboard.onNext(())
-            })
-            .disposed(by: bag)
-        
-        input
-            .endDayButtonTapped
-            .withUnretained(self)
-            .subscribe(onNext: { vm, _ in
-                vm.removeKeyboard.onNext(())
             })
             .disposed(by: bag)
         

@@ -45,7 +45,7 @@ class TodoDetailIcnView: UIView {
     
     lazy var buttonList: [UIButton] = { [weak self] in
         TodoDetailAttribute.allCases.map { [weak self] attr in
-            let image = UIImage(named: attr.imageName) ?? UIImage()
+            let image = UIImage(named: attr.imageName)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
             let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
             button.tag = attr.rawValue
             button.setImage(image, for: .normal)
@@ -84,17 +84,15 @@ class TodoDetailIcnView: UIView {
     // 이렇게 말고 데이터 바인딩해서 activate을 해야할듯..? 여기선 이동하고 deactivate 하는것만..!
     @objc func btnTapped(_ sender: UIButton) {
         let index = sender.tag
-        guard let selectedAttr = TodoDetailAttribute(rawValue: index) else { return }
+        guard var selectedAttr = TodoDetailAttribute(rawValue: index) else { return }
         
-        if selectedAttr == viewingAttr && selectedAttr != .title {
+        if selectedAttr == viewingAttr && (selectedAttr != .title && selectedAttr != .calendar)  {
             
             delegate?.deactivate(attr: selectedAttr)
-            delegate?.move(from: viewingAttr, to: .title)
-            viewingAttr = .title
-        } else {
-            delegate?.move(from: viewingAttr, to: selectedAttr)
-            viewingAttr = selectedAttr
+            selectedAttr = .title
         }
+        delegate?.move(from: viewingAttr, to: selectedAttr)
+        viewingAttr = selectedAttr
     }
     
     

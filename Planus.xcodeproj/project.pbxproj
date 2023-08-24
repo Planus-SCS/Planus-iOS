@@ -1246,7 +1246,6 @@
 		6A08AD6629C884B2005947D2 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
-				6AF0777B2A9600BB0086692B /* TodoDetailScene2 */,
 				6A08ADDE29C8D6B6005947D2 /* Interface */,
 				6A2BB1A129E404B20053C5CA /* MyPageScene */,
 				6A987A6F29DEECEE00C27D09 /* TodoDailyScene */,
@@ -1254,6 +1253,7 @@
 				6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */,
 				6A95E00729D5BC52009017D8 /* GroupCreateScene */,
 				6A95DFD629D51BDE009017D8 /* UnJoinedGroupDetailScene */,
+				6AF0777B2A9600BB0086692B /* TodoDetailScene2 */,
 				6A9A07C129D3D7B00051AD43 /* AddTodoScene */,
 				6A08AD9129C898A1005947D2 /* HomeCalendarScene */,
 				6A24F82629CB44940000FD64 /* MyGroupScene */,

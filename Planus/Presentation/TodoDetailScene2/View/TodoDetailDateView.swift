@@ -8,6 +8,7 @@
 import UIKit
 
 class TodoDetailDateView: UIView, TodoDetailAttributeView {
+
     var bottomConstraint: NSLayoutConstraint!
     
     var startDateLabel: UILabel = {
