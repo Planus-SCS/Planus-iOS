@@ -7,7 +7,9 @@
 
 import UIKit
 
-class TodoDetailClockView: UIView {
+class TodoDetailClockView: UIView, TodoDetailAttributeView {
+    var bottomConstraint: NSLayoutConstraint!
+    
     var timePicker: UIDatePicker = {
         let picker = UIDatePicker(frame: .zero)
         picker.preferredDatePickerStyle = .wheels
@@ -33,10 +35,10 @@ class TodoDetailClockView: UIView {
     
     func configureLayout() {
         timePicker.snp.makeConstraints {
-            $0.height.equalTo(100)
+            $0.height.equalTo(80)
             $0.width.equalTo(250)
             $0.centerX.equalToSuperview()
-            $0.top.bottom.equalToSuperview().inset(20)
+            $0.top.bottom.equalToSuperview().inset(10)
         }
     }
 }

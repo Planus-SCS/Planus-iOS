@@ -31,6 +31,9 @@ enum TodoDetailAttribute: Int, CaseIterable {
 }
 
 class TodoDetailIcnView: UIView {
+    weak var delegate: TodoDetailIcnViewDelegate?
+    
+    var viewingAttr: TodoDetailAttribute = .title
     
     var stackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
@@ -75,13 +78,29 @@ class TodoDetailIcnView: UIView {
             $0.leading.equalToSuperview().inset(19)
             $0.trailing.lessThanOrEqualToSuperview().inset(19)
             $0.height.equalTo(30)
-            $0.top.bottom.equalToSuperview().inset(20)
+            $0.top.bottom.equalToSuperview().inset(5)
         }
+    }
+    // 이렇게 말고 데이터 바인딩해서 activate을 해야할듯..? 여기선 이동하고 deactivate 하는것만..!
+    @objc func btnTapped(_ sender: UIButton) {
+        let index = sender.tag
+        guard let selectedAttr = TodoDetailAttribute(rawValue: index) else { return }
         
-        
+        if selectedAttr == viewingAttr && selectedAttr != .title {
+            
+            delegate?.deactivate(attr: selectedAttr)
+            delegate?.move(from: viewingAttr, to: .title)
+            viewingAttr = .title
+        } else {
+            delegate?.move(from: viewingAttr, to: selectedAttr)
+            viewingAttr = selectedAttr
+        }
     }
     
-    @objc func btnTapped(_ sender: UIButton) {
-        print(sender.tag)
-    }
+    
+}
+
+protocol TodoDetailIcnViewDelegate: AnyObject {
+    func deactivate(attr: TodoDetailAttribute)
+    func move(from: TodoDetailAttribute, to: TodoDetailAttribute)
 }

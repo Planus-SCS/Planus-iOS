@@ -7,7 +7,9 @@
 
 import UIKit
 
-class TodoDetailDateView: UIView {
+class TodoDetailDateView: UIView, TodoDetailAttributeView {
+    var bottomConstraint: NSLayoutConstraint!
+    
     var startDateLabel: UILabel = {
         let label = PaddingLabel(inset: .init(top: 10, left: 18, bottom: 10, right: 18))
         label.textColor = .black
@@ -59,7 +61,7 @@ class TodoDetailDateView: UIView {
         stackView.snp.makeConstraints {
             $0.height.equalTo(44)
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.top.bottom.equalToSuperview().inset(20)
+            $0.top.bottom.equalToSuperview().inset(10)
         }
     }
     

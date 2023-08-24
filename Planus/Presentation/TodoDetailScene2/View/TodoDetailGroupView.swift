@@ -7,7 +7,9 @@
 
 import UIKit
 
-class TodoDetailGroupView: UIView {
+class TodoDetailGroupView: UIView, TodoDetailAttributeView {
+    var bottomConstraint: NSLayoutConstraint!
+    
     lazy var groupPickerView: UIPickerView = {
         let picker = UIPickerView()
         picker.selectRow(30, inComponent: 0, animated: true)
@@ -32,10 +34,10 @@ class TodoDetailGroupView: UIView {
     
     func configureLayout() {
         groupPickerView.snp.makeConstraints {
-            $0.height.equalTo(100)
+            $0.height.equalTo(80)
             $0.width.equalTo(250)
             $0.centerX.equalToSuperview()
-            $0.top.bottom.equalToSuperview().inset(20)
+            $0.top.bottom.equalToSuperview().inset(10)
         }
     }
 }

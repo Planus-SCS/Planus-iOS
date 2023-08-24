@@ -8,7 +8,9 @@
 import UIKit
 import RxSwift
 
-class TodoDetailMemoView: UIView {
+class TodoDetailMemoView: UIView, TodoDetailAttributeView {
+    var bottomConstraint: NSLayoutConstraint!
+        
     var bag = DisposeBag()
     
     lazy var memoHeightConstraint: NSLayoutConstraint = {
@@ -28,7 +30,7 @@ class TodoDetailMemoView: UIView {
         textView.textColor = .black
         textView.backgroundColor = UIColor(hex: 0xF5F5FB)
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
-        textView.delegate = self
+//        textView.delegate = self
         textView.layer.borderWidth = 1
         textView.layer.cornerCurve = .continuous
         textView.layer.cornerRadius = 10
@@ -54,7 +56,6 @@ class TodoDetailMemoView: UIView {
         memoTextView.rx.text
             .compactMap { $0 }
             .subscribe(onNext: { text in
-                self.layoutTextViewLines()
                 self.memoTextView.layer.borderColor = text.isEmpty ?
                 UIColor(hex: 0xBFC7D7).cgColor : UIColor(hex: 0xADC5F8).cgColor
             })
@@ -68,24 +69,24 @@ class TodoDetailMemoView: UIView {
     func configureLayout() {
         memoTextView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.top.bottom.equalToSuperview().inset(20)
-            $0.height.greaterThanOrEqualTo(20)
+            $0.top.bottom.equalToSuperview().inset(10)
+            $0.height.equalTo(90)
         }
     }
 }
 
 
-extension TodoDetailMemoView: UITextViewDelegate {
-    func layoutTextViewLines() {
-        let lines = memoTextView.numberOfLines
-        if lines >= 4 {
-            memoTextView.isScrollEnabled = true
-            memoHeightConstraint.isActive = true
-        } else {
-            memoTextView.isScrollEnabled = false
-            memoHeightConstraint.isActive = false
-            memoTextView.sizeToFit()
-        }
-        memoTextView.layoutIfNeeded()
-    }
-}
+//extension TodoDetailMemoView: UITextViewDelegate {
+//    func layoutTextViewLines() {
+//        let lines = memoTextView.numberOfLines
+//        if lines >= 4 {
+//            memoTextView.isScrollEnabled = true
+//            memoHeightConstraint.isActive = true
+//        } else {
+//            memoTextView.isScrollEnabled = false
+//            memoHeightConstraint.isActive = false
+//            memoTextView.sizeToFit()
+//        }
+//        memoTextView.layoutIfNeeded()
+//    }
+//}

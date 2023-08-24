@@ -7,7 +7,13 @@
 
 import UIKit
 
-class TodoDetailTitleView: UIView {
+protocol TodoDetailAttributeView: UIView {
+    var bottomConstraint: NSLayoutConstraint! { get set }
+}
+
+class TodoDetailTitleView: UIView, TodoDetailAttributeView {
+    var bottomConstraint: NSLayoutConstraint!
+    
     var todoTitleField: UITextField = {
         let textField = UITextField(frame: .zero)
         textField.font = UIFont(name: "Pretendard-Regular", size: 20)
@@ -46,7 +52,7 @@ class TodoDetailTitleView: UIView {
         categoryButton.categoryLabel.isHidden = false
 
         todoTitleField.snp.remakeConstraints {
-            $0.top.equalToSuperview().inset(20)
+            $0.top.equalToSuperview().inset(12)
             $0.height.equalTo(30)
             $0.leading.equalToSuperview().inset(19)
             $0.trailing.lessThanOrEqualToSuperview().inset(19)
@@ -57,26 +63,28 @@ class TodoDetailTitleView: UIView {
             $0.height.equalTo(30)
             $0.leading.equalToSuperview().inset(19)
             $0.trailing.lessThanOrEqualToSuperview().inset(19)
-            $0.bottom.equalToSuperview().inset(20)
+            $0.bottom.equalToSuperview().inset(12)
         }
+        todoTitleField.font = UIFont(name: "Pretendard-Regular", size: 20)
     }
     
     func set1line() {
         categoryButton.categoryLabel.isHidden = true
 
         categoryButton.snp.remakeConstraints {
-            $0.top.equalToSuperview().inset(20)
-            $0.height.equalTo(30)
+            $0.top.equalToSuperview().inset(12)
+            $0.height.equalTo(20)
             $0.leading.equalToSuperview().inset(19)
-            $0.bottom.equalToSuperview().inset(20)
+            $0.bottom.equalToSuperview()
         }
         
         todoTitleField.snp.remakeConstraints {
-            $0.top.equalToSuperview().inset(20)
-            $0.height.equalTo(30)
+            $0.height.equalTo(24)
             $0.leading.equalTo(categoryButton.snp.trailing).offset(8)
+            $0.centerY.equalTo(categoryButton)
             $0.trailing.lessThanOrEqualToSuperview().inset(19)
         }
 
+        todoTitleField.font = UIFont(name: "Pretendard-Regular", size: 14)
     }
 }
