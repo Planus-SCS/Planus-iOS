@@ -150,6 +150,11 @@ class TodoDetailViewController: UIViewController {
     func configureView() {
         self.view.addSubview(dimmedView)
         self.view.addSubview(addTodoView)
+        
+        [addTodoView.upperView, addTodoView.icnView, dayPickerViewController.view, addTodoView.curtainView].forEach {
+            $0?.backgroundColor = UIColor(hex: 0xF5F5FB)
+        }
+        
         self.view.addSubview(categoryView)
         self.view.addSubview(categoryCreateView)
         
@@ -789,7 +794,7 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
                     self.addTodoView.attributeViewGroup[to.rawValue].alpha = 1
                 }
                 
-                self.addTodoView.layoutIfNeeded()
+                self.addTodoView.upperView.layoutIfNeeded()
             })
         }
         

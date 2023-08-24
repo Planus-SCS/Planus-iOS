@@ -15,6 +15,16 @@ class TodoDetailView2: UIView {
     
     var bag = DisposeBag()
     
+    var curtainView = UIView(frame: .zero)
+    
+    var upperView: UIView = {
+        let view = UIView(frame: .zero)
+        view.layer.cornerRadius = 10
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.clipsToBounds = true
+        return view
+    }()
+    
     var headerBarView: UIView = {
         let view = UIView(frame: .zero)
         return view
@@ -62,7 +72,6 @@ class TodoDetailView2: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        self.backgroundColor = .gray
         configureView()
         configureLayout()
     }
@@ -72,18 +81,15 @@ class TodoDetailView2: UIView {
     }
     
     func configureView() {
+        self.addSubview(curtainView)
         
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.layer.cornerRadius = 10
-        self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        self.clipsToBounds = true
-        
-        self.addSubview(headerBarView)
+        self.addSubview(upperView)
+        upperView.addSubview(headerBarView)
         headerBarView.addSubview(removeButton)
         headerBarView.addSubview(titleLabel)
         headerBarView.addSubview(saveButton)
-        self.addSubview(titleView)
-        self.addSubview(contentView)
+        upperView.addSubview(titleView)
+        upperView.addSubview(contentView)
         attributeViewGroup.filter { $0 != titleView }.forEach {
             contentView.addSubview($0)
             $0.alpha = 0
@@ -96,9 +102,13 @@ class TodoDetailView2: UIView {
             $0.leading.trailing.equalToSuperview()
         }
         
-        contentView.snp.makeConstraints {
+        upperView.snp.makeConstraints {
+            $0.leading.trailing.top.equalToSuperview()
             $0.bottom.equalTo(icnView.snp.top)
-            $0.leading.trailing.equalToSuperview()
+        }
+        
+        contentView.snp.makeConstraints {
+            $0.bottom.leading.trailing.equalToSuperview()
         }
         
         
@@ -138,6 +148,11 @@ class TodoDetailView2: UIView {
             $0.centerY.equalToSuperview()
         }
         
+        curtainView.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview()
+            $0.top.equalTo(headerBarView.snp.bottom)
+            $0.bottom.equalToSuperview()
+        }
     }
 }
 

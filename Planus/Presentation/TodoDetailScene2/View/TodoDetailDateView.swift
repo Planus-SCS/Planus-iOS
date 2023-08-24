@@ -73,7 +73,7 @@ class TodoDetailDateView: UIView, TodoDetailAttributeView {
             setEnabled(label: startDateLabel)
             endDateLabel.text = end
             setEnabled(label: endDateLabel)
-            UIView.animate(withDuration: 0.1, delay: 0, animations: {
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
                 self.endDateLabel.isHidden = false
             })
             break
@@ -81,13 +81,13 @@ class TodoDetailDateView: UIView, TodoDetailAttributeView {
             startDateLabel.text = start
             setEnabled(label: startDateLabel)
             setDisabled(label: endDateLabel)
-            UIView.animate(withDuration: 0.1, delay: 0, animations: {
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
                 self.endDateLabel.isHidden = true
             })
         default:
             setDisabled(label: startDateLabel)
             setDisabled(label: endDateLabel)
-            UIView.animate(withDuration: 0.1, delay: 0, animations: {
+            UIView.animate(withDuration: 0.2, delay: 0, animations: {
                 self.endDateLabel.isHidden = true
             })
             break
