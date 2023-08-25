@@ -9,11 +9,16 @@ import Foundation
 import RxSwift
 
 class DefaultSocialAuthRepository: SocialAuthRepository {
-    
+
     let apiProvider: APIProvider
+    let keyValueStorage: KeyValueStorage
     
-    init(apiProvider: APIProvider) {
+    init(
+        apiProvider: APIProvider,
+        keyValueStorage: KeyValueStorage
+    ) {
         self.apiProvider = apiProvider
+        self.keyValueStorage = keyValueStorage
     }
     
     func kakaoSignIn(code: String) -> Single<ResponseDTO<TokenResponseDataDTO>> {
@@ -46,7 +51,86 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
         )
     }
     
-    func appleSignIn() {
+    func appleSignIn(requestDTO: AppleSignInRequestDTO) -> Single<ResponseDTO<TokenResponseDataDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.oauthAppleSignIn,
+            requestType: .post,
+            body: requestDTO,
+            query: nil,
+            header: ["Content-Type": "application/json"]
+        )
         
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<TokenResponseDataDTO>.self
+        )
     }
+    
+    func fetchAppleClientSecret(token: String) -> Single<ResponseDTO<AppleClientSecret>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.oauthAppleSecret,
+            requestType: .get,
+            body: nil,
+            query: nil,
+            header:  ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(endPoint: endPoint, type: ResponseDTO<AppleClientSecret>.self)
+    }
+    
+    func fetchAppleToken(clientID: String, clientSecret: String, authorizationCode: String) -> Single<AppleIDTokenResponseDTO> {
+        let endPoint = APIEndPoint(
+            url: URLPool.oauthAppleToken,
+            requestType: .post,
+            body: nil,
+            query: ["client_id": clientID, "client_secret": clientSecret, "code": authorizationCode, "grant_type": "authorization_code"],
+            header: ["Content-Type": "application/x-www-form-urlencoded"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: AppleIDTokenResponseDTO.self
+        )
+    }
+    
+    func revokeAppleToken(clientID: String, clientSecret: String, refreshToken: String) -> Single<Void> {
+        let endPoint = APIEndPoint(
+            url: URLPool.oauthAppleRevoke,
+            requestType: .post,
+            body: nil,
+            query: ["client_id": clientID, "client_secret": clientSecret, "token": refreshToken, "token_type_hint": "refresh_token"],
+            header: ["Content-Type": "application/x-www-form-urlencoded"]
+        )
+        
+        return apiProvider.requestData(endPoint: endPoint).map { _ in () }
+    }
+        
+
+    func getSignedInSNSType() -> SocialAuthType? {
+        let typeString = keyValueStorage.get(key: SocialAuthType.authType) as? String
+        return SocialAuthType(rawValue: typeString ?? String())
+    }
+    
+    func setSignedInSNSType(type: SocialAuthType) {
+        keyValueStorage.set(key: SocialAuthType.authType, value: type.rawValue)
+    }
+}
+
+struct AppleSignInRequestDTO: Codable {
+    var identityToken: String
+    var fullName: PersonNameComponents?
+}
+
+struct AppleIDTokenResponseDTO: Codable {
+    
+    var access_token: String
+    var token_type: String
+    var expires_in: Int
+    var refresh_token: String
+    var id_token: String
+    
+}
+
+struct AppleClientSecret: Codable {
+    var clientSecret: String
 }

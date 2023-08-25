@@ -115,6 +115,7 @@ class GroupListViewModel {
         
         input
             .tappedAt
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 guard let id = vm.groupList?[index].groupId else { return }
@@ -142,10 +143,10 @@ class GroupListViewModel {
         setOnlineUseCase
             .didChangeOnlineState
             .withUnretained(self)
-            .subscribe(onNext: { vm, groupId in
+            .subscribe(onNext: { vm, arg in
+                let (groupId, memberId) = arg
                 guard let index = vm.groupList?.firstIndex(where: { $0.groupId == groupId }),
                       var group = vm.groupList?[index] else { return }
-                
                 group.isOnline = !group.isOnline
                 group.onlineCount = group.isOnline ? group.onlineCount + 1 : group.onlineCount - 1
                 vm.groupList?[index] = group

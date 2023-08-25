@@ -13,6 +13,12 @@ struct GroupIntroduceViewModelActions {
     var didPop: (() -> Void)?
 }
 
+enum GroupJoinableState {
+    case isJoined
+    case notJoined
+    case full
+}
+
 class GroupIntroduceViewModel {
     var bag = DisposeBag()
     var actions: GroupIntroduceViewModelActions?
@@ -30,7 +36,7 @@ class GroupIntroduceViewModel {
     var didGroupInfoFetched = BehaviorSubject<Void?>(value: nil)
     var didGroupMemberFetched = BehaviorSubject<Void?>(value: nil)
     var showGroupDetailPage = PublishSubject<Int>()
-    var isJoinableGroup = BehaviorSubject<Bool?>(value: nil)
+    var isJoinableGroup = BehaviorSubject<GroupJoinableState?>(value: nil)
     var applyCompleted = PublishSubject<Void>()
     var showMessage = PublishSubject<Message>()
     
@@ -43,7 +49,7 @@ class GroupIntroduceViewModel {
     struct Output {
         var didGroupInfoFetched: Observable<Void?>
         var didGroupMemberFetched: Observable<Void?>
-        var isJoinableGroup: Observable<Bool?>
+        var isJoinableGroup: Observable<GroupJoinableState?>
         var didCompleteApply: Observable<Void>
         var showGroupDetailPage: Observable<Int>
         var showMessage: Observable<Message>
@@ -100,12 +106,15 @@ class GroupIntroduceViewModel {
             .subscribe(onNext: { vm, _ in
                 guard let isJoined = try? vm.isJoinableGroup.value(),
                       let groupId = vm.groupId else { return }
-                if isJoined {
-                    vm.showGroupDetailPage.onNext((groupId))
-                } else {
-                    vm.requestJoinGroup()
-                }
                 
+                switch isJoined {
+                case .isJoined:
+                    vm.showGroupDetailPage.onNext((groupId))
+                case .notJoined:
+                    vm.requestJoinGroup()
+                default:
+                    break
+                }                
             })
             .disposed(by: bag)
         
@@ -151,7 +160,7 @@ class GroupIntroduceViewModel {
                 self?.notice = groupDetail.notice
                 self?.groupImageUrl = groupDetail.groupImageUrl
                 self?.didGroupInfoFetched.onNext(())
-                self?.isJoinableGroup.onNext(groupDetail.isJoined)
+                self?.isJoinableGroup.onNext(groupDetail.isJoined ? .isJoined : (groupDetail.memberCount >= groupDetail.limitCount) ? .full : .notJoined)
             })
             .disposed(by: bag)
         

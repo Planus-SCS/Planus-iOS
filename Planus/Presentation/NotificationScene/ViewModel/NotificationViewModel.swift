@@ -21,11 +21,15 @@ class NotificationViewModel {
     struct Output {
         var didFetchJoinApplyList: Observable<FetchType?>
         var needRemoveAt: Observable<Int>
+        var showMessage: Observable<Message>
     }
     
     var joinAppliedList: [GroupJoinApplied]?
+    var nowProcessingJoinId: [Int] = []
     var didFetchJoinApplyList = BehaviorSubject<FetchType?>(value: nil)
     var needRemoveAt = PublishSubject<Int>()
+    
+    var showMessage = PublishSubject<Message>()
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
@@ -90,13 +94,15 @@ class NotificationViewModel {
         
         return Output(
             didFetchJoinApplyList: didFetchJoinApplyList.asObservable(),
-            needRemoveAt: needRemoveAt.asObservable()
+            needRemoveAt: needRemoveAt.asObservable(),
+            showMessage: showMessage.asObservable()
         )
     }
     
     func acceptGroupJoinAt(index: Int) {
-        guard let id = joinAppliedList?[index].groupJoinId else { return }
-
+        guard let id = joinAppliedList?[index].groupJoinId,
+              nowProcessingJoinId.filter({ $0 == id }).isEmpty else { return }
+        nowProcessingJoinId.append(id)
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
@@ -111,18 +117,23 @@ class NotificationViewModel {
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
-                /*
-                 여기서 저거 알림온거를 삭제한다? 삭제먼저? 아님 요청 응답오면 삭제? 일단 로딩을 띄우도록 하자,,!
-                 */
+                self?.nowProcessingJoinId.removeAll(where: { $0 == id })
                 self?.joinAppliedList?.remove(at: index)
                 self?.needRemoveAt.onNext(index)
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+                self?.nowProcessingJoinId.removeAll(where: { $0 == id })
             })
             .disposed(by: bag)
     }
     
     func denyGroupJoinAt(index: Int) {
-        guard let id = joinAppliedList?[index].groupJoinId else { return }
-        
+        guard let id = joinAppliedList?[index].groupJoinId,
+              nowProcessingJoinId.filter({ $0 == id }).isEmpty else { return }
+        nowProcessingJoinId.append(id)
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
@@ -137,8 +148,15 @@ class NotificationViewModel {
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
+                self?.nowProcessingJoinId.removeAll(where: { $0 == id })
                 self?.joinAppliedList?.remove(at: index)
                 self?.needRemoveAt.onNext(index)
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+                self?.nowProcessingJoinId.removeAll(where: { $0 == id })
             })
             .disposed(by: bag)
     }

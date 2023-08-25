@@ -78,7 +78,7 @@ class JoinedGroupCell: SearchResultCell {
         super.configureView()
         
         self.addSubview(onlineButton)
-        self.addSubview(chatButton)
+//        self.addSubview(chatButton)
         self.addSubview(onlineSwitch)
     }
     
@@ -97,12 +97,12 @@ class JoinedGroupCell: SearchResultCell {
             $0.centerY.equalTo(onlineButton)
         }
         
-        chatButton.snp.makeConstraints {
-            $0.height.equalTo(26)
-            $0.leading.equalToSuperview().inset(12)
-            $0.bottom.equalTo(bottomContentsView.snp.top).offset(-10)
-            $0.trailing.lessThanOrEqualToSuperview().inset(12)
-        }
+//        chatButton.snp.makeConstraints {
+//            $0.height.equalTo(26)
+//            $0.leading.equalToSuperview().inset(12)
+//            $0.bottom.equalTo(bottomContentsView.snp.top).offset(-10)
+//            $0.trailing.lessThanOrEqualToSuperview().inset(12)
+//        }
     }
     
     func fill(title: String, tag: String?, memCount: String, leaderName: String, onlineCount: String, isOnline: Bool) {

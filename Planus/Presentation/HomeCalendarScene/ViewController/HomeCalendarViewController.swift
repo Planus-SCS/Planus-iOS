@@ -22,6 +22,7 @@ class HomeCalendarViewController: UIViewController {
     var isGroupSelectedWithId = PublishSubject<Int?>()
     var refreshRequired = PublishSubject<Void>()
     var didFetchRefreshedData = PublishSubject<Void>()
+    var initialCalendarGenerated = false
     
     let indexChanged = PublishSubject<Int>()
     
@@ -136,11 +137,12 @@ class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
                 vc.collectionView.performBatchUpdates({
+                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                     vc.collectionView.reloadData()
                 }, completion: { _ in
                     vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
+                    vc.initialCalendarGenerated = true
                 })
-                vc.collectionView.reloadData()
             })
             .disposed(by: bag)
             
@@ -149,6 +151,7 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, rangeSet in //여기서 추가로 리로드중인게 있는지 확인해야하나???
+                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                 vc.collectionView.reloadSections(IndexSet(rangeSet.0..<rangeSet.1))
             })
             .disposed(by: bag)
@@ -276,8 +279,9 @@ class HomeCalendarViewController: UIViewController {
                 let popover: UIPopoverPresentationController = vc.popoverPresentationController!
                 popover.delegate = self
                 popover.sourceView = self.view
-                popover.sourceItem = self.yearMonthButton
-                
+                let globalFrame = self.yearMonthButton.convert(self.yearMonthButton.bounds, to: nil)
+                popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
+                popover.permittedArrowDirections = [.up]
                 self.present(vc, animated: true, completion:nil)
             })
             .disposed(by: bag)
@@ -303,6 +307,7 @@ class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, indexSet in
                 UIView.performWithoutAnimation({
+                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                     vc.collectionView.reloadSections(indexSet)
                 })
             })
@@ -313,6 +318,7 @@ class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 UIView.performWithoutAnimation({
+                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                     vc.collectionView.reloadData()
                 })
             })
@@ -350,6 +356,7 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                 vc.collectionView.reloadData()
             })
             .disposed(by: bag)
@@ -360,6 +367,18 @@ class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.didFetchRefreshedData.onNext(())
+            })
+            .disposed(by: bag)
+        
+        output //이거는 처리를 하고 옮기기만 하는게 나을거같다..!!!! 그래도 될듯???
+            .needScrollToHome
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+                                vc.collectionView.setContentOffset(
+                               CGPoint(x: CGFloat(100) * vc.view.frame.width, y: 0), animated: false)
+                            })
             })
             .disposed(by: bag)
             
@@ -401,7 +420,9 @@ class HomeCalendarViewController: UIViewController {
         guard let profile = viewModel?.profile else { return }
         let api = NetworkManager()
         let keyChain = KeyChainManager()
+        let userDefaults = UserDefaultsManager()
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let socialAuthRepo = DefaultSocialAuthRepository(apiProvider: api, keyValueStorage: userDefaults)
         let profileRepo = DefaultProfileRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let readProfileUseCase = DefaultReadProfileUseCase(profileRepository: profileRepo)
@@ -411,7 +432,7 @@ class HomeCalendarViewController: UIViewController {
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
         let removeTokenUseCase = DefaultRemoveTokenUseCase(tokenRepository: tokenRepo)
         let removeProfileUseCase = DefaultRemoveProfileUseCase(profileRepository: profileRepo)
-        let vm = MyPageMainViewModel(updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, removeTokenUseCase: removeTokenUseCase, removeProfileUseCase: removeProfileUseCase, fetchImageUseCase: fetchImageUseCase)
+        let vm = MyPageMainViewModel(updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, removeTokenUseCase: removeTokenUseCase, removeProfileUseCase: removeProfileUseCase, fetchImageUseCase: fetchImageUseCase, getSignedInSNSTypeUseCase: DefaultGetSignedInSNSTypeUseCase(socialAuthRepository: socialAuthRepo), convertToSha256UseCase: DefaultConvertToSha256UseCase(), revokeAppleTokenUseCase: DefaultRevokeAppleTokenUseCase(socialAuthRepository: socialAuthRepo))
         vm.setProfile(profile: profile)
         let vc = MyPageMainViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
@@ -457,10 +478,11 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
         return cell
     }
 
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) { //이거를 저거 끝나고 잇자
         let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
-        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) else { return }
+        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && initialCalendarGenerated else { return }
         indexChanged.onNext(Int(round(floatedIndex)))
+        print(Int(round(floatedIndex)))
     }
     
 }
@@ -514,7 +536,7 @@ extension HomeCalendarViewController {
             heightDimension: .fractionalHeight(1)
         )
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging

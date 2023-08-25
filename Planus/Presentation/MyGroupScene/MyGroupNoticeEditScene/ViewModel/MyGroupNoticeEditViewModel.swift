@@ -14,7 +14,7 @@ class MyGroupNoticeEditViewModel {
     var groupId: Int?
     var notice = BehaviorSubject<String?>(value: nil)
     var didEditComplete = PublishSubject<Void>()
-    var isSaveBtnEnabled = PublishSubject<Bool>()
+    var isSaveBtnEnabled = BehaviorSubject<Bool?>(value: nil)
     
     struct Input {
         var didTapSaveButton: Observable<Void>
@@ -22,7 +22,7 @@ class MyGroupNoticeEditViewModel {
     }
     
     struct Output {
-        var isSaveBtnEnabled: Observable<Bool>
+        var isSaveBtnEnabled: Observable<Bool?>
         var didEditCompleted: Observable<Void>
     }
     
@@ -58,6 +58,17 @@ class MyGroupNoticeEditViewModel {
             .didChangeNoticeValue
             .distinctUntilChanged()
             .bind(to: notice)
+            .disposed(by: bag)
+        
+        notice
+            .withUnretained(self)
+            .subscribe(onNext: { vm, text in
+                guard let text else {
+                    vm.isSaveBtnEnabled.onNext(false)
+                    return
+                }
+                vm.isSaveBtnEnabled.onNext(!text.isEmpty)
+            })
             .disposed(by: bag)
         
         return Output(

@@ -43,25 +43,26 @@ class GroupCreateTagCell: SpringableCollectionViewCell {
         self.layer.cornerRadius = 10
         self.layer.cornerCurve = .continuous
         
-        self.addSubview(label)
-        self.addSubview(removeButton)
+        self.contentView.addSubview(label)
+        self.contentView.addSubview(removeButton)
     }
     
     func configureLayout() {
-        label.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.leading.equalToSuperview().inset(10)
-        }
-        
         removeButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(10)
             $0.centerY.equalToSuperview()
-            $0.leading.equalTo(label.snp.trailing).offset(6)
+        }
+        
+        label.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.leading.equalToSuperview().inset(10)
+            $0.trailing.equalTo(removeButton.snp.leading).offset(-6)
         }
     }
     
     func fill(tag: String) {
         self.label.text = tag
+        label.invalidateIntrinsicContentSize()
     }
     
     @objc func removeBtnTapped(_ sender: UIButton) {

@@ -20,8 +20,8 @@ class SmallTodoView: UIView {
         return label
     }()
     
-    convenience init(text: String, categoryColor: CategoryColor, isComplete: Bool?) {
-        self.init(frame: CGRect(x: 0, y: 0, width: 0, height: 16))
+    convenience init(frame: CGRect, text: String, categoryColor: CategoryColor, isComplete: Bool?) {
+        self.init(frame: frame)
         
         fill(text: text, categoryColor: categoryColor, isComplete: isComplete)
     }
@@ -46,15 +46,13 @@ class SmallTodoView: UIView {
     }
     
     func configureLayout() {
-        leadingView.snp.makeConstraints {
-            $0.leading.top.bottom.equalToSuperview()
-            $0.width.equalTo(2)
-        }
+        leadingView.frame = CGRect(x: 0, y: 0, width: 2, height: self.frame.height)
         toDoLabel.snp.makeConstraints {
             $0.leading.equalTo(leadingView.snp.trailing).offset(2.5)
             $0.trailing.equalToSuperview().inset(4)
             $0.centerY.equalToSuperview()
         }
+        toDoLabel.frame = CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height)
     }
     
     // FIXME: 상의 후 소셜투두 Summary에도 isComplete 담겨오면 옵셔널 빼고 쓰자.!!!

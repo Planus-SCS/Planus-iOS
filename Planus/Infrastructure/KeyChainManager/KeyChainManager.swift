@@ -7,7 +7,7 @@
 
 import Foundation
 
-class KeyChainManager {
+class KeyChainManager: KeyValueStorage {
     func set(key: String, value: Any) {
         let query: NSDictionary = [
             kSecClass: kSecClassGenericPassword,
@@ -39,7 +39,7 @@ class KeyChainManager {
         }
     }
     
-    func delete(key: String) {
+    func remove(key: String) {
         let query: NSDictionary = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: key

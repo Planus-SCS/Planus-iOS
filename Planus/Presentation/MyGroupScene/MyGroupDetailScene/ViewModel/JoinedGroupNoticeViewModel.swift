@@ -16,6 +16,7 @@ class JoinedGroupNoticeViewModel {
     var memberList: [MyMember]?
     var memberListFetched = BehaviorSubject<Void?>(value: nil)
     var memberKickedOutAt = PublishSubject<Int>()
+    var needReloadMemberAt = PublishSubject<Int>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -26,6 +27,7 @@ class JoinedGroupNoticeViewModel {
         var noticeFetched: Observable<String?>
         var didFetchMemberList: Observable<Void?>
         var didRemoveMemberAt: Observable<Int>
+        var needReloadMemberAt: Observable<Int>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -33,19 +35,22 @@ class JoinedGroupNoticeViewModel {
     var fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase
     var fetchImageUseCase: FetchImageUseCase
     var memberKickOutUseCase: MemberKickOutUseCase
+    var setOnlineUseCase: SetOnlineUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase,
         fetchImageUseCase: FetchImageUseCase,
-        memberKickOutUseCase: MemberKickOutUseCase
+        memberKickOutUseCase: MemberKickOutUseCase,
+        setOnlineUseCase: SetOnlineUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.fetchMyGroupMemberListUseCase = fetchMyGroupMemberListUseCase
         self.fetchImageUseCase = fetchImageUseCase
         self.memberKickOutUseCase = memberKickOutUseCase
+        self.setOnlineUseCase = setOnlineUseCase
     }
     
     func setGroupId(id: Int) {
@@ -74,7 +79,8 @@ class JoinedGroupNoticeViewModel {
         return Output(
             noticeFetched: notice.asObservable(),
             didFetchMemberList: memberListFetched.asObservable(),
-            didRemoveMemberAt: memberKickedOutAt.asObservable()
+            didRemoveMemberAt: memberKickedOutAt.asObservable(),
+            needReloadMemberAt: needReloadMemberAt.asObservable()
         )
     }
     
@@ -87,6 +93,21 @@ class JoinedGroupNoticeViewModel {
                       let index = self?.memberList?.firstIndex(where: { $0.memberId == memberId }) else { return }
                 self?.memberList?.remove(at: index)
                 self?.memberKickedOutAt.onNext(index)
+            })
+            .disposed(by: bag)
+        
+        setOnlineUseCase
+            .didChangeOnlineState
+            .withUnretained(self)
+            .subscribe(onNext: { vm, arg in
+                let (groupId, memberId) = arg
+
+                guard let index = vm.memberList?.firstIndex(where: { $0.memberId == memberId }),
+                      var member = vm.memberList?[index] else { return }
+                
+                member.isOnline = !member.isOnline
+                vm.memberList?[index] = member
+                vm.needReloadMemberAt.onNext(index)
             })
             .disposed(by: bag)
     }

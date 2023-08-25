@@ -14,7 +14,7 @@ import AuthenticationServices
 class SignInViewController: UIViewController {
     var bag = DisposeBag()
     
-    var didReceiveAppleIdentityToken = PublishSubject<String>()
+    var didReceiveAppleIdentityToken = PublishSubject<(String, PersonNameComponents?)>()
     
     var viewModel: SignInViewModel?
     
@@ -123,8 +123,17 @@ class SignInViewController: UIViewController {
             .showAppleSignInPage
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.appleSignInBtnTapped()
+            .subscribe(onNext: { vc, request in
+                vc.showASAuthController(request: request)
+            })
+            .disposed(by: bag)
+        
+        output
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
             })
             .disposed(by: bag)
     }
@@ -165,11 +174,7 @@ class SignInViewController: UIViewController {
         }
     }
 
-    func appleSignInBtnTapped() {
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-        
+    func showASAuthController(request: ASAuthorizationAppleIDRequest) {
         let controller = ASAuthorizationController(authorizationRequests: [request])
         
         controller.delegate = self
@@ -183,10 +188,17 @@ extension SignInViewController: ASAuthorizationControllerDelegate {
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         
-        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-            let userIdentifier = appleIDCredential.user //이걸 키체인 같은데에 저장해서 앱 다시켤때마다 증명된지 확인
-            appleIDCredential.identityToken //애를 백엔드로 보내서 jwt를 발급받는다고함
-            appleIDCredential
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
+           let identityToken = String(data: appleIDCredential.identityToken ?? Data(), encoding: .utf8) {
+            var fullName: PersonNameComponents? = nil
+            
+            if let userFullName = appleIDCredential.fullName,
+               let givenName = userFullName.givenName,
+               let familyName = userFullName.familyName {
+                fullName = PersonNameComponents(givenName: givenName, familyName: familyName)
+            }
+
+            didReceiveAppleIdentityToken.onNext((identityToken, fullName))
         }
     }
 

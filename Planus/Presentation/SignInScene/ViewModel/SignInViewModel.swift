@@ -7,6 +7,7 @@
 
 import Foundation
 import RxSwift
+import AuthenticationServices
 
 struct SignInViewModelActions {
     var showWebViewSignInPage: ((_ type: SocialRedirectionType, _ completion: @escaping (String) -> Void) -> Void)?
@@ -17,9 +18,16 @@ class SignInViewModel {
     var bag = DisposeBag()
     
     var actions: SignInViewModelActions?
+    
+    var showAppleSignInPageWith = PublishSubject<ASAuthorizationAppleIDRequest>()
+    var showMessage = PublishSubject<Message>()
 
     let kakaoSignInUseCase: KakaoSignInUseCase
     let googleSignInUseCase: GoogleSignInUseCase
+    let appleSignInUseCase: AppleSignInUseCase
+    let convertToSha256UseCase: ConvertToSha256UseCase
+    let setSignedInSNSTypeUseCase: SetSignedInSNSTypeUseCase
+    let revokeAppleTokenUseCase: RevokeAppleTokenUseCase
     
     let setTokenUseCase: SetTokenUseCase
         
@@ -27,30 +35,38 @@ class SignInViewModel {
         var kakaoSignInTapped: Observable<Void>
         var googleSignInTapped: Observable<Void>
         var appleSignInTapped: Observable<Void>
-        var didReceiveAppleIdentityToken: Observable<String>
+        var didReceiveAppleIdentityToken: Observable<(String, PersonNameComponents?)>
     }
     
     struct Output {
-        var showAppleSignInPage: Observable<Void>
+        var showAppleSignInPage: Observable<ASAuthorizationAppleIDRequest>
+        var showMessage: Observable<Message>
     }
     
     init(
         kakaoSignInUseCase: KakaoSignInUseCase,
         googleSignInUseCase: GoogleSignInUseCase,
-        setTokenUseCase: SetTokenUseCase
+        appleSignInUseCase: AppleSignInUseCase,
+        convertToSha256UseCase: ConvertToSha256UseCase,
+        setSignedInSNSTypeUseCase: SetSignedInSNSTypeUseCase,
+        setTokenUseCase: SetTokenUseCase,
+        revokeAppleTokenUseCase: RevokeAppleTokenUseCase
     ) {
         self.kakaoSignInUseCase = kakaoSignInUseCase
         self.googleSignInUseCase = googleSignInUseCase
+        self.appleSignInUseCase = appleSignInUseCase
+        self.convertToSha256UseCase = convertToSha256UseCase
+        self.setSignedInSNSTypeUseCase = setSignedInSNSTypeUseCase
         self.setTokenUseCase = setTokenUseCase
+        self.revokeAppleTokenUseCase = revokeAppleTokenUseCase
+        
     }
     
     func setActions(actions: SignInViewModelActions) {
         self.actions = actions
     }
     
-    func transform(input: Input) -> Output {
-        let showAppleSignInPage = PublishSubject<Void>()
-        
+    func transform(input: Input) -> Output {        
         input
             .kakaoSignInTapped
             .withUnretained(self)
@@ -69,34 +85,48 @@ class SignInViewModel {
         
         input
             .appleSignInTapped
-            .subscribe(onNext: {
-                showAppleSignInPage.onNext(())
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                let request = vm.generateAppleSignInRequest()
+                vm.showAppleSignInPageWith.onNext(request)
             })
             .disposed(by: bag)
         
         input
             .didReceiveAppleIdentityToken
             .withUnretained(self)
-            .subscribe(onNext: { vm, token in
-                vm.signInApple(token: token)
+            .subscribe(onNext: { vm, personalInfo in
+                vm.signInApple(identityToken: personalInfo.0, fullName: personalInfo.1)
             })
             .disposed(by: bag)
         
         return Output(
-            showAppleSignInPage: showAppleSignInPage.asObservable()
+            showAppleSignInPage: showAppleSignInPageWith.asObservable(),
+            showMessage: showMessage.asObservable()
         )
     }
     
+    func generateAppleSignInRequest() -> ASAuthorizationAppleIDRequest {
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = convertToSha256UseCase.execute(AppleSignInNonce.nonce)
+        return request
+    }
     
     func signInKakao() {
         actions?.showWebViewSignInPage?(.kakao) { [weak self] code in
             guard let self else { return }
             self.kakaoSignInUseCase.execute(code: code)
-                .subscribe(onSuccess: { token in
-                    self.setTokenUseCase.execute(token: token)
-                    self.actions?.showMainTabFlow?()
-                }, onFailure: { error in
-                    print(error)
+                .subscribe(onSuccess: { [weak self] token in
+                    self?.setTokenUseCase.execute(token: token)
+                    self?.setSignedInSNSTypeUseCase.execute(type: .kakao)
+                    self?.actions?.showMainTabFlow?()
+                }, onFailure: { [weak self] error in
+                    guard let error = error as? NetworkManagerError,
+                          case NetworkManagerError.clientError(let status, let message) = error,
+                          let message = message else { return }
+                    self?.showMessage.onNext(Message(text: message, state: .warning))
                 })
                 .disposed(by: self.bag)
         }
@@ -106,18 +136,32 @@ class SignInViewModel {
         actions?.showWebViewSignInPage?(.google) { [weak self] code in
             guard let self else { return }
             self.googleSignInUseCase.execute(code: code)
-                .subscribe(onSuccess: { token in
-                    self.setTokenUseCase.execute(token: token)
-                    print(token)
-                    self.actions?.showMainTabFlow?()
-                }, onFailure: { error in
-                    
+                .subscribe(onSuccess: { [weak self] token in
+                    self?.setTokenUseCase.execute(token: token)
+                    self?.setSignedInSNSTypeUseCase.execute(type: .google)
+                    self?.actions?.showMainTabFlow?()
+                }, onFailure: { [weak self] error in
+                    guard let error = error as? NetworkManagerError,
+                          case NetworkManagerError.clientError(let status, let message) = error,
+                          let message = message else { return }
+                    self?.showMessage.onNext(Message(text: message, state: .warning))
                 })
                 .disposed(by: self.bag)
         }
     }
     
-    func signInApple(token: String) {
-        
+    func signInApple(identityToken: String, fullName: PersonNameComponents?) {
+        self.appleSignInUseCase.execute(identityToken: identityToken, fullName: fullName)
+            .subscribe(onSuccess: { [weak self] token in
+                self?.setTokenUseCase.execute(token: token)
+                self?.setSignedInSNSTypeUseCase.execute(type: .apple)
+                self?.actions?.showMainTabFlow?()
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
     }
 }

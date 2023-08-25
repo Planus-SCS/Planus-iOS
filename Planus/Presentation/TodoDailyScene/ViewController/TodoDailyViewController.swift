@@ -94,17 +94,18 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                if indexPath.section == 0 {
-                    if vm.viewModel?.scheduledTodoList?.count == 1 {
-                        vm.collectionView.deleteItems(at: [indexPath])
+                vm.collectionView.performBatchUpdates({
+                    if indexPath.section == 0,
+                       vm.viewModel?.scheduledTodoList?.count == 1 {
+                        vm.collectionView.reloadItems(at: [indexPath])
                     }
-                } else if indexPath.section == 1 {
-                    if vm.viewModel?.unscheduledTodoList?.count == 1 {
-                        vm.collectionView.deleteItems(at: [indexPath])
+                    else if indexPath.section == 1,
+                            vm.viewModel?.unscheduledTodoList?.count == 1 {
+                        vm.collectionView.reloadItems(at: [indexPath])
+                    } else {
+                        vm.collectionView.insertItems(at: [indexPath])
                     }
-                }
-                
-                vm.collectionView.insertItems(at: [indexPath])
+                })
             })
             .disposed(by: bag)
             
@@ -113,21 +114,16 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.performBatchUpdates({
+                if indexPath.section == 0,
+                   vm.viewModel?.scheduledTodoList?.count == 0 {
+                    vm.collectionView.reloadItems(at: [indexPath])
+                    
+                } else if indexPath.section == 1,
+                          vm.viewModel?.unscheduledTodoList?.count == 0 {
+                    vm.collectionView.reloadItems(at: [indexPath])
+                    
+                } else {
                     vm.collectionView.deleteItems(at: [indexPath])
-                }, completion: { _ in
-                    UIView.performWithoutAnimation {
-                        vm.collectionView.reloadSections(IndexSet(0...1))
-                    }
-                })
-                if indexPath.section == 0 {
-                    if vm.viewModel?.scheduledTodoList?.count == 0 {
-                        vm.collectionView.insertItems(at: [indexPath])
-                    }
-                } else if indexPath.section == 1 {
-                    if vm.viewModel?.unscheduledTodoList?.count == 0 {
-                        vm.collectionView.insertItems(at: [indexPath])
-                    }
                 }
             })
             .disposed(by: bag)
@@ -252,14 +248,14 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
-        
+                
         cell.fill(
             title: todoItem.title,
             time: todoItem.startTime,
             category: category.color,
             isGroup: todoItem.isGroupTodo,
             isScheduled: todoItem.startDate != todoItem.endDate,
-            isMemo: todoItem.memo != nil,
+            isMemo: !(todoItem.memo ?? "").isEmpty,
             completion: todoItem.isCompleted,
             isOwner: true
         )
@@ -285,7 +281,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         case 0:
             title = "일정"
         case 1:
-            title = "투두"
+            title = "할일"
         default:
             return UICollectionReusableView()
         }

@@ -72,23 +72,24 @@ class MyPageEditViewController: UIViewController {
         textField.attributedPlaceholder = NSAttributedString(string: "이름을 입력하세요.", attributes: [NSAttributedString.Key.foregroundColor : UIColor(hex: 0xBFC7D7)])
 
         
-        textField.addSidePadding(padding: 15)
+        textField.addSidePadding(padding: 10)
         
         return textField
     }()
     
-    lazy var introduceField: UITextView = {
-        let textView = UITextView(frame: .zero)
+    lazy var introduceField: PlaceholderTextView = {
+        let textView = PlaceholderTextView(frame: .zero)
         textView.layer.cornerRadius = 10
         textView.layer.cornerCurve = .continuous
         textView.layer.borderWidth = 1
         textView.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
+        textView.placeholder = "자기소개를 입력하세요."
+        textView.placeholderColor = UIColor(hex: 0xBFC7D7)
+        textView.textContainer.lineFragmentPadding = 0
         textView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
-        textView.delegate = self
 
-        textView.text = "자기소개를 입력하세요."
-        textView.textColor = UIColor(hex: 0xBFC7D7)
+        textView.textColor = .black
         return textView
     }()
     
@@ -157,8 +158,8 @@ class MyPageEditViewController: UIViewController {
         
         let input = MyPageEditViewModel.Input(
             viewDidLoad: Observable.just(()),
-            didChangeName: nameField.rx.text.asObservable(),
-            didChangeIntroduce: introduceField.rx.text.asObservable().map { (self.descEditing) ? $0 : nil},
+            didChangeName: nameField.rx.text.skip(1).asObservable(),
+            didChangeIntroduce: introduceField.rx.text.skip(1).asObservable(),
             didChangeImage: didChangedImage.asObservable(),
             saveBtnTapped: saveButton.rx.tap.asObservable()
         )
@@ -173,20 +174,8 @@ class MyPageEditViewController: UIViewController {
         
         output
             .didFetchIntroduce
-            .map {
-                
-                guard let str = $0 else { return nil }
-                guard !str.isEmpty else { return nil }
-                return str
-            }
-            .compactMap { $0 }
             .distinctUntilChanged()
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { [weak self] text in
-                self?.introduceField.text = text
-                self?.introduceField.textColor = .black
-                self?.descEditing = true
-            })
+            .bind(to: introduceField.rx.text)
             .disposed(by: bag)
         
         output
@@ -218,6 +207,16 @@ class MyPageEditViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: bag)
+        
+        output
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.view.endEditing(true)
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
             })
             .disposed(by: bag)
     }
@@ -294,28 +293,9 @@ extension MyPageEditViewController: PHPickerViewControllerDelegate { //PHPicker 
                   var image = item as? UIImage  else { return }
             
             image = UIImage.resizeImage(image: image, targetWidth: 500)
-            if let data = image.pngData() {
-                self?.didChangedImage.onNext(ImageFile(filename: fileName, data: data, type: "png"))
+            if let data = image.jpegData(compressionQuality: 1) {
+                self?.didChangedImage.onNext(ImageFile(filename: fileName, data: data, type: "jpeg"))
             }
-        }
-    }
-}
-                                    
-
-extension MyPageEditViewController: UITextViewDelegate {
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            textView.text = "자기소개를 입력하세요."
-            textView.textColor = UIColor(hex: 0xBFC7D7)
-            descEditing = false
-        }
-    }
-    
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if !descEditing {
-            textView.text = nil
-            textView.textColor = .black
-            descEditing = true
         }
     }
 }

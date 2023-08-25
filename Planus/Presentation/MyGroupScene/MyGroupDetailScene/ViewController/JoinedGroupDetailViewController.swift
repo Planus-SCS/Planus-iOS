@@ -13,6 +13,8 @@ class JoinedGroupDetailViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: JoinedGroupDetailViewModel?
     
+    var currentIndex = BehaviorSubject<Int?>(value: nil)
+    
     var titleFetched = BehaviorSubject<String?>(value: nil)
     var needRefresh = PublishSubject<Void>()
     
@@ -89,6 +91,29 @@ class JoinedGroupDetailViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
+        currentIndex
+            .observe(on: MainScheduler.asyncInstance)
+            .compactMap { $0 }
+            .skip(1)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                vc.headerTabView.scrollToTab(index: index)
+                switch index {
+                case 0:
+                    vc.noticeViewController?.noticeCollectionView.isHidden = true
+                    vc.noticeViewController?.spinner.hidesWhenStopped = true
+                    vc.noticeViewController?.spinner.startAnimating()
+                    vc.needRefresh.onNext(())
+                case 1:
+                    return
+                case 2:
+                    return
+                default:
+                    return
+                }
+            })
+            .disposed(by: bag)
+        
         let input = JoinedGroupDetailViewModel.Input(
             viewDidLoad: Observable.just(()),
             onlineStateChanged: headerView.onlineSwitch.rx.isOn.asObservable(),
@@ -160,7 +185,6 @@ class JoinedGroupDetailViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
-                print(message)
                 vc.showToast(message: message, type: .normal)
             })
             .disposed(by: bag)
@@ -171,8 +195,7 @@ class JoinedGroupDetailViewController: UIViewController {
         let image = UIImage(named: "dotBtn")
         var item: UIBarButtonItem
         var menuChild = [UIAction]()
-        let link = UIAction(title: "공유하기", image: UIImage(systemName: "square.and.arrow.up"), handler: { _ in print("전체 캘린더 조회") })
-        menuChild.append(link)
+
         if isLeader ?? false {
             let editInfo = UIAction(title: "그룹 정보 수정", image: UIImage(systemName: "pencil"), handler: { [weak self] _ in
                 self?.editInfo()
@@ -324,6 +347,8 @@ class JoinedGroupDetailViewController: UIViewController {
         self.view.addSubview(headerView)
         self.view.addSubview(bottomView)
         self.view.addSubview(headerTabView)
+        
+        headerTabView.delegate = self
     }
     
     func configurePanGesture() {
@@ -350,7 +375,8 @@ class JoinedGroupDetailViewController: UIViewController {
             refreshTokenUseCase: refreshTokenUseCase,
             fetchMyGroupMemberListUseCase: fetchMyGroupMemberListUseCase,
             fetchImageUseCase: fetchImageUseCase,
-            memberKickOutUseCase: DefaultMemberKickOutUseCase.shared
+            memberKickOutUseCase: DefaultMemberKickOutUseCase.shared,
+            setOnlineUseCase: DefaultSetOnlineUseCase.shared
         )
         noticeViewModel.setGroupId(id: groupId)
         let noticeViewController = JoinedGroupNoticeViewController(viewModel: noticeViewModel)
@@ -376,15 +402,16 @@ class JoinedGroupDetailViewController: UIViewController {
         calendarViewController.scrollDelegate = self
         self.calendarViewController = calendarViewController
         
-        let chattingViewController = JoinedGroupChattingViewController(nibName: nil, bundle: nil)
-        chattingViewController.scrollDelegate = self
-        self.chatViewController = chattingViewController
+//        let chattingViewController = JoinedGroupChattingViewController(nibName: nil, bundle: nil)
+//        chattingViewController.scrollDelegate = self
+//        self.chatViewController = chattingViewController
         
         childList.append(noticeViewController)
         childList.append(calendarViewController)
-        childList.append(chattingViewController)
+//        childList.append(chattingViewController)
         
         pageViewController.setViewControllers([childList[0]], direction: .forward, animated: true)
+        currentIndex.onNext(0)
 
         self.addChild(pageViewController)
         pageViewController.willMove(toParent: self)
@@ -393,6 +420,8 @@ class JoinedGroupDetailViewController: UIViewController {
         pageViewController.view.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+        
+        headerTabView.setTabs(tabs: ["공지사항", "그룹 캘린더"])
     }
     
     func configureLayout() {
@@ -453,29 +482,35 @@ extension JoinedGroupDetailViewController: UIPageViewControllerDataSource {
 
 extension JoinedGroupDetailViewController: UIPageViewControllerDelegate {
     
+    func slideToPage(index: Int, completion: (() -> Void)?) {
+        guard let currentPageIndex = try? currentIndex.value() else { return }
+        let count = childList.count
+        if index < count {
+            if index > currentPageIndex {
+                let vc = childList[index]
+                    self.pageViewController.setViewControllers([vc], direction: .forward, animated: true, completion: { (complete) -> Void in
+                        self.currentIndex.onNext(index)
+                        completion?()
+                    })
+                
+            } else if index < currentPageIndex {
+                let vc = childList[index]
+                    self.pageViewController.setViewControllers([vc], direction: .reverse, animated: true, completion: { (complete) -> Void in
+                        self.currentIndex.onNext(index)
+                        completion?()
+                    })
+                
+            }
+        }
+    }
+    
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         guard completed else { return }
         
         guard let currentVC = pageViewController.viewControllers?.first else { return }
         
         guard let currentVCIndex = childList.firstIndex(where: { $0 == currentVC }) else { return }
-        
-        let indexPathAtCollectionView = IndexPath(item: currentVCIndex, section: 0)
-        print("fetched in firstTab")
-        headerTabView.scrollToTab(index: currentVCIndex)
-        switch currentVCIndex {
-        case 0:
-            noticeViewController?.noticeCollectionView.isHidden = true
-            noticeViewController?.spinner.hidesWhenStopped = true
-            noticeViewController?.spinner.startAnimating()
-            self.needRefresh.onNext(())
-        case 1:
-            return
-        case 2:
-            return
-        default:
-            return
-        }
+        currentIndex.onNext(currentVCIndex)
     }
 }
 
@@ -572,4 +607,11 @@ extension JoinedGroupDetailViewController: JoinedGroupCalendarViewControllerDele
     }
 }
 
+extension JoinedGroupDetailViewController: JoinedGroupDetailHeaderTabDelegate {
+    func joinedGroupHeaderTappedAt(index: Int) {
+        slideToPage(index: index, completion: nil)
+    }
+}
+
 extension JoinedGroupDetailViewController: UIGestureRecognizerDelegate {}
+

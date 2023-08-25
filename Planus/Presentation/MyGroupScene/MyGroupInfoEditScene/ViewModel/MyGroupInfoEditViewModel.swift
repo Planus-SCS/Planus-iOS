@@ -22,6 +22,9 @@ class MyGroupInfoEditViewModel {
     
     var infoUpdateCompleted = PublishSubject<Void>()
     var groupDeleted = PublishSubject<Void>()
+    var nowSaving = false
+    
+    var showMessage = PublishSubject<Message>()
     
     struct Input {
         var titleImageChanged: Observable<ImageFile?>
@@ -29,6 +32,7 @@ class MyGroupInfoEditViewModel {
         var tagRemovedAt: Observable<Int>
         var maxMemberChanged: Observable<String?>
         var saveBtnTapped: Observable<Void>
+        var removeBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -42,6 +46,7 @@ class MyGroupInfoEditViewModel {
         var insertTagAt: Observable<Int>
         var removeTagAt: Observable<Int>
         var groupDeleted: Observable<Void>
+        var showMessage: Observable<Message>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -79,7 +84,7 @@ class MyGroupInfoEditViewModel {
         fetchImageUseCase
             .execute(key: imageUrl)
             .subscribe(onSuccess: { [weak self] data in
-                self?.titleImage.onNext(ImageFile(filename: "original", data: data, type: "png"))
+                self?.titleImage.onNext(ImageFile(filename: "original", data: data, type: "jpeg"))
             })
             .disposed(by: bag)
     }
@@ -106,7 +111,21 @@ class MyGroupInfoEditViewModel {
             .saveBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.requestUpdateInfo()
+                if !vm.nowSaving {
+                    vm.nowSaving = true
+                    vm.requestUpdateInfo()
+                }
+            })
+            .disposed(by: bag)
+        
+        input
+            .removeBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                if !vm.nowSaving {
+                    vm.nowSaving = true
+                    vm.deleteGroup()
+                }
             })
             .disposed(by: bag)
         
@@ -157,7 +176,8 @@ class MyGroupInfoEditViewModel {
             infoUpdateCompleted: infoUpdateCompleted.asObservable(),
             insertTagAt: insertAt.asObservable(),
             removeTagAt: removeAt.asObservable(),
-            groupDeleted: groupDeleted.asObserver()
+            groupDeleted: groupDeleted.asObservable(),
+            showMessage: showMessage.asObservable()
         )
     }
     
@@ -187,7 +207,14 @@ class MyGroupInfoEditViewModel {
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
+                self?.nowSaving = false
                 self?.infoUpdateCompleted.onNext(())
+            }, onFailure: { [weak self] error in
+                self?.nowSaving = false
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
             
@@ -212,6 +239,14 @@ class MyGroupInfoEditViewModel {
             .subscribe(onSuccess: { [weak self] _ in
                 // 아에 앞에 있던 네비게이션을 싹다 없애고 첫 씬으로 돌아가야함..!
                 self?.groupDeleted.onNext(())
+                self?.nowSaving = false
+            }, onFailure: { [weak self] error in
+                self?.nowSaving = false
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.nowSaving = false
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }

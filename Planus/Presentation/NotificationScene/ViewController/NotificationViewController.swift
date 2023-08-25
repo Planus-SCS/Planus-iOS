@@ -126,6 +126,15 @@ class NotificationViewController: UIViewController {
                 vc.emptyResultView.setAnimatedIsHidden(!(viewModel.joinAppliedList?.count == 0))
             })
             .disposed(by: bag)
+        
+        output
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+            })
+            .disposed(by: bag)
     }
     
     @objc func backBtnAction() {
@@ -168,7 +177,7 @@ extension NotificationViewController: UICollectionViewDataSource, UICollectionVi
         guard let item = viewModel?.joinAppliedList?[indexPath.item],
               let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupJoinNotificationCell.reuseIdentifier, for: indexPath) as? GroupJoinNotificationCell else { return UICollectionViewCell() }
         
-        var bag = DisposeBag()
+        let bag = DisposeBag()
         cell.fill(bag: bag, indexPath: indexPath, isAllowTapped: didAllowBtnTappedAt, isDenyTapped: didDenyBtnTappedAt)
         cell.fill(groupName: item.groupName, memberName: item.memberName, memberDesc: item.memberDescription)
         
@@ -195,7 +204,7 @@ extension NotificationViewController {
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                heightDimension: .absolute(122))
 
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 16, bottom: 0, trailing: 16)
 
         let section = NSCollectionLayoutSection(group: group)

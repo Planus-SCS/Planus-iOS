@@ -267,7 +267,7 @@ class MonthPickerViewController: UIViewController, UICollectionViewDataSource, U
             heightDimension: .absolute(50)
         )
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 3)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.contentInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging

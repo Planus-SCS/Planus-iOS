@@ -24,6 +24,9 @@ DerivedData/
 ## URL
 Planus/Util/URL/BaseURL.swift
 
+## Nonce
+Planus/Util/AppleSignInNonce.swift
+
 ## Various settings
 *.pbxuser
 !default.pbxuser

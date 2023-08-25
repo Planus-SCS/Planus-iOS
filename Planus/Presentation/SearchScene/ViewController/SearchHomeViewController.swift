@@ -148,6 +148,7 @@ class SearchHomeViewController: UIViewController {
             .subscribe(onNext: { vc, range in
                 let indexList = Array(range).map { IndexPath(item: $0, section: 0) }
                 vc.resultCollectionView.performBatchUpdates({
+                    print("addition")
                     vc.resultCollectionView.insertItems(at: indexList)
                 }, completion: { _ in
                     vc.isLoading = false
@@ -162,6 +163,7 @@ class SearchHomeViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.resultCollectionView.performBatchUpdates({
+                    print("init")
                     vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
                 }, completion: { _ in
                     if vc.refreshControl.isRefreshing {
@@ -184,8 +186,6 @@ class SearchHomeViewController: UIViewController {
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(resultCollectionView)
-//        self.view.addSubview(headerView)
-//        headerView.addSubview(searchBarField)
         self.view.addSubview(createGroupButton)
     }
     
@@ -203,9 +203,13 @@ class SearchHomeViewController: UIViewController {
     @objc func searchBtnTapped(_ sender: UIBarButtonItem) {}
     
     @objc func refresh(_ sender: UIRefreshControl) {
-        refreshRequired.onNext(())
-        isEnded = false
-        isLoading = true
+        if !isLoading {
+            isLoading = true
+            isEnded = false
+            refreshRequired.onNext(())
+        } else {
+            sender.endRefreshing()
+        }
     }
 }
 
@@ -222,7 +226,6 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
               let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
-        
         cell.fill(
             title: item.name,
             tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
@@ -266,7 +269,7 @@ extension SearchHomeViewController {
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                heightDimension: .absolute(250))
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 2)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
 
         let section = NSCollectionLayoutSection(group: group)

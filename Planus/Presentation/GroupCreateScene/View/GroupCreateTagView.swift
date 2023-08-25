@@ -27,9 +27,8 @@ class GroupCreateTagView: UIView {
     }()
     
     lazy var tagCollectionView: UICollectionView = {
-        let layout = EqualSpacedCollectionViewLayout()
-        layout.estimatedItemSize = CGSize(width: 40, height: 40)
-        layout.minimumInteritemSpacing = 3
+        let layout = EqualSpacedCollectionViewLayout.createLayout()
+
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.register(GroupCreateTagCell.self, forCellWithReuseIdentifier: GroupCreateTagCell.reuseIdentifier)
         cv.register(GroupCreateTagAddCell.self, forCellWithReuseIdentifier: GroupCreateTagAddCell.reuseIdentifier)
@@ -170,6 +169,18 @@ class GroupTagInputViewController: UIViewController {
     
     lazy var stringCountValidateLabel: UILabel = self.validationLabelGenerator(text: "• 한번에 최대 7자 이하만 적을 수 있어요")
     lazy var charcaterValidateLabel: UILabel = self.validationLabelGenerator(text: "• 띄어쓰기, 특수 문자는 빼주세요")
+    
+    convenience init(isInfoViewing: Bool) {
+        self.init(nibName: nil, bundle: nil)
+        
+        self.isInfoViewing = isInfoViewing
+        self.preferredContentSize = isInfoViewing ?
+        CGSize(width: UIScreen.main.bounds.width - 80, height: 110) :
+        CGSize(width: UIScreen.main.bounds.width - 80, height: 60)
+        
+        self.stringCountValidateLabel.isHidden = !isInfoViewing
+        self.charcaterValidateLabel.isHidden = !isInfoViewing
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -199,7 +210,7 @@ class GroupTagInputViewController: UIViewController {
             .map { text in
                 guard let text else { return false }
                 let tagLengthState = text.count > 0 && text.count <= 7
-                let tagSpecialCharState = text.checkRegex(regex: "^(?=.*[\\s!@#$%0-9])")
+                let tagSpecialCharState = text.checkRegex(regex: "^(?=.*[\\s!@#$%])")
                 return tagLengthState && !tagSpecialCharState
             }
             .withUnretained(self)
@@ -218,9 +229,6 @@ class GroupTagInputViewController: UIViewController {
         self.view.addSubview(infoButton)
         self.view.addSubview(stringCountValidateLabel)
         self.view.addSubview(charcaterValidateLabel)
-        
-        self.stringCountValidateLabel.isHidden = true
-        self.charcaterValidateLabel.isHidden = true
     }
     
     func configureLayout() {
@@ -265,8 +273,8 @@ class GroupTagInputViewController: UIViewController {
     @objc func infoBtnTapped(_ sender: UIButton) {
         isInfoViewing = !isInfoViewing
         self.preferredContentSize = isInfoViewing ?
-        CGSize(width: self.view.bounds.width, height: 110) :
-        CGSize(width: self.view.bounds.width, height: 60)
+        CGSize(width: UIScreen.main.bounds.width - 80, height: 110) :
+        CGSize(width: UIScreen.main.bounds.width - 80, height: 60)
         
         self.stringCountValidateLabel.setAnimatedIsHidden(!isInfoViewing)
         self.charcaterValidateLabel.setAnimatedIsHidden(!isInfoViewing)
@@ -301,24 +309,34 @@ extension GroupTagInputViewController {
     }
 }
 
-class EqualSpacedCollectionViewLayout: UICollectionViewFlowLayout {
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        let attributes = super.layoutAttributesForElements(in: rect)
+class EqualSpacedCollectionViewLayout: UICollectionViewCompositionalLayout {
+    private static let itemSize: NSCollectionLayoutSize = .init(
+        widthDimension: .estimated(40),
+        heightDimension: .absolute(40)
+    )
+    private static let sectionInset: NSDirectionalEdgeInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
+    private static let interItemSpacing: CGFloat = 5
+
+    static func createLayout() -> EqualSpacedCollectionViewLayout {
+        let itemSize = itemSize
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        var leftMargin = sectionInset.left
-        var maxY: CGFloat = -1.0
-        attributes?.forEach { layoutAttribute in
-            if layoutAttribute.frame.origin.y >= maxY {
-                leftMargin = sectionInset.left
-            }
-            
-            layoutAttribute.frame.origin.x = leftMargin
-            
-            leftMargin += layoutAttribute.frame.width + minimumInteritemSpacing
-            maxY = max(layoutAttribute.frame.maxY , maxY)
-        }
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
         
-        return attributes
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        group.contentInsets = .init(top: 0, leading: 3, bottom: 0, trailing: 3)
+        group.interItemSpacing = .fixed(interItemSpacing)
+        let section = NSCollectionLayoutSection(group: group)
+
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+        
+        config.scrollDirection = .vertical
+        section.interGroupSpacing = interItemSpacing
+        
+        let layout = EqualSpacedCollectionViewLayout(section: section)
+        layout.configuration = config
+        
+        return layout
     }
 }
 

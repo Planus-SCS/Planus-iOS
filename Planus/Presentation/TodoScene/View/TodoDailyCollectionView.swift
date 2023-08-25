@@ -49,7 +49,7 @@ class TodoDailyCollectionView: UICollectionView {
             heightDimension: .absolute(44)
         )
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.contentInsets = .init(top: 2, leading: 10, bottom: 2, trailing: 10)
         
         let section = NSCollectionLayoutSection(group: group)

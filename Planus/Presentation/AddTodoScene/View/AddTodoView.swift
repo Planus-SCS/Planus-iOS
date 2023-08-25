@@ -16,17 +16,22 @@ class AddTodoView: UIView {
         titleField.textColor = .black
         return titleField
     }()
+        
+    var memoHeightConstraint: NSLayoutConstraint!
+    var fieldInitHeight: CGFloat = 30
+    var memoMaxHeight: CGFloat = 50
     
-    var isMemoFilled: Bool = false
-    
-    lazy var memoTextView: UITextView = {
-        let textView = UITextView(frame: .zero)
-        textView.isScrollEnabled = false
-        textView.text = "메모를 입력하세요"
-        textView.textColor = UIColor(hex: 0xBFC7D7)
+    lazy var memoTextView: PlaceholderTextView = {
+        let textView = PlaceholderTextView(frame: .zero)
+        textView.textContainer.lineFragmentPadding = 0
+        textView.text = ""
+        textView.placeholder = "메모를 입력하세요"
+        textView.placeholderColor = UIColor(hex: 0xBFC7D7)
+        textView.textContainerInset = .init(top: 4, left: 0, bottom: 4, right: 0)
+        textView.textColor = .black
         textView.backgroundColor = UIColor(hex: 0xF5F5FB)
         textView.font = UIFont(name: "Pretendard-Light", size: 16)
-        textView.textContainer.lineFragmentPadding = 0
+        textView.delegate = self
         return textView
     }()
         
@@ -85,7 +90,7 @@ class AddTodoView: UIView {
     
     var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.text = "일정/투두 관리"
+        label.text = "일정/할일 관리"
         label.font = UIFont(name: "Pretendard-Light", size: 16)
         label.sizeToFit()
         return label
@@ -218,22 +223,29 @@ class AddTodoView: UIView {
         
         titleField.snp.makeConstraints {
             $0.width.equalToSuperview()
+            $0.height.equalTo(fieldInitHeight)
         }
  
         categoryStackView.snp.makeConstraints {
-            $0.height.equalTo(30)
+            $0.height.equalTo(fieldInitHeight)
         }
 
         dateTimeStackView.snp.makeConstraints {
             $0.width.equalToSuperview()
+            $0.height.equalTo(fieldInitHeight)
         }
 
         
         groupSelectionField.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.height.equalTo(30)
+            $0.height.equalTo(fieldInitHeight)
         }
         
+        memoTextView.snp.makeConstraints {
+            $0.width.equalToSuperview()
+            $0.height.equalTo(fieldInitHeight)
+        }
+        memoHeightConstraint = memoTextView.constraints.first(where: { $0.firstAttribute == .height })
         separatorView.forEach { view in
             view.snp.makeConstraints {
                 $0.height.equalTo(0.7)
@@ -264,6 +276,24 @@ class AddTodoView: UIView {
         contentStackView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.top.equalTo(headerBarView.snp.bottom)
+        }
+    }
+    
+    func layoutTextViewLines() {
+        let lines = memoTextView.numberOfLines
+        if lines >= 2 {
+            self.memoHeightConstraint.constant = memoMaxHeight
+        } else {
+            self.memoHeightConstraint.constant = fieldInitHeight
+        }
+        memoTextView.layoutIfNeeded()
+    }
+}
+
+extension AddTodoView: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) { //줄단위로 말고 const 단위로 맞추자
+        if textView == memoTextView {
+            layoutTextViewLines()
         }
     }
 }

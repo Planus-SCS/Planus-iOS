@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RxSwift
 
 class HomeCalendarCoordinator: Coordinator {
     
@@ -16,6 +17,7 @@ class HomeCalendarCoordinator: Coordinator {
     var childCoordinators: [Coordinator] = []
     
     var type: CoordinatorType = .homeCalendar
+    var homeTapReselected = PublishSubject<Void>()
     
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -76,6 +78,7 @@ class HomeCalendarCoordinator: Coordinator {
             withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared,
             deleteGroupUseCase: DefaultDeleteGroupUseCase.shared
         )
+        vm.homeTabReselected = self?.homeTapReselected
 
         let vc = HomeCalendarViewController(viewModel: vm)
         self?.navigationController.pushViewController(vc, animated: true)

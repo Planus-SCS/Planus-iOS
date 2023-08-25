@@ -15,6 +15,7 @@ class GroupCreateLoadViewModel {
     var groupImage: ImageFile?
     
     var groupCreateCompleted = PublishSubject<Int>()
+    var groupCreateFailedWithMessage = PublishSubject<String>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -22,6 +23,7 @@ class GroupCreateLoadViewModel {
     
     struct Output {
         let didCreateGroup: Observable<Int>
+        let didCreateFailed: Observable<String>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -47,7 +49,10 @@ class GroupCreateLoadViewModel {
             })
             .disposed(by: bag)
         
-        return Output(didCreateGroup: groupCreateCompleted.asObservable())
+        return Output(
+            didCreateGroup: groupCreateCompleted.asObservable(),
+            didCreateFailed: groupCreateFailedWithMessage.asObservable()
+        )
     }
     
     func setGroupCreate(groupCreate: GroupCreate, image: ImageFile) {
@@ -77,6 +82,11 @@ class GroupCreateLoadViewModel {
             )
             .subscribe(onSuccess: { [weak self] groupId in
                 self?.groupCreateCompleted.onNext(groupId)
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.groupCreateFailedWithMessage.onNext(message)
             })
             .disposed(by: bag)
     }

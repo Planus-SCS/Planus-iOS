@@ -89,19 +89,14 @@ class GroupCreateViewController: UIViewController {
     
     func bind() {
         guard let viewModel else { return }
-
-        let noticeChanged = infoView.groupNoticeTextView.rx.text.asObservable().map { [weak self] text -> String? in
-            guard let self else { return nil }
-            return self.infoView.isDescEditing ? text : nil
-        }
         
         let input = GroupCreateViewModel.Input(
-            titleChanged: infoView.groupNameField.rx.text.asObservable(),
-            noticeChanged: noticeChanged,
+            titleChanged: infoView.groupNameField.rx.text.skip(1).asObservable(),
+            noticeChanged: infoView.groupNoticeTextView.rx.text.skip(1).asObservable(),
             titleImageChanged: titleImageChanged.asObservable(),
             tagAdded: tagAdded.asObservable(),
             tagRemovedAt: tagRemovedAt.asObservable(),
-            maxMemberChanged: limitView.limitField.rx.text.asObservable(),
+            maxMemberChanged: limitView.didChangedLimitValue.asObservable(),
             saveBtnTapped: createButtonView.wideButton.rx.tap.asObservable()
         )
         let output = viewModel.transform(input: input)
@@ -207,7 +202,16 @@ class GroupCreateViewController: UIViewController {
                 let viewModel = GroupCreateLoadViewModel(getTokenUseCase: getToken, refreshTokenUseCase: refToken, groupCreateUseCase: groupCreate)
                 viewModel.setGroupCreate(groupCreate: groupInfo.0, image: groupInfo.1)
                 let viewController = GroupCreateLoadViewController(viewModel: viewModel)
+                viewController.failureHandler = { message in
+                    vc.viewModel?.nowSaving = false
+                    vc.view.endEditing(true)
+
+                    if let message {
+                        vc.showToast(message: message, type: .warning)
+                    }
+                }
                 vc.navigationController?.pushViewController(viewController, animated: true)
+                
             })
             .disposed(by: bag)
         
@@ -375,8 +379,8 @@ extension GroupCreateViewController: PHPickerViewControllerDelegate { //PHPicker
                   var image = item as? UIImage  else { return }
             
             image = UIImage.resizeImage(image: image, targetWidth: 500)
-            if let data = image.pngData() {
-                self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "png"))
+            if let data = image.jpegData(compressionQuality: 1) {
+                self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "jpeg"))
             }
         }
     }
@@ -422,7 +426,11 @@ extension GroupCreateViewController: UICollectionViewDataSource, UICollectionVie
 
 extension GroupCreateViewController {
     func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell) {
-        let vc = GroupTagInputViewController(nibName: nil, bundle: nil)
+        guard let viewModel else { return }
+        
+        let vc = GroupTagInputViewController(isInfoViewing: viewModel.initialTagPopedOver)
+        viewModel.initialTagPopedOver = false
+        
         vc.tagAddclosure = { [weak self] tag in
             self?.tagAdded.onNext(tag)            
         }
@@ -443,14 +451,17 @@ extension GroupCreateViewController {
                     animated: true
                 )
             }
+            
+            self.keyboardHeightConstraint?.constant = keyboardHeight
         }
         
-        vc.preferredContentSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 60)
         vc.modalPresentationStyle = .popover
         let popover: UIPopoverPresentationController = vc.popoverPresentationController!
         popover.delegate = self
-        popover.sourceView = self.view
-        popover.sourceItem = collectionViewCell
+        popover.sourceView = self.scrollView
+        let globalFrame = collectionViewCell.convert(collectionViewCell.bounds, to: self.scrollView)
+        popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.minY, width: 0, height: 0)
+        popover.permittedArrowDirections = [.down]
         
         self.present(vc, animated: true, completion: nil)
     }

@@ -79,6 +79,14 @@
 		6A1B3F1529D7252900BFB3A6 /* notificationIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1B3F1229D7252900BFB3A6 /* notificationIcon@3x.png */; };
 		6A1B3F1629D7252900BFB3A6 /* notificationIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1B3F1329D7252900BFB3A6 /* notificationIcon@2x.png */; };
 		6A1B3F1829D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1B3F1729D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift */; };
+		6A1C81C82A871BBA002326AC /* today@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1C81C52A871BBA002326AC /* today@3x.png */; };
+		6A1C81C92A871BBA002326AC /* today@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1C81C62A871BBA002326AC /* today@2x.png */; };
+		6A1C81CA2A871BBA002326AC /* today.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A1C81C72A871BBA002326AC /* today.png */; };
+		6A2186042A7D11FD005CF505 /* PlaceholderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */; };
+		6A2186262A811CEA005CF505 /* DefaultAppleSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */; };
+		6A2186282A811D53005CF505 /* AppleSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */; };
+		6A21862B2A814C99005CF505 /* a.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A21862A2A814C99005CF505 /* a.swift */; };
+		6A21862D2A815148005CF505 /* AppleSignInNonce.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A21862C2A815148005CF505 /* AppleSignInNonce.swift */; };
 		6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */; };
 		6A24F83129CB45170000FD64 /* TodoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83029CB45170000FD64 /* TodoCoordinator.swift */; };
 		6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */; };
@@ -220,6 +228,7 @@
 		6A6C7B932A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B922A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift */; };
 		6A6C7B952A275273005BAEEC /* DefaultTodoCompleteUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B942A275273005BAEEC /* DefaultTodoCompleteUseCase.swift */; };
 		6A6C7B972A275389005BAEEC /* TodoCompleteUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B962A275389005BAEEC /* TodoCompleteUseCase.swift */; };
+		6A9191982A82780D006C3F80 /* Data+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9191972A82780D006C3F80 /* Data+Ext.swift */; };
 		6A9199532A11FF2900108BF4 /* MyGroupInfoEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */; };
 		6A9199562A11FFC000108BF4 /* GroupEditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */; };
 		6A9199592A12004100108BF4 /* MyGroupInfoEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199582A12004100108BF4 /* MyGroupInfoEditViewModel.swift */; };
@@ -442,6 +451,7 @@
 		6A9AAB4129FA98A3002A6DAF /* TokenDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB4029FA98A3002A6DAF /* TokenDTO.swift */; };
 		6A9AAB4329FAC180002A6DAF /* DefaultSetTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB4229FAC180002A6DAF /* DefaultSetTokenUseCase.swift */; };
 		6A9AAB4529FAC1AD002A6DAF /* SetTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB4429FAC1AD002A6DAF /* SetTokenUseCase.swift */; };
+		6A9B4FAE2A86536A00A04458 /* UITextView+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9B4FAD2A86536A00A04458 /* UITextView+Ext.swift */; };
 		6AA3BAC72A24A27000E5B8A2 /* RecentSearch.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BAC52A24A27000E5B8A2 /* RecentSearch.xcdatamodeld */; };
 		6AA3BACA2A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataClass copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BAC82A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataClass copy.swift */; };
 		6AA3BACB2A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataProperties copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BAC92A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataProperties copy.swift */; };
@@ -530,6 +540,15 @@
 		6AC079A62A0B5FE7007ACDB8 /* MyGroupSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079A52A0B5FE7007ACDB8 /* MyGroupSummary.swift */; };
 		6AC079A82A0B639F007ACDB8 /* DefaultFetchMyGroupListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079A72A0B639F007ACDB8 /* DefaultFetchMyGroupListUseCase.swift */; };
 		6AC079AA2A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079A92A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift */; };
+		6AD888C32A891E2D00F4B887 /* SocialAuthType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888C22A891E2D00F4B887 /* SocialAuthType.swift */; };
+		6AD888C52A891ED700F4B887 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888C42A891ED700F4B887 /* UserDefaultsManager.swift */; };
+		6AD888C82A891F9100F4B887 /* KeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888C72A891F9100F4B887 /* KeyValueStorage.swift */; };
+		6AD888CA2A89215000F4B887 /* DefaultSetSignedInSNSTypeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888C92A89215000F4B887 /* DefaultSetSignedInSNSTypeUseCase.swift */; };
+		6AD888CC2A89218300F4B887 /* DefaultGetSignedInSNSTypeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888CB2A89218300F4B887 /* DefaultGetSignedInSNSTypeUseCase.swift */; };
+		6AD888CE2A89221A00F4B887 /* SetSignedInSNSTypeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888CD2A89221A00F4B887 /* SetSignedInSNSTypeUseCase.swift */; };
+		6AD888D02A89223E00F4B887 /* GetSignedInSNSTypeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888CF2A89223E00F4B887 /* GetSignedInSNSTypeUseCase.swift */; };
+		6AD888D22A89282600F4B887 /* RevokeAppleTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888D12A89282600F4B887 /* RevokeAppleTokenUseCase.swift */; };
+		6AD888D42A89283500F4B887 /* DefaultRevokeAppleTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888D32A89283500F4B887 /* DefaultRevokeAppleTokenUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -607,6 +626,14 @@
 		6A1B3F1229D7252900BFB3A6 /* notificationIcon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "notificationIcon@3x.png"; sourceTree = "<group>"; };
 		6A1B3F1329D7252900BFB3A6 /* notificationIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "notificationIcon@2x.png"; sourceTree = "<group>"; };
 		6A1B3F1729D7275000BFB3A6 /* JoinedGroupSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupSectionHeaderView.swift; sourceTree = "<group>"; };
+		6A1C81C52A871BBA002326AC /* today@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "today@3x.png"; sourceTree = "<group>"; };
+		6A1C81C62A871BBA002326AC /* today@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "today@2x.png"; sourceTree = "<group>"; };
+		6A1C81C72A871BBA002326AC /* today.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = today.png; sourceTree = "<group>"; };
+		6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTextView.swift; sourceTree = "<group>"; };
+		6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultAppleSignInUseCase.swift; sourceTree = "<group>"; };
+		6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInUseCase.swift; sourceTree = "<group>"; };
+		6A21862A2A814C99005CF505 /* a.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = a.swift; sourceTree = "<group>"; };
+		6A21862C2A815148005CF505 /* AppleSignInNonce.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInNonce.swift; sourceTree = "<group>"; };
 		6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCalendarCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83029CB45170000FD64 /* TodoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoordinator.swift; sourceTree = "<group>"; };
@@ -749,6 +776,7 @@
 		6A6C7B922A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchAllGroupCategoryListUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B942A275273005BAEEC /* DefaultTodoCompleteUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTodoCompleteUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B962A275389005BAEEC /* TodoCompleteUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCompleteUseCase.swift; sourceTree = "<group>"; };
+		6A9191972A82780D006C3F80 /* Data+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Ext.swift"; sourceTree = "<group>"; };
 		6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupInfoEditViewController.swift; sourceTree = "<group>"; };
 		6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEditInfoView.swift; sourceTree = "<group>"; };
 		6A9199582A12004100108BF4 /* MyGroupInfoEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupInfoEditViewModel.swift; sourceTree = "<group>"; };
@@ -971,6 +999,7 @@
 		6A9AAB4029FA98A3002A6DAF /* TokenDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenDTO.swift; sourceTree = "<group>"; };
 		6A9AAB4229FAC180002A6DAF /* DefaultSetTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSetTokenUseCase.swift; sourceTree = "<group>"; };
 		6A9AAB4429FAC1AD002A6DAF /* SetTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetTokenUseCase.swift; sourceTree = "<group>"; };
+		6A9B4FAD2A86536A00A04458 /* UITextView+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Ext.swift"; sourceTree = "<group>"; };
 		6AA3BAC62A24A27000E5B8A2 /* RecentSearch.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = RecentSearch.xcdatamodel; sourceTree = "<group>"; };
 		6AA3BAC82A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataClass copy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RecentSearchKeyword+CoreDataClass copy.swift"; sourceTree = "<group>"; };
 		6AA3BAC92A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataProperties copy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RecentSearchKeyword+CoreDataProperties copy.swift"; sourceTree = "<group>"; };
@@ -1059,6 +1088,15 @@
 		6AC079A52A0B5FE7007ACDB8 /* MyGroupSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupSummary.swift; sourceTree = "<group>"; };
 		6AC079A72A0B639F007ACDB8 /* DefaultFetchMyGroupListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMyGroupListUseCase.swift; sourceTree = "<group>"; };
 		6AC079A92A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMyGroupListUseCase.swift; sourceTree = "<group>"; };
+		6AD888C22A891E2D00F4B887 /* SocialAuthType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialAuthType.swift; sourceTree = "<group>"; };
+		6AD888C42A891ED700F4B887 /* UserDefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsManager.swift; sourceTree = "<group>"; };
+		6AD888C72A891F9100F4B887 /* KeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueStorage.swift; sourceTree = "<group>"; };
+		6AD888C92A89215000F4B887 /* DefaultSetSignedInSNSTypeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSetSignedInSNSTypeUseCase.swift; sourceTree = "<group>"; };
+		6AD888CB2A89218300F4B887 /* DefaultGetSignedInSNSTypeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultGetSignedInSNSTypeUseCase.swift; sourceTree = "<group>"; };
+		6AD888CD2A89221A00F4B887 /* SetSignedInSNSTypeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetSignedInSNSTypeUseCase.swift; sourceTree = "<group>"; };
+		6AD888CF2A89223E00F4B887 /* GetSignedInSNSTypeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetSignedInSNSTypeUseCase.swift; sourceTree = "<group>"; };
+		6AD888D12A89282600F4B887 /* RevokeAppleTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokeAppleTokenUseCase.swift; sourceTree = "<group>"; };
+		6AD888D32A89283500F4B887 /* DefaultRevokeAppleTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultRevokeAppleTokenUseCase.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1217,6 +1255,9 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6A1C81C72A871BBA002326AC /* today.png */,
+				6A1C81C62A871BBA002326AC /* today@2x.png */,
+				6A1C81C52A871BBA002326AC /* today@3x.png */,
 				6A9199DC2A16A15100108BF4 /* whitePlusBtn.png */,
 				6A9199DD2A16A15100108BF4 /* whitePlusBtn@2x.png */,
 				6A9199DE2A16A15100108BF4 /* whitePlusBtn@3x.png */,
@@ -1391,6 +1432,9 @@
 				6A9199BC2A14A3F600108BF4 /* UIView+Ext.swift */,
 				6A61C3CC2A69675500DCA088 /* HolidayPool.swift */,
 				6A2C00AF2A6F4B0B003D6B95 /* Vibrate.swift */,
+				6A21862C2A815148005CF505 /* AppleSignInNonce.swift */,
+				6A9191972A82780D006C3F80 /* Data+Ext.swift */,
+				6A9B4FAD2A86536A00A04458 /* UITextView+Ext.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1568,6 +1612,7 @@
 		6A08ADDE29C8D6B6005947D2 /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				6A2186292A814C83005CF505 /* Encrypt */,
 				6A2C00D42A713581003D6B95 /* GroupMemberCalendar */,
 				6A2C00D32A712D38003D6B95 /* GroupCategory */,
 				6A919A012A20BB0700108BF4 /* GroupCalendar */,
@@ -1624,6 +1669,14 @@
 			children = (
 			);
 			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		6A2186292A814C83005CF505 /* Encrypt */ = {
+			isa = PBXGroup;
+			children = (
+				6A21862A2A814C99005CF505 /* a.swift */,
+			);
+			path = Encrypt;
 			sourceTree = "<group>";
 		};
 		6A24F82429CB44780000FD64 /* TodoScene */ = {
@@ -1913,6 +1966,7 @@
 				6A9199E82A208F3F00108BF4 /* SocialTodo.swift */,
 				6AA3BAD22A24AE5300E5B8A2 /* RecentSearchQuery.swift */,
 				6A2C00E92A72CF71003D6B95 /* Message.swift */,
+				6AD888C22A891E2D00F4B887 /* SocialAuthType.swift */,
 			);
 			path = Entity;
 			sourceTree = "<group>";
@@ -2401,7 +2455,9 @@
 		6A9AAB1029F9079E002A6DAF /* KeyChainManager */ = {
 			isa = PBXGroup;
 			children = (
+				6AD888C62A891F7C00F4B887 /* Interface */,
 				6A9AAB1129F907B0002A6DAF /* KeyChainManager.swift */,
+				6AD888C42A891ED700F4B887 /* UserDefaultsManager.swift */,
 			);
 			path = KeyChainManager;
 			sourceTree = "<group>";
@@ -2411,6 +2467,10 @@
 			children = (
 				6A08ADD529C8D048005947D2 /* DefaultKakaoSignInUseCase.swift */,
 				6A24F84D29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift */,
+				6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */,
+				6AD888C92A89215000F4B887 /* DefaultSetSignedInSNSTypeUseCase.swift */,
+				6AD888CB2A89218300F4B887 /* DefaultGetSignedInSNSTypeUseCase.swift */,
+				6AD888D32A89283500F4B887 /* DefaultRevokeAppleTokenUseCase.swift */,
 			);
 			path = SignIn;
 			sourceTree = "<group>";
@@ -2464,6 +2524,10 @@
 			children = (
 				6A08ADDF29C8D6CD005947D2 /* KakaoSignInUseCase.swift */,
 				6A24F84B29CB6DC60000FD64 /* GoogleSignInUseCase.swift */,
+				6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */,
+				6AD888CD2A89221A00F4B887 /* SetSignedInSNSTypeUseCase.swift */,
+				6AD888CF2A89223E00F4B887 /* GetSignedInSNSTypeUseCase.swift */,
+				6AD888D12A89282600F4B887 /* RevokeAppleTokenUseCase.swift */,
 			);
 			path = SignIn;
 			sourceTree = "<group>";
@@ -2586,6 +2650,7 @@
 				6A9199812A12189000108BF4 /* ToastView.swift */,
 				6A919A042A20E67D00108BF4 /* SpringableCollectionViewCell.swift */,
 				6AA3BAD42A24D75B00E5B8A2 /* CustomAlertViewController.swift */,
+				6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2654,6 +2719,14 @@
 				6A919A0C2A210D0B00108BF4 /* FetchSearchResultUseCase.swift */,
 			);
 			path = Group;
+			sourceTree = "<group>";
+		};
+		6AD888C62A891F7C00F4B887 /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+				6AD888C72A891F9100F4B887 /* KeyValueStorage.swift */,
+			);
+			path = Interface;
 			sourceTree = "<group>";
 		};
 		974AE7300BB25B96DF1DF093 /* Pods */ = {
@@ -2731,6 +2804,7 @@
 				6A987A6C29DEE44D00C27D09 /* DefaultProfileMedium2@2x.png in Resources */,
 				6A9199DF2A16A15100108BF4 /* whitePlusBtn.png in Resources */,
 				6A24F8B729CE3F800000FD64 /* Pretendard-Bold.otf in Resources */,
+				6A1C81C82A871BBA002326AC /* today@3x.png in Resources */,
 				6AC079442A0A368E007ACDB8 /* uncheck@3x.png in Resources */,
 				6A08ADB829C8A2B0005947D2 /* logo@2x.png in Resources */,
 				6A9199E12A16A15200108BF4 /* whitePlusBtn@3x.png in Resources */,
@@ -2774,6 +2848,7 @@
 				6A9AAAE429F80F73002A6DAF /* checkedBox@2x.png in Resources */,
 				6A24F8F729D1D6470000FD64 /* chevron-left@3x.png in Resources */,
 				6A9AAADE29F80F69002A6DAF /* uncheckedBox@2x.png in Resources */,
+				6A1C81C92A871BBA002326AC /* today@2x.png in Resources */,
 				6A1B3EFF29D710BC00BFB3A6 /* JoinNotificationProfile@3x.png in Resources */,
 				6A987A6E29DEE44D00C27D09 /* DefaultProfileMedium2.png in Resources */,
 				6AC0794A2A0A369C007ACDB8 /* check@3x.png in Resources */,
@@ -2799,6 +2874,7 @@
 				6A9199C92A15F27500108BF4 /* DefaultProfileMedium@2x.png in Resources */,
 				6A95DFBD29D4E2E6009017D8 /* searchBarIcon.png in Resources */,
 				6AC0792C2A093AD2007ACDB8 /* cloud.png in Resources */,
+				6A1C81CA2A871BBA002326AC /* today.png in Resources */,
 				6A0BF76529D35D2C006F2604 /* edit_swipe@2x.png in Resources */,
 				6A95E00429D5B756009017D8 /* GroupAddBtn@3x.png in Resources */,
 				6A1B3F1029D7192A00BFB3A6 /* onlineIcon.png in Resources */,
@@ -2946,9 +3022,11 @@
 				6A24F84429CB4AAE0000FD64 /* CategoryColor.swift in Sources */,
 				6A2C00B02A6F4B0B003D6B95 /* Vibrate.swift in Sources */,
 				6A24F92129D22EC10000FD64 /* TodoDailyCalendarCell.swift in Sources */,
+				6A21862B2A814C99005CF505 /* a.swift in Sources */,
 				6A9199C32A14E6A500108BF4 /* DefaultFetchMyGroupNameListUseCase.swift in Sources */,
 				6A95DFC129D4E882009017D8 /* SearchResultCell.swift in Sources */,
 				6AC079842A0A8B26007ACDB8 /* DefaultFetchJoinApplyListUseCase.swift in Sources */,
+				6A2186042A7D11FD005CF505 /* PlaceholderTextView.swift in Sources */,
 				6A27443B2A0E82FE008FB4F5 /* UpdateNoticeUseCase.swift in Sources */,
 				6A987A1D29DC1E0A00C27D09 /* JoinedGroupDetailCalendarHeaderView.swift in Sources */,
 				6A2BB1C129E437960053C5CA /* MyPageEditViewController.swift in Sources */,
@@ -2982,6 +3060,7 @@
 				6A987A4829DDB97A00C27D09 /* MyGroupNoticeEditCoordinator.swift in Sources */,
 				6A2C00EA2A72CF71003D6B95 /* Message.swift in Sources */,
 				6A9199EB2A20904700108BF4 /* SocialTodoDTO.swift in Sources */,
+				6AD888D22A89282600F4B887 /* RevokeAppleTokenUseCase.swift in Sources */,
 				6A919A0D2A210D0B00108BF4 /* FetchSearchResultUseCase.swift in Sources */,
 				6A2C00C22A70F81B003D6B95 /* FetchGroupCategorysUseCase.swift in Sources */,
 				6A95DFD929D51C23009017D8 /* GroupIntroduceViewController.swift in Sources */,
@@ -2992,6 +3071,7 @@
 				6A919A0B2A210C7100108BF4 /* DefaultFetchSearchResultUseCase.swift in Sources */,
 				6A9A07F129D40B3C0051AD43 /* DayPickerViewController.swift in Sources */,
 				6A2BB1A729E404DA0053C5CA /* MyPageMainViewController.swift in Sources */,
+				6A2186262A811CEA005CF505 /* DefaultAppleSignInUseCase.swift in Sources */,
 				6AC079222A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift in Sources */,
 				6A919A072A20E9C000108BF4 /* DefaultFetchGroupMemberDailyCalendarUseCase.swift in Sources */,
 				6A2744152A0B8389008FB4F5 /* SetOnlineUseCase.swift in Sources */,
@@ -3005,8 +3085,10 @@
 				6AC079A02A0AAAD1007ACDB8 /* AcceptGroupJoinUseCase.swift in Sources */,
 				6A9AAB3B29FA5DE2002A6DAF /* ReadCategoryListUseCase.swift in Sources */,
 				6A9199F72A20AC2700108BF4 /* SocialTodoDailyViewModel.swift in Sources */,
+				6AD888D42A89283500F4B887 /* DefaultRevokeAppleTokenUseCase.swift in Sources */,
 				6A987A2929DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift in Sources */,
 				6A9199822A12189000108BF4 /* ToastView.swift in Sources */,
+				6AD888CA2A89215000F4B887 /* DefaultSetSignedInSNSTypeUseCase.swift in Sources */,
 				6A2C00BA2A70F292003D6B95 /* SocialTodoDetailViewModel.swift in Sources */,
 				6A24F84629CB4AED0000FD64 /* MonthStateOfDay.swift in Sources */,
 				6AC0791C2A08DA42007ACDB8 /* FetchImageUseCase.swift in Sources */,
@@ -3032,6 +3114,7 @@
 				6A27441B2A0CC9EF008FB4F5 /* PrimitiveSequence+Ext.swift in Sources */,
 				6A9A080229D40C130051AD43 /* TodoDetailViewController.swift in Sources */,
 				6A08ADCF29C8C231005947D2 /* APIProvider.swift in Sources */,
+				6A21862D2A815148005CF505 /* AppleSignInNonce.swift in Sources */,
 				6A9AAB1229F907B0002A6DAF /* KeyChainManager.swift in Sources */,
 				6A2744112A0B8261008FB4F5 /* GroupSetOnlineResponseDTO.swift in Sources */,
 				6AC0797A2A0A7BA6007ACDB8 /* DefaultFetchMemberListUseCase.swift in Sources */,
@@ -3123,6 +3206,7 @@
 				6A61C3FC2A6EB38100DCA088 /* RemoveProfileUseCase.swift in Sources */,
 				6A9199D92A169E1D00108BF4 /* GroupCreateTagView.swift in Sources */,
 				6A6C7B912A25B5D3005BAEEC /* DefaultFetchAllGroupCategoryListUseCase.swift in Sources */,
+				6A9B4FAE2A86536A00A04458 /* UITextView+Ext.swift in Sources */,
 				6A08ADB429C8A064005947D2 /* SignInCoordinator.swift in Sources */,
 				6AC079632A0A5746007ACDB8 /* UnJoinedGroupDetailDTO.swift in Sources */,
 				6A2C00E42A713954003D6B95 /* DefaultDeleteGroupTodoUseCase.swift in Sources */,
@@ -3134,6 +3218,7 @@
 				6A9199562A11FFC000108BF4 /* GroupEditInfoView.swift in Sources */,
 				6A2C00BC2A70F4AD003D6B95 /* DefaultFetchGroupCategorysUseCase.swift in Sources */,
 				6A9A07F529D40B700051AD43 /* DayPickerCollectionView.swift in Sources */,
+				6AD888C32A891E2D00F4B887 /* SocialAuthType.swift in Sources */,
 				6A2BB1C729E55E8F0053C5CA /* DefaultDeleteTodoUseCase.swift in Sources */,
 				6A9199802A12111400108BF4 /* LoadableImageView.swift in Sources */,
 				6AC0791E2A08DE41007ACDB8 /* MyPageEditViewModel.swift in Sources */,
@@ -3141,6 +3226,7 @@
 				6AA3BAC72A24A27000E5B8A2 /* RecentSearch.xcdatamodeld in Sources */,
 				6A9199BD2A14A3F600108BF4 /* UIView+Ext.swift in Sources */,
 				6A9199BF2A14E5E200108BF4 /* GroupName.swift in Sources */,
+				6A2186282A811D53005CF505 /* AppleSignInUseCase.swift in Sources */,
 				6AA3BADB2A24E7F100E5B8A2 /* DefaultWithdrawGroupUseCase.swift in Sources */,
 				6AC079242A08EC4A007ACDB8 /* UpdateProfileUseCase.swift in Sources */,
 				6A9AAB0B29F901CF002A6DAF /* TodoDTO.swift in Sources */,
@@ -3156,6 +3242,7 @@
 				6A9199C52A14E71E00108BF4 /* FetchMyGroupNameListUseCase.swift in Sources */,
 				6AC079202A08E381007ACDB8 /* ImageFile.swift in Sources */,
 				6A08ADD329C8C26F005947D2 /* NetworkManagerError.swift in Sources */,
+				6AD888C52A891ED700F4B887 /* UserDefaultsManager.swift in Sources */,
 				6AC079532A0A4D1C007ACDB8 /* DefaultMyGroupRepository.swift in Sources */,
 				6A9AAB2929FA5A6C002A6DAF /* DefaultDeleteCategoryUseCase.swift in Sources */,
 				6A08AD9E29C89D93005947D2 /* SignInViewController.swift in Sources */,
@@ -3216,11 +3303,13 @@
 				6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */,
 				6AC079192A08D9DB007ACDB8 /* ImageRepository.swift in Sources */,
 				6A987A8829DF118000C27D09 /* SmallCalendarViewModel.swift in Sources */,
+				6AD888C82A891F9100F4B887 /* KeyValueStorage.swift in Sources */,
 				6A9199E72A208EDE00108BF4 /* SocialDailyCalendarCell.swift in Sources */,
 				6A9A07F929D40B970051AD43 /* DayPickerViewControllerDelegate.swift in Sources */,
 				6A2C00DE2A71387F003D6B95 /* CreateGroupTodoUseCase.swift in Sources */,
 				6A95DFB529D4DD33009017D8 /* SearchHomeViewController.swift in Sources */,
 				6AA3BACA2A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataClass copy.swift in Sources */,
+				6AD888D02A89223E00F4B887 /* GetSignedInSNSTypeUseCase.swift in Sources */,
 				6A91997E2A120D5100108BF4 /* SpringableButton.swift in Sources */,
 				6A9199E52A1E51AD00108BF4 /* FetchSearchHomeUseCase.swift in Sources */,
 				6AC079A22A0AAADB007ACDB8 /* DenyGroupJoinUseCase.swift in Sources */,
@@ -3237,6 +3326,7 @@
 				6A24F84E29CB6DE60000FD64 /* DefaultGoogleSignInUseCase.swift in Sources */,
 				6A2C00C62A70FC5F003D6B95 /* CreateGroupCategoryUseCase.swift in Sources */,
 				6A61C3F62A6EB16200DCA088 /* DefaultRemoveTokenUseCase.swift in Sources */,
+				6AD888CC2A89218300F4B887 /* DefaultGetSignedInSNSTypeUseCase.swift in Sources */,
 				6A24F91029D226810000FD64 /* TodoMainViewController.swift in Sources */,
 				6A95DFEE29D5A6D1009017D8 /* GroupIntroduceCoordinator.swift in Sources */,
 				6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */,
@@ -3251,6 +3341,7 @@
 				6AC079612A0A52C5007ACDB8 /* GroupCreateUseCase.swift in Sources */,
 				6AC079122A08CCF9007ACDB8 /* ReadProfileUseCase.swift in Sources */,
 				6A24F83C29CB49F10000FD64 /* WeekDay.swift in Sources */,
+				6AD888CE2A89221A00F4B887 /* SetSignedInSNSTypeUseCase.swift in Sources */,
 				6A9A07FB29D40BA90051AD43 /* DayPickerViewController+DataSource.swift in Sources */,
 				6A9AAB0D29F906A3002A6DAF /* DefaultCreateCategoryUseCase.swift in Sources */,
 				6A24F8EE29D1D5510000FD64 /* MonthPickerViewController.swift in Sources */,
@@ -3275,6 +3366,7 @@
 				6A24F85E29CB87D70000FD64 /* ReadTodoListUseCase.swift in Sources */,
 				6A987A2729DCFC5E00C27D09 /* JoinedGroupNoticeViewModel.swift in Sources */,
 				6A987A5929DECACB00C27D09 /* MemberProfileCalendarHeaderView.swift in Sources */,
+				6A9191982A82780D006C3F80 /* Data+Ext.swift in Sources */,
 				6A24F85029CB77830000FD64 /* Calendar+Ext.swift in Sources */,
 				6AC079042A07DC45007ACDB8 /* Array+Ext.swift in Sources */,
 				6A987A3B29DDA61F00C27D09 /* MyGroupMemberEditViewController.swift in Sources */,
@@ -3441,11 +3533,13 @@
 				DEVELOPMENT_TEAM = QDZ5VUDS9T;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Planus/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3453,9 +3547,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.SCSY.Planus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -3471,11 +3568,13 @@
 				DEVELOPMENT_TEAM = QDZ5VUDS9T;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Planus/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3483,9 +3582,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.SCSY.Planus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

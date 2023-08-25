@@ -161,28 +161,24 @@ class GroupListViewController: UIViewController {
                       var group = viewModel.groupList?[index],
                       let cell = self.resultCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? JoinedGroupCell else { return }
                 
-                if isSuccess {
-                    cell.onlineButton.setTitle("\(group.onlineCount)", for: .normal)
-                } else {
-                    let outerSwitchBag = DisposeBag()
-                    cell.outerSwitchBag = outerSwitchBag
-                    
-                    cell.onlineSwitch.isOn = !cell.onlineSwitch.isOn
-                    
-                    cell.onlineSwitch.rx.isOn
-                        .skip(1)
-                        .asObservable() //초기값 무시
-                        .subscribe(onNext: { isOn in
-                            cell.onlineSwitch.isUserInteractionEnabled = false
-                            if isOn {
-                                self.becameOnlineStateAt.onNext(index)
-                            } else {
-                                self.becameOfflineStateAt.onNext(index)
-                            }
-                        })
-                    .disposed(by: outerSwitchBag)
-                }
+                let outerSwitchBag = DisposeBag()
+                cell.outerSwitchBag = outerSwitchBag
                 
+                cell.onlineSwitch.isOn = group.isOnline
+                cell.onlineButton.setTitle("\(group.onlineCount)", for: .normal)
+                
+                cell.onlineSwitch.rx.isOn
+                    .skip(1)
+                    .asObservable() //초기값 무시
+                    .subscribe(onNext: { isOn in
+                        cell.onlineSwitch.isUserInteractionEnabled = false
+                        if isOn {
+                            self.becameOnlineStateAt.onNext(index)
+                        } else {
+                            self.becameOfflineStateAt.onNext(index)
+                        }
+                    })
+                .disposed(by: outerSwitchBag)
                 cell.onlineSwitch.isUserInteractionEnabled = true
             })
             .disposed(by: bag)
@@ -208,7 +204,6 @@ class GroupListViewController: UIViewController {
     
     @objc func refresh(_ sender: UIRefreshControl) {
         refreshRequired.onNext(())
-        print("ref required")
     }
 }
 
@@ -267,13 +262,6 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
         return cell
     }
     
-//    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-//        if (refreshControl.isRefreshing) {
-//            self.refreshControl.endRefreshing()
-////            refreshRequired.onNext(())
-//        }
-//    }
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         tappedItemAt.onNext(indexPath.item)
     }
@@ -295,7 +283,7 @@ extension GroupListViewController {
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                heightDimension: .absolute(250))
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 2)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
 
         let section = NSCollectionLayoutSection(group: group)

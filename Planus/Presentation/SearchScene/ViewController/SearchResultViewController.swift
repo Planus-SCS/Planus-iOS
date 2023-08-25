@@ -171,7 +171,6 @@ class SearchResultViewController: UIViewController {
                 historyView.setAnimatedIsHidden(false, duration: 0.1, onCompletion: { [weak self] in
                     self?.resultCollectionView.isHidden = true
                     self?.emptyResultView.isHidden = true
-                    print("key")
                 })
             }
         }
@@ -216,6 +215,7 @@ class SearchResultViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.historyView.isHidden = true
+                vc.spinner.setAnimatedIsHidden(false)
                 vc.spinner.startAnimating()
                 vc.needFetchHistory.onNext(())
             })
@@ -226,7 +226,8 @@ class SearchResultViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("reload!")
+                vc.spinner.stopAnimating()
+                vc.spinner.setAnimatedIsHidden(true)
                 vc.resultCollectionView.performBatchUpdates({
                     vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
                 }, completion: { _ in
@@ -234,7 +235,6 @@ class SearchResultViewController: UIViewController {
                         vc.refreshControl.endRefreshing()
                     }
                     vc.isLoading = false
-                    print(viewModel.result.count == 0)
                     vc.resultCollectionView.setAnimatedIsHidden(viewModel.result.count == 0)
                     vc.emptyResultView.setAnimatedIsHidden(viewModel.result.count != 0)
                 })
@@ -291,7 +291,7 @@ class SearchResultViewController: UIViewController {
         
         spinner.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.top.equalToSuperview().inset(50)
+            $0.top.equalTo(self.view.safeAreaLayoutGuide).inset(50)
         }
         
         emptyResultView.snp.makeConstraints {
@@ -300,9 +300,13 @@ class SearchResultViewController: UIViewController {
     }
     
     @objc func refresh(_ sender: UIRefreshControl) {
-        refreshRequired.onNext(())
-        isEnded = false
-        isLoading = true
+        if !isLoading {
+            refreshRequired.onNext(())
+            isEnded = false
+            isLoading = true
+        } else {
+            sender.endRefreshing()
+        }
     }
     
     func searchBtnTapAction() {
@@ -424,7 +428,7 @@ extension SearchResultViewController {
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                heightDimension: .absolute(250))
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 2)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
         
         let section = NSCollectionLayoutSection(group: group)

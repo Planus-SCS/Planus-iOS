@@ -16,6 +16,7 @@ class MyGroupInfoEditViewController: UIViewController {
     
     var tagAdded = PublishSubject<String>()
     var tagRemovedAt = PublishSubject<Int>()
+    var removeBtnTapped = PublishSubject<Void>()
     
     var titleImageChanged = PublishSubject<ImageFile?>()
     
@@ -111,10 +112,9 @@ class MyGroupInfoEditViewController: UIViewController {
             .wideButton.rx.tap
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-
                 vc.showPopUp(title: "그룹 삭제하기", message: "삭제된 그룹은 추후 복구할 수 없습니다.", alertAttrs: [
                     CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
-                    CustomAlertAttr(title: "삭제", actionHandler: { viewModel.deleteGroup() }, type: .warning)]
+                    CustomAlertAttr(title: "삭제", actionHandler: { [weak self] in self?.removeBtnTapped.onNext(()) }, type: .warning)]
                 )
             })
             .disposed(by: bag)
@@ -123,8 +123,9 @@ class MyGroupInfoEditViewController: UIViewController {
             titleImageChanged: titleImageChanged.asObservable(),
             tagAdded: tagAdded.asObservable(),
             tagRemovedAt: tagRemovedAt.asObservable(),
-            maxMemberChanged: limitView.limitField.rx.text.asObservable(),
-            saveBtnTapped: saveButton.rx.tap.asObservable()
+            maxMemberChanged: limitView.didChangedLimitValue.asObservable(),
+            saveBtnTapped: saveButton.rx.tap.asObservable(),
+            removeBtnTapped: removeBtnTapped.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -248,6 +249,16 @@ class MyGroupInfoEditViewController: UIViewController {
             })
             .disposed(by: bag)
         
+        output
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.view.endEditing(true)
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+            })
+            .disposed(by: bag)
+        
     }
     
     func configureView() {
@@ -300,8 +311,8 @@ extension MyGroupInfoEditViewController: PHPickerViewControllerDelegate { //PHPi
                   var image = item as? UIImage  else { return }
             
             image = UIImage.resizeImage(image: image, targetWidth: 500)
-            if let data = image.pngData() {
-                self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "png"))
+            if let data = image.jpegData(compressionQuality: 1) {
+                self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "jpeg"))
             }
         }
     }
@@ -438,8 +449,10 @@ extension MyGroupInfoEditViewController {
         vc.modalPresentationStyle = .popover
         let popover: UIPopoverPresentationController = vc.popoverPresentationController!
         popover.delegate = self
-        popover.sourceView = self.view
-        popover.sourceItem = collectionViewCell
+        popover.sourceView = self.scrollView
+        let globalFrame = collectionViewCell.convert(collectionViewCell.bounds, to: self.scrollView)
+        popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.minY, width: 0, height: 0)
+        popover.permittedArrowDirections = [.down]
         
         self.present(vc, animated: true, completion: nil)
     }

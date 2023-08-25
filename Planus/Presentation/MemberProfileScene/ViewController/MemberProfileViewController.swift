@@ -20,6 +20,7 @@ class MemberProfileViewController: UIViewController {
     var isSingleSelected = PublishSubject<IndexPath>()
     var indexChanged = PublishSubject<Int>()
     var isMonthChanged = PublishSubject<Date>()
+    var didInitialCalendarGenerated = false
     
     let headerView = MemberProfileHeaderView(frame: .zero)
     let calendarHeaderView = MemberProfileCalendarHeaderView(frame: .zero)
@@ -105,8 +106,13 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
-                vc.collectionView.reloadData()
-                vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
+                vc.collectionView.performBatchUpdates({
+                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
+                    vc.collectionView.reloadData()
+                }, completion: { _ in
+                    vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
+                    vc.didInitialCalendarGenerated = true
+                })
             })
             .disposed(by: bag)
             
@@ -115,6 +121,7 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, rangeSet in
+                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                 vc.collectionView.reloadSections(rangeSet)
             })
             .disposed(by: bag)
@@ -167,9 +174,12 @@ class MemberProfileViewController: UIViewController {
                 let popover: UIPopoverPresentationController = vc.popoverPresentationController!
                 popover.delegate = self
                 popover.sourceView = self.view
-                popover.sourceItem = self.calendarHeaderView.yearMonthButton
-                
-                self.present(vc, animated: true, completion:nil)
+//                popover.sourceItem = self.calendarHeaderView.yearMonthButton
+                let globalFrame = self.calendarHeaderView.yearMonthButton.convert(self.calendarHeaderView.yearMonthButton.bounds, to: self.view)
+                popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
+                popover.permittedArrowDirections = [.up]
+                self.present(vc, animated: true, completion: nil)
+                print(globalFrame)
             })
             .disposed(by: bag)
         
@@ -182,7 +192,7 @@ class MemberProfileViewController: UIViewController {
             .disposed(by: bag)
         
         headerView.nameLabel.text = output.memberName
-        headerView.introduceLabel.text = (output.memberDesc?.count != 0) ? output.memberDesc : "자기소개가 없습니다."
+        headerView.introduceLabel.text = output.memberDesc
         
         if let url = output.memberImageUrl {
             viewModel
@@ -204,21 +214,16 @@ class MemberProfileViewController: UIViewController {
     func configureHeaderViewLayout(memberName: String?, memberDesc: String?) {
         let mockView = MemberProfileHeaderView(
             mockName: memberName,
-            mockDesc: (memberDesc?.count != 0) ? memberDesc : "자기소개가 없습니다."
+            mockDesc: memberDesc
         )
         let estimatedSize = mockView
             .systemLayoutSizeFitting(CGSize(width: self.view.frame.width,
                                             height: 111))
-        
-        let estimatedDescTextViewSize = mockView.introduceLabel.systemLayoutSizeFitting(CGSize(width: UIScreen.main.bounds.width - 96, height: UIView.layoutFittingCompressedSize.height))
-        
-        let sizeThatFitsTextView = mockView.introduceLabel.sizeThatFits(CGSize(width: UIScreen.main.bounds.width - 96, height: CGFloat(MAXFLOAT)))
-        let estimatedInitialHeight = estimatedSize.height + (sizeThatFitsTextView.height - estimatedDescTextViewSize.height)
-        
-        self.headerViewInitialHeight = estimatedInitialHeight
+
+        self.headerViewInitialHeight = estimatedSize.height
         
         headerView.snp.makeConstraints {
-            $0.height.equalTo(estimatedInitialHeight)
+            $0.height.equalTo(estimatedSize.height)
         }
         
         guard let headerViewHeightConstraint = headerView.constraints.first(where: { $0.firstAttribute == .height }) else { return }
@@ -323,7 +328,7 @@ extension MemberProfileViewController: UICollectionViewDataSource, UICollectionV
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
-        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) else { return }
+        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && didInitialCalendarGenerated else { return }
         indexChanged.onNext(Int(round(floatedIndex)))
     }
     
@@ -345,7 +350,7 @@ extension MemberProfileViewController {
             heightDimension: .fractionalHeight(1)
         )
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPaging

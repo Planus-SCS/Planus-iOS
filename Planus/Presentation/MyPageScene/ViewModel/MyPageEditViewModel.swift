@@ -19,6 +19,7 @@ class MyPageEditViewModel {
     var isInitialValueNil: Bool = false
     
     var didUpdateProfile = PublishSubject<Void>()
+    var showMessage = PublishSubject<Message>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -34,6 +35,7 @@ class MyPageEditViewModel {
         var didFetchImage: Observable<Data?>
         var saveBtnEnabled: Observable<Bool>
         var didUpdateProfile: Observable<Void>
+        var showMessage: Observable<Message>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -112,7 +114,8 @@ class MyPageEditViewModel {
             didFetchIntroduce: introduce.asObservable(),
             didFetchImage: profileImage.map { $0?.data }.asObservable(),
             saveBtnEnabled: saveBtnEnabled,
-            didUpdateProfile: didUpdateProfile.asObservable()
+            didUpdateProfile: didUpdateProfile.asObservable(),
+            showMessage: showMessage.asObservable()
         )
     }
     
@@ -182,6 +185,11 @@ class MyPageEditViewModel {
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.didUpdateProfile.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }

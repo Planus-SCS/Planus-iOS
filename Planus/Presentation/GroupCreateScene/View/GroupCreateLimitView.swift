@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import RxSwift
 
 class GroupCreateLimitView: UIView {
+    var didChangedLimitValue = PublishSubject<String?>()
     var limitTitleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "그룹 인원을 설정하세요"
@@ -24,7 +26,7 @@ class GroupCreateLimitView: UIView {
         return label
     }()
     
-    var limitField: UITextField = {
+    lazy var limitField: UITextField = {
         let textField = UITextField(frame: .zero)
         textField.textColor = .black
         textField.font = UIFont(name: "Pretendard-Regular", size: 16)
@@ -44,6 +46,7 @@ class GroupCreateLimitView: UIView {
         )
         
         textField.keyboardType = .numberPad
+        textField.delegate = self
         return textField
     }()
     
@@ -124,5 +127,32 @@ class GroupCreateLimitView: UIView {
             $0.top.equalTo(limitField.snp.bottom).offset(12)
             $0.bottom.equalToSuperview().inset(30)
         }
+    }
+}
+
+extension GroupCreateLimitView: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == self.limitField {
+            if string == "" { //backspace
+                if var textString = textField.text,
+                   !textString.isEmpty {
+                    textString = String(textString.dropLast())
+                    textField.text = textString
+                    didChangedLimitValue.onNext(textString)
+                }
+                return false
+            } else if var textString = textField.text {
+                if textString.count == 2 { //추가해서 세글자가 되면? 없애야함
+                    return false
+                }
+                textString += string
+
+                textField.text = textString
+                didChangedLimitValue.onNext(textString)
+
+                return false
+            }
+        }
+        return true
     }
 }

@@ -47,12 +47,15 @@ class NetworkManager: APIProvider {
                     emitter(.failure(NetworkManagerError.nilDataError))
                     return
                 }
-                print(request.url)
-                if let body = request.httpBody {
-                    print(String(data: body, encoding: .utf8))
-                }
                 
-                print(String(data: data, encoding: .utf8))
+                DispatchQueue.main.async {
+                    print(request.url)
+                    if let body = request.httpBody {
+                        print(String(data: body, encoding: .utf8))
+                    }
+                    
+                    print(String(data: data, encoding: .utf8))
+                }
 
                 guard let httpResponse = response as? HTTPURLResponse else { return }
                 switch httpResponse.statusCode {
@@ -160,7 +163,7 @@ private extension NetworkManager {
         if let imageList = imageList {
             for (key, image) in imageList {
                 body.append("\(boundaryPrefix)\r\n".data(using: .utf8)!)
-                body.append("Content-Disposition: form-data; name=\"\(key)\"; filename=\"\(image.filename).png\"\r\n".data(using: .utf8)!)
+                body.append("Content-Disposition: form-data; name=\"\(key)\"; filename=\"\(image.filename).\(image.type)\"\r\n".data(using: .utf8)!)
                 body.append("Content-Type: image/\(image.type)\r\n\r\n".data(using: .utf8)!)
                 body.append(image.data)
                 body.append("\r\n".data(using: .utf8)!)

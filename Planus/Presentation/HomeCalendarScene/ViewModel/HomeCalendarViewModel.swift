@@ -48,7 +48,8 @@ class HomeCalendarViewModel {
     var todos = [Date: [Todo]]()
     
     var blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 20), count: 42) //todoId, groupTodo인가?
-    var filteredTodoCache = [FilteredTodoViewModel](repeating: FilteredTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
+    var filteredWeeksOfYear = [Int](repeating: -1, count: 6)
+    var filteredTodoCache = [FilteredTodoViewModel](repeating: FilteredTodoViewModel(periodTodo: [], singleTodo: []), count: 42) //월-일 어디든 상관없이 해당 주차에 첫 진입하면 주차를 전부 캐시로 만들어서 넣어둬야함
     var cachedCellHeightForTodoCount = [Int: Double]()
     
     var groups = [Int: GroupName]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
@@ -66,6 +67,7 @@ class HomeCalendarViewModel {
     var needReloadSectionSet = PublishSubject<IndexSet>() //리로드 섹션을 해야함 왜?
     var needReloadData = PublishSubject<Void>()
     var needWelcome = BehaviorSubject<String?>(value: nil)
+    var homeTabReselected: PublishSubject<Void>?
     
     lazy var categoryAndGroupZip = Observable.zip(
         initialReadGroup.compactMap { $0 },
@@ -108,6 +110,7 @@ class HomeCalendarViewModel {
         var groupListFetched: Observable<Void?>
         var needFilterGroupWithId: Observable<Int?>
         var didFinishRefreshing: Observable<Void>
+        var needScrollToHome: Observable<Void>
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -297,7 +300,19 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.nowRefreshing = true
+                vm.todos = [:]
                 vm.fetchAll()
+            })
+            .disposed(by: bag)
+        
+        let needScrollToHome = PublishSubject<Void>()
+        
+        homeTabReselected?
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.scrolledTo(index: -vm.endOfFirstIndex)
+                vm.fetchAll()
+                needScrollToHome.onNext(())
             })
             .disposed(by: bag)
         
@@ -315,7 +330,8 @@ class HomeCalendarViewModel {
             needWelcome: needWelcome.asObservable(),
             groupListFetched: initialReadGroup.asObservable(),
             needFilterGroupWithId: filteredGroupId.asObservable(),
-            didFinishRefreshing: didFinishRefreshing.asObservable()
+            didFinishRefreshing: didFinishRefreshing.asObservable(),
+            needScrollToHome: needScrollToHome.asObservable()
         )
     }
     
@@ -465,36 +481,26 @@ class HomeCalendarViewModel {
         let fromIndex = (currentIndex - cachingAmount >= 0) ? currentIndex - cachingAmount : 0
         let toIndex = currentIndex + cachingAmount + 1 < mainDays.count ? currentIndex + cachingAmount + 1 : mainDays.count-1
         
+        print(fromIndex, toIndex)
+        
         fetchTodoList(from: fromIndex, to: toIndex)
     }
 
     func scrolledTo(index: Int) {
-        let indexBefore = currentIndex
         currentIndex = index
-        
-        updateCurrentDate(direction: (indexBefore == index) ? .none : (indexBefore > index) ? .left : .right)
+        updateCurrentDate(index: index)
         checkCacheLoadNeed()
     }
     
-    func updateCurrentDate(direction: ScrollDirection) {
-        guard let previousDate = try? self.currentDate.value() else { return }
-        switch direction {
-        case .left:
-            currentDate.onNext(self.calendar.date(
-                                byAdding: DateComponents(month: -1),
-                                to: previousDate
-                        ))
-        case .right:
-            currentDate.onNext(self.calendar.date(
-                                byAdding: DateComponents(month: 1),
-                                to: previousDate
-                        ))
-        case .none:
-            return
-        }
+    func updateCurrentDate(index: Int) { //첫달부터 더해서 계산해야한다..! (첫달을 0에서 가져와도 되는건가..?)
+        let firstDate = self.calendar.startDayOfMonth(date: mainDays[0][7].date)
+        
+        currentDate.onNext(self.calendar.date(
+            byAdding: DateComponents(month: index),
+            to: firstDate
+        ))
     }
     
-    // 여기만 하면 이제 당분간은 투두 받아오는 부분 걱정도 없을듯? 근데 애니메이션을 어케 적용해야되냐?????
     func checkCacheLoadNeed() {
         guard let currentDate = try? self.currentDate.value() else { return }
         if latestPrevCacheRequestedIndex - currentIndex == cachingIndexDiff {
@@ -522,6 +528,8 @@ class HomeCalendarViewModel {
         
         let fromMonthStart = calendar.date(byAdding: DateComponents(day: -7), to: calendar.startOfDay(for: fromMonth)) ?? Date()
         let toMonthStart = calendar.date(byAdding: DateComponents(day: 7), to: calendar.startOfDay(for: toMonth)) ?? Date()
+        
+        print(fromMonthStart, toMonthStart)
 
         getTokenUseCase
             .execute()
@@ -537,7 +545,7 @@ class HomeCalendarViewModel {
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] todoDict in
-                guard let self else { return }
+                guard let self else { return } //만약 위로 스크롤해서 업데이트한거면 애를 초기화시켜버려야한다..!!!!
                 self.todos.merge(todoDict) { (_, new) in new }
                 self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
                 
@@ -776,7 +784,7 @@ class HomeCalendarViewModel {
         return maxItem
     }
     
-    func generateFilteredTodoOffsetOfWeek(indexPath: IndexPath) {
+    func createFilteredTodosInWeek(indexPath: IndexPath) {
         
     }
 }
