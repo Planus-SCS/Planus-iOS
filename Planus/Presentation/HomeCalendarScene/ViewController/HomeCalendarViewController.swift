@@ -257,7 +257,7 @@ class HomeCalendarViewController: UIViewController {
                 vm.initMode(mode: .new, groupName: groupName, start: startDate, end: endDate)
                 
                 let vc = TodoDetailViewController(viewModel: vm)
-                vc.completionHandler = { [weak self] in
+                vc.pageDismissCompletionHandler = { [weak self] in
                     guard let cell = self?.collectionView.cellForItem(at: IndexPath(item: 0, section: indexRange.0)) as? MonthlyCalendarCell else { return }
                     cell.deselectItems()
                 }

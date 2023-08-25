@@ -7,8 +7,8 @@
 
 import Foundation
 
-enum AddTodoViewControllerPageType {
-    case addTodo
+enum TodoDetailViewControllerPageType {
+    case todoDetail
     case selectCategory
     case createCategory
 }

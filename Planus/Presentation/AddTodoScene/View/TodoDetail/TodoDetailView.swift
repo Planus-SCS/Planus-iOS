@@ -1,8 +1,8 @@
 //
-//  TodoDetailViewController2.swift
+//  TodoDetailView.swift
 //  Planus
 //
-//  Created by Sangmin Lee on 2023/08/23.
+//  Created by Sangmin Lee on 2023/08/25.
 //
 
 import UIKit
@@ -11,7 +11,7 @@ import RxSwift
  만약 지금 생각한대로 안쪽을 네비게이션으로 만든다면? 밖에서 navi 자체의 레이아웃을 잡을 줄 알아야하는데,,, 이게 말처럼 쉬운게 아니다 사실...
  계속 바깥부모한테 얼마얼마만큼으로 높이를 조절하라고 전달해야하는데,,, 높이는 또 어떻게 계산해야하는데???? 일단 이대로 하자...
  */
-class TodoDetailView2: UIView {
+class TodoDetailView: UIView {
     
     var bag = DisposeBag()
     
@@ -57,9 +57,7 @@ class TodoDetailView2: UIView {
     }()
     
     var contentView = UIView(frame: .zero)
-    
-    // 스택뷰 말고? 가운데 컨텐츠 뷰를 두고 여기다가 싹다 레이아웃 맞춰놓은 다음에 숨겨봐..?
-    
+        
     var titleView = TodoDetailTitleView(frame: .zero)
     var dateView = TodoDetailDateView(frame: .zero)
     var clockView = TodoDetailClockView(frame: .zero)
@@ -78,6 +76,30 @@ class TodoDetailView2: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setMode(mode: TodoDetailSceneMode) {
+        icnView.setMode(mode: mode)
+        
+        switch mode {
+        case .edit:
+            removeButton.isHidden = false
+            titleView.todoTitleField.becomeFirstResponder()
+        case .new:
+            removeButton.isHidden = true
+            titleView.todoTitleField.becomeFirstResponder()
+        case .view: // 애의 경우 icnView가 deactivate을 하면 안된다...!
+        
+            removeButton.isHidden = true
+            saveButton.isHidden = true
+            attributeViewGroup.forEach {
+                $0.isUserInteractionEnabled = false
+            } // 애를 달력이 못그리게해야함..!
+            
+            icnView.snp.remakeConstraints {
+                $0.leading.trailing.equalToSuperview()
+            }
+        }
     }
     
     func configureView() {

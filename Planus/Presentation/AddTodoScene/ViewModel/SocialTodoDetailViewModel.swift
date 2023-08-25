@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 struct SocialTodoInfo { //그룹투두 또한 조회만 되기도 하고 주인장은 수정이 되기도 한다,,,
-    var group: GroupName?
+    var group: GroupName
     var memberId: Int?
     var todoId: Int?
 }
@@ -101,6 +101,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     func initMode(mode: TodoDetailSceneMode, info: SocialTodoInfo, date: Date? = nil) {
         self.mode = mode
         self.info = info
+        self.groups.append(info.group)
         self.todoDayRange.onNext(DateRange(start: date))
     }
     
@@ -242,10 +243,10 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
                         
         switch mode {
         case .new:
-            guard let groupId = info?.group?.groupId else { return }
+            guard let groupId = info?.group.groupId else { return }
             createTodo(groupId: groupId, todo: todo)
         case .edit:
-            guard let groupId = info?.group?.groupId,
+            guard let groupId = info?.group.groupId,
                   let todoId = info?.todoId else { return }
             todo.id = todoId
             updateTodo(groupId: groupId, todoId: todoId, todo: todo)
@@ -257,7 +258,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     func removeDetail() {
         switch mode {
         case .edit:
-            guard let groupId = info?.group?.groupId,
+            guard let groupId = info?.group.groupId,
                   let todoId = info?.todoId else { return }
             deleteTodo(groupId: groupId, todoId: todoId)
         default:
@@ -352,7 +353,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         var groupId: Int
         switch mode {
         case .new, .edit:
-            guard let infoGroupId = info?.group?.groupId else { return }
+            guard let infoGroupId = info?.group.groupId else { return }
             groupId = infoGroupId
         default: return
         }
@@ -394,7 +395,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         var groupId: Int
         switch mode {
         case .new, .edit:
-            guard let infoGroupId = info?.group?.groupId else { return }
+            guard let infoGroupId = info?.group.groupId else { return }
             groupId = infoGroupId
         default: return
         }
@@ -433,7 +434,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         var groupId: Int
         switch mode {
         case .new, .edit:
-            guard let infoGroupId = info?.group?.groupId else { return }
+            guard let infoGroupId = info?.group.groupId else { return }
             groupId = infoGroupId
         default: return
         }
