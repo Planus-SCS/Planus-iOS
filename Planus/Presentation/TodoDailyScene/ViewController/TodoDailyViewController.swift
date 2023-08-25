@@ -93,19 +93,15 @@ class TodoDailyViewController: UIViewController {
             .needInsertItem
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.performBatchUpdates({
-                    if indexPath.section == 0,
-                       vm.viewModel?.scheduledTodoList?.count == 1 {
-                        vm.collectionView.reloadItems(at: [indexPath])
-                    }
-                    else if indexPath.section == 1,
-                            vm.viewModel?.unscheduledTodoList?.count == 1 {
-                        vm.collectionView.reloadItems(at: [indexPath])
-                    } else {
-                        vm.collectionView.insertItems(at: [indexPath])
-                    }
-                })
+            .subscribe(onNext: { vc, indexPath in
+                if (indexPath.section == 0 &&
+                    viewModel.scheduledTodoList?.count == 0) ||
+                    (indexPath.section == 1 &&
+                     vc.viewModel?.unscheduledTodoList?.count == 0) {
+                    vc.collectionView.reloadItems(at: [indexPath])
+                } else {
+                    vc.collectionView.insertItems(at: [indexPath])
+                }
             })
             .disposed(by: bag)
             
@@ -113,17 +109,14 @@ class TodoDailyViewController: UIViewController {
             .needDeleteItem
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vm, indexPath in
-                if indexPath.section == 0,
-                   vm.viewModel?.scheduledTodoList?.count == 0 {
-                    vm.collectionView.reloadItems(at: [indexPath])
-                    
-                } else if indexPath.section == 1,
-                          vm.viewModel?.unscheduledTodoList?.count == 0 {
-                    vm.collectionView.reloadItems(at: [indexPath])
-                    
+            .subscribe(onNext: { vc, indexPath in
+                if (indexPath.section == 0 &&
+                    viewModel.scheduledTodoList?.count == 0) ||
+                    (indexPath.section == 1 &&
+                     vc.viewModel?.unscheduledTodoList?.count == 0) {
+                    vc.collectionView.reloadItems(at: [indexPath])
                 } else {
-                    vm.collectionView.deleteItems(at: [indexPath])
+                    vc.collectionView.deleteItems(at: [indexPath])
                 }
             })
             .disposed(by: bag)
@@ -134,6 +127,43 @@ class TodoDailyViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.collectionView.reloadSections(IndexSet(0...1))
+            })
+            .disposed(by: bag)
+        
+        output
+            .needMoveItem
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, args in
+                let (from, to) = args
+                
+                vc.collectionView.performBatchUpdates { //to도 신경써야함. 지금 from만 보고있음. 만약 to섹션이 원래 비어있었다면?
+                    if (from.section == 0 &&
+                        viewModel.scheduledTodoList?.count == 0) ||
+                        (from.section == 1 &&
+                         vc.viewModel?.unscheduledTodoList?.count == 0) {
+                        vc.collectionView.reloadItems(at: [from])
+                        if (to.section == 0 &&
+                            viewModel.scheduledTodoList?.count == 1) ||
+                            (to.section == 1 &&
+                             vc.viewModel?.unscheduledTodoList?.count == 1) {
+                            vc.collectionView.reloadItems(at: [to])
+                        } else {
+                            vc.collectionView.insertItems(at: [to])
+                        }
+                    } else {
+                        if (to.section == 0 &&
+                            viewModel.scheduledTodoList?.count == 1) ||
+                            (to.section == 1 &&
+                             vc.viewModel?.unscheduledTodoList?.count == 1) {
+                            vc.collectionView.deleteItems(at: [from])
+                            vc.collectionView.reloadItems(at: [to])
+                        } else {
+                            vc.collectionView.deleteItems(at: [from])
+                            vc.collectionView.insertItems(at: [to])
+                        }
+                    }
+                }
             })
             .disposed(by: bag)
         

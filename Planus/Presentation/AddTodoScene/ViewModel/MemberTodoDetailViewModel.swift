@@ -153,7 +153,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             title: title,
             startDate: startDate,
             endDate: endDate,
-            memo: memo,
+            memo: (memo?.isEmpty ?? true) ? nil : memo,
             groupId: groupName?.groupId,
             categoryId: categoryId,
             startTime: ((time?.isEmpty) ?? true) ? nil : time,
@@ -161,7 +161,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             isGroupTodo: false
         )
         
-                        
+
         switch mode {
         case .new:
             createTodo(todo: todo)

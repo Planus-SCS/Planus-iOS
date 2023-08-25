@@ -40,12 +40,14 @@ class TodoDailyViewModel {
         var needReloadItem: Observable<IndexPath>
         var needDeleteItem: Observable<IndexPath>
         var needReloadData: Observable<Void>
+        var needMoveItem: Observable<(IndexPath, IndexPath)>
     }
     
     var needInsertItem = PublishSubject<IndexPath>()
     var needReloadItem = PublishSubject<IndexPath>()
     var needDeleteItem = PublishSubject<IndexPath>()
     var needReloadData = PublishSubject<Void>()
+    var needMoveItem = PublishSubject<(IndexPath, IndexPath)>()
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
@@ -243,7 +245,6 @@ class TodoDailyViewModel {
                         let beforeSection = 0
                         let beforeItem = vm.scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
                         vm.scheduledTodoList?.remove(at: beforeItem)
-                        vm.needDeleteItem.onNext(IndexPath(item: beforeItem, section: beforeSection))
                         
                         let afterSection = 1
                         
@@ -254,28 +255,27 @@ class TodoDailyViewModel {
                             isOrderedBefore: { $0.1.id ?? Int() < $1.1.id ?? Int() }//////////////
                          ) ?? 0
                         
-                        let afterItem = innerIndex == memberTodoList?.count ? vm.unscheduledTodoList?.count ?? 0 : memberTodoList?[innerIndex].0 ?? 0
+                        let afterItem = (innerIndex == memberTodoList?.count ? vm.unscheduledTodoList?.count ?? 0 : memberTodoList?[innerIndex].0) ?? 0
 
-                        vm.needInsertItem.onNext(IndexPath(item: afterItem, section: afterSection))
+                        vm.unscheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
+                        vm.needMoveItem.onNext((IndexPath(item: beforeItem, section: beforeSection), IndexPath(item: afterItem, section: afterSection)))
                     case (nil, _): //투두에서 일정으로
                         let beforeSection = 1
                         let beforeItem = vm.unscheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
                         vm.unscheduledTodoList?.remove(at: beforeItem)
-                        vm.needDeleteItem.onNext(IndexPath(item: beforeItem, section: beforeSection))
                         
                         let afterSection = 0
                         
                         let memberTodoList = vm.scheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
-                        // 끝에놈에 추가될때는 어케해야하지..? -> 끝에놈은 인덱싱이 안되므로 끝에 달한 경우에 따로 처리 못하나..?
                         let innerIndex = memberTodoList?.insertionIndexOf(
                             (Int(), todoAfterUpdate),
                             isOrderedBefore: { $0.1.startTime ?? String() < $1.1.startTime ?? String() }//////////////
                          ) ?? 0
                         
-                        let afterItem = innerIndex == memberTodoList?.count ? vm.scheduledTodoList?.count : memberTodoList?[innerIndex].0 ?? 0
+                        let afterItem = (innerIndex == memberTodoList?.count ? vm.scheduledTodoList?.count : memberTodoList?[innerIndex].0) ?? 0
 
-                        vm.scheduledTodoList?.insert(todoAfterUpdate, at: afterItem ?? 0)
-                        vm.needInsertItem.onNext(IndexPath(item: afterItem ?? 0, section: afterSection))
+                        vm.scheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
+                        vm.needMoveItem.onNext((IndexPath(item: beforeItem, section: beforeSection), IndexPath(item: afterItem, section: afterSection)))
                     case (let beforeTime, let afterTime):
                         if beforeTime == afterTime { //시간이 바뀐게 아닐경우..!
                             let section = 0
@@ -286,7 +286,6 @@ class TodoDailyViewModel {
                             let section = 0
                             let beforeItem = vm.scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
                             vm.scheduledTodoList?.remove(at: beforeItem)
-                            vm.needDeleteItem.onNext(IndexPath(item: beforeItem, section: section))
                             
                             let memberTodoList = vm.scheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
                             
@@ -295,10 +294,10 @@ class TodoDailyViewModel {
                                 isOrderedBefore: { $0.1.startTime ?? String() < $1.1.startTime ?? String() }//////////////
                              ) ?? 0
                             
-                            let afterItem = innerIndex == memberTodoList?.count ? vm.scheduledTodoList?.count ?? 0 : memberTodoList?[innerIndex].0 ?? 0
-
+                            let afterItem = (innerIndex == memberTodoList?.count ? vm.scheduledTodoList?.count : memberTodoList?[innerIndex].0) ?? 0
+                            
                             vm.scheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
-                            vm.needInsertItem.onNext(IndexPath(item: afterItem, section: section))
+                            vm.needMoveItem.onNext((IndexPath(item: beforeItem, section: section), IndexPath(item: afterItem, section: section)))
                         }
                     }
                 }
@@ -359,7 +358,8 @@ class TodoDailyViewModel {
             needInsertItem: needInsertItem.asObservable(),
             needReloadItem: needReloadItem.asObservable(),
             needDeleteItem: needDeleteItem.asObservable(),
-            needReloadData: needReloadData.asObservable()
+            needReloadData: needReloadData.asObservable(),
+            needMoveItem: needMoveItem.asObservable()
         )
     }
     
