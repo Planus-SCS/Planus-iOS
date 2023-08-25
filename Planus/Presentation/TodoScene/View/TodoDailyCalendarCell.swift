@@ -79,7 +79,7 @@ extension TodoDailyCalendarCell: UICollectionViewDataSource, UICollectionViewDel
         default:
             return UICollectionViewCell()
         }
-        cell.fill(title: todoItem.title, time: todoItem.startTime, category: .blue, isGroup: false, isScheduled: false, isMemo: false, completion: false)
+        cell.fill(title: todoItem.title, time: todoItem.startTime, category: .blue, isGroup: false, isScheduled: false, isMemo: false, completion: false, isOwner: true)
         return cell
     }
     

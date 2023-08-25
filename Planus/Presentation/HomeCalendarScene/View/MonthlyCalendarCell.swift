@@ -22,14 +22,15 @@ class MonthlyCalendarCell: UICollectionViewCell {
     var isMultipleSelecting: PublishSubject<Bool>?
     var isMultipleSelected: PublishSubject<(Int, (Int, Int))>?
     var isSingleSelected: PublishSubject<(Int, Int)>?
+    var refreshRequired: PublishSubject<Void>?
     
     var bag: DisposeBag?
     
     lazy var lpgr : UILongPressGestureRecognizer = {
         let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(self.longTap(_:)))
-        lpgr.minimumPressDuration = 0.5
+        lpgr.minimumPressDuration = 0.4
         lpgr.delegate = self
-        lpgr.delaysTouchesBegan = true
+        lpgr.delaysTouchesBegan = false
         return lpgr
     }()
     
@@ -48,9 +49,25 @@ class MonthlyCalendarCell: UICollectionViewCell {
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
-        
-        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.dataSource = self
+        cv.delegate = self
+        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.showsVerticalScrollIndicator = false
+        cv.refreshControl = refreshControl
+        cv.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
+        return cv
+    }() //돌아가는 동안에는 Home의 스크롤도 막아야함..!
+    
+    lazy var refreshControl: UIRefreshControl = {
+        let rc = UIRefreshControl(frame: .zero)
+        rc.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        return rc
     }()
+    
+    @objc func refresh(_ sender: UIRefreshControl) {
+        refreshRequired?.onNext(())
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -65,18 +82,15 @@ class MonthlyCalendarCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+        
+        collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
     }
     
     func configureView() {
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
-        collectionView.showsVerticalScrollIndicator = false
         self.addSubview(collectionView)
         collectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        collectionView.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
     }
     
     func fill(section: Int, viewModel: HomeCalendarViewModel?) {
@@ -88,11 +102,34 @@ class MonthlyCalendarCell: UICollectionViewCell {
     func fill(
         isMultipleSelecting: PublishSubject<Bool>,
         isMultipleSelected: PublishSubject<(Int, (Int, Int))>,
-        isSingleSelected: PublishSubject<(Int, Int)>
+        isSingleSelected: PublishSubject<(Int, Int)>,
+        refreshRequired: PublishSubject<Void>,
+        didFetchRefreshedData: PublishSubject<Void>
     ) {
         self.isMultipleSelecting = isMultipleSelecting
         self.isMultipleSelected = isMultipleSelected
         self.isSingleSelected = isSingleSelected
+        self.refreshRequired = refreshRequired
+        
+        var bag = DisposeBag()
+        didFetchRefreshedData
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { view, _ in
+                if view.refreshControl.isRefreshing {
+                    view.refreshControl.endRefreshing()
+                }
+            })
+            .disposed(by: bag)
+        self.bag = bag
+    }
+    
+    func deselectItems() {
+        guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
+        paths.forEach { indexPath in
+            self.collectionView.deselectItem(at: indexPath, animated: true)
+        }
+        collectionView.allowsMultipleSelection = false
     }
 }
 
@@ -103,62 +140,170 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         guard let section = self.section else { return Int() }
-        return viewModel?.mainDayList[section].count ?? Int()
+        return viewModel?.mainDays[section].count ?? Int()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let section,
-              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell,
-              let dayViewModel = viewModel?.mainDayList[section][indexPath.item] else {
-            print("여긴가1?")
+              let viewModel,
+              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
             return UICollectionViewCell()
         }
         
-        var filteredTodoList = dayViewModel.todoList
-        if let filterGroupId = try? viewModel?.filteredGroupId.value() {
-            filteredTodoList = filteredTodoList.filter( { $0.groupId == filterGroupId })
-        }
+        
+        let dayViewModel = viewModel.mainDays[section][indexPath.item]
+        let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
+
         cell.delegate = self
         cell.fill(
             day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
             state: dayViewModel.state,
-            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!
-        ) //카테고리색을 어케하지??? 싱글턴 딕셔너리 개마렵다 ㅋㅋㅋ,,,,,,,,........
-        cell.fill(todoList: filteredTodoList)
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
+            isToday: dayViewModel.date == viewModel.today,
+            isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil
+        )
+
+        cell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
+        // 여기서 총 높이를 구해서 viewModel에다가 저장해둬야함..! fill 메서드에서 계산하니까 저기서 직접 해줘도 될거같은데?
+        
         return cell
     }
     
+    
+    // FIXME: 리펙토링 시급 (이부분 간소화해서 뷰모델쪽으로 옮기자)
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         guard let section,
-              let maxTodoViewModel = viewModel?.getMaxInWeek(indexPath: IndexPath(item: indexPath.item, section: section)) else { return CGSize() }
-        
+              let viewModel else { return CGSize() }
+
         let screenWidth = UIScreen.main.bounds.width
-                
-        var todoCount = maxTodoViewModel.todoList.count
         
-        if let height = viewModel?.cachedCellHeightForTodoCount[todoCount] {
-            return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: Double(height))
+        if indexPath.item%7 == 0 {
+            (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
+                viewModel.blockMemo[$0] = [(Int, Bool)?](repeating: nil, count: 20)
+            }
+            var calendar = Calendar.current
+            calendar.firstWeekday = 2
             
+            for (item, dayViewModel) in Array(viewModel.mainDays[section].enumerated())[indexPath.item..<indexPath.item+7] {
+                var filteredTodoList = viewModel.todos[dayViewModel.date] ?? []
+                if let filterGroupId = try? viewModel.filteredGroupId.value() {
+                    filteredTodoList = filteredTodoList.filter( { $0.groupId == filterGroupId })
+                }
+                
+                var periodList = filteredTodoList.filter { $0.startDate != $0.endDate }
+                let singleList = filteredTodoList.filter { $0.startDate == $0.endDate }
+                
+                if item % 7 != 0 { // 만약 월요일이 아닐 경우, 오늘 시작하는것들만, 월요일이면 포함되는 전체 다!
+                    periodList = periodList.filter { $0.startDate == dayViewModel.date }
+                        .sorted { $0.endDate < $1.endDate }
+                } else { //월요일 중에 오늘이 startDate가 아닌 놈들만 startDate로 정렬, 그 뒤에는 전부다 endDate로 정렬하고, 이걸 다시 endDate를 업댓해줘야함!
+                    
+                    var continuousPeriodList = periodList
+                        .filter { $0.startDate != dayViewModel.date }
+                        .sorted{ ($0.startDate == $1.startDate) ? $0.endDate < $1.endDate : $0.startDate < $1.startDate }
+                        .map { todo in
+                            var tmpTodo = todo
+                            tmpTodo.startDate = dayViewModel.date
+                            return tmpTodo
+                        }
+                    
+                    var initialPeriodList = periodList
+                        .filter { $0.startDate == dayViewModel.date } //이걸 바로 end로 정렬해도 되나? -> 애를 바로 end로 정렬할 경우?
+                        .sorted{ $0.endDate < $1.endDate }
+                    
+                    periodList = continuousPeriodList + initialPeriodList
+                }
+                
+                periodList = periodList.map { todo in
+                    // 날짜는 dayViewModel의 date를 사용하고, todo.endDate랑 비교를 해서 이게 같은주에 포함되는지 아닌지를 판단해야함..!
+                    let currentWeek = calendar.component(.weekOfYear, from: dayViewModel.date)
+                    let endWeek = calendar.component(.weekOfYear, from: todo.endDate)
+                    
+                    if currentWeek != endWeek {
+                        let firstDayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: dayViewModel.date))
+                        let lastDayOfWeek = calendar.date(byAdding: .day, value: 6, to: firstDayOfWeek!) //이게 이번주 일요일임.
+                        var tmpTodo = todo
+                        tmpTodo.endDate = lastDayOfWeek!
+                        return tmpTodo
+                    } else { return todo }
+                }
+                
+                let periodTodo: [(Int, Todo)] = periodList.compactMap { todo in
+                    for i in (0..<viewModel.blockMemo[item].count) {
+                        if viewModel.blockMemo[item][i] == nil,
+                           let period = Calendar.current.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
+                            for j in (0...period) {
+                                viewModel.blockMemo[item+j][i] = (todo.id!, todo.isGroupTodo)
+                            }
+                            return (i, todo)
+                        }
+                    }
+                    return nil
+                }
+                
+                var singleStartIndex = 0
+                viewModel.blockMemo[item].enumerated().forEach { (index, tuple) in
+                    if tuple != nil {
+                        singleStartIndex = index + 1
+                    }
+                }
+                
+                let singleTodo = singleList.enumerated().map { (index, todo) in
+                    return (index + singleStartIndex, todo)
+                }
+                
+                
+                var holidayMock: (Int, String)?
+                if let holidayTitle = HolidayPool.shared.holidays[dayViewModel.date] {
+                    let holidayIndex = singleStartIndex + singleTodo.count
+                    holidayMock = (holidayIndex, holidayTitle)
+                }
+                
+                viewModel.filteredTodoCache[item] = FilteredTodoViewModel(periodTodo: periodTodo, singleTodo: singleTodo, holiday: holidayMock)
+            }
+        }
+        
+        let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
+
+        guard let maxItem = viewModel.filteredTodoCache[weekRange]
+            .max(by: { a, b in
+                let aHeight = (a.holiday != nil) ? a.holiday!.0 : (a.singleTodo.last != nil) ?
+                a.singleTodo.last!.0 : (a.periodTodo.last != nil) ? a.periodTodo.last!.0 : 0
+                let bHeight = (b.holiday != nil) ? b.holiday!.0 : (b.singleTodo.last != nil) ?
+                b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
+                return aHeight < bHeight
+            }) else { return CGSize() }
+                
+        guard var todosHeight = (maxItem.holiday != nil) ?
+                maxItem.holiday?.0 : (maxItem.singleTodo.count != 0) ?
+                maxItem.singleTodo.last?.0 : (maxItem.periodTodo.count != 0) ?
+                maxItem.periodTodo.last?.0 : 0 else { return CGSize() }
+
+        // 여기서 공휴일까지 포함시켜서 높이를 측정해줘야한다..!!!
+        
+        if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
+            return CGSize(width: screenWidth/Double(7) - 0.01, height: cellHeight)
         } else {
             let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * screenWidth, height: 116))
-            mockCell.fill(todoList: maxTodoViewModel.todoList)
+            mockCell.delegate = self
+            mockCell.fill(
+                periodTodoList: maxItem.periodTodo,
+                singleTodoList: maxItem.singleTodo,
+                holiday: maxItem.holiday
+            )
+            
             mockCell.layoutIfNeeded()
             
             let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
                 width: Double(1)/Double(7) * screenWidth,
                 height: UIView.layoutFittingCompressedSize.height
             ))
-
-            if estimatedSize.height <= 116 {
-                viewModel?.cachedCellHeightForTodoCount[todoCount] = 116
-                return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: 116)
-            } else {
-                viewModel?.cachedCellHeightForTodoCount[todoCount] = estimatedSize.height
             
-                return CGSize(width: (Double(1)/Double(7) * screenWidth) - 2, height: estimatedSize.height)
-            }
-            
+            let targetHeight = (estimatedSize.height > 116) ? estimatedSize.height : 116
+            viewModel.cachedCellHeightForTodoCount[todosHeight] = targetHeight
+            return CGSize(width: screenWidth/Double(7) - 0.01, height: targetHeight)
         }
+
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
@@ -168,11 +313,18 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         return false
     }
     
+    func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
+        return collectionView.indexPathsForSelectedItems?.contains(indexPath) == false
+
+    }
+    
+
 }
 
 extension MonthlyCalendarCell {
     @objc func longTap(_ gestureRecognizer: UILongPressGestureRecognizer){
-        if gestureRecognizer.state == .began {
+        switch gestureRecognizer.state {
+        case .began:
             let location = gestureRecognizer.location(in: collectionView)
             guard let nowIndexPath = collectionView.indexPathForItem(at: location) else { return }
             
@@ -181,6 +333,24 @@ extension MonthlyCalendarCell {
             self.firstPressedIndexPath = nowIndexPath
             self.lastPressedIndexPath = nowIndexPath
             collectionView.selectItem(at: nowIndexPath, animated: true, scrollPosition: [])
+            Vibration.selection.vibrate()
+        case .ended:
+            selectionState = false
+
+            guard let section,
+                  let firstPressedItem = self.firstPressedIndexPath?.item,
+                  let lastPressedItem = self.lastPressedIndexPath?.item else { return }
+            self.isMultipleSelected?.onNext((section, (firstPressedItem, lastPressedItem)))
+
+            firstPressedIndexPath = nil
+            lastPressedIndexPath = nil
+
+            self.isMultipleSelecting?.onNext(false)
+
+            collectionView.isScrollEnabled = true
+            collectionView.isUserInteractionEnabled = true
+        default:
+            break
         }
     }
     
@@ -204,7 +374,8 @@ extension MonthlyCalendarCell {
         case .changed:
             guard let firstPressedIndexPath = firstPressedIndexPath,
                   let lastPressedIndexPath = lastPressedIndexPath,
-                  nowIndexPath != lastPressedIndexPath else { return }
+                  lastPressedIndexPath != nowIndexPath else { return }
+            
             
             if firstPressedIndexPath.item < lastPressedIndexPath.item {
                 if firstPressedIndexPath.item > nowIndexPath.item {
@@ -256,32 +427,10 @@ extension MonthlyCalendarCell {
                     }
                 }
             }
-            
             self.lastPressedIndexPath = nowIndexPath
-        case .ended:
-            selectionState = false
-            
-            guard let section,
-                  let firstPressedItem = self.firstPressedIndexPath?.item,
-                  let lastPressedItem = self.lastPressedIndexPath?.item else { return }
-            self.isMultipleSelected?.onNext((section, (firstPressedItem, lastPressedItem)))
-
-            firstPressedIndexPath = nil
-            lastPressedIndexPath = nil
-            
-            self.isMultipleSelecting?.onNext(false)
-            
-
-            collectionView.isScrollEnabled = true
-            collectionView.isUserInteractionEnabled = true
-            collectionView.allowsMultipleSelection = false
-            
-            guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
-            paths.forEach { indexPath in
-                self.collectionView.deselectItem(at: indexPath, animated: true)
-            }
+            Vibration.selection.vibrate()
         default:
-            print(gestureRecognizer.state)
+            break
         }
     }
 }
@@ -296,6 +445,10 @@ extension MonthlyCalendarCell: UIGestureRecognizerDelegate {
 
 extension MonthlyCalendarCell: DailyCalendarCellDelegate {
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId id: Int) -> CategoryColor? {
-        return viewModel?.categoryDict[id]?.color
+        return viewModel?.memberCategories[id]?.color
+    }
+    
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfGroupCategoryId id: Int) -> CategoryColor? {
+        return viewModel?.groupCategories[id]?.color
     }
 }

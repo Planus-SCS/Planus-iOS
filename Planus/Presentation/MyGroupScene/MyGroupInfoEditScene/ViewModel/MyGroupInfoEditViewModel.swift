@@ -17,10 +17,11 @@ class MyGroupInfoEditViewModel {
     var tagList = [String]()
     var maxMember = BehaviorSubject<Int?>(value: nil)
     
-    let tagCountValidState = PublishSubject<Bool>()
-    let tagDuplicateValidState = PublishSubject<Bool>()
+    let tagCountValidState = BehaviorSubject<Bool?>(value: nil)
+    let tagDuplicateValidState = BehaviorSubject<Bool?>(value: nil)
     
     var infoUpdateCompleted = PublishSubject<Void>()
+    var groupDeleted = PublishSubject<Void>()
     
     struct Input {
         var titleImageChanged: Observable<ImageFile?>
@@ -40,23 +41,27 @@ class MyGroupInfoEditViewModel {
         var infoUpdateCompleted: Observable<Void>
         var insertTagAt: Observable<Int>
         var removeTagAt: Observable<Int>
+        var groupDeleted: Observable<Void>
     }
     
     var getTokenUseCase: GetTokenUseCase
     var refreshTokenUseCase: RefreshTokenUseCase
     var fetchImageUseCase: FetchImageUseCase
     var updateGroupInfoUseCase: UpdateGroupInfoUseCase
+    var deleteGroupUseCase: DeleteGroupUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
         fetchImageUseCase: FetchImageUseCase,
-        updateGroupInfoUseCase: UpdateGroupInfoUseCase
+        updateGroupInfoUseCase: UpdateGroupInfoUseCase,
+        deleteGroupUseCase: DeleteGroupUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
         self.fetchImageUseCase = fetchImageUseCase
         self.updateGroupInfoUseCase = updateGroupInfoUseCase
+        self.deleteGroupUseCase = deleteGroupUseCase
     }
     
     public func setGroup(
@@ -82,6 +87,8 @@ class MyGroupInfoEditViewModel {
     public func transform(input: Input) -> Output {
         let insertAt = PublishSubject<Int>()
         let removeAt = PublishSubject<Int>()
+        
+        checkTagValidation()
         
         input
             .titleImageChanged
@@ -133,8 +140,8 @@ class MyGroupInfoEditViewModel {
         let isCreateButtonEnabled = Observable.combineLatest([
             imageFilled,
             maxMemberFilled,
-            tagCountValidState,
-            tagDuplicateValidState
+            tagCountValidState.compactMap { $0 },
+            tagDuplicateValidState.compactMap { $0 }
         ]).map { list in
             guard let _ = list.first(where: { !$0 }) else { return true }
             return false
@@ -144,12 +151,13 @@ class MyGroupInfoEditViewModel {
             imageFilled: imageFilled,
             maxCountFilled: maxMemberFilled,
             didChangedTitleImage: titleImage.map { $0?.data }.asObservable(),
-            tagCountValidState: tagCountValidState.asObservable(),
-            tagDuplicateValidState: tagDuplicateValidState.asObservable(),
+            tagCountValidState: tagCountValidState.compactMap { $0 }.asObservable(),
+            tagDuplicateValidState: tagDuplicateValidState.compactMap { $0 }.asObservable(),
             isUpdateButtonEnabled: isCreateButtonEnabled,
             infoUpdateCompleted: infoUpdateCompleted.asObservable(),
             insertTagAt: insertAt.asObservable(),
-            removeTagAt: removeAt.asObservable()
+            removeTagAt: removeAt.asObservable(),
+            groupDeleted: groupDeleted.asObserver()
         )
     }
     
@@ -176,12 +184,35 @@ class MyGroupInfoEditViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.infoUpdateCompleted.onNext(())
             })
             .disposed(by: bag)
             
+    }
+    
+    func deleteGroup() {
+        guard let groupId else { return }
+        
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.deleteGroupUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: NetworkManagerError.tokenExpired
+            )
+            .subscribe(onSuccess: { [weak self] _ in
+                // 아에 앞에 있던 네비게이션을 싹다 없애고 첫 씬으로 돌아가야함..!
+                self?.groupDeleted.onNext(())
+            })
+            .disposed(by: bag)
     }
 }

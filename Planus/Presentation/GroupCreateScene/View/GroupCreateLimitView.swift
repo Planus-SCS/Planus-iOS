@@ -42,6 +42,8 @@ class GroupCreateLimitView: UIView {
             string: "50",
             attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
         )
+        
+        textField.keyboardType = .numberPad
         return textField
     }()
     

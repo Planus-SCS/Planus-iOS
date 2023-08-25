@@ -75,7 +75,7 @@ class NotificationViewController: UIViewController {
         
         navigationItem.title = "그룹 신청 관리"
         navigationItem.setLeftBarButton(backButton, animated: false)
-
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     func bind() {
@@ -101,8 +101,12 @@ class NotificationViewController: UIViewController {
                 }
                 vc.resultCollectionView.reloadData()
                 vc.emptyResultView.isHidden = !(viewModel.joinAppliedList?.count == 0)
-                if type == .refresh {
+
+                switch type {
+                case .refresh:
                     vc.showToast(message: "새로고침을 성공하였습니다.", type: .normal)
+                default:
+                    return
                 }
             })
             .disposed(by: bag)
@@ -112,12 +116,14 @@ class NotificationViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc.resultCollectionView.performBatchUpdates {
+                vc.resultCollectionView.performBatchUpdates ({
                     vc.resultCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-                }
-                if viewModel.joinAppliedList?.count == 0 {
-                    vc.emptyResultView.isHidden = false
-                }
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
+                    }
+                })
+                vc.emptyResultView.setAnimatedIsHidden(!(viewModel.joinAppliedList?.count == 0))
             })
             .disposed(by: bag)
     }
@@ -200,3 +206,5 @@ extension NotificationViewController {
         return layout
     }
 }
+
+extension NotificationViewController: UIGestureRecognizerDelegate {}

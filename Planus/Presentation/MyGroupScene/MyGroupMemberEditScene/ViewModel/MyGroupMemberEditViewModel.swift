@@ -105,7 +105,7 @@ class MyGroupMemberEditViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in //연속적으로 삭제요청했다면 인덱스가 바뀌어있을수도있음. 따라서 id로 찾는게 적합..!
                 
@@ -127,7 +127,7 @@ class MyGroupMemberEditViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
                 self?.memberList = list

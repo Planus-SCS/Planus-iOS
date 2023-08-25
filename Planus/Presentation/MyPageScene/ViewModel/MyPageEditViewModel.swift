@@ -95,7 +95,6 @@ class MyPageEditViewModel {
             .take(1)
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                print("changed")
                 vm.imageChangeChecker = true
             })
             .disposed(by: bag)
@@ -129,7 +128,7 @@ class MyPageEditViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] profile in
                 guard let self else { return }
@@ -179,7 +178,7 @@ class MyPageEditViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.didUpdateProfile.onNext(())

@@ -25,9 +25,22 @@ class JoinedGroupCalendarViewModel {
         var showDaily: Observable<Date>
     }
     
+    var today: Date = {
+        let components = Calendar.current.dateComponents(
+            [.year, .month, .day],
+            from: Date()
+        )
+        
+        return Calendar.current.date(from: components) ?? Date()
+    }()
+    
     var currentDate: Date?
     var currentDateText: String?
-    var mainDayList = [SocialDayViewModel]()
+    var mainDayList = [DayViewModel]()
+    var todos = [Date: [SocialTodoSummary]]()
+    
+    var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 20), count: 42) //todoId
+    var filteredTodoCache = [FilteredSocialTodoViewModel](repeating: FilteredSocialTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
     var cachedCellHeightForTodoCount = [Int: Double]()
         
     var showDaily = PublishSubject<Date>()
@@ -35,19 +48,34 @@ class JoinedGroupCalendarViewModel {
     
     let getTokenUseCase: GetTokenUseCase
     let refreshTokenUseCase: RefreshTokenUseCase
-    let createSocialMonthlyCalendarUseCase: CreateSocialMonthlyCalendarUseCase
-    let fetchMyGroupCalendarUseCase: FetchMyGroupCalendarUseCase
+    let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
+    let fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase
+    
+    let createGroupTodoUseCase: CreateGroupTodoUseCase
+    let updateGroupTodoUseCase: UpdateGroupTodoUseCase
+    let deleteGroupTodoUseCase: DeleteGroupTodoUseCase
+    let updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
+    
     
     init(
         getTokenUseCase: GetTokenUseCase,
         refreshTokenUseCase: RefreshTokenUseCase,
-        createSocialMonthlyCalendarUseCase: CreateSocialMonthlyCalendarUseCase,
-        fetchMyGroupCalendarUseCase: FetchMyGroupCalendarUseCase
+        createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
+        fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase,
+        createGroupTodoUseCase: CreateGroupTodoUseCase,
+        updateGroupTodoUseCase: UpdateGroupTodoUseCase,
+        deleteGroupTodoUseCase: DeleteGroupTodoUseCase,
+        updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
-        self.createSocialMonthlyCalendarUseCase = createSocialMonthlyCalendarUseCase
+        self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
         self.fetchMyGroupCalendarUseCase = fetchMyGroupCalendarUseCase
+        
+        self.createGroupTodoUseCase = createGroupTodoUseCase
+        self.updateGroupTodoUseCase = updateGroupTodoUseCase
+        self.deleteGroupTodoUseCase = deleteGroupTodoUseCase
+        self.updateGroupCategoryUseCase = updateGroupCategoryUseCase
     }
     
     func setGroupId(id: Int) {
@@ -55,6 +83,9 @@ class JoinedGroupCalendarViewModel {
     }
     
     func transform(input: Input) -> Output {
+        
+        bindUseCase()
+        
         input
             .viewDidLoad
             .withUnretained(self)
@@ -92,11 +123,57 @@ class JoinedGroupCalendarViewModel {
         )
     }
     
+    func bindUseCase() {
+        createGroupTodoUseCase //삽입하고 리로드 or 다시 받기.. 뭐가 좋을랑가 -> 걍 다시받자!
+            .didCreateGroupTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                guard vm.groupId == todo.groupId else { return }
+                let startDate = vm.mainDayList.first?.date ?? Date()
+                let endDate = vm.mainDayList.last?.date ?? Date()
+                vm.fetchTodo(from: startDate, to: endDate)
+            })
+            .disposed(by: bag)
+        
+        updateGroupTodoUseCase // 삭제하고 다시넣기,,, 걍 다시받는게 편하겠지 아무래도?
+            .didUpdateGroupTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                guard vm.groupId == todo.groupId else { return }
+                let startDate = vm.mainDayList.first?.date ?? Date()
+                let endDate = vm.mainDayList.last?.date ?? Date()
+                vm.fetchTodo(from: startDate, to: endDate)
+            })
+            .disposed(by: bag)
+        
+        deleteGroupTodoUseCase
+            .didDeleteGroupTodoWithIds
+            .withUnretained(self)
+            .subscribe(onNext: { vm, ids in
+                guard vm.groupId == ids.groupId else { return }
+                let startDate = vm.mainDayList.first?.date ?? Date()
+                let endDate = vm.mainDayList.last?.date ?? Date()
+                vm.fetchTodo(from: startDate, to: endDate)
+            })
+            .disposed(by: bag)
+        
+        updateGroupCategoryUseCase
+            .didUpdateCategoryWithGroupId
+            .withUnretained(self)
+            .subscribe(onNext: { vm, categoryWithGroupId in
+                guard vm.groupId == categoryWithGroupId.groupId else { return }
+                let startDate = vm.mainDayList.first?.date ?? Date()
+                let endDate = vm.mainDayList.last?.date ?? Date()
+                vm.fetchTodo(from: startDate, to: endDate)
+            })
+            .disposed(by: bag)
+
+    }
+    
     func createCalendar(date: Date) {
         updateCurrentDate(date: date)
-        mainDayList = createSocialMonthlyCalendarUseCase.execute(date: date)
-        print(date)
-        print(mainDayList)
+        mainDayList = createMonthlyCalendarUseCase.execute(date: date)
+
         let startDate = mainDayList.first?.date ?? Date()
         let endDate = mainDayList.last?.date ?? Date()
         fetchTodo(from: startDate, to: endDate)
@@ -109,19 +186,11 @@ class JoinedGroupCalendarViewModel {
         self.currentDateText = dateFormatter.string(from: date)
     }
     
-    func getMaxInWeek(index: Int) -> SocialDayViewModel {
-        let maxItem = ((index-index%7)..<(index+7-index%7)).max(by: { (a,b) in
-            mainDayList[a].todoList.count < mainDayList[b].todoList.count
-        }) ?? Int()
-
-        return mainDayList[maxItem]
-    }
-    
     func fetchTodo(from: Date, to: Date) {
         guard let groupId else { return }
         getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<[SocialTodoSummary]> in
+            .flatMap { [weak self] token -> Single<[Date: [SocialTodoSummary]]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
@@ -130,27 +199,11 @@ class JoinedGroupCalendarViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
-            .subscribe(onSuccess: { [weak self] list in
+            .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
-                
-                var todoDict = [Date: [SocialTodoSummary]]()
-                list.forEach { todo in
-                    if todoDict[todo.startDate] == nil {
-                        todoDict[todo.startDate] = []
-                    }
-                    todoDict[todo.startDate]?.append(todo)
-                }
-                
-                self.mainDayList = self.mainDayList.map {
-                    guard let todoList = todoDict[$0.date] else {
-                        return $0
-                    }
-                    var dayViewModel = $0
-                    dayViewModel.todoList = todoList
-                    return dayViewModel
-                }
+                self.todos = todoDict
                 self.didFetchTodo.onNext(())
             })
             .disposed(by: bag)

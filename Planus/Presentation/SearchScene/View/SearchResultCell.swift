@@ -6,10 +6,13 @@
 //
 
 import UIKit
+import RxSwift
 
 class SearchResultCell: SpringableCollectionViewCell {
     
     static let reuseIdentifier = "search-result-cell"
+    
+    var bag: DisposeBag?
     
     var titleImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)

@@ -13,6 +13,7 @@ class TodoDailyViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: TodoDailyViewModel?
     
+    var didTappedCompletionBtnAt = PublishSubject<IndexPath>()
     var didDeleteTodoAt = PublishSubject<IndexPath>()
     
     lazy var dateTitleButton: UIButton = {
@@ -71,12 +72,12 @@ class TodoDailyViewController: UIViewController {
         guard let viewModel else { return }
         
         let input = TodoDailyViewModel.Input(
-            deleteTodoAt: didDeleteTodoAt.asObservable()
+            deleteTodoAt: didDeleteTodoAt.asObservable(),
+            completeTodoAt: didTappedCompletionBtnAt.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
-        addTodoButton.isHidden = !(output.isOwner ?? true)
         dateTitleButton.setTitle(output.currentDateText, for: .normal)
         
         output
@@ -96,7 +97,6 @@ class TodoDailyViewController: UIViewController {
                 if indexPath.section == 0 {
                     if vm.viewModel?.scheduledTodoList?.count == 1 {
                         vm.collectionView.deleteItems(at: [indexPath])
-                        print("removed!")
                     }
                 } else if indexPath.section == 1 {
                     if vm.viewModel?.unscheduledTodoList?.count == 1 {
@@ -113,13 +113,16 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                vm.collectionView.performBatchUpdates {
+                vm.collectionView.performBatchUpdates({
                     vm.collectionView.deleteItems(at: [indexPath])
-                }
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        vm.collectionView.reloadSections(IndexSet(0...1))
+                    }
+                })
                 if indexPath.section == 0 {
                     if vm.viewModel?.scheduledTodoList?.count == 0 {
                         vm.collectionView.insertItems(at: [indexPath])
-                        print("removed!")
                     }
                 } else if indexPath.section == 1 {
                     if vm.viewModel?.unscheduledTodoList?.count == 0 {
@@ -134,7 +137,7 @@ class TodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.collectionView.reloadData()
+                vc.collectionView.reloadSections(IndexSet(0...1))
             })
             .disposed(by: bag)
         
@@ -174,7 +177,7 @@ class TodoDailyViewController: UIViewController {
         let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
         let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
         
-        let vm = TodoDetailViewModel(
+        let vm = MemberTodoDetailViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             createTodoUseCase: createTodoUseCase,
@@ -188,43 +191,18 @@ class TodoDailyViewController: UIViewController {
         guard let groupDict = viewModel?.groupDict else { return }
         let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
         vm.setGroup(groupList: groupList)
-        vm.todoStartDay.onNext(viewModel?.currentDate)
+        
+        var groupName: GroupName?
+        if let filteredGroupId = viewModel?.filteringGroupId,
+           let filteredGroupName = groupDict[filteredGroupId] {
+            groupName = filteredGroupName
+        }
+        vm.initMode(mode: .new, groupName: groupName, start: viewModel?.currentDate)
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)
     }
-    
-//    @objc func dateTitleBtnTapped(_ sender: UIButton) {
-//        showSmallCalendar()
-//    }
-    
-//    private func showSmallCalendar() {
-//
-//        guard let viewModel = self.viewModel else {
-//            return
-//        }
-//
-//        if let sheet = self.sheetPresentationController {
-//            sheet.invalidateDetents()
-//        }
-//
-//        let vm = SmallCalendarViewModel()
-//        vm.completionHandler = { [weak self] date in
-//            self?.didChangeDate.onNext(date)
-//        }
-//        vm.configureDate(currentDate: viewModel.currentDate ?? Date(), min: viewModel.minDate ?? Date(), max: viewModel.maxDate ?? Date())
-//        let vc = SmallCalendarViewController(viewModel: vm)
-//
-//        vc.preferredContentSize = CGSize(width: 320, height: 400)
-//        vc.modalPresentationStyle = .popover
-//
-//        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
-//        popover.delegate = self
-//        popover.sourceView = self.view
-//        popover.sourceItem = dateTitleButton
-//
-//        present(vc, animated: true, completion:nil)
-//    }
+
 }
 
 extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -262,15 +240,33 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         default:
             return UICollectionViewCell()
         }
-        guard let todoItem else {
-            return UICollectionViewCell()
-        }
-
-        guard let category = viewModel?.categoryDict[todoItem.categoryId] else { return UICollectionViewCell() }
+        guard let todoItem else { return UICollectionViewCell() }
+        
+        var category: Category?
+        category = todoItem.isGroupTodo ?
+        viewModel?.groupCategoryDict[todoItem.categoryId]
+        : viewModel?.categoryDict[todoItem.categoryId]
+        
+        guard let category else { return UICollectionViewCell() }
+        
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
-        cell.fill(title: todoItem.title, time: todoItem.startTime, category: category.color, isGroup: todoItem.groupId != nil, isScheduled: todoItem.startTime != nil, isMemo: todoItem.memo != nil, completion: false)
+        
+        cell.fill(
+            title: todoItem.title,
+            time: todoItem.startTime,
+            category: category.color,
+            isGroup: todoItem.isGroupTodo,
+            isScheduled: todoItem.startDate != todoItem.endDate,
+            isMemo: todoItem.memo != nil,
+            completion: todoItem.isCompleted,
+            isOwner: true
+        )
+        
+        cell.fill { [weak self] in
+            self?.didTappedCompletionBtnAt.onNext(indexPath)
+        }
         return cell
         
 
@@ -300,7 +296,6 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         var item: Todo?
-        print("a")
         switch indexPath.section {
         case 0:
             if let scheduledList = viewModel?.scheduledTodoList,
@@ -319,15 +314,11 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         default:
             return false
         }
-        print("b")
-        guard let item,
-              let isOwner = viewModel?.isOwner else { return false }
-        print("c")
+        guard let item else { return false }
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
-        let todoRepo = TestTodoDetailRepository(apiProvider: api)
         let categoryRepo = DefaultCategoryRepository(apiProvider: api)
         
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
@@ -340,7 +331,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
         let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
         
-        let vm = TodoDetailViewModel(
+        let vm = MemberTodoDetailViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             createTodoUseCase: createTodoUseCase,
@@ -352,23 +343,25 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             readCategoryUseCase: readCateogryUseCase
         )
         
-        guard let groupDict = viewModel?.groupDict else { return false }
-        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-        vm.setGroup(groupList: groupList)
-        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
-        var groupName: GroupName?
-        if let groupId = item.groupId {
-            groupName = groupDict[groupId]
-        }
-        
-        if isOwner {
-            
-
-            vm.setForEdit(todo: item, category: category, groupName: groupName)
+        if item.isGroupTodo {
+            guard let groupId = item.groupId,
+                  let category = viewModel?.groupCategoryDict[item.categoryId] else { return false }
+            let groupName = viewModel?.groupDict[groupId]
+            vm.initMode(mode: .view, todo: item, category: category, groupName: groupName)
         } else {
-            vm.setForOthers(todo: item, category: category, groupName: groupName)
+            guard let groupDict = viewModel?.groupDict else { return false }
+            let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+            vm.setGroup(groupList: groupList)
+            guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
+            var groupName: GroupName?
+            if let groupId = item.groupId {
+                groupName = groupDict[groupId]
+            }
+            
+            vm.initMode(mode: .edit, todo: item, category: category, groupName: groupName)
         }
-        vm.todoStartDay.onNext(viewModel?.currentDate)
+
+
         let vc = TodoDetailViewController(viewModel: vm)
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)

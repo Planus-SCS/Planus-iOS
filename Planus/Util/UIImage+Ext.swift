@@ -31,4 +31,16 @@ extension UIImage {
         UIGraphicsEndImageContext()
         return newImage
     }
+    
+    static func resizeImage(image: UIImage, targetWidth: CGFloat) -> UIImage {
+
+        let scale = targetWidth / image.size.width
+        let targetHeight = image.size.height * scale
+        UIGraphicsBeginImageContext(CGSize(width: targetWidth, height: targetHeight))
+        image.draw(in: CGRect(x: 0, y: 0, width: targetWidth, height: targetHeight))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage!
+    }
 }

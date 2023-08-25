@@ -24,9 +24,9 @@ class DayPickerViewController: UIViewController {
         dateFormatter.dateFormat = "yyyy.MM.dd"
         return dateFormatter
     }()
-    
-    var firstSelectedIndexPath: IndexPath?
-    var secondSelectedIndexPath: IndexPath?
+
+    var firstSelectedDate: Date?
+    var lastSelectedDate: Date?
     
     var currentMonth: Date?
     var currentDateLabel: String?
@@ -78,10 +78,18 @@ class DayPickerViewController: UIViewController {
         dayPickerView?.nextButton.addTarget(self, action: #selector(nextBtnTapped), for: .touchUpInside)
     }
     
-    public func setDate(date: Date) {
+    public func setDate(startDate: Date?, endDate: Date?) {
+        if self.firstSelectedDate == startDate,
+           self.lastSelectedDate == endDate { return }
+        
+        self.firstSelectedDate = startDate
+        self.lastSelectedDate = endDate
+        
+        guard let startDate else { return }
+        
         let components = self.calendar.dateComponents(
             [.year, .month],
-            from: date
+            from: startDate
         )
         
         let currentMonth = self.calendar.date(from: components) ?? Date()
@@ -93,19 +101,14 @@ class DayPickerViewController: UIViewController {
         let frameWidth = UIScreen.main.bounds.width - 20
         self.reloadAndMove(to: CGPoint(x: frameWidth * CGFloat(halfOfInitAmount), y: 0))
         
-        guard let dateIndex = days[halfOfInitAmount].firstIndex(where: { $0.date == date }) else { return }
-        
-        self.collectionView(dayPickerView?.dayPickerCollectionView ?? UICollectionView(), didSelectItemAt: IndexPath(item: dateIndex, section: halfOfInitAmount))
+        if let endDate {
+            delegate?.dayPickerViewController(self, didSelectDateInRange: (startDate, endDate))
+        } else {
+            delegate?.dayPickerViewController(self, didSelectDate: startDate)
+        }
 
-    }
-    
-    public func selectDate(date: Date) {
-        days.enumerated().forEach { monthIndex, daysPerMonth in
-            daysPerMonth.enumerated().forEach { dayIndex, day in
-                if day.date == date {
-                    self.dayPickerView?.dayPickerCollectionView.selectItem(at: IndexPath(item: dayIndex, section: monthIndex), animated: false, scrollPosition: .top)
-                }
-            }
+        UIView.performWithoutAnimation {
+            dayPickerView?.dayPickerCollectionView.reloadSections(IndexSet(integer: self.halfOfInitAmount))
         }
     }
     
@@ -232,8 +235,7 @@ class DayPickerViewController: UIViewController {
                 DayPickerModel(
                     dayLabel: "\(calendar.component(.day, from: date))",
                     date: date,
-                    monthState: state,
-                    rangeState: .none
+                    monthState: state
                 )
             )
         }

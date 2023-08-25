@@ -18,7 +18,7 @@ class MemberProfileViewController: UIViewController {
     var headerViewHeightConstraint: NSLayoutConstraint?
     
     var isSingleSelected = PublishSubject<IndexPath>()
-    var scrolledTo = PublishSubject<ScrollDirection>()
+    var indexChanged = PublishSubject<Int>()
     var isMonthChanged = PublishSubject<Date>()
     
     let headerView = MemberProfileHeaderView(frame: .zero)
@@ -76,13 +76,14 @@ class MemberProfileViewController: UIViewController {
         
         self.navigationItem.title = "그룹 멤버 캘린더"
         self.navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     func bind() {
         guard let viewModel else { return }
         
         let input = MemberProfileViewModel.Input(
-            didScrollTo: self.scrolledTo.asObservable(),
+            indexChanged: indexChanged.asObservable(),
             viewDidLoaded: Observable.just(()),
             didSelectItem: isSingleSelected.asObservable(),
             didTappedTitleButton: calendarHeaderView.yearMonthButton.rx.tap.asObservable(),
@@ -122,7 +123,7 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, dayViewModel in
-                guard let groupId = vc.viewModel?.groupId,
+                guard let group = vc.viewModel?.group,
                       let memberId = vc.viewModel?.member?.memberId else { return }
                 let nm = NetworkManager()
                 let kc = KeyChainManager()
@@ -130,15 +131,19 @@ class MemberProfileViewController: UIViewController {
                 let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
                 let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
                 let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyTodoListUseCase(groupCalendarRepository: gcr)
-                let fetchMemberDailyCalendarUseCase = DefaultFetchMemberDailyCalendarUseCase(memberCalendarRepository: DefaultMemberCalendarRepository(apiProvider: nm))
+                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyCalendarUseCase(groupCalendarRepository: gcr)
+                let fetchMemberDailyCalendarUseCase = DefaultFetchGroupMemberDailyCalendarUseCase(memberCalendarRepository: DefaultGroupMemberCalendarRepository(apiProvider: nm))
                 let viewModel = SocialTodoDailyViewModel(
                     getTokenUseCase: getTokenUseCase,
                     refreshTokenUseCase: refTokenUseCase,
                     fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
-                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase
+                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase,
+                    createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
+                    updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
+                    deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
+                    updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
                 )
-                viewModel.setGroup(groupId: groupId, type: .member(id: memberId), date: dayViewModel.date)
+                viewModel.setGroup(group: group, type: .member(id: memberId), date: dayViewModel.date)
                 let viewController = SocialTodoDailyViewController(viewModel: viewModel)
                 
                 let nav = UINavigationController(rootViewController: viewController)
@@ -316,13 +321,12 @@ extension MemberProfileViewController: UICollectionViewDataSource, UICollectionV
         return cell
     }
     
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        if velocity.x > 0 {
-            scrolledTo.onNext(.right)
-        } else if velocity.x < 0 {
-            scrolledTo.onNext(.left)
-        }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
+        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) else { return }
+        indexChanged.onNext(Int(round(floatedIndex)))
     }
+    
     
 }
 
@@ -434,3 +438,5 @@ extension MemberProfileViewController: UIPopoverPresentationControllerDelegate {
         return .none
     }
 }
+
+extension MemberProfileViewController: UIGestureRecognizerDelegate {}

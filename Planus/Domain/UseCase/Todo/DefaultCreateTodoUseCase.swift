@@ -24,6 +24,7 @@ class DefaultCreateTodoUseCase: CreateTodoUseCase {
             .map { [weak self] id in
                 var todoWithId = todo
                 todoWithId.id = id
+                todoWithId.isCompleted = false
                 self?.didCreateTodo.onNext(todoWithId)
                 return id
             }

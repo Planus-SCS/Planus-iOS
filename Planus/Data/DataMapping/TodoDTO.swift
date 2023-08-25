@@ -45,30 +45,16 @@ struct TodoEntityResponseDTO: Codable {
     var endDate: String
     var startTime: String?
     var description: String?
-    
-    init(
-        todoId: Int,
-        title: String,
-        categoryId: Int,
-        groupId: Int?,
-        startDate: String,
-        endDate: String,
-        startTime: String?,
-        description: String?
-    ) {
-        self.todoId = todoId
-        self.title = title
-        self.categoryId = categoryId
-        self.groupId = groupId
-        self.startDate = startDate
-        self.endDate = endDate
-        self.startTime = startTime
-        self.description = description
-    }
+    var isCompleted: Bool?
+}
+
+struct TodoListResponseDTO: Codable { //그룹 isGroupTodo냐 아니냐로 판단하자..!
+    var memberTodos: [TodoEntityResponseDTO]
+    var groupTodos: [TodoEntityResponseDTO]
 }
 
 extension TodoEntityResponseDTO {
-    func toDomain() -> Todo {
+    func toDomain(isGroup: Bool) -> Todo {
         return Todo(
             id: todoId,
             title: title,
@@ -77,7 +63,9 @@ extension TodoEntityResponseDTO {
             memo: description,
             groupId: groupId,
             categoryId: categoryId,
-            startTime: startTime
+            startTime: startTime,
+            isCompleted: isCompleted,
+            isGroupTodo: isGroup
         )
     }
 }

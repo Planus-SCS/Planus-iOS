@@ -150,6 +150,7 @@ class SearchResultViewController: UIViewController {
         super.viewWillAppear(animated)
         
         self.navigationItem.setLeftBarButton(backButton, animated: true)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationItem.setRightBarButton(UIBarButtonItem(customView: searchBarField), animated: true)
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardEvent), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -354,12 +355,14 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
                 captin: item.leaderName
             )
             
+            let cellBag = DisposeBag()
+            cell.bag = cellBag
             viewModel?.fetchImage(key: item.groupImageUrl)
                 .observe(on: MainScheduler.asyncInstance)
                 .subscribe(onSuccess: { data in
                     cell.fill(image: UIImage(data: data))
                 })
-                .disposed(by: bag)
+                .disposed(by: cellBag)
             
             return cell
         case historyView.collectionView: // 삭제버튼 핸들러도 같이 넘기자
@@ -380,7 +383,7 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
         if scrollView == self.resultCollectionView,
            !isLoading,
            !isEnded,
-           scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height {
+           scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height - 250 {
             isLoading = true
             needLoadNextData.onNext(())
         }
@@ -425,10 +428,12 @@ extension SearchResultViewController {
         group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 20, trailing: 7)
         
         let layout = UICollectionViewCompositionalLayout(section: section)
         
         return layout
     }
 }
+
+extension SearchResultViewController: UIGestureRecognizerDelegate {}

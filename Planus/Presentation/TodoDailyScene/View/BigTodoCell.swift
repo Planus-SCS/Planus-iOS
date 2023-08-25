@@ -131,7 +131,16 @@ class BigTodoCell: SpringableCollectionViewCell {
         self.buttonClosure = closure
     }
 
-    func fill(title: String, time: String?, category: CategoryColor, isGroup: Bool, isScheduled: Bool, isMemo: Bool, completion: Bool) {
+    func fill(
+        title: String,
+        time: String?,
+        category: CategoryColor,
+        isGroup: Bool,
+        isScheduled: Bool,
+        isMemo: Bool,
+        completion: Bool?,
+        isOwner: Bool
+    ) {
 
         if let time = time {
             timeLabel.isHidden = false
@@ -154,6 +163,14 @@ class BigTodoCell: SpringableCollectionViewCell {
         memoSymbol.tintColor = category.todoThickColor
         
         checkButton.setColor(color: category)
+        
+        if let completion {
+            checkButton.isHidden = false
+            checkButton.isOn = completion
+        } else {
+            checkButton.isHidden = true
+        }
+        checkButton.isUserInteractionEnabled = isOwner
     }
 
     @objc func buttonAction(_ sender: UIButton) {

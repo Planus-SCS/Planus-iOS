@@ -116,7 +116,6 @@ class MonthPickerViewController: UIViewController, UICollectionViewDataSource, U
     
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
-        print(self.view.frame.width)
         self.view.addSubview(yearLabel)
         self.view.addSubview(prevButton)
         self.view.addSubview(nextButton)

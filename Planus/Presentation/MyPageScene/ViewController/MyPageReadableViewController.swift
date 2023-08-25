@@ -59,6 +59,7 @@ class MyPageReadableViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     func bind() {
@@ -83,3 +84,5 @@ class MyPageReadableViewController: UIViewController {
         self.navigationController?.popViewController(animated: true)
     }
 }
+
+extension MyPageReadableViewController: UIGestureRecognizerDelegate {}

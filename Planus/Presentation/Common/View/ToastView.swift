@@ -84,15 +84,15 @@ class ToastView: UIView {
 }
 
 extension UIViewController {
-    func showToast(message: String, type: ToastView.ToastType) {
+    func showToast(message: String, type: ToastView.ToastType, fromBotton: CGFloat? = nil) {
         let toast = ToastView(message: message, type: type)
         self.view.addSubview(toast)
-        toast.snp.makeConstraints {
+        toast.snp.makeConstraints { //만약 키보드가 올라와있다면..?????? 우째야하노 이거는???
             $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).inset(100)
+            $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).inset(fromBotton == nil ? 100 : fromBotton!)
             $0.width.lessThanOrEqualToSuperview().inset(50)
         }
-        UIView.animate(withDuration: 2.0, delay: 2.0, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 1.5, delay: 2.0, options: .curveEaseOut, animations: {
             toast.alpha = 0.0
         }, completion: { _ in
             toast.removeFromSuperview()

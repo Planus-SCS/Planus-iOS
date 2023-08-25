@@ -11,3 +11,9 @@ struct GroupName {
     var groupId: Int
     var groupName: String
 }
+
+extension GroupName: Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.groupId == rhs.groupId
+    }
+}

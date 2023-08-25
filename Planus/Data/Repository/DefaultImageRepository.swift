@@ -30,7 +30,6 @@ class DefaultImageRepository: ImageRepository {
     func fetch(key: String) -> Single<Data> {
         if let wrappedCache = memoryCache.object(forKey: NSString(string: key)) {
             let data = wrappedCache.value
-            print("캐시된거씀")
             return Single.just(data)
         }
         

@@ -12,6 +12,7 @@ class ProfileButton: UIButton {
         let imageView = UIImageView(frame: .zero)
         imageView.clipsToBounds = true
         imageView.layer.cornerCurve = .continuous
+        imageView.contentMode = .scaleAspectFill
         return imageView
     }()
     
@@ -37,7 +38,7 @@ class ProfileButton: UIButton {
     
     func configureLayout() {
         profileImageView.snp.makeConstraints {
-            $0.height.width.equalTo(25)
+            $0.height.width.equalTo(30)
             $0.center.equalToSuperview()
         }
     }

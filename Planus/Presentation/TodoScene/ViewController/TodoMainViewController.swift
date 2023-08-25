@@ -17,6 +17,10 @@ class TodoMainViewController: UIViewController {
     var didSelectDay = PublishSubject<Date>()
     
     var collectionView = TodoDailyCollectionView(frame: .zero)
+    var emptyResultView: EmptyResultView = {
+        let view = EmptyResultView(text: "🚧 개발중 👷‍♂️")
+        return view
+    }()
     
     lazy var dateTitleButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
@@ -64,6 +68,13 @@ class TodoMainViewController: UIViewController {
         
         configureView()
         configureLayout()
+    
+        collectionView.isHidden = true
+        self.view.addSubview(emptyResultView)
+        emptyResultView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
 
         bind()
     }

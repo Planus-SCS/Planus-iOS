@@ -80,7 +80,6 @@ class SocialTodoDailyViewController: UIViewController {
         spinner.isHidden = false
         spinner.startAnimating()
         collectionView.setAnimatedIsHidden(true, duration: 0)
-        print("load")
         
         output
             .didFetchTodoList
@@ -88,7 +87,6 @@ class SocialTodoDailyViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("fetched")
                 vc.collectionView.reloadData()
                 vc.spinner.setAnimatedIsHidden(true, duration: 0.2, onCompletion: {
                     vc.spinner.stopAnimating()
@@ -132,74 +130,51 @@ class SocialTodoDailyViewController: UIViewController {
     }
     
     @objc func addTodoTapped(_ sender: UIButton) {
-//        let api = NetworkManager()
-//        let keyChain = KeyChainManager()
-//
-//        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
-//        let todoRepo = TestTodoDetailRepository(apiProvider: api)
-//        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
-//
-//        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-//        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-//        let createTodoUseCase = DefaultCreateTodoUseCase.shared
-//        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
-//        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
-//        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
-//        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
-//        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
-//        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
-//
-//        let vm = TodoDetailViewModel(
-//            getTokenUseCase: getTokenUseCase,
-//            refreshTokenUseCase: refreshTokenUseCase,
-//            createTodoUseCase: createTodoUseCase,
-//            updateTodoUseCase: updateTodoUseCase,
-//            deleteTodoUseCase: deleteTodoUseCase,
-//            createCategoryUseCase: createCategoryUseCase,
-//            updateCategoryUseCase: updateCategoryUseCase,
-//            deleteCategoryUseCase: deleteCategoryUseCase,
-//            readCategoryUseCase: readCateogryUseCase
-//        )
-//        guard let groupDict = viewModel?.groupDict else { return }
-//        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-//        vm.setGroup(groupList: groupList)
-//        vm.todoStartDay.onNext(viewModel?.currentDate)
-//        let vc = TodoDetailViewController(viewModel: vm)
-//        vc.modalPresentationStyle = .overFullScreen
-//        self.present(vc, animated: false, completion: nil)
+        guard let group = viewModel?.group else { return }
+        
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let groupCalendarRepo = DefaultGroupCalendarRepository(apiProvider: api)
+        let groupCategoryRepo = DefaultGroupCategoryRepository(apiProvider: api)
+        let groupMemberCalendarRepo = DefaultGroupMemberCalendarRepository(apiProvider: api)
+        
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let fetchGroupMemberTodoDetailUseCase = DefaultFetchGroupMemberTodoDetailUseCase(groupMemberCalendarRepository: groupMemberCalendarRepo)
+        let fetchGroupTodoDetailUseCase = DefaultFetchGroupTodoDetailUseCase(groupCalendarRepositry: groupCalendarRepo)
+        let createGroupTodoUseCase = DefaultCreateGroupTodoUseCase.shared
+        let updateGroupTodoUseCase = DefaultUpdateGroupTodoUseCase.shared
+        let deleteGroupTodoUseCase = DefaultDeleteGroupTodoUseCase.shared
+        let createGroupCategoryUseCase = DefaultCreateGroupCategoryUseCase(categoryRepository: groupCategoryRepo)
+        let updateGroupCategoryUseCase = DefaultUpdateGroupCategoryUseCase.shared
+        let deleteGroupCategoryUseCase = DefaultDeleteGroupCategoryUseCase(categoryRepository: groupCategoryRepo)
+        let fetchGroupCategorysUseCase = DefaultFetchGroupCategorysUseCase(categoryRepository: groupCategoryRepo)
+        
+        let vm = SocialTodoDetailViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            fetchGroupMemberTodoDetailUseCase: fetchGroupMemberTodoDetailUseCase,
+            fetchGroupTodoDetailUseCase: fetchGroupTodoDetailUseCase,
+            createGroupTodoUseCase: createGroupTodoUseCase,
+            updateGroupTodoUseCase: updateGroupTodoUseCase,
+            deleteGroupTodoUseCase: deleteGroupTodoUseCase,
+            createGroupCategoryUseCase: createGroupCategoryUseCase,
+            updateGroupCategoryUseCase: updateGroupCategoryUseCase,
+            deleteGroupCategoryUseCase: deleteGroupCategoryUseCase,
+            fetchGroupCategorysUseCase: fetchGroupCategorysUseCase
+        )
+
+        vm.initMode(mode: .new, info: SocialTodoInfo(group: group), date: viewModel?.currentDate)
+        
+        let vc = TodoDetailViewController(viewModel: vm)
+        vc.modalPresentationStyle = .overFullScreen
+        self.present(vc, animated: false, completion: nil)
+        
+        
     }
     
-//    @objc func dateTitleBtnTapped(_ sender: UIButton) {
-//        showSmallCalendar()
-//    }
-    
-//    private func showSmallCalendar() {
-//
-//        guard let viewModel = self.viewModel else {
-//            return
-//        }
-//
-//        if let sheet = self.sheetPresentationController {
-//            sheet.invalidateDetents()
-//        }
-//
-//        let vm = SmallCalendarViewModel()
-//        vm.completionHandler = { [weak self] date in
-//            self?.didChangeDate.onNext(date)
-//        }
-//        vm.configureDate(currentDate: viewModel.currentDate ?? Date(), min: viewModel.minDate ?? Date(), max: viewModel.maxDate ?? Date())
-//        let vc = SmallCalendarViewController(viewModel: vm)
-//
-//        vc.preferredContentSize = CGSize(width: 320, height: 400)
-//        vc.modalPresentationStyle = .popover
-//
-//        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
-//        popover.delegate = self
-//        popover.sourceView = self.view
-//        popover.sourceItem = dateTitleButton
-//
-//        present(vc, animated: true, completion:nil)
-//    }
 }
 
 extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -234,19 +209,24 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
             } else {
                 return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
-        default:
-            print("4")
-            return UICollectionViewCell()
+        default: return UICollectionViewCell()
         }
-        guard let todoItem else {
-            print("5")
-            return UICollectionViewCell()
-        }
+        guard let todoItem else { return UICollectionViewCell() }
 
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
             return UICollectionViewCell()
         }
-        cell.fill(title: todoItem.title, time: todoItem.startTime, category: todoItem.categoryColor, isGroup: todoItem.hasGroup, isScheduled: todoItem.isPeriodTodo, isMemo: todoItem.hasDescription, completion: todoItem.isCompleted)
+        cell.fill(
+            title: todoItem.title,
+            time: todoItem.startTime,
+            category: todoItem.categoryColor,
+            isGroup: todoItem.isGroupTodo,
+            isScheduled: todoItem.isPeriodTodo,
+            isMemo: todoItem.hasDescription,
+            completion: todoItem.isCompleted,
+            isOwner: false
+        )
+        
         return cell
         
 
@@ -275,64 +255,72 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-//        var todoId: Int?
-//        switch indexPath.section {
-//        case 0:
-//            if viewModel?.scheduledTodoList?.count == 0 {
-//                return false
-//            } else {
-//                todoId = viewModel?.scheduledTodoList?[indexPath.item].todoId
-//            }
-//        case 1:
-//            if viewModel?.unscheduledTodoList?.count == 0 {
-//                return false
-//            } else {
-//                todoId = viewModel?.unscheduledTodoList?[indexPath.item].todoId
-//            }
-//        default:
-//            return false
-//        }
-//        guard let todoId,
-//              let isOwner = viewModel?.isOwner else { return false }
-//        let api = NetworkManager()
-//        let keyChain = KeyChainManager()
-//        
-//        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
-//
-//        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-//        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-//
-////        let vm = TodoDetailViewModel(
-////            getTokenUseCase: getTokenUseCase,
-////            refreshTokenUseCase: refreshTokenUseCase,
-////            createTodoUseCase: createTodoUseCase,
-////            updateTodoUseCase: updateTodoUseCase,
-////            deleteTodoUseCase: deleteTodoUseCase,
-////            createCategoryUseCase: createCategoryUseCase,
-////            updateCategoryUseCase: updateCategoryUseCase,
-////            deleteCategoryUseCase: deleteCategoryUseCase,
-////            readCategoryUseCase: readCateogryUseCase
-////        )
-////
-////        guard let groupDict = viewModel?.groupDict else { return false }
-////        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-////        vm.setGroup(groupList: groupList)
-////        guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
-////        var groupName: GroupName?
-////        if let groupId = item.groupId {
-////            groupName = groupDict[groupId]
-////        }
-////
-////        if isOwner {
-////            vm.setForEdit(todo: item, category: category, groupName: groupName)
-////        } else {
-////            vm.setForOthers(todo: item, category: category, groupName: groupName)
-////        }
-////        vm.todoStartDay.onNext(viewModel?.currentDate)
-////        let vc = TodoDetailViewController(viewModel: vm)
-////        vc.modalPresentationStyle = .overFullScreen
-////        self.present(vc, animated: false, completion: nil)
-//
+        var todoId: Int?
+        switch indexPath.section {
+        case 0:
+            if viewModel?.scheduledTodoList?.count == 0 {
+                return false
+            } else {
+                todoId = viewModel?.scheduledTodoList?[indexPath.item].todoId
+            }
+        case 1:
+            if viewModel?.unscheduledTodoList?.count == 0 {
+                return false
+            } else {
+                todoId = viewModel?.unscheduledTodoList?[indexPath.item].todoId
+            }
+        default:
+            return false
+        }
+        guard let todoId,
+              let group = viewModel?.group,
+              let type = viewModel?.type else { return false }
+
+        let api = NetworkManager()
+        let keyChain = KeyChainManager()
+        
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let groupCalendarRepo = DefaultGroupCalendarRepository(apiProvider: api)
+        let groupCategoryRepo = DefaultGroupCategoryRepository(apiProvider: api)
+        let groupMemberCalendarRepo = DefaultGroupMemberCalendarRepository(apiProvider: api)
+        
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let fetchGroupMemberTodoDetailUseCase = DefaultFetchGroupMemberTodoDetailUseCase(groupMemberCalendarRepository: groupMemberCalendarRepo)
+        let fetchGroupTodoDetailUseCase = DefaultFetchGroupTodoDetailUseCase(groupCalendarRepositry: groupCalendarRepo)
+        let createGroupTodoUseCase = DefaultCreateGroupTodoUseCase.shared
+        let updateGroupTodoUseCase = DefaultUpdateGroupTodoUseCase.shared
+        let deleteGroupTodoUseCase = DefaultDeleteGroupTodoUseCase.shared
+        let createGroupCategoryUseCase = DefaultCreateGroupCategoryUseCase(categoryRepository: groupCategoryRepo)
+        let updateGroupCategoryUseCase = DefaultUpdateGroupCategoryUseCase.shared
+        let deleteGroupCategoryUseCase = DefaultDeleteGroupCategoryUseCase(categoryRepository: groupCategoryRepo)
+        let fetchGroupCategorysUseCase = DefaultFetchGroupCategorysUseCase(categoryRepository: groupCategoryRepo)
+        
+        let vm = SocialTodoDetailViewModel(
+            getTokenUseCase: getTokenUseCase,
+            refreshTokenUseCase: refreshTokenUseCase,
+            fetchGroupMemberTodoDetailUseCase: fetchGroupMemberTodoDetailUseCase,
+            fetchGroupTodoDetailUseCase: fetchGroupTodoDetailUseCase,
+            createGroupTodoUseCase: createGroupTodoUseCase,
+            updateGroupTodoUseCase: updateGroupTodoUseCase,
+            deleteGroupTodoUseCase: deleteGroupTodoUseCase,
+            createGroupCategoryUseCase: createGroupCategoryUseCase,
+            updateGroupCategoryUseCase: updateGroupCategoryUseCase,
+            deleteGroupCategoryUseCase: deleteGroupCategoryUseCase,
+            fetchGroupCategorysUseCase: fetchGroupCategorysUseCase
+        )
+        
+        switch type {
+        case .member(let id): //애는 무적권 조회만
+            vm.initMode(mode: .view, info: SocialTodoInfo(group: group, memberId: id, todoId: todoId))
+        case .group(let isLeader): //애는 edit
+            vm.initMode(mode: isLeader ? .edit : .view, info: SocialTodoInfo(group: group, todoId: todoId))
+        }
+        
+        let vc = TodoDetailViewController(viewModel: vm)
+        vc.modalPresentationStyle = .overFullScreen
+        self.present(vc, animated: false, completion: nil)
+
         return false
     }
 

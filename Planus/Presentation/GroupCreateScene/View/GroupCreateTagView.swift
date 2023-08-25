@@ -115,6 +115,7 @@ class GroupCreateTagView: UIView {
 
 class GroupTagInputViewController: UIViewController {
     var bag = DisposeBag()
+    var keyboardAppearWithHeight: ((CGFloat) -> Void)?
     var tagAddclosure: ((String) -> Void)?
     
     var titleLabel: UILabel = {
@@ -177,6 +178,18 @@ class GroupTagInputViewController: UIViewController {
         configureLayout()
         
         bind()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        addKeyboardNotifications()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        removeKeyboardNotifications()
     }
     
     func bind() {
@@ -250,7 +263,6 @@ class GroupTagInputViewController: UIViewController {
     }
     
     @objc func infoBtnTapped(_ sender: UIButton) {
-        print(self.view.bounds)
         isInfoViewing = !isInfoViewing
         self.preferredContentSize = isInfoViewing ?
         CGSize(width: self.view.bounds.width, height: 110) :
@@ -267,6 +279,25 @@ class GroupTagInputViewController: UIViewController {
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         label.textColor = UIColor(hex: 0x6F81A9)
         return label
+    }
+}
+
+extension GroupTagInputViewController {
+    func addKeyboardNotifications(){
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification , object: nil)
+    }
+    
+    // 노티피케이션을 제거하는 메서드
+    func removeKeyboardNotifications(){
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification , object: nil)
+    }
+    
+    @objc func keyboardWillShow(_ sender: Notification) {
+        guard let keyboardFrame = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
+        }
+        
+        keyboardAppearWithHeight?(keyboardFrame.height)
     }
 }
 

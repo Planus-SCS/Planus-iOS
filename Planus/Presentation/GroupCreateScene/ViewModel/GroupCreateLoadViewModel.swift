@@ -58,7 +58,6 @@ class GroupCreateLoadViewModel {
     func createGroup() {
         guard let groupCreate,
               let groupImage else { return }
-        print("here")
         getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Int> in
@@ -74,11 +73,10 @@ class GroupCreateLoadViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] groupId in
                 self?.groupCreateCompleted.onNext(groupId)
-                print("개별조회 창으로 넘어가야한다..!")
             })
             .disposed(by: bag)
     }

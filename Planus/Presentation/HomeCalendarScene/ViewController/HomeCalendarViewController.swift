@@ -17,10 +17,13 @@ class HomeCalendarViewController: UIViewController {
     var isMonthChanged = PublishSubject<Date>()
     var isMultipleSelecting = PublishSubject<Bool>()
     var isMultipleSelected = PublishSubject<(Int, (Int, Int))>()
+    var multipleTodoCompletionHandler: (() -> Void)?
     var isSingleSelected = PublishSubject<(Int, Int)>()
     var isGroupSelectedWithId = PublishSubject<Int?>()
+    var refreshRequired = PublishSubject<Void>()
+    var didFetchRefreshedData = PublishSubject<Void>()
     
-    let scrolledTo = PublishSubject<ScrollDirection>()
+    let indexChanged = PublishSubject<Int>()
     
     lazy var yearMonthButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
@@ -58,6 +61,7 @@ class HomeCalendarViewController: UIViewController {
             label.text = dayOfTheWeek[i]
             label.textAlignment = .center
             label.font = UIFont(name: "Pretendard-Regular", size: 12)
+            label.textColor = .black
             stackView.addArrangedSubview(label)
         }
         stackView.backgroundColor = UIColor(hex: 0xF5F5FB)
@@ -107,13 +111,14 @@ class HomeCalendarViewController: UIViewController {
         guard let viewModel else { return }
         
         let input = HomeCalendarViewModel.Input(
-            didScrollTo: self.scrolledTo.asObservable(),
+            didScrollToIndex: indexChanged.distinctUntilChanged().asObservable(),
             viewDidLoaded: Observable.just(()),
             didSelectItem: isSingleSelected.asObservable(),
             didMultipleSelectItemsInRange: isMultipleSelected.asObservable(),
             didTappedTitleButton: yearMonthButton.rx.tap.asObservable(),
             didSelectMonth: isMonthChanged.asObservable(),
-            filterGroupWithId: isGroupSelectedWithId.asObservable()
+            filterGroupWithId: isGroupSelectedWithId.asObservable(),
+            refreshRequired: refreshRequired.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -130,8 +135,12 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
+                vc.collectionView.performBatchUpdates({
+                    vc.collectionView.reloadData()
+                }, completion: { _ in
+                    vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
+                })
                 vc.collectionView.reloadData()
-                vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
             })
             .disposed(by: bag)
             
@@ -139,7 +148,7 @@ class HomeCalendarViewController: UIViewController {
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, rangeSet in
+            .subscribe(onNext: { vc, rangeSet in //여기서 추가로 리로드중인게 있는지 확인해야하나???
                 vc.collectionView.reloadSections(IndexSet(rangeSet.0..<rangeSet.1))
             })
             .disposed(by: bag)
@@ -169,6 +178,7 @@ class HomeCalendarViewController: UIViewController {
                     createTodoUseCase: createTodoUseCase,
                     updateTodoUseCase: updateTodoUseCase,
                     deleteTodoUseCase: deleteTodoUseCase,
+                    todoCompleteUseCase: DefaultTodoCompleteUseCase.shared,
                     createCategoryUseCase: createCategoryUseCase,
                     updateCategoryUseCase: updateCategoryUseCase,
                     deleteCategoryUseCase: deleteCategoryUseCase,
@@ -177,12 +187,12 @@ class HomeCalendarViewController: UIViewController {
                 
                 viewModel.setDate(currentDate: dayViewModel.date)
                 viewModel.setTodoList(
-                    todoList: dayViewModel.todoList ?? [],
-                    categoryDict: vc.viewModel?.categoryDict ?? [:],
-                    groupDict: vc.viewModel?.groupDict ?? [:],
+                    todoList: vc.viewModel?.todos[dayViewModel.date] ?? [],
+                    categoryDict: vc.viewModel?.memberCategories ?? [:],
+                    groupDict: vc.viewModel?.groups ?? [:],
+                    groupCategoryDict: vc.viewModel?.groupCategories ?? [:],
                     filteringGroupId: try? vc.viewModel?.filteredGroupId.value()
                 ) //투두리스트를 필터링해야함..! 아니 걍 다 올리고 저짝에서 필터링하자 그게 편하다..!
-                viewModel.setOwnership(isOwner: true)
                 let viewController = TodoDailyViewController(viewModel: viewModel)
                 let nav = UINavigationController(rootViewController: viewController)
                 nav.modalPresentationStyle = .pageSheet
@@ -190,12 +200,67 @@ class HomeCalendarViewController: UIViewController {
                     sheet.detents = [.medium(), .large()]
                 }
                 vc.present(nav, animated: true)
+                
+                // viewController에 completionHandler를 달아야함. 어떻게 달까??
             })
             .disposed(by: bag)
         
-        output.showCreateMultipleTodo
-            .subscribe(onNext: { dateRange in
-                print(dateRange)
+        isMultipleSelected
+            .subscribe(onNext: { indexRange in
+                var startDate = viewModel.mainDays[indexRange.0][indexRange.1.0].date
+                var endDate = viewModel.mainDays[indexRange.0][indexRange.1.1].date
+                
+                if startDate > endDate {
+                    swap(&startDate, &endDate)
+                }
+                
+                let api = NetworkManager()
+                let keyChain = KeyChainManager()
+                
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+                let todoRepo = TestTodoDetailRepository(apiProvider: api)
+                let categoryRepo = DefaultCategoryRepository(apiProvider: api)
+                
+                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+                let createTodoUseCase = DefaultCreateTodoUseCase.shared
+                let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
+                let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
+                let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
+                let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
+                let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
+                let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
+                
+                let vm = MemberTodoDetailViewModel(
+                    getTokenUseCase: getTokenUseCase,
+                    refreshTokenUseCase: refreshTokenUseCase,
+                    createTodoUseCase: createTodoUseCase,
+                    updateTodoUseCase: updateTodoUseCase,
+                    deleteTodoUseCase: deleteTodoUseCase,
+                    createCategoryUseCase: createCategoryUseCase,
+                    updateCategoryUseCase: updateCategoryUseCase,
+                    deleteCategoryUseCase: deleteCategoryUseCase,
+                    readCategoryUseCase: readCateogryUseCase
+                )
+                
+                let groupList = Array(viewModel.groups.values).sorted(by: { $0.groupId < $1.groupId })
+                
+                var groupName: GroupName?
+                if let filteredGroupId = try? viewModel.filteredGroupId.value(),
+                   let filteredGroupName = viewModel.groups[filteredGroupId] {
+                    groupName = filteredGroupName
+                }
+                vm.setGroup(groupList: groupList)
+                vm.initMode(mode: .new, groupName: groupName, start: startDate, end: endDate)
+                
+                let vc = TodoDetailViewController(viewModel: vm)
+                vc.completionHandler = { [weak self] in
+                    guard let cell = self?.collectionView.cellForItem(at: IndexPath(item: 0, section: indexRange.0)) as? MonthlyCalendarCell else { return }
+                    cell.deselectItems()
+                }
+                
+                vc.modalPresentationStyle = .overFullScreen
+                self.present(vc, animated: false, completion: nil)
             })
             .disposed(by: bag)
         
@@ -276,7 +341,6 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("fetched!!!")
                 vc.setGroupButton()
             })
             .disposed(by: bag)
@@ -289,6 +353,15 @@ class HomeCalendarViewController: UIViewController {
                 vc.collectionView.reloadData()
             })
             .disposed(by: bag)
+        
+        output
+            .didFinishRefreshing
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.didFetchRefreshedData.onNext(())
+            })
+            .disposed(by: bag)
             
     }
     
@@ -299,7 +372,7 @@ class HomeCalendarViewController: UIViewController {
             self?.groupSelected(id: nil)
         })
         children.append(all)
-        if let groupDict = viewModel?.groupDict {
+        if let groupDict = viewModel?.groups {
             let groupList = Array(groupDict.values)
             let sortedList = groupList.sorted(by: { $0.groupId < $1.groupId })
             
@@ -336,7 +409,9 @@ class HomeCalendarViewController: UIViewController {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        let vm = MyPageMainViewModel(updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, fetchImageUseCase: fetchImageUseCase)
+        let removeTokenUseCase = DefaultRemoveTokenUseCase(tokenRepository: tokenRepo)
+        let removeProfileUseCase = DefaultRemoveProfileUseCase(profileRepository: profileRepo)
+        let vm = MyPageMainViewModel(updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, removeTokenUseCase: removeTokenUseCase, removeProfileUseCase: removeProfileUseCase, fetchImageUseCase: fetchImageUseCase)
         vm.setProfile(profile: profile)
         let vc = MyPageMainViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
@@ -356,7 +431,7 @@ extension HomeCalendarViewController: UIPopoverPresentationControllerDelegate {
 
 extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        viewModel?.mainDayList.count ?? Int()
+        viewModel?.mainDays.count ?? Int()
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         1
@@ -370,21 +445,22 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
             section: indexPath.section,
             viewModel: viewModel
         )
+        
         cell.fill(
             isMultipleSelecting: isMultipleSelecting,
             isMultipleSelected: isMultipleSelected,
-            isSingleSelected: isSingleSelected
+            isSingleSelected: isSingleSelected,
+            refreshRequired: refreshRequired,
+            didFetchRefreshedData: didFetchRefreshedData
         )
-        
+            
         return cell
     }
-    
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        if velocity.x > 0 {
-            scrolledTo.onNext(.right)
-        } else if velocity.x < 0 {
-            scrolledTo.onNext(.left)
-        }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
+        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) else { return }
+        indexChanged.onNext(Int(round(floatedIndex)))
     }
     
 }

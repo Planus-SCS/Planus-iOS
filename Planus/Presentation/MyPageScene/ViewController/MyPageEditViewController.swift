@@ -123,6 +123,7 @@ class MyPageEditViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationItem.setLeftBarButton(backButton, animated: false)
         navigationItem.setRightBarButton(saveButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         navigationItem.title = "프로필 수정"
     }
     
@@ -287,12 +288,14 @@ class MyPageEditViewController: UIViewController {
 extension MyPageEditViewController: PHPickerViewControllerDelegate { //PHPicker 델리게이트
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
-
-        results.first?.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (image, error) in
-            guard let fileName = results.first?.itemProvider.suggestedName else { return }
-            if let data = (image as? UIImage)?.pngData() {
+        
+        results.first?.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (item, error) in
+            guard let fileName = results.first?.itemProvider.suggestedName,
+                  var image = item as? UIImage  else { return }
+            
+            image = UIImage.resizeImage(image: image, targetWidth: 500)
+            if let data = image.pngData() {
                 self?.didChangedImage.onNext(ImageFile(filename: fileName, data: data, type: "png"))
-                print(data)
             }
         }
     }
@@ -316,3 +319,5 @@ extension MyPageEditViewController: UITextViewDelegate {
         }
     }
 }
+
+extension MyPageEditViewController: UIGestureRecognizerDelegate {}

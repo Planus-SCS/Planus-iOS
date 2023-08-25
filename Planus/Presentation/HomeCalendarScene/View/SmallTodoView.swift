@@ -16,13 +16,14 @@ class SmallTodoView: UIView {
     var toDoLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 10)
+        label.textAlignment = .center
         return label
     }()
     
-    convenience init(text: String, categoryColor: CategoryColor) {
+    convenience init(text: String, categoryColor: CategoryColor, isComplete: Bool?) {
         self.init(frame: CGRect(x: 0, y: 0, width: 0, height: 16))
         
-        fill(text: text, categoryColor: categoryColor)
+        fill(text: text, categoryColor: categoryColor, isComplete: isComplete)
     }
     
     override init(frame: CGRect) {
@@ -56,11 +57,17 @@ class SmallTodoView: UIView {
         }
     }
     
-    func fill(text: String, categoryColor: CategoryColor) {
+    // FIXME: 상의 후 소셜투두 Summary에도 isComplete 담겨오면 옵셔널 빼고 쓰자.!!!
+    func fill(text: String, categoryColor: CategoryColor, isComplete: Bool?) {
         self.toDoLabel.text = text
-        self.backgroundColor = categoryColor.todoForCalendarColor
         self.leadingView.backgroundColor = categoryColor.todoLeadingColor
+        self.backgroundColor = categoryColor.todoForCalendarColor
         self.toDoLabel.textColor = categoryColor.todoThickColor
+        
+        if let isComplete,
+           isComplete {
+            self.leadingView.isHidden = true
+        }
 
     }
 }

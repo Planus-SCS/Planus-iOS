@@ -75,6 +75,7 @@ class MyPageEnquireViewController: UIViewController {
         super.viewWillAppear(animated)
         
         navigationItem.title = "문의하기"
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     func bind() {
@@ -133,3 +134,5 @@ extension MyPageEnquireViewController: UITextViewDelegate {
         }
     }
 }
+
+extension MyPageEnquireViewController: UIGestureRecognizerDelegate {}

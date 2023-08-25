@@ -51,13 +51,15 @@ class MyGroupMemberEditViewController: UIViewController {
         
         bind()
         
-        navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         navigationItem.title = "그룹 멤버 관리"
+        
+        navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     func bind() {
@@ -147,10 +149,16 @@ extension MyGroupMemberEditViewController: UICollectionViewDataSource {
             cell.fill(image: UIImage(named: "DefaultProfileMedium"))
         }
         cell.fill { [weak self] in
-            self?.didTappedResignButton.onNext(indexPath.item)
+ 
+            self?.showPopUp(title: "[\(item.nickname)] 를 강제 탈퇴 하시겠습니까?", message: "멤버 탈퇴는 이후에 취소가 불가능합니다", alertAttrs: [
+                CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
+                CustomAlertAttr(title: "탈퇴", actionHandler: { self?.didTappedResignButton.onNext(indexPath.item)}, type: .warning)
+            ])
         }
         return cell
     }
     
     
 }
+
+extension MyGroupMemberEditViewController: UIGestureRecognizerDelegate {}

@@ -73,6 +73,36 @@ class DefaultMyGroupRepository: MyGroupRepository {
         )
     }
     
+    func withdrawGroup(token: String, groupId: Int) -> Single<ResponseDTO<GroupWithdrawResponseDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.groups + "/\(groupId)/withdraw",
+            requestType: .delete,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<GroupWithdrawResponseDTO>.self
+        )
+    }
+    
+    func removeGroup(token: String, groupId: Int) -> Single<ResponseDTO<GroupRemoveResponseDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.groups + "/\(groupId)",
+            requestType: .delete,
+            body: nil,
+            query: nil,
+            header: ["Authorization": "Bearer \(token)"]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<GroupRemoveResponseDTO>.self
+        )
+    }
+    
     func fetchGroupNameList(token: String) -> Single<ResponseDTO<[GroupNameResponseDTO]>> {
         let endPoint = APIEndPoint(
             url: URLPool.calendar + "/my-groups",
@@ -130,30 +160,6 @@ class DefaultMyGroupRepository: MyGroupRepository {
         return apiProvider.requestCodable(
             endPoint: endPoint,
             type: ResponseDTO<[MyMemberResponseDTO]>.self
-        )
-    }
-    
-    func fetchMyGroupCalendar(token: String, groupId: Int, from: Date, to: Date) -> Single<ResponseDTO<[SocialTodoSummaryResponseDTO]>> {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = .current
-        
-        let endPoint = APIEndPoint(
-            url: URLPool.myGroup + "/\(groupId)/todos/calendar",
-            requestType: .get,
-            body: nil,
-            query: [
-                "from": dateFormatter.string(from: from),
-                "to": dateFormatter.string(from: to)
-            ],
-            header: [
-                "Authorization": "Bearer \(token)"
-            ]
-        )
-        
-        return apiProvider.requestCodable(
-            endPoint: endPoint,
-            type: ResponseDTO<[SocialTodoSummaryResponseDTO]>.self
         )
     }
     

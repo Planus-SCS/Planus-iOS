@@ -16,13 +16,13 @@ class DailyCalendarCell: SpringableCollectionViewCell {
     override var isSelected: Bool {
         didSet {
             if isSelected {
-                UIView.animate(withDuration: 0.01,
+                UIView.animate(withDuration: 0.001,
                                animations: {
                     self.alpha = 0.5
                     self.backgroundColor = UIColor(hex: 0xDBDAFF)
                 })
             } else {
-                UIView.animate(withDuration: 0.01,
+                UIView.animate(withDuration: 0.001,
                                animations: {
                     self.alpha = 1
                     self.backgroundColor = nil
@@ -38,7 +38,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .vertical
         stackView.spacing = 2
-        stackView.alignment = .fill
+        stackView.alignment = .leading
         return stackView
     }()
     
@@ -46,6 +46,8 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         let label = UILabel()
         label.font = UIFont(name: "Pretendard-Regular", size: 10)
         label.text = "0"
+        label.textAlignment = .center
+        label.layer.masksToBounds = true
         return label
     }()
 
@@ -64,7 +66,7 @@ class DailyCalendarCell: SpringableCollectionViewCell {
 
         stackView.snp.remakeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
-            $0.leading.trailing.equalToSuperview()
+            $0.leading.equalToSuperview().inset(1)
             $0.bottom.equalToSuperview().inset(3)
         }
     }
@@ -81,74 +83,222 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         views.removeAll()
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        numberLabel.layer.cornerRadius = numberLabel.bounds.width/2
+    }
+    
     func configureView() {
-        self.contentView.addSubview(numberLabel)
+        self.addSubview(numberLabel)
         numberLabel.snp.makeConstraints {
-            $0.top.equalTo(self.contentView.snp.top).offset(5)
-            $0.centerX.equalTo(self.contentView.snp.centerX)
+            $0.top.equalTo(self.snp.top).offset(4)
+            $0.centerX.equalToSuperview()
+            $0.height.width.equalTo(16)
         }
         
-        self.contentView.addSubview(stackView)
+        self.addSubview(stackView)
         stackView.snp.makeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
-            $0.leading.trailing.equalToSuperview()
+            $0.leading.equalToSuperview()
         }
     }
     
-    func fill(day: String, state: MonthStateOfDay, weekDay: WeekDay) {
+    func fill(day: String, state: MonthStateOfDay, weekDay: WeekDay, isToday: Bool, isHoliday: Bool) {
         numberLabel.text = day
         
         var alpha: Double
         switch state {
-        case .prev:
+        case .prev, .following:
             alpha = 0.4
         case .current:
             alpha = 1
-        case .following:
-            alpha = 0.4
         }
         
-        switch weekDay {
-        case .sat:
-            numberLabel.textColor = UIColor(hex: 0x6495F4, a: alpha)
-        case .sun:
-            numberLabel.textColor = UIColor(hex: 0xEA4335, a: alpha)
-        default:
-            numberLabel.textColor = UIColor(hex: 0x000000, a: alpha)
-        }        
-    }
-    
-    func fill(todoList: [Todo]) {
-        todoList.forEach {
-            var todoView: SmallTodoView
-            if let color = self.delegate?.dailyCalendarCell(self, colorOfCategoryId: $0.categoryId) {
-                todoView = SmallTodoView(text: $0.title, categoryColor: color)
+        if isToday {
+            numberLabel.backgroundColor = UIColor(hex: 0x6495F4)
+            numberLabel.textColor = .white
+            
+        } else {
+            numberLabel.backgroundColor = .clear
+            if isHoliday {
+                numberLabel.textColor = UIColor(hex: 0xEA4335, a: alpha)
             } else {
-                todoView = SmallTodoView(text: $0.title, categoryColor: .none)
+                switch weekDay {
+                case .sat:
+                    numberLabel.textColor = UIColor(hex: 0x6495F4, a: alpha)
+                case .sun:
+                    numberLabel.textColor = UIColor(hex: 0xEA4335, a: alpha)
+                default:
+                    numberLabel.textColor = UIColor(hex: 0x000000, a: alpha)
+                }
             }
-            
-            todoView.snp.makeConstraints {
-                $0.height.equalTo(16)
-            }
-            stackView.addArrangedSubview(todoView)
-            views.append(todoView)
         }
     }
-    
-    func fill(socialTodoList: [SocialTodoSummary]) {
-        socialTodoList.forEach {
-            var todoView: SmallTodoView
-            todoView = SmallTodoView(text: $0.title, categoryColor: $0.categoryColor)
+        
+    func fill(periodTodoList: [(Int, Todo)], singleTodoList: [(Int, Todo)], holiday: (Int, String)?) {
+        var currentIndex = 0
+
+        periodTodoList.forEach { (index, todo) in
+            guard let color = todo.isGroupTodo ?
+                    self.delegate?.dailyCalendarCell(self, colorOfGroupCategoryId: todo.categoryId)
+                    : self.delegate?.dailyCalendarCell(self, colorOfCategoryId: todo.categoryId) else { return }
             
-            todoView.snp.makeConstraints {
-                $0.height.equalTo(16)
+            let todoView = generateSmallTodoView(title: todo.title, color: color, startDate: todo.startDate, endDate: todo.endDate, isComplete: todo.isCompleted)
+
+            for _ in (currentIndex..<index) {
+                let clearView = generateClearView()
+                stackView.addArrangedSubview(clearView)
+                views.append(clearView)
             }
+
             stackView.addArrangedSubview(todoView)
             views.append(todoView)
+            currentIndex = index + 1
         }
+        
+        if let singleStartIndex = singleTodoList.first?.0 {
+            
+            for _ in (currentIndex..<singleStartIndex) {
+                let clearView = generateClearView()
+                stackView.addArrangedSubview(clearView)
+                views.append(clearView)
+            }
+
+            singleTodoList.forEach { (index, todo) in
+                guard let color = todo.isGroupTodo ?
+                        self.delegate?.dailyCalendarCell(self, colorOfGroupCategoryId: todo.categoryId)
+                        : self.delegate?.dailyCalendarCell(self, colorOfCategoryId: todo.categoryId) else { return }
+                
+                let todoView = generateSmallTodoView(title: todo.title, color: color, startDate: todo.startDate, endDate: todo.endDate, isComplete: todo.isCompleted)
+                stackView.addArrangedSubview(todoView)
+                views.append(todoView)
+            }
+            
+            currentIndex = singleStartIndex + singleTodoList.count
+        }
+
+        if let holiday {
+            
+            let holidayIndex = holiday.0
+            let holidayTitle = holiday.1
+            for _ in (currentIndex..<holidayIndex) {
+                let clearView = generateClearView()
+                stackView.addArrangedSubview(clearView)
+                views.append(clearView)
+            }
+            
+            let holidayView = generateHolidayView(title: holidayTitle)
+            stackView.addArrangedSubview(holidayView)
+            views.append(holidayView)
+        }
+        
+    }
+    
+    func socialFill(periodTodoList: [(Int, SocialTodoSummary)], singleTodoList: [(Int, SocialTodoSummary)], holiday: (Int, String)?) {
+        var currentIndex = 0
+
+        periodTodoList.forEach { (index, todo) in
+
+            let todoView = generateSmallTodoView(title: todo.title, color: todo.categoryColor, startDate: todo.startDate, endDate: todo.endDate, isComplete: nil)
+
+            for _ in (currentIndex..<index) {
+                let clearView = generateClearView()
+                stackView.addArrangedSubview(clearView)
+                views.append(clearView)
+            }
+
+            stackView.addArrangedSubview(todoView)
+            views.append(todoView)
+            currentIndex = index + 1
+        }
+        
+        if let singleStartIndex = singleTodoList.first?.0 {
+            
+            for _ in (currentIndex..<singleStartIndex) {
+                let clearView = generateClearView()
+                stackView.addArrangedSubview(clearView)
+                views.append(clearView)
+            }
+
+            singleTodoList.forEach { (index, todo) in
+                let todoView = generateSmallTodoView(title: todo.title, color: todo.categoryColor, startDate: todo.startDate, endDate: todo.endDate, isComplete: nil)
+                stackView.addArrangedSubview(todoView)
+                views.append(todoView)
+            }
+            
+            currentIndex = singleStartIndex + singleTodoList.count
+        }
+
+        if let holiday {
+            
+            let holidayIndex = holiday.0
+            let holidayTitle = holiday.1
+            for _ in (currentIndex..<holidayIndex) {
+                let clearView = generateClearView()
+                stackView.addArrangedSubview(clearView)
+                views.append(clearView)
+            }
+            
+            let holidayView = generateHolidayView(title: holidayTitle)
+            stackView.addArrangedSubview(holidayView)
+            views.append(holidayView)
+        }
+
+    }
+    
+
+}
+
+extension DailyCalendarCell {
+    func generateSmallTodoView(title: String, color: CategoryColor, startDate: Date, endDate: Date, isComplete: Bool?) -> SmallTodoView {
+        var todoView = SmallTodoView(text: title, categoryColor: color, isComplete: isComplete)
+        let diff = (Calendar.current.dateComponents([.day], from: startDate, to: endDate).day ?? 0) + 1
+        todoView.snp.makeConstraints {
+            $0.height.equalTo(16)
+            $0.width.equalTo((UIScreen.main.bounds.width/7)*CGFloat(diff) - 1)
+        }
+        return todoView
+    }
+        
+    func generateClearView() -> UIView {
+        let view = UIView(frame: .zero)
+        view.backgroundColor = .clear
+        view.snp.makeConstraints {
+            $0.height.equalTo(16)
+            $0.width.equalTo((UIScreen.main.bounds.width/7) - 1)
+        }
+        return view
+    }
+    
+    func generateHolidayView(title: String) -> UIView {
+        let view = UIView(frame: .zero)
+        view.backgroundColor = .clear
+                
+        var titleLabel: UILabel = {
+            let label = UILabel(frame: .zero)
+            label.font = UIFont(name: "Pretendard-Regular", size: 10)
+            label.textAlignment = .center
+            label.textColor =  UIColor(hex: 0xEA4335, a: alpha)
+            return label
+        }()
+        titleLabel.text = title
+        
+        view.addSubview(titleLabel)
+        
+        titleLabel.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(4)
+            $0.centerY.equalToSuperview()
+        }
+        
+        view.snp.makeConstraints {
+            $0.height.equalTo(16)
+            $0.width.equalTo((UIScreen.main.bounds.width/7) - 1)
+        }
+        return view
     }
 }
 
 protocol DailyCalendarCellDelegate: NSObject {
     func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfCategoryId: Int) -> CategoryColor?
+    func dailyCalendarCell(_ dayCalendarCell: DailyCalendarCell, colorOfGroupCategoryId id: Int) -> CategoryColor?
 }

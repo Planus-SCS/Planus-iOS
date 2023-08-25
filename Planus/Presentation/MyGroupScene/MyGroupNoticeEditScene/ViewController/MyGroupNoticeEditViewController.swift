@@ -61,9 +61,6 @@ class MyGroupNoticeEditViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.setLeftBarButton(backButton, animated: false)
-        navigationItem.setRightBarButton(saveButton, animated: false)
-        
         configureView()
         configureLayout()
         
@@ -73,6 +70,10 @@ class MyGroupNoticeEditViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+        navigationItem.setRightBarButton(saveButton, animated: false)
+        
         navigationItem.title = "공지사항 관리"
     }
     
@@ -80,7 +81,6 @@ class MyGroupNoticeEditViewController: UIViewController {
         guard let viewModel else { return }
         
         guard let notice = try? viewModel.notice.value() else { return }
-        print(notice)
         noticeTextView.text = notice
         isNoticeFilled = true
         
@@ -159,3 +159,5 @@ extension MyGroupNoticeEditViewController: UITextViewDelegate {
         }
     }
 }
+
+extension MyGroupNoticeEditViewController: UIGestureRecognizerDelegate {}

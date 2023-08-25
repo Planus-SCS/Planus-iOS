@@ -84,7 +84,7 @@ class DefaultGroupRepository: GroupRepository {
     
     func joinGroup(token: String, id: Int) -> Single<ResponseDTO<GroupJoinApplingResponseDTO>> {
         let endPoint = APIEndPoint(
-            url: URLPool.groups + "/\(id)/joins",
+            url: URLPool.groupJoin + URLPathComponent.groups + "/\(id)",
             requestType: .post,
             body: nil,
             query: nil,

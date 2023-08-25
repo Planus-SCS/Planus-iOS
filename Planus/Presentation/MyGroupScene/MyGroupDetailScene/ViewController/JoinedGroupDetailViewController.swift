@@ -64,11 +64,13 @@ class JoinedGroupDetailViewController: UIViewController {
         configurePanGesture()
         
         bind()
-        navigationItem.setLeftBarButton(backButton, animated: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         
         titleFetched
             .withUnretained(self)
@@ -169,28 +171,42 @@ class JoinedGroupDetailViewController: UIViewController {
         let image = UIImage(named: "dotBtn")
         var item: UIBarButtonItem
         var menuChild = [UIAction]()
-        let link = UIAction(title: "공유하기", handler: { _ in print("전체 캘린더 조회") })
+        let link = UIAction(title: "공유하기", image: UIImage(systemName: "square.and.arrow.up"), handler: { _ in print("전체 캘린더 조회") })
         menuChild.append(link)
         if isLeader ?? false {
-            let editInfo = UIAction(title: "그룹 정보 수정", handler: { [weak self] _ in
+            let editInfo = UIAction(title: "그룹 정보 수정", image: UIImage(systemName: "pencil"), handler: { [weak self] _ in
                 self?.editInfo()
             })
-            let editNotice = UIAction(title: "공지사항 수정", handler: { [weak self] _ in
+            
+            let editNotice = UIAction(title: "공지사항 수정", image: UIImage(systemName: "speaker.badge.exclamationmark.fill"), handler: { [weak self] _ in
                 self?.editNotice()
             })
-            let editMember = UIAction(title: "멤버 수정", handler: { [weak self] _ in
+            let editMember = UIAction(title: "멤버 수정", image: UIImage(systemName: "person"), handler: { [weak self] _ in
                 self?.editMember()
             })
             
             menuChild.append(editInfo)
             menuChild.append(editNotice)
             menuChild.append(editMember)
+        } else {
+            let withdraw = UIAction(title: "그룹 탈퇴하기", image: UIImage(systemName: "rectangle.portrait.and.arrow.forward"), attributes: .destructive, handler: { [weak self] _ in
+                self?.withdrawGroup()
+            })
+            
+            menuChild.append(withdraw)
         }
         
         let menu = UIMenu(options: .displayInline, children: menuChild)
         item = UIBarButtonItem(image: image, menu: menu)
         item.tintColor = UIColor(hex: 0x000000)
         navigationItem.setRightBarButton(item, animated: true)
+    }
+    
+    func withdrawGroup() {
+        self.showPopUp(title: "그룹 탈퇴하기", message: "정말로 그룹을 탈퇴하시겠습니까?", alertAttrs: [
+            CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
+            CustomAlertAttr(title: "탈퇴", actionHandler: { [weak self] in self?.viewModel?.withdrawGroup()}, type: .warning)]
+        )
     }
     
     lazy var editNotice: () -> Void = { [weak self] () -> Void in
@@ -253,7 +269,8 @@ class JoinedGroupDetailViewController: UIViewController {
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: imageRepo),
-            updateGroupInfoUseCase: updateGroupInfoUseCase
+            updateGroupInfoUseCase: updateGroupInfoUseCase,
+            deleteGroupUseCase: DefaultDeleteGroupUseCase.shared
         )
         guard let id = self?.viewModel?.groupId,
               let title = self?.viewModel?.groupTitle,
@@ -322,6 +339,7 @@ class JoinedGroupDetailViewController: UIViewController {
         let keyChain = KeyChainManager()
         let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
+        let groupCalendarRepo = DefaultGroupCalendarRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
@@ -340,13 +358,17 @@ class JoinedGroupDetailViewController: UIViewController {
         noticeViewController.scrollDelegate = self
         self.noticeViewController = noticeViewController
         
-        let createMonthlyCalendarUseCase = DefaultCreateSocialMonthlyCalendarUseCase()
-        let fetchTodoListUseCase = DefaultFetchMyGroupCalendarUseCase(myGroupRepository: myGroupRepo)
+        let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
+        let fetchTodoListUseCase = DefaultFetchGroupMonthlyCalendarUseCase(groupCalendarRepository: groupCalendarRepo)
         let calendarViewModel = JoinedGroupCalendarViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
-            createSocialMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
-            fetchMyGroupCalendarUseCase: fetchTodoListUseCase
+            createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
+            fetchMyGroupCalendarUseCase: fetchTodoListUseCase,
+            createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
+            updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
+            deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
+            updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
         )
         calendarViewModel.setGroupId(id: groupId)
         let calendarViewController = JoinedGroupCalendarViewController(viewModel: calendarViewModel)
@@ -398,6 +420,10 @@ class JoinedGroupDetailViewController: UIViewController {
 extension JoinedGroupDetailViewController: JoinedGroupNoticeViewControllerDelegate {
     func refreshRequested(_ viewController: JoinedGroupNoticeViewController) {
         self.needRefresh.onNext(())
+    }
+    
+    func noticeViewControllerGetGroupTitle() -> String? {
+        viewModel?.groupTitle
     }
 }
 
@@ -537,7 +563,13 @@ extension JoinedGroupDetailViewController: NestedScrollableViewScrollDelegate {
 }
 
 extension JoinedGroupDetailViewController: JoinedGroupCalendarViewControllerDelegate {
+    func calendarViewControllerGetGroupTitle() -> String? {
+        return viewModel?.groupTitle
+    }
+    
     func isLeader() -> Bool? {
         return viewModel?.isLeader
     }
 }
+
+extension JoinedGroupDetailViewController: UIGestureRecognizerDelegate {}

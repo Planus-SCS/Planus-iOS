@@ -136,7 +136,6 @@ class GroupCreateViewModel {
             tagCountValidState,
             tagDuplicateValidState
         ]).map { list in
-            print(list)
             guard let _ = list.first(where: { !$0 }) else { return true }
             return false
         }

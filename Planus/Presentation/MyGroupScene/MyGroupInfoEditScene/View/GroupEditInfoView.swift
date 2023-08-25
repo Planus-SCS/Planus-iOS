@@ -29,6 +29,7 @@ class GroupEditInfoView: UIView {
     
     var groupImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.borderWidth = 1
         imageView.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
         imageView.layer.cornerRadius = 10

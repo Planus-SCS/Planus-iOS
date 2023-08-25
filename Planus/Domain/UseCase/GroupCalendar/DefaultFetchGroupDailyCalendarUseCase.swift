@@ -1,5 +1,5 @@
 //
-//  DefaultFetchGroupDailyTodoListUseCase.swift
+//  DefaultFetchGroupDailyCalendarUseCase.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/05/26.
@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultFetchGroupDailyTodoListUseCase: FetchGroupDailyTodoListUseCase {
+class DefaultFetchGroupDailyCalendarUseCase: FetchGroupDailyCalendarUseCase {
     let groupCalendarRepository: GroupCalendarRepository
     
     init(groupCalendarRepository: GroupCalendarRepository) {
@@ -16,7 +16,7 @@ class DefaultFetchGroupDailyTodoListUseCase: FetchGroupDailyTodoListUseCase {
     }
     
     func execute(token: Token, groupId: Int, date: Date) -> Single<[[SocialTodoDaily]]> {
-        groupCalendarRepository.readDailyTodoList(
+        groupCalendarRepository.fetchDailyCalendar(
             token: token.accessToken,
             groupId: groupId,
             date: date

@@ -7,18 +7,21 @@
 
 import Foundation
 
-public enum NetworkError: Error, Equatable {
+public enum NetworkManagerError: Error, Equatable {
     case httpRequestError
     case httpResponseError
-    case unKnownError(String)
+    case redirection(Int, String?)
+    case clientError(Int, String?)
+    case serverError(Int, String?)
     case unMatchingCodableTypeError
     case invalidURLFormatError
     case httpBodyEncodingError
     case nilDataError
+    case tokenExpired
+    case unKnownError(Int, String?)
 }
 
 enum TokenError: Error, Equatable {
-    case tokenExpired
     case noTokenExist
 }
 

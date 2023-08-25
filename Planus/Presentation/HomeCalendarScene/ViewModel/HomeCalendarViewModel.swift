@@ -8,6 +8,12 @@
 import Foundation
 import RxSwift
 
+struct FilteredTodoViewModel {
+    var periodTodo: [(Int,Todo)] //offset, Todo
+    var singleTodo: [(Int,Todo)] //offset, Todo
+    var holiday: (Int, String)?
+}
+
 class HomeCalendarViewModel {
     
     var bag = DisposeBag()
@@ -21,32 +27,36 @@ class HomeCalendarViewModel {
     let cachingAmount = 10
     
     let endOfFirstIndex = -100
-    let endOfLastIndex = 500
+    let endOfLastIndex = 250
     
     var latestPrevCacheRequestedIndex = 0
     var latestFollowingCacheRequestedIndex = 0
     
+    lazy var today: Date = {
+        let components = self.calendar.dateComponents(
+            [.year, .month, .day],
+            from: Date()
+        )
+        
+        return self.calendar.date(from: components) ?? Date()
+    }()
+    
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
-    var mainDayList = [[DayViewModel]]()
+    var mainDays = [[DayViewModel]]()
+    var todos = [Date: [Todo]]()
     
-    var groupDict = [Int: GroupName]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
-    var categoryDict = [Int: Category]()
+    var blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 20), count: 42) //todoId, groupTodo인가?
+    var filteredTodoCache = [FilteredTodoViewModel](repeating: FilteredTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
+    var cachedCellHeightForTodoCount = [Int: Double]()
     
-    
-    //투두는 왜 투두용 뷰모델을 쓰지 않았는가?? -> 카테고리를 채워넣기엔 이거 업댓할때 카테고리까지 싹다 업뎃되면 머리아프니까.. 일단 하던대로 하자
-    // 이거 일단 받아오는순서
-    /*
-     1. 그룹, 카테고리 받아오기
-     2. 달력 그리기(이건 1이랑 같이 그려도 되고 투두 다받아오면 그때 보여줘도 상관없을듯
-     3. 투두받아오는건 무적권 그룹, 카테고리 받아오는게 끝나있어야한다!
-     근데 그룹, 카테고리를 subject로 할까 그냥할까? behavior로 일단 하자...!!!
-     그럼 두개 받아오는거의 combinelatest써서 첫 1회만 투두 받아오는걸 시작하자..!!!
-     그다음부터는.... 카테고리가 업댓될때마다 리로드
-     그리고 그룹이 업데이트(가입하거나 탈퇴하거나)할때마다,,, 그룹 탈퇴는 아에 투두목록에서 싹다 해당 그룹을 지워야함... 그룹가입도 비슷함,,,
-     */
+    var groups = [Int: GroupName]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
+    var memberCategories = [Int: Category]()
+    var groupCategories = [Int: Category]()
 
+    var nowRefreshing: Bool = false
+    var didFinishRefreshing = PublishSubject<Void>()
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
     var showCreateMultipleTodo = PublishSubject<(Date, Date)>()
@@ -57,8 +67,9 @@ class HomeCalendarViewModel {
     var needReloadData = PublishSubject<Void>()
     var needWelcome = BehaviorSubject<String?>(value: nil)
     
-    lazy var categoryAndGroupZip = Observable.combineLatest(
+    lazy var categoryAndGroupZip = Observable.zip(
         initialReadGroup.compactMap { $0 },
+        initialReadGroupCategory.compactMap { $0 },
         initialReadCategory.compactMap { $0 }
     )
     
@@ -66,20 +77,20 @@ class HomeCalendarViewModel {
     var fetchedProfileImage = BehaviorSubject<Data?>(value: nil)
     
     var initialReadCategory = BehaviorSubject<Void?>(value: nil)
+    var initialReadGroupCategory = BehaviorSubject<Void?>(value: nil)
     var initialReadGroup = BehaviorSubject<Void?>(value: nil)
     
     var currentIndex = Int()
-    var cachedCellHeightForTodoCount = [Int: Double]()
-    
     
     struct Input {
-        var didScrollTo: Observable<ScrollDirection>
+        var didScrollToIndex: Observable<Int>
         var viewDidLoaded: Observable<Void>
         var didSelectItem: Observable<(Int, Int)>
         var didMultipleSelectItemsInRange: Observable<(Int, (Int, Int))>
         var didTappedTitleButton: Observable<Void>
         var didSelectMonth: Observable<Date>
         var filterGroupWithId: Observable<Int?>
+        var refreshRequired: Observable<Void>
     }
     
     struct Output {
@@ -96,6 +107,7 @@ class HomeCalendarViewModel {
         var needWelcome: Observable<String?>
         var groupListFetched: Observable<Void?>
         var needFilterGroupWithId: Observable<Int?>
+        var didFinishRefreshing: Observable<Void>
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -105,14 +117,18 @@ class HomeCalendarViewModel {
     let readTodoListUseCase: ReadTodoListUseCase
     let updateTodoUseCase: UpdateTodoUseCase
     let deleteTodoUseCase: DeleteTodoUseCase
+    let todoCompleteUseCase: TodoCompleteUseCase
     
     let createCategoryUseCase: CreateCategoryUseCase
     let readCategoryListUseCase: ReadCategoryListUseCase
     let updateCategoryUseCase: UpdateCategoryUseCase
     let deleteCategoryUseCase: DeleteCategoryUseCase
+    let fetchGroupCategoryListUseCase: FetchAllGroupCategoryListUseCase
     
     let fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase
     let groupCreateUseCase: GroupCreateUseCase
+    let withdrawGroupUseCase: WithdrawGroupUseCase
+    let deleteGroupUseCase: DeleteGroupUseCase
     
     let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
     let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
@@ -128,17 +144,21 @@ class HomeCalendarViewModel {
         readTodoListUseCase: ReadTodoListUseCase,
         updateTodoUseCase: UpdateTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
+        todoCompleteUseCase: TodoCompleteUseCase,
         createCategoryUseCase: CreateCategoryUseCase,
         readCategoryListUseCase: ReadCategoryListUseCase,
         updateCategoryUseCase: UpdateCategoryUseCase,
         deleteCategoryUseCase: DeleteCategoryUseCase,
+        fetchGroupCategoryListUseCase: FetchAllGroupCategoryListUseCase,
         fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase,
         groupCreateUseCase: GroupCreateUseCase,
         createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
         dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
         readProfileUseCase: ReadProfileUseCase,
         updateProfileUseCase: UpdateProfileUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        fetchImageUseCase: FetchImageUseCase,
+        withdrawGroupUseCase: WithdrawGroupUseCase,
+        deleteGroupUseCase: DeleteGroupUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -147,10 +167,14 @@ class HomeCalendarViewModel {
         self.readTodoListUseCase = readTodoListUseCase
         self.updateTodoUseCase = updateTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
+        self.todoCompleteUseCase = todoCompleteUseCase
+        
         self.createCategoryUseCase = createCategoryUseCase
         self.readCategoryListUseCase = readCategoryListUseCase
         self.updateCategoryUseCase = updateCategoryUseCase
         self.deleteCategoryUseCase = deleteCategoryUseCase
+        self.fetchGroupCategoryListUseCase = fetchGroupCategoryListUseCase
+        
         self.fetchMyGroupNameListUseCase = fetchMyGroupNameListUseCase
         self.groupCreateUseCase = groupCreateUseCase
         self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
@@ -158,6 +182,8 @@ class HomeCalendarViewModel {
         self.readProfileUseCase = readProfileUseCase
         self.updateProfileUseCase = updateProfileUseCase
         self.fetchImageUseCase = fetchImageUseCase
+        self.withdrawGroupUseCase = withdrawGroupUseCase
+        self.deleteGroupUseCase = deleteGroupUseCase
     }
     
     func bind() {
@@ -175,6 +201,7 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, date in
                 vm.fetchCategory()
+                vm.fetchGroupCategory()
                 vm.fetchGroup()
                 vm.fetchProfile()
                 vm.bindCategoryUseCase()
@@ -182,11 +209,13 @@ class HomeCalendarViewModel {
                 vm.bindProfileUseCase()
                 vm.bindGroupUseCase()
                 vm.initCalendar(date: date)
+
                 vm.categoryAndGroupZip
-                .subscribe(onNext: { _ in
-                    vm.initTodoList()
-                })
-                .disposed(by: vm.bag)
+                    .take(1)
+                    .subscribe(onNext: { _ in
+                        vm.initTodoList()
+                    })
+                    .disposed(by: vm.bag)
             })
             .disposed(by: bag)
     }
@@ -209,10 +238,10 @@ class HomeCalendarViewModel {
             .disposed(by: bag)
         
         input
-            .didScrollTo
+            .didScrollToIndex
             .withUnretained(self)
-            .subscribe { vm, direction in
-                vm.scrolledTo(direction: direction)
+            .subscribe { vm, index in
+                vm.scrolledTo(index: index)
             }
             .disposed(by: bag)
         
@@ -220,7 +249,7 @@ class HomeCalendarViewModel {
             .didSelectItem
             .withUnretained(self)
             .subscribe { vm, index in
-                vm.showDailyTodoPage.onNext(vm.mainDayList[index.0][index.1])
+                vm.showDailyTodoPage.onNext(vm.mainDays[index.0][index.1])
             }
             .disposed(by: bag)
         
@@ -229,8 +258,8 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .subscribe { vm, indexRange in
                 vm.showCreateMultipleTodo.onNext((
-                    vm.mainDayList[indexRange.0][indexRange.1.0].date,
-                    vm.mainDayList[indexRange.0][indexRange.1.1].date
+                    vm.mainDays[indexRange.0][indexRange.1.0].date,
+                    vm.mainDays[indexRange.0][indexRange.1.1].date
                 ))
             }
             .disposed(by: bag)
@@ -240,8 +269,8 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .subscribe { vm, _ in
                 guard let currentDate = try? vm.currentDate.value() else { return }
-                let first = vm.mainDayList[0][7].date
-                let last = vm.mainDayList[vm.mainDayList.count-1][7].date
+                let first = vm.mainDays[0][7].date
+                let last = vm.mainDays[vm.mainDays.count-1][7].date
                 vm.showMonthPicker.onNext((first, currentDate, last))
             }
             .disposed(by: bag)
@@ -250,7 +279,7 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vm, date in
-                let start = vm.mainDayList[0][7].date
+                let start = vm.mainDays[0][7].date
                 let index = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
                 vm.currentIndex = index
                 vm.currentDate.onNext(date)
@@ -261,6 +290,15 @@ class HomeCalendarViewModel {
         
         input.filterGroupWithId
             .bind(to: filteredGroupId)
+            .disposed(by: bag)
+                
+        input
+            .refreshRequired
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.nowRefreshing = true
+                vm.fetchAll()
+            })
             .disposed(by: bag)
         
         return Output(
@@ -276,7 +314,8 @@ class HomeCalendarViewModel {
             profileImageFetched: fetchedProfileImage.asObservable(),
             needWelcome: needWelcome.asObservable(),
             groupListFetched: initialReadGroup.asObservable(),
-            needFilterGroupWithId: filteredGroupId.asObservable()
+            needFilterGroupWithId: filteredGroupId.asObservable(),
+            didFinishRefreshing: didFinishRefreshing.asObservable()
         )
     }
     
@@ -285,31 +324,57 @@ class HomeCalendarViewModel {
     }
     
     func initCalendar(date: Date) {
-        mainDayList = (endOfFirstIndex...endOfLastIndex).map { diff -> [DayViewModel] in
+        mainDays = (endOfFirstIndex...endOfLastIndex).map { diff -> [DayViewModel] in
             let calendarDate = self.calendar.date(byAdding: DateComponents(month: diff), to: date) ?? Date()
             return createMonthlyCalendarUseCase.execute(date: calendarDate)
         }
         currentIndex = -endOfFirstIndex
-//        latestPrevCacheRequestedIndex = currentIndex
-//        latestFollowingCacheRequestedIndex = currentIndex
+        latestPrevCacheRequestedIndex = currentIndex
+        latestFollowingCacheRequestedIndex = currentIndex
         
         initialDayListFetchedInCenterIndex.onNext(currentIndex)
-        // 여기서 바인딩 할것인가?
+    }
+    
+    func fetchAll() { //네이밍 변경하자..!
+        initialReadGroup.onNext(nil)
+        initialReadCategory.onNext(nil)
+        initialReadGroupCategory.onNext(nil)
+        
+        fetchGroup()
+        fetchCategory()
+        fetchGroupCategory()
+        
+        categoryAndGroupZip
+            .withUnretained(self)
+            .take(1)
+            .subscribe(onNext: { vm, _ in
+                vm.initTodoList()
+            })
+            .disposed(by: bag)
     }
     
     func bindGroupUseCase() {
-        groupCreateUseCase
+        groupCreateUseCase //그룹 생성이나 탈퇴 시 새로 fetch
             .didCreateGroup
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchGroup()
-                vm.fetchCategory()
-                
-                vm.categoryAndGroupZip
-                    .subscribe(onNext: { _ in
-                        vm.initTodoList()
-                    })
-                    .disposed(by: vm.bag)
+                vm.fetchAll()
+            })
+            .disposed(by: bag)
+        
+        withdrawGroupUseCase
+            .didWithdrawGroup
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchAll()
+            })
+            .disposed(by: bag)
+        
+        deleteGroupUseCase
+            .didDeleteGroupWithId
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.fetchAll()
             })
             .disposed(by: bag)
     }
@@ -339,7 +404,7 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, category in
                 guard let id = category.id else { return }
-                vm.categoryDict[id] = category
+                vm.memberCategories[id] = category
             })
             .disposed(by: bag)
         
@@ -348,7 +413,7 @@ class HomeCalendarViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, category in
                 guard let id = category.id else { return }
-                vm.categoryDict[id] = category
+                vm.memberCategories[id] = category
                 vm.needReloadData.onNext(())
             })
             .disposed(by: bag)
@@ -383,20 +448,31 @@ class HomeCalendarViewModel {
                 vm.deleteTodo(firstDate: firstDate, todo: todo)
             })
             .disposed(by: bag)
+        
+        todoCompleteUseCase
+            .didCompleteTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                vm.completeTodo(firstDate: firstDate, todo: todo)
+            })
+            .disposed(by: bag)
     }
     
-    func initTodoList() {
+    func initTodoList() { //index를 기점으로 초기화
         latestPrevCacheRequestedIndex = currentIndex
         latestFollowingCacheRequestedIndex = currentIndex
         
         let fromIndex = (currentIndex - cachingAmount >= 0) ? currentIndex - cachingAmount : 0
-        let toIndex = currentIndex + cachingAmount + 1 < mainDayList.count ? currentIndex + cachingAmount + 1 : mainDayList.count-1
+        let toIndex = currentIndex + cachingAmount + 1 < mainDays.count ? currentIndex + cachingAmount + 1 : mainDays.count-1
         
         fetchTodoList(from: fromIndex, to: toIndex)
     }
 
-    func scrolledTo(direction: ScrollDirection) {
-        updateCurrentDate(direction: direction)
+    func scrolledTo(index: Int) {
+        let indexBefore = currentIndex
+        currentIndex = index
+        
+        updateCurrentDate(direction: (indexBefore == index) ? .none : (indexBefore > index) ? .left : .right)
         checkCacheLoadNeed()
     }
     
@@ -408,13 +484,11 @@ class HomeCalendarViewModel {
                                 byAdding: DateComponents(month: -1),
                                 to: previousDate
                         ))
-            currentIndex-=1
         case .right:
             currentDate.onNext(self.calendar.date(
                                 byAdding: DateComponents(month: 1),
                                 to: previousDate
                         ))
-            currentIndex+=1
         case .none:
             return
         }
@@ -460,21 +534,17 @@ class HomeCalendarViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
-                (fromIndex..<toIndex).forEach { index in
-                    self.mainDayList[index] = self.mainDayList[index].map {
-                        guard let todoList = todoDict[$0.date] else {
-                            return $0
-                        }
-                        var dayViewModel = $0
-                        dayViewModel.todoList = todoList
-                        return dayViewModel
-                    }
-                }
+                self.todos.merge(todoDict) { (_, new) in new }
                 self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
+                
+                if self.nowRefreshing {
+                    self.nowRefreshing = false
+                    self.didFinishRefreshing.onNext(())
+                }
             })
             .disposed(by: bag)
     }
@@ -491,14 +561,40 @@ class HomeCalendarViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
+                self?.memberCategories = [:]
                 list.forEach {
                     guard let id = $0.id else { return }
-                    self?.categoryDict[id] = $0
+                    self?.memberCategories[id] = $0
                 }
                 self?.initialReadCategory.onNext(())
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchGroupCategory() {
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<[Category]> in
+                guard let self else {
+                    throw DefaultError.noCapturedSelf
+                }
+                return self.fetchGroupCategoryListUseCase
+                    .execute(token: token)
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: NetworkManagerError.tokenExpired
+            )
+            .subscribe(onSuccess: { [weak self] list in
+                self?.groupCategories = [:]
+                list.forEach {
+                    guard let id = $0.id else { return }
+                    self?.groupCategories[id] = $0
+                }
+                self?.initialReadGroupCategory.onNext(())
             })
             .disposed(by: bag)
     }
@@ -515,11 +611,12 @@ class HomeCalendarViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
+                self?.groups = [:]
                 list.forEach {
-                    self?.groupDict[$0.groupId] = $0
+                    self?.groups[$0.groupId] = $0
                 }
                 self?.initialReadGroup.onNext(())
             })
@@ -539,20 +636,18 @@ class HomeCalendarViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] profile in
                 guard let self else { return }
                 
                 self.needWelcome.onNext("\(profile.nickName)님 반갑습니다!")
                 self.profile = profile
-                print(profile)
+
                 guard let imageUrl = profile.imageUrl else {
-                    print("no image")
                     self.fetchedProfileImage.onNext(nil)
                     return
                 }
-                print("yes image")
                 self.fetchImageUseCase.execute(key: imageUrl)
                     .subscribe(onSuccess: { data in
                         self.fetchedProfileImage.onNext(data)
@@ -563,159 +658,126 @@ class HomeCalendarViewModel {
     }
     
     func createTodo(firstDate: Date, todo: Todo) {
-        let date = todo.startDate
-        let monthIndex = calendar.dateComponents([.month], from: firstDate, to: date).month ?? 0
-        
+
         var sectionSet = IndexSet()
         
-        if monthIndex > 0,
-           let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }) {
-            mainDayList[monthIndex - 1][prevDayIndex].todoList.append(todo)
-            sectionSet.insert(monthIndex - 1)
+        // todo의 startDate ~ endDate까지 추가만 하면됨. section은 어떻게 찾을건가???
+        var tmpDate = todo.startDate
+        while(tmpDate <= todo.endDate) {
+            if todos[tmpDate] == nil {
+                todos[tmpDate] = []
+            }
+            todos[tmpDate]?.append(todo)
+            let sectionIndex = calendar.dateComponents([.month], from: firstDate, to: tmpDate).month ?? 0
+            let range = ((sectionIndex > 0) ? sectionIndex - 1 : sectionIndex)
+            ...
+            ((sectionIndex < endOfLastIndex - endOfFirstIndex) ? sectionIndex + 1 : sectionIndex)
+            sectionSet.insert(integersIn: range)
+            
+            tmpDate = calendar.date(byAdding: DateComponents(day: 1), to: tmpDate) ?? Date()
         }
-        if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }) {
-            mainDayList[monthIndex][dayIndex].todoList.append(todo)
-            sectionSet.insert(monthIndex)
-        }
-        if monthIndex < mainDayList.count - 1,
-           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}) {
-            mainDayList[monthIndex + 1][followingDayIndex].todoList.append(todo)
-            sectionSet.insert(monthIndex + 1)
+
+        needReloadSectionSet.onNext(sectionSet)
+    }
+    
+    func completeTodo(firstDate: Date, todo: Todo) {
+        var sectionSet = IndexSet()
+                
+        var tmpDate = todo.startDate
+        while(tmpDate <= todo.endDate) {
+            guard let todoIndex = todos[tmpDate]?.firstIndex(where: { $0.id == todo.id && $0.isGroupTodo == todo.isGroupTodo }) else { return }
+            todos[tmpDate]?[todoIndex] = todo
+            let sectionIndex = calendar.dateComponents([.month], from: firstDate, to: tmpDate).month ?? 0
+            let range = ((sectionIndex > 0) ? sectionIndex - 1 : sectionIndex)
+            ...
+            ((sectionIndex < endOfLastIndex - endOfFirstIndex) ? sectionIndex + 1 : sectionIndex)
+            sectionSet.insert(integersIn: range)
+            
+            tmpDate = calendar.date(byAdding: DateComponents(day: 1), to: tmpDate) ?? Date()
         }
         
         needReloadSectionSet.onNext(sectionSet)
     }
 
     func updateTodo(firstDate: Date, todoUpdate: TodoUpdateComparator) {
-        
+        // 지금 방식 너무 복잡함..! 그냥 무조건 삭제하고 다시 추가하는 방식으로 가자..!
         let todoBeforeUpdate = todoUpdate.before
         let todoAfterUpdate = todoUpdate.after
-                
-        let befMonthIndex = calendar.dateComponents([.month], from: firstDate, to: todoBeforeUpdate.startDate).month ?? 0
-        let befDayIndex = mainDayList[befMonthIndex].firstIndex(where: { $0.date == todoBeforeUpdate.startDate }) ?? 0
-        let afterMonthIndex = calendar.dateComponents([.month], from: firstDate, to: todoAfterUpdate.startDate).month ?? 0
-        let afterDayIndex = mainDayList[afterMonthIndex].firstIndex(where: { $0.date == todoAfterUpdate.startDate }) ?? 0
         var sectionSet = IndexSet()
         
-        if befMonthIndex == afterMonthIndex,
-           befDayIndex == afterDayIndex {
-            if afterMonthIndex > 0,
-               let prevDayIndex = mainDayList[afterMonthIndex - 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate }),
-               let todoIndex = mainDayList[afterMonthIndex - 1][prevDayIndex].todoList.firstIndex(where: { $0.id == todoAfterUpdate.id }) {
-                mainDayList[afterMonthIndex - 1][prevDayIndex].todoList[todoIndex] = todoAfterUpdate
-                sectionSet.insert(afterMonthIndex - 1)
-            }
+        var removingTmpDate = todoBeforeUpdate.startDate
+        while removingTmpDate <= todoBeforeUpdate.endDate {
+            todos[removingTmpDate]?.removeAll(where: { $0.id == todoBeforeUpdate.id && $0.isGroupTodo == todoBeforeUpdate.isGroupTodo })
             
-            if let dayIndex = mainDayList[afterMonthIndex].firstIndex(where: { $0.date == todoAfterUpdate.startDate }),
-               let todoIndex = mainDayList[afterMonthIndex][dayIndex].todoList.firstIndex(where: { $0.id == todoAfterUpdate.id }) {
-                mainDayList[afterMonthIndex][dayIndex].todoList[todoIndex] = todoAfterUpdate
-                sectionSet.insert(afterMonthIndex)
-            }
+            let sectionIndex = calendar.dateComponents([.month], from: firstDate, to: removingTmpDate).month ?? 0
+
+            let range = ((sectionIndex > 0) ? sectionIndex - 1 : sectionIndex)
+            ...
+            ((sectionIndex < endOfLastIndex - endOfFirstIndex) ? sectionIndex + 1 : sectionIndex)
+            sectionSet.insert(integersIn: range)
             
-            if afterMonthIndex < mainDayList.count - 1,
-               let followingDayIndex = mainDayList[afterMonthIndex + 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate}),
-               let todoIndex = mainDayList[afterMonthIndex + 1][followingDayIndex].todoList.firstIndex(where: { $0.id == todoAfterUpdate.id }) {
-                mainDayList[afterMonthIndex + 1][followingDayIndex].todoList[todoIndex] = todoAfterUpdate
-                sectionSet.insert(afterMonthIndex + 1)
-            }
-        } else {
-            // MARK: Remove Todo
-            if befMonthIndex > 0,
-               let prevDayIndex = mainDayList[befMonthIndex - 1].firstIndex(where: { $0.date == todoBeforeUpdate.startDate }),
-               let todoIndex = mainDayList[befMonthIndex - 1][prevDayIndex].todoList.firstIndex(where: { $0.id == todoBeforeUpdate.id }) {
-                mainDayList[befMonthIndex - 1][prevDayIndex].todoList.remove(at: todoIndex)
-                sectionSet.insert(befMonthIndex - 1)
-            }
-            
-            if let todoIndex = mainDayList[befMonthIndex][befDayIndex].todoList.firstIndex(where: { $0.id == todoBeforeUpdate.id }) {
-                mainDayList[befMonthIndex][befDayIndex].todoList.remove(at: todoIndex)
-                sectionSet.insert(befMonthIndex)
-            }
-            
-            if befMonthIndex < mainDayList.count - 1,
-               let followingDayIndex = mainDayList[befMonthIndex + 1].firstIndex(where: { $0.date == todoBeforeUpdate.startDate}),
-               let todoIndex = mainDayList[befMonthIndex + 1][followingDayIndex].todoList.firstIndex(where: { $0.id == todoBeforeUpdate.id }) {
-                mainDayList[befMonthIndex + 1][followingDayIndex].todoList.remove(at: todoIndex)
-                sectionSet.insert(befMonthIndex + 1)
-            }
-            
-            // MARK: Create Todo
-            if afterMonthIndex > 0,
-               let prevDayIndex = mainDayList[afterMonthIndex - 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate }) {
-                // 그냥 append 하면 안됨! index 찾아서 사이에 끼워넣어야함..!
-                let todoIndex = mainDayList[afterMonthIndex - 1][prevDayIndex].todoList.insertionIndexOf(todoAfterUpdate) {
-                    $0.id ?? Int() < $1.id ?? Int()
-                }
-                mainDayList[afterMonthIndex - 1][prevDayIndex].todoList.insert(todoAfterUpdate, at: todoIndex)
-                sectionSet.insert(afterMonthIndex - 1)
-            }
-            
-            let todoIndex = mainDayList[afterMonthIndex][afterDayIndex].todoList.insertionIndexOf(todoAfterUpdate) {
-                $0.id ?? Int() < $1.id ?? Int()
-            }
-            print(mainDayList[afterMonthIndex][afterDayIndex].todoList.count, todoIndex)
-            mainDayList[afterMonthIndex][afterDayIndex].todoList.insert(todoAfterUpdate, at: todoIndex)
-            sectionSet.insert(afterMonthIndex)
-            
-            if afterMonthIndex < mainDayList.count - 1,
-               let followingDayIndex = mainDayList[afterMonthIndex + 1].firstIndex(where: { $0.date == todoAfterUpdate.startDate}) {
-                let todoIndex = mainDayList[afterMonthIndex - 1][followingDayIndex].todoList.insertionIndexOf(todoAfterUpdate) {
-                    $0.id ?? Int() < $1.id ?? Int()
-                }
-                mainDayList[afterMonthIndex + 1][followingDayIndex].todoList.insert(todoAfterUpdate, at: todoIndex)
-                sectionSet.insert(afterMonthIndex + 1)
-            }
+            removingTmpDate = calendar.date(byAdding: DateComponents(day: 1), to: removingTmpDate) ?? Date()
         }
         
+        var addingTmpDate = todoAfterUpdate.startDate
+        while addingTmpDate <= todoAfterUpdate.endDate {
+            if todos[addingTmpDate] == nil {
+                todos[addingTmpDate] = []
+            }
+            
+            let memberTodos = todos[addingTmpDate]!.enumerated().filter { !$1.isGroupTodo }
+            let indexOfMemberTodos = memberTodos.insertionIndexOf(
+                (Int(), todoAfterUpdate),
+                isOrderedBefore: { $0.element.id! < $1.element.id! }
+            )
+            
+            let todoIndex = indexOfMemberTodos == memberTodos.count ? todos[addingTmpDate]!.count : memberTodos[indexOfMemberTodos].offset
+            todos[addingTmpDate]?.insert(todoAfterUpdate, at: todoIndex)
+
+            
+            let sectionIndex = calendar.dateComponents([.month], from: firstDate, to: addingTmpDate).month ?? 0
+            let range = ((sectionIndex > 0) ? sectionIndex - 1 : sectionIndex)
+            ...
+            ((sectionIndex < endOfLastIndex - endOfFirstIndex) ? sectionIndex + 1 : sectionIndex)
+            sectionSet.insert(integersIn: range)
+            addingTmpDate = calendar.date(byAdding: DateComponents(day: 1), to: addingTmpDate) ?? Date()
+        }
         needReloadSectionSet.onNext(sectionSet)
     }
     
     func deleteTodo(firstDate: Date, todo: Todo) {
-        let date = todo.startDate
-        let monthIndex = calendar.dateComponents([.month], from: firstDate, to: date).month ?? 0
         
         var sectionSet = IndexSet()
+        
+        // todo의 startDate ~ endDate까지 추가만 하면됨. section은 어떻게 찾을건가???
+        var tmpDate = todo.startDate
+        while(tmpDate <= todo.endDate) {
+            todos[tmpDate]?.removeAll(where: { $0.id == todo.id && $0.isGroupTodo == todo.isGroupTodo })
+            let sectionIndex = calendar.dateComponents([.month], from: firstDate, to: tmpDate).month ?? 0
+            let range = ((sectionIndex > 0) ? sectionIndex - 1 : sectionIndex)
+            ...
+            ((sectionIndex < endOfLastIndex - endOfFirstIndex) ? sectionIndex + 1 : sectionIndex)
+            sectionSet.insert(integersIn: range)
+            tmpDate = calendar.date(byAdding: DateComponents(day: 1), to: tmpDate) ?? Date()
+        }
 
-        if monthIndex > 0,
-           let prevDayIndex = mainDayList[monthIndex - 1].firstIndex(where: { $0.date == date }),
-           let todoIndex = mainDayList[monthIndex - 1][prevDayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex - 1][prevDayIndex].todoList.remove(at: todoIndex)
-            sectionSet.insert(monthIndex - 1)
-        }
-        
-        if let dayIndex = mainDayList[monthIndex].firstIndex(where: { $0.date == date }),
-           let todoIndex = mainDayList[monthIndex][dayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex][dayIndex].todoList.remove(at: todoIndex)
-            sectionSet.insert(monthIndex)
-        }
-        
-        if monthIndex < mainDayList.count - 1,
-           let followingDayIndex = mainDayList[monthIndex + 1].firstIndex(where: { $0.date == date}),
-           let todoIndex = mainDayList[monthIndex + 1][followingDayIndex].todoList.firstIndex(where: { $0.id == todo.id }) {
-            mainDayList[monthIndex + 1][followingDayIndex].todoList.remove(at: todoIndex)
-            sectionSet.insert(monthIndex + 1)
-        }
-        
         needReloadSectionSet.onNext(sectionSet)
     }
     
-    func getMaxInWeek(indexPath: IndexPath) -> DayViewModel {
+    func getMaxCountInWeek(indexPath: IndexPath) -> (offset: Int, element: FilteredTodoViewModel) {
         let item = indexPath.item
         let section = indexPath.section
         
-        var maxItem: Int
-        if let filteredGroupId = try? filteredGroupId.value() {
-            maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-                mainDayList[section][a].todoList.filter { $0.groupId == filteredGroupId }.count < mainDayList[section][b].todoList.filter { $0.groupId == filteredGroupId }.count
-            }) ?? Int()
-        } else {
-            maxItem = ((item-item%7)..<(item+7-item%7)).max(by: { (a,b) in
-                mainDayList[section][a].todoList.count < mainDayList[section][b].todoList.count
-            }) ?? Int()
-        }
+        // 한 주차 내에서만 구해야함
+        let maxItem = Array(filteredTodoCache.enumerated())[indexPath.item - indexPath.item%7..<indexPath.item + 7 - indexPath.item%7].max(by: { a, b in
+            a.element.periodTodo.count + a.element.singleTodo.count < b.element.periodTodo.count + b.element.singleTodo.count
+        }) ?? (offset: Int(), element: FilteredTodoViewModel(periodTodo: [], singleTodo: []))
         
-        return mainDayList[indexPath.section][maxItem]
+        return maxItem
     }
-
+    
+    func generateFilteredTodoOffsetOfWeek(indexPath: IndexPath) {
+        
+    }
 }
 

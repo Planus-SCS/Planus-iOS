@@ -21,6 +21,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 10
         imageView.layer.cornerCurve = .continuous
+        imageView.contentMode = .scaleAspectFill
         return imageView
     }()
     

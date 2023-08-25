@@ -19,7 +19,7 @@ struct URLPathComponent {
     static let google = "/google"
     static let members = "/members"
     static let groups = "/groups"
-    static let joins = "/joins"
+    static let joins = "/group-joins"
     static let myGroups = "/my-groups"
     static let search = "/search"
 }

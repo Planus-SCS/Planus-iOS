@@ -37,7 +37,7 @@ class TestTodoDetailRepository: TodoRepository {
         }
     }
     
-    func readTodo(token: String, from: Date, to: Date) -> Single<ResponseDTO<[TodoEntityResponseDTO]>> { //어케올지 모름!
+    func readTodo(token: String, from: Date, to: Date) -> Single<ResponseDTO<TodoListResponseDTO>> { //어케올지 모름!
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.timeZone = .current
@@ -57,12 +57,11 @@ class TestTodoDetailRepository: TodoRepository {
         
         return apiProvider.requestCodable(
             endPoint: endPoint,
-            type: ResponseDTO<[TodoEntityResponseDTO]>.self
+            type: ResponseDTO<TodoListResponseDTO>.self
         )
     }
     
     func updateTodo(token: String, id: Int, todo: TodoRequestDTO) -> Single<Int> {
-        print(URLPool.todo + "/\(id)")
         let endPoint = APIEndPoint(
             url: URLPool.todo + "/\(id)",
             requestType: .patch,
@@ -102,5 +101,39 @@ class TestTodoDetailRepository: TodoRepository {
         .map { _ in
             return ()
         }
+    }
+    
+    func memberCompletion(token: String, todoId: Int) -> Single<ResponseDTO<TodoResponseDataDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.todo + "/\(todoId)/completion",
+            requestType: .patch,
+            body: nil,
+            query: nil,
+            header: [
+                "Authorization": "Bearer \(token)"
+            ]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<TodoResponseDataDTO>.self
+        )
+    }
+    
+    func groupCompletion(token: String, groupId: Int, todoId: Int) -> Single<ResponseDTO<TodoResponseDataDTO>> {
+        let endPoint = APIEndPoint(
+            url: URLPool.myGroup + "/\(groupId)/todos/\(todoId)/completion",
+            requestType: .patch,
+            body: nil,
+            query: nil,
+            header: [
+                "Authorization": "Bearer \(token)"
+            ]
+        )
+        
+        return apiProvider.requestCodable(
+            endPoint: endPoint,
+            type: ResponseDTO<TodoResponseDataDTO>.self
+        )
     }
 }

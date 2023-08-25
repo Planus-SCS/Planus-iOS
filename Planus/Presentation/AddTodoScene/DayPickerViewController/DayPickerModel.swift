@@ -19,5 +19,4 @@ struct DayPickerModel {
     var dayLabel: String
     var date: Date
     var monthState: MonthStateOfDay
-    var rangeState: DayPickerModelRangeState
 }

@@ -32,6 +32,18 @@ extension UIView {
 
 extension UIView {
     
+    var firstResponder: UIView? {
+        guard !isFirstResponder else { return self }
+
+        for subview in subviews {
+            if let firstResponder = subview.firstResponder {
+                return firstResponder
+            }
+        }
+
+        return nil
+    }
+    
     func setAnimatedIsHidden(_ isHidden: Bool, duration: TimeInterval = 0.2, onCompletion: (() -> Void)? = nil) {
         if isHidden {
             UIView.animate(

@@ -40,7 +40,7 @@ class GroupListViewController: UIViewController {
     }()
     
     var emptyResultView: EmptyResultView = {
-        let view = EmptyResultView(text: "그룹 신청이 없습니다.")
+        let view = EmptyResultView(text: "가입된 그룹이 없습니다.")
         view.isHidden = true
         return view
     }()
@@ -121,19 +121,26 @@ class GroupListViewController: UIViewController {
                 }
                 vc.resultCollectionView.reloadData()
                 vc.emptyResultView.isHidden = !((viewModel.groupList?.count == 0) ?? true)
-                
-                if type == .refresh {
+
+                switch type {
+                case .refresh:
                     vc.showToast(message: "새로고침을 성공하였습니다.", type: .normal)
+                case .remove(let message):
+                    vc.showToast(message: message, type: .normal)
+                default:
+                    return
                 }
             })
             .disposed(by: bag)
         
         output
-            .needReloadItemAt
+            .needReloadItemAt //이걸 리로드로 하면 약간의 flicker가 발생함. without animation으로 할까?
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc.resultCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                UIView.performWithoutAnimation {
+                    vc.resultCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                }
             })
             .disposed(by: bag)
         
@@ -143,6 +150,40 @@ class GroupListViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
                 vc.showToast(message: message, type: .normal)
+            })
+            .disposed(by: bag)
+        
+        output
+            .didSuccessOnlineStateChange
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] (index, isSuccess) in
+                guard let self,
+                      var group = viewModel.groupList?[index],
+                      let cell = self.resultCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? JoinedGroupCell else { return }
+                
+                if isSuccess {
+                    cell.onlineButton.setTitle("\(group.onlineCount)", for: .normal)
+                } else {
+                    let outerSwitchBag = DisposeBag()
+                    cell.outerSwitchBag = outerSwitchBag
+                    
+                    cell.onlineSwitch.isOn = !cell.onlineSwitch.isOn
+                    
+                    cell.onlineSwitch.rx.isOn
+                        .skip(1)
+                        .asObservable() //초기값 무시
+                        .subscribe(onNext: { isOn in
+                            cell.onlineSwitch.isUserInteractionEnabled = false
+                            if isOn {
+                                self.becameOnlineStateAt.onNext(index)
+                            } else {
+                                self.becameOfflineStateAt.onNext(index)
+                            }
+                        })
+                    .disposed(by: outerSwitchBag)
+                }
+                
+                cell.onlineSwitch.isUserInteractionEnabled = true
             })
             .disposed(by: bag)
     }
@@ -197,29 +238,31 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
         
         // 새로 바인딩..!
         let cellBag = DisposeBag()
-        cell.indexPath = indexPath
+        let outerSwitchBag = DisposeBag()
+        
         cell.bag = cellBag
-        cell.isOnline
-            .distinctUntilChanged()
+        cell.outerSwitchBag = outerSwitchBag
+        
+        cell.onlineSwitch.rx.isOn
+            .skip(1)
+            .asObservable() //초기값은 무시
             .withUnretained(self)
             .subscribe(onNext: { vc, isOn in
-                print(isOn)
-                // 네트워크 요청 성공 시 스위치 토글을 옮겨야한다..!
-                // 아니면 요청후 성공하면 유지, 실패하면 다시 원래자리로 돌리는거..?
+                cell.onlineSwitch.isUserInteractionEnabled = false
                 if isOn {
                     vc.becameOnlineStateAt.onNext(indexPath.item)
                 } else {
                     vc.becameOfflineStateAt.onNext(indexPath.item)
                 }
             })
-            .disposed(by: cellBag)
+        .disposed(by: outerSwitchBag)
         
         viewModel?.fetchImage(key: item.groupImageUrl)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { data in
                 cell.fill(image: UIImage(data: data))
             })
-            .disposed(by: bag)
+            .disposed(by: cellBag)
         
         return cell
     }
@@ -253,10 +296,10 @@ extension GroupListViewController {
                                                heightDimension: .absolute(250))
         
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 2)
-        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 14, trailing: 0)
+        group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
 
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 20, trailing: 7)
         
         let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                        heightDimension: .absolute(34))

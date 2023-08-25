@@ -9,23 +9,25 @@ import UIKit
 import RxSwift
 
 class TodoDetailViewController: UIViewController {
+    var keyboardBag: DisposeBag?
     var bag = DisposeBag()
-
+    var completionHandler: (() -> Void)?
+    
     var didSelectCategoryAt = PublishSubject<Int?>()
     var didRequestEditCategoryAt = PublishSubject<Int>() // 생성도 이걸로하자!
-    var didSelectedStartDate = PublishSubject<Date?>()
-    var didSelectedEndDate = PublishSubject<Date?>()
+    var didSelectedDateRange = PublishSubject<DateRange>()
     var didSelectedGroupAt = PublishSubject<Int?>()
     var didChangednewCategoryColor = PublishSubject<CategoryColor?>()
     var didDeleteCategoryId = PublishSubject<Int>()
+    var didChangedTimeValue = PublishSubject<String?>()
     
     var pageType: AddTodoViewControllerPageType = .addTodo
 
-    var viewModel: TodoDetailViewModel?
+    var viewModel: TodoDetailViewModelable?
     
     // MARK: Child ViewController
     var dayPickerViewController = DayPickerViewController(nibName: nil, bundle: nil)
-    var pickerView = UIPickerView()
+    var groupPickerView = UIPickerView()
     
     // MARK: Child View
     var addTodoView = AddTodoView(frame: .zero)
@@ -39,7 +41,7 @@ class TodoDetailViewController: UIViewController {
         return view
     }()
     
-    convenience init(viewModel: TodoDetailViewModel) {
+    convenience init(viewModel: TodoDetailViewModelable) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
@@ -65,10 +67,11 @@ class TodoDetailViewController: UIViewController {
         dayPickerViewController.delegate = self
         addTodoView.titleField.delegate = self
         addTodoView.memoTextView.delegate = self
+        addTodoView.timeField.delegate = self
         
-        pickerView.dataSource = self
-        pickerView.delegate = self
-        addTodoView.groupSelectionField.inputView = pickerView
+        groupPickerView.dataSource = self
+        groupPickerView.delegate = self
+        addTodoView.groupSelectionField.inputView = groupPickerView
         
         addTodoView.addSubview(dayPickerViewController.view)
     }
@@ -86,7 +89,7 @@ class TodoDetailViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
              self.addTodoView.snp.remakeConstraints {
                  $0.bottom.leading.trailing.equalToSuperview()
                  $0.height.lessThanOrEqualTo(700)
@@ -95,10 +98,16 @@ class TodoDetailViewController: UIViewController {
              self.view.layoutIfNeeded()
          }, completion: nil)
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        completionHandler?()
+    }
+    
     private func hideBottomSheetAndGoBack() {
 
         self.view.endEditing(true)
-        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
             self.dimmedView.alpha = 0.0
             switch self.pageType {
             case .addTodo:
@@ -190,6 +199,7 @@ class TodoDetailViewController: UIViewController {
 
         let memoViewObservable = addTodoView
             .memoTextView.rx.text
+            .skip(1)
             .asObservable()
             .map { [weak self] (text) -> String? in
             guard let isMemoFilled = self?.addTodoView.isMemoFilled else { return nil }
@@ -199,16 +209,16 @@ class TodoDetailViewController: UIViewController {
                 return nil
             }
         }
-        let input = TodoDetailViewModel.Input(
-            todoTitleChanged: addTodoView.titleField.rx.text.asObservable(),
-            categorySelected: didSelectCategoryAt.asObservable(),
-            startDayChanged: didSelectedStartDate.asObservable(),
-            endDayChanged: didSelectedEndDate.asObservable(),
-            timeChanged: addTodoView.timeField.rx.text.asObservable(),
-            groupSelected: didSelectedGroupAt.asObservable(),
-            memoChanged: memoViewObservable,
-            newCategoryNameChanged: categoryCreateView.nameField.rx.text.asObservable(),
-            newCategoryColorChanged: didChangednewCategoryColor.asObservable(),
+
+        let input = TodoDetailViewModelableInput(
+            titleTextChanged: addTodoView.titleField.rx.text.skip(1).distinctUntilChanged().asObservable(),
+            categorySelectedAt: didSelectCategoryAt.asObservable(),
+            dayRange: didSelectedDateRange.distinctUntilChanged().asObservable(),
+            timeFieldChanged: didChangedTimeValue.asObservable(),
+            groupSelectedAt: didSelectedGroupAt.distinctUntilChanged().asObservable(),
+            memoTextChanged: memoViewObservable,
+            creatingCategoryNameTextChanged: categoryCreateView.nameField.rx.text.asObservable(),
+            creatingCategoryColorChanged: didChangednewCategoryColor.asObservable(),
             didRemoveCategory: didDeleteCategoryId.asObservable(),
             categoryEditRequested: didRequestEditCategoryAt.asObservable(),
             startDayButtonTapped: addTodoView.startDateButton.rx.tap.asObservable(),
@@ -223,6 +233,68 @@ class TodoDetailViewController: UIViewController {
         )
         
         let output = viewModel.transform(input: input)
+
+        switch output.mode {
+        case .edit:
+            addTodoView.removeButton.isHidden = false
+            addTodoView.titleField.becomeFirstResponder()
+        case .new:
+            addTodoView.removeButton.isHidden = true
+            addTodoView.titleField.becomeFirstResponder()
+        case .view:
+            addTodoView.contentStackView.isUserInteractionEnabled = false
+            dayPickerViewController.view.isHidden = true
+            addTodoView.saveButton.isHidden = true
+            addTodoView.removeButton.isHidden = true
+            addTodoView.contentStackView.snp.remakeConstraints {
+                $0.leading.trailing.equalToSuperview().inset(16)
+                $0.top.equalTo(self.addTodoView.headerBarView.snp.bottom)
+                $0.bottom.equalToSuperview()
+            }
+        }
+        
+        switch output.type {
+        case .memberTodo:
+            addTodoView.groupSelectionField.isUserInteractionEnabled = true
+        case .socialTodo:
+            addTodoView.groupSelectionField.isUserInteractionEnabled = false
+        }
+
+        output
+            .titleValueChanged
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] title in
+                self?.addTodoView.titleField.text = title
+            })
+            .disposed(by: bag)
+        
+        output
+            .memoValueChanged
+            .observe(on: MainScheduler.asyncInstance)
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe(onNext: { vc, memo in //여기서 isMemoField에 따라 ㄱㄱ하자
+                vc.addTodoView.isMemoFilled = (memo != nil)
+                vc.addTodoView.memoTextView.text = memo != nil ? memo : (output.mode == .view) ? "메모가 없습니다" : "메모를 입력하세요"
+                vc.addTodoView.memoTextView.textColor = (memo != nil) ? .black : UIColor(hex: 0xBFC7D7)
+            })
+            .disposed(by: bag)
+        
+        output //계속 뺑그르르 돌고있다...
+            .dayRangeChanged
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] range in
+                self?.dayPickerViewController.setDate(startDate: range.start, endDate: range.end)
+            })
+            .disposed(by: bag)
+        
+        output
+            .timeValueChanged
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] time in
+                self?.addTodoView.timeField.text = time
+            })
+            .disposed(by: bag)
         
         output
             .categoryChanged
@@ -250,9 +322,6 @@ class TodoDetailViewController: UIViewController {
                 vc.addTodoView.groupSelectionField.text = groupName?.groupName ?? ""
             })
             .disposed(by: bag)
-        
-        addTodoView.groupSelectionField.isEnabled = true
-        addTodoView.groupSelectionField.isUserInteractionEnabled = true
         
         output
             .todoSaveBtnEnabled
@@ -339,41 +408,8 @@ class TodoDetailViewController: UIViewController {
                 vc.dismiss(animated: true)
             })
             .disposed(by: bag)
-        
-        
-        // FIXME: 초기셋팅 하드코딩
-        guard let startDate = try? viewModel.todoStartDay.value() else {
-            return
-        }
-        addTodoView.titleField.text = try? viewModel.todoTitle.value()
-        dayPickerViewController.setDate(date: startDate)
-        addTodoView.memoTextView.text = try? viewModel.todoMemo.value()
-        addTodoView.isMemoFilled = (try? viewModel.todoMemo.value()) != nil
-        addTodoView.memoTextView.textColor = ((try? viewModel.todoMemo.value()) != nil) ? .black : UIColor(hex: 0xBFC7D7)
-        addTodoView.timeField.text = try? viewModel.todoTime.value()
-        
-        switch viewModel.todoCreateState {
-        case .edit(_):
-            addTodoView.removeButton.isHidden = false
-            addTodoView.titleField.becomeFirstResponder()
-        case .new:
-            addTodoView.removeButton.isHidden = true
-            addTodoView.titleField.becomeFirstResponder()
-        case .others(_):
-            addTodoView.contentStackView.isUserInteractionEnabled = false
-            addTodoView.titleField.resignFirstResponder()
-            dayPickerViewController.view.isHidden = true
-            addTodoView.saveButton.isHidden = true
-            addTodoView.removeButton.isHidden = true
-            addTodoView.contentStackView.snp.remakeConstraints {
-                $0.leading.trailing.equalToSuperview().inset(16)
-                $0.top.equalTo(self.addTodoView.headerBarView.snp.bottom)
-                $0.bottom.equalToSuperview()
-            }
-        }
-        
-        self.textViewDidBeginEditing(addTodoView.memoTextView)
-        self.textViewDidEndEditing(addTodoView.memoTextView)
+            
+        viewModel.initFetch()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -387,6 +423,17 @@ class TodoDetailViewController: UIViewController {
         if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardRectangle = keyboardFrame.cgRectValue
             let keyboardHeight = keyboardRectangle.height
+            
+            let newKeyboardBag = DisposeBag()
+            keyboardBag = newKeyboardBag
+            viewModel?
+                .showMessage
+                .observe(on: MainScheduler.asyncInstance)
+                .withUnretained(self)
+                .subscribe(onNext: { vc, message in
+                    vc.showToast(message: message.text, type: Message.toToastType(state: message.state), fromBotton: keyboardHeight + 50)
+                })
+                .disposed(by: newKeyboardBag)
             
             switch pageType {
             case .addTodo:
@@ -412,6 +459,17 @@ class TodoDetailViewController: UIViewController {
     }
 
     @objc func keyboardWillHide(_ notification:NSNotification) {
+        let newKeyboardBag = DisposeBag()
+        keyboardBag = newKeyboardBag
+        viewModel?
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+            })
+            .disposed(by: newKeyboardBag)
+        
         switch pageType {
         case .addTodo:
             dayPickerViewController.view.snp.remakeConstraints {
@@ -441,8 +499,7 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_white")
         addTodoView.endDateButton.setTitle("2000.00.00", for: .normal)
         addTodoView.endDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
-        didSelectedStartDate.onNext(didSelectDate)
-        didSelectedEndDate.onNext(nil)
+        didSelectedDateRange.onNext(DateRange(start: didSelectDate))
     }
     
     func unHighlightAllItem(_ dayPickerViewController: DayPickerViewController) {
@@ -451,8 +508,7 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_white")
         addTodoView.endDateButton.setTitle("2000.00.00", for: .normal)
         addTodoView.endDateButton.setTitleColor(UIColor(hex: 0xBFC7D7), for: .normal)
-        didSelectedStartDate.onNext(nil)
-        didSelectedEndDate.onNext(nil)
+        didSelectedDateRange.onNext(DateRange())
     }
     
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDateInRange: (Date, Date)) {
@@ -467,9 +523,8 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
         addTodoView.dateArrowView.image = UIImage(named: "arrow_dark")
         addTodoView.endDateButton.setTitle("\(dayPickerViewController.dateFormatter2.string(from: max))", for: .normal)
         addTodoView.endDateButton.setTitleColor(.black, for: .normal)
-        
-        didSelectedStartDate.onNext(min)
-        didSelectedEndDate.onNext(max)
+        print("didSelect Multiple")
+        didSelectedDateRange.onNext(DateRange(start: min, end: max))
     }
 }
 
@@ -499,6 +554,8 @@ extension TodoDetailViewController: UICollectionViewDataSource, UICollectionView
 
 extension TodoDetailViewController {
     func moveFromAddToSelect() {
+        guard self.pageType != .selectCategory else { return }
+
         self.pageType = .selectCategory
         view.endEditing(true)
         UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
@@ -520,6 +577,8 @@ extension TodoDetailViewController {
     }
     
     func moveFromSelectToCreate() {
+        guard self.pageType != .createCategory else { return }
+
         self.pageType = .createCategory
         categoryCreateView.nameField.becomeFirstResponder()
         UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
@@ -540,6 +599,7 @@ extension TodoDetailViewController {
     }
     
     func moveFromCreateToSelect() {
+        guard self.pageType != .selectCategory else { return }
         self.pageType = .selectCategory
         view.endEditing(true)
         UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
@@ -560,6 +620,8 @@ extension TodoDetailViewController {
     }
     
     func moveFromSelectToAdd() {
+        guard self.pageType != .addTodo else { return }
+        
         self.pageType = .addTodo
         addTodoView.titleField.becomeFirstResponder()
         UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
@@ -606,7 +668,6 @@ extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate
             addTodoView.groupSelectionField.text = nil
             return
         }
-        print(row-1)
         didSelectedGroupAt.onNext(row-1)
     }
 }
@@ -673,6 +734,45 @@ extension TodoDetailViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == self.addTodoView.titleField {
             self.addTodoView.memoTextView.becomeFirstResponder()
+        }
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == self.addTodoView.timeField {
+            let separator: Character = ":"
+            if string == "" { //backspace
+                if var textString = textField.text,
+                   !textString.isEmpty {
+                    textString = textString.replacingOccurrences(of: String(separator), with: "")
+                    textString = String(textString.dropLast())
+                    if textString.count >= 2 {
+                        textString.insert(separator, at: textString.index(textString.startIndex, offsetBy: 2)
+)
+                    }
+                    textField.text = textString
+                    didChangedTimeValue.onNext(textString)
+                }
+                return false
+            } else if var textString = textField.text {
+                if textString.contains(separator) {
+                    textString = textString.replacingOccurrences(of: String(separator), with: "")
+                }
+                
+                if textString.count == 4 {
+                    return false
+                }
+                textString += string
+
+                if textString.count >= 2 {
+                    textString.insert(separator, at: textString.index(textString.startIndex, offsetBy: 2))
+                }
+                textField.text = textString
+                didChangedTimeValue.onNext(textString)
+
+                return false
+            } else {
+            }
         }
         return true
     }

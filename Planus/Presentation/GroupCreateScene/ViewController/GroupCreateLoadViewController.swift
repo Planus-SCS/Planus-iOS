@@ -86,7 +86,8 @@ class GroupCreateLoadViewController: UIViewController {
                     fetchImageUseCase: fetchImageUseCase,
                     setOnlineUseCase: setOnlineStateUseCase,
                     updateNoticeUseCase: DefaultUpdateNoticeUseCase.shared,
-                    updateInfoUseCase: DefaultUpdateGroupInfoUseCase.shared
+                    updateInfoUseCase: DefaultUpdateGroupInfoUseCase.shared,
+                    withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared
                 )
                 myGroupDetailVM.setGroupId(id: groupId)
                 myGroupDetailVM.setActions(actions: JoinedGroupDetailViewModelActions(pop: {

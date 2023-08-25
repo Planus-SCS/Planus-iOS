@@ -31,7 +31,7 @@ class SearchHomeViewModel {
     var resultEnded = PublishSubject<Void>()
     
     var page: Int = 0
-    var size: Int = 5
+    var size: Int = 10
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -142,7 +142,7 @@ class SearchHomeViewModel {
             }
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
-                errorType: TokenError.noTokenExist
+                errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
                 guard let self else { return }
