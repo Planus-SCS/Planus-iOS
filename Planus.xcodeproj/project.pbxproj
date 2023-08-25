@@ -594,6 +594,9 @@
 		6AF078072A98BE860086692B /* TodoDetailVC+DayPickerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF078062A98BE860086692B /* TodoDetailVC+DayPickerDelegate.swift */; };
 		6AF078092A98BE9C0086692B /* TodoDetailVC+TableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF078082A98BE9C0086692B /* TodoDetailVC+TableView.swift */; };
 		6AF0780B2A98BF010086692B /* TodoDetailVC+PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF0780A2A98BF010086692B /* TodoDetailVC+PickerView.swift */; };
+		6AF0780F2A98E5480086692B /* onlineSmall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0780C2A98E5470086692B /* onlineSmall@2x.png */; };
+		6AF078102A98E5480086692B /* onlineSmall.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0780D2A98E5470086692B /* onlineSmall.png */; };
+		6AF078112A98E5480086692B /* onlineSmall@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0780E2A98E5480086692B /* onlineSmall@3x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1187,6 +1190,9 @@
 		6AF078062A98BE860086692B /* TodoDetailVC+DayPickerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoDetailVC+DayPickerDelegate.swift"; sourceTree = "<group>"; };
 		6AF078082A98BE9C0086692B /* TodoDetailVC+TableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoDetailVC+TableView.swift"; sourceTree = "<group>"; };
 		6AF0780A2A98BF010086692B /* TodoDetailVC+PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoDetailVC+PickerView.swift"; sourceTree = "<group>"; };
+		6AF0780C2A98E5470086692B /* onlineSmall@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "onlineSmall@2x.png"; sourceTree = "<group>"; };
+		6AF0780D2A98E5470086692B /* onlineSmall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = onlineSmall.png; sourceTree = "<group>"; };
+		6AF0780E2A98E5480086692B /* onlineSmall@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "onlineSmall@3x.png"; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1345,6 +1351,9 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6AF0780D2A98E5470086692B /* onlineSmall.png */,
+				6AF0780C2A98E5470086692B /* onlineSmall@2x.png */,
+				6AF0780E2A98E5480086692B /* onlineSmall@3x.png */,
 				6AF077BB2A960DC50086692B /* detailMemoBtn.png */,
 				6AF077B92A960DC50086692B /* detailMemoBtn@2x.png */,
 				6AF077BA2A960DC50086692B /* detailMemoBtn@3x.png */,
@@ -2997,6 +3006,7 @@
 				6A987A6C29DEE44D00C27D09 /* DefaultProfileMedium2@2x.png in Resources */,
 				6AF077B82A960DBE0086692B /* detailGroupBtn@2x.png in Resources */,
 				6A9199DF2A16A15100108BF4 /* whitePlusBtn.png in Resources */,
+				6AF078112A98E5480086692B /* onlineSmall@3x.png in Resources */,
 				6A24F8B729CE3F800000FD64 /* Pretendard-Bold.otf in Resources */,
 				6A1C81C82A871BBA002326AC /* today@3x.png in Resources */,
 				6AC079442A0A368E007ACDB8 /* uncheck@3x.png in Resources */,
@@ -3055,6 +3065,7 @@
 				6A987A6E29DEE44D00C27D09 /* DefaultProfileMedium2.png in Resources */,
 				6AC0794A2A0A369C007ACDB8 /* check@3x.png in Resources */,
 				6AC079492A0A369C007ACDB8 /* check@2x.png in Resources */,
+				6AF078102A98E5480086692B /* onlineSmall.png in Resources */,
 				6A95DFC729D4EB7C009017D8 /* peopleSmall@3x.png in Resources */,
 				6A08ADAB29C89DEE005947D2 /* kakaoBtn@2x.png in Resources */,
 				6A9199D32A16921B00108BF4 /* removeBtn.png in Resources */,
@@ -3092,6 +3103,7 @@
 				6A987A9529DF1A7A00C27D09 /* plusBtn@2x.png in Resources */,
 				6A987A6829DEE31600C27D09 /* downButton.png in Resources */,
 				6A24F8EA29D1D4A40000FD64 /* user-circle@2x.png in Resources */,
+				6AF0780F2A98E5480086692B /* onlineSmall@2x.png in Resources */,
 				6A24F8BA29CE3F800000FD64 /* Pretendard-Thin.otf in Resources */,
 				6A95E01129D5BE8B009017D8 /* cameraBtn.png in Resources */,
 				6A08AD8729C892E0005947D2 /* calendar-date.png in Resources */,

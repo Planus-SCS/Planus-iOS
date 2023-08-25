@@ -564,7 +564,8 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
                 title: viewModel?.groupTitle ?? "",
                 tag: viewModel?.tag?.map { "#\($0)" }.joined(separator: " ") ?? "",
                 memCount: String(viewModel?.memberCount ?? 0),
-                captin: viewModel?.leaderName ?? ""
+                captin: viewModel?.leaderName ?? "",
+                onlineCount: String((try? viewModel?.onlineCount.value()) ?? 0)
             )
             
             if let url = viewModel?.groupImageUrl {

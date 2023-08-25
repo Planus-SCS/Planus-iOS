@@ -37,7 +37,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .horizontal
         stackView.alignment = .center
-        stackView.spacing = 8
+        stackView.spacing = 6
         return stackView
     }()
     
@@ -61,7 +61,31 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .horizontal
         stackView.alignment = .center
-        stackView.spacing = 8
+        stackView.spacing = 6
+        return stackView
+    }()
+    
+    var onlineIconView: UIImageView = {
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 14, height: 14))
+        imageView.image = UIImage(named: "onlineSmall")
+        imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
+        return imageView
+    }()
+    
+    var onlineCountLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont(name: "Pretendard-Regular", size: 14)
+        label.textColor = UIColor(hex: 0x6F81A9)
+        label.sizeToFit()
+        return label
+    }()
+    
+    var onlineStackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.spacing = 6
         return stackView
     }()
     
@@ -130,8 +154,13 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         captinStackView.addArrangedSubview(captinIconView)
         captinStackView.addArrangedSubview(captinNameLabel)
         
+        self.addSubview(onlineStackView)
+        onlineStackView.addArrangedSubview(onlineIconView)
+        onlineStackView.addArrangedSubview(onlineCountLabel)
+        
         self.addSubview(bottomStackView)
         bottomStackView.addArrangedSubview(memberStackView)
+        bottomStackView.addArrangedSubview(onlineStackView)
         bottomStackView.addArrangedSubview(captinStackView)
     }
     
@@ -169,11 +198,17 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         
     }
     
-    func fill(title: String, tag: String, memCount: String, captin: String) {
+    func fill(title: String, tag: String, memCount: String, captin: String, onlineCount: String? = nil) {
         self.titleLabel.text = title
         self.tagLabel.text = tag
         self.memberCountLabel.text = memCount
         self.captinNameLabel.text = captin
+        if let onlineCount {
+            onlineStackView.isHidden = false
+            onlineCountLabel.text = onlineCount
+        } else {
+            onlineStackView.isHidden = true
+        }
     }
     
     func fill(image: UIImage?) {
