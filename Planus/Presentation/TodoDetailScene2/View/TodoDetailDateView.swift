@@ -75,6 +75,7 @@ class TodoDetailDateView: UIView, TodoDetailAttributeView {
             setEnabled(label: endDateLabel)
             UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
                 self.endDateLabel.isHidden = false
+                self.stackView.layoutIfNeeded()
             })
             break
         case (.some(let start), .none):
@@ -83,6 +84,7 @@ class TodoDetailDateView: UIView, TodoDetailAttributeView {
             setDisabled(label: endDateLabel)
             UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
                 self.endDateLabel.isHidden = true
+                self.stackView.layoutIfNeeded()
             })
         default:
             setDisabled(label: startDateLabel)

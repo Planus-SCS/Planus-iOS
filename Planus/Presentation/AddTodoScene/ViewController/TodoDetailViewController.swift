@@ -761,21 +761,7 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
             } else {
                 addTodoView.titleView.set2lines()
             }
-            
-//            if from != .title {
-//                self.addTodoView.attributeViewGroup[from.rawValue].bottomConstraint.isActive = false
-//            }
-//            if to != .title {
-//                let newAnchor = self.addTodoView.attributeViewGroup[to.rawValue].bottomAnchor.constraint(equalTo: self.addTodoView.contentView.bottomAnchor)
-//                self.addTodoView.attributeViewGroup[to.rawValue].bottomConstraint = newAnchor
-//                newAnchor.isActive = true
-//                self.addTodoView.attributeViewGroup[to.rawValue].alpha = 0
-//                self.addTodoView.attributeViewGroup[to.rawValue].isHidden = false
-//            }
-//
-            /*
-             지금 방식 그대로도 ㄱㅊ긴한데,,,, 약간 애니메이션이 부족하다...! 밑으로 가는거 +,,,
-             */
+
             
             if from != .title {
                 self.addTodoView.attributeViewGroup[from.rawValue].bottomConstraint.isActive = false
@@ -793,7 +779,8 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
                 if to != .title {
                     self.addTodoView.attributeViewGroup[to.rawValue].alpha = 1
                 }
-                
+            })
+            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
                 self.addTodoView.upperView.layoutIfNeeded()
             })
         }

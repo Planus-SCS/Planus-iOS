@@ -70,7 +70,7 @@ class TodoDetailMemoView: UIView, TodoDetailAttributeView {
         memoTextView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.top.bottom.equalToSuperview().inset(10)
-            $0.height.equalTo(90)
+            $0.height.equalTo(130)
         }
     }
 }
