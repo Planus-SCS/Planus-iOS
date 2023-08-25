@@ -36,20 +36,55 @@ class JoinedGroupDetailCoordinator: Coordinator {
         let fetchMyGroupDetailUseCase = DefaultFetchMyGroupDetailUseCase(myGroupRepository: myGroupRepo)
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
         let setOnlineStateUseCase = DefaultSetOnlineUseCase.shared
-        let vm = JoinedGroupDetailViewModel(
+//        let vm = JoinedGroupDetailViewModel(
+//            getTokenUseCase: getTokenUseCase,
+//            refreshTokenUseCase: refreshTokenUseCase,
+//            fetchMyGroupDetailUseCase: fetchMyGroupDetailUseCase,
+//            fetchImageUseCase: fetchImageUseCase,
+//            setOnlineUseCase: setOnlineStateUseCase,
+//            updateNoticeUseCase: DefaultUpdateNoticeUseCase.shared,
+//            updateInfoUseCase: DefaultUpdateGroupInfoUseCase.shared,
+//            withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared
+//        )
+//        vm.setGroupId(id: id)
+//        vm.setActions(actions: JoinedGroupDetailViewModelActions(pop: self?.popCurrentPage))
+//
+//        let vc = JoinedGroupDetailViewController(viewModel: vm)
+        let groupCalendarRepo = DefaultGroupCalendarRepository(apiProvider: api)
+        let groupCategoryRepo = DefaultGroupCategoryRepository(apiProvider: api)
+        let updateNoticeUseCase = DefaultUpdateNoticeUseCase.shared
+        let updateInfoUseCase = DefaultUpdateGroupInfoUseCase.shared
+        let withdrawGroupUseCase = DefaultWithdrawGroupUseCase.shared
+        let fetchMyGroupMemberListUseCase = DefaultFetchMyGroupMemberListUseCase(myGroupRepository: myGroupRepo)
+        let memberKickOutUseCase = DefaultMemberKickOutUseCase.shared
+        let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
+        let fetchMyGroupCalendarUseCase = DefaultFetchGroupMonthlyCalendarUseCase(groupCalendarRepository: groupCalendarRepo)
+        let createGroupTodoUseCase = DefaultCreateGroupTodoUseCase.shared
+        let updateGroupTodoUseCase = DefaultUpdateGroupTodoUseCase.shared
+        let deleteGroupTodoUseCase = DefaultDeleteGroupTodoUseCase.shared
+        let updateGroupCategoryUseCase = DefaultUpdateGroupCategoryUseCase.shared
+        
+        
+        let vm = MyGroupDetailViewModel2(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUseCase: refreshTokenUseCase,
             fetchMyGroupDetailUseCase: fetchMyGroupDetailUseCase,
             fetchImageUseCase: fetchImageUseCase,
             setOnlineUseCase: setOnlineStateUseCase,
-            updateNoticeUseCase: DefaultUpdateNoticeUseCase.shared,
-            updateInfoUseCase: DefaultUpdateGroupInfoUseCase.shared,
-            withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared
+            updateNoticeUseCase: updateNoticeUseCase,
+            updateInfoUseCase: updateInfoUseCase,
+            withdrawGroupUseCase: withdrawGroupUseCase,
+            fetchMyGroupMemberListUseCase: fetchMyGroupMemberListUseCase,
+            memberKickOutUseCase: memberKickOutUseCase,
+            createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
+            fetchMyGroupCalendarUseCase: fetchMyGroupCalendarUseCase,
+            createGroupTodoUseCase: createGroupTodoUseCase,
+            updateGroupTodoUseCase: updateGroupTodoUseCase,
+            deleteGroupTodoUseCase: deleteGroupTodoUseCase,
+            updateGroupCategoryUseCase: updateGroupCategoryUseCase
         )
-        vm.setGroupId(id: id)
-        vm.setActions(actions: JoinedGroupDetailViewModelActions(pop: self?.popCurrentPage))
-
-        let vc = JoinedGroupDetailViewController(viewModel: vm)
+        vm.groupId = id
+        let vc = MyGroupDetailViewController2(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
 
         self?.navigationController.pushViewController(vc, animated: true)
