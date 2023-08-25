@@ -27,7 +27,9 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     var bag = DisposeBag()
     
     let didChangedMonth = PublishSubject<Date>()
-        
+    var didSelectedDayAt = PublishSubject<Int>()
+    var didSelectedMemberAt = PublishSubject<Int>()
+    
     static let headerElementKind = "my-group-detail-view-controller-header-kind"
     
     var nowLoading: Bool = true
@@ -86,6 +88,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         cv.register(MyGroupDetailLoadingCell.self, forCellWithReuseIdentifier: MyGroupDetailLoadingCell.reuseIdentifier)
         
         cv.dataSource = self
+        cv.delegate = self
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
         return cv
     }()
@@ -150,7 +153,10 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         let input = MyGroupDetailViewModel2.Input(
             viewDidLoad: Observable.just(()),
             didTappedModeBtnAt: didTappedButtonAt.asObservable(),
-            onlineStateChanged: Observable.just(true)
+            onlineStateChanged: Observable.just(true),
+            didChangedMonth: didChangedMonth.asObservable(),
+            didSelectedDayAt: didSelectedDayAt.asObservable(),
+            didSelectedMemberAt: didSelectedMemberAt.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -170,7 +176,6 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, type in // 모드와 fetch 결과가 일치해야만 이쪽으로 옴. 따라서 여기선 로딩을 무조건 nil로 만들어도댐
-                print("before: \(vc.collectionView.numberOfSections), now fetching to \(type)")
                 vc.nowLoading = false
                 
                 switch type {
@@ -183,11 +188,12 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                         }
                         vc.collectionView.reloadSections(IndexSet(integer: 1))
                     }
-                case .calendar, .chat:
+                case .calendar:
                     vc.collectionView.performBatchUpdates {
                         if vc.collectionView.numberOfSections == 3 {
                             vc.collectionView.deleteSections(IndexSet(2...2))
                         }
+                        viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                         vc.collectionView.reloadSections(IndexSet(integer: 1))
                     }
                 case .member:
@@ -196,6 +202,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                             vc.collectionView.insertSections(IndexSet(integer: 2))
                         }
                     }
+                case .chat: break
                 }
             })
             .disposed(by: bag)
@@ -206,7 +213,6 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("before: \(vc.collectionView.numberOfSections), now loading to section num 2")
                 vc.collectionView.performBatchUpdates {
                     if vc.collectionView.numberOfSections == 3 {
                         vc.collectionView.deleteSections(IndexSet(2...2))
@@ -218,6 +224,80 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             })
             .disposed(by: bag)
         
+        output
+            .showDailyPage
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, date in
+                guard let groupId = viewModel.groupId,
+                      let groupName = viewModel.groupTitle,
+                      let isOwner = viewModel.isLeader else { return }
+                let nm = NetworkManager()
+                let kc = KeyChainManager()
+                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyChainManager: kc)
+                let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
+                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+                let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyCalendarUseCase(groupCalendarRepository: gcr)
+                let fetchMemberDailyCalendarUseCase = DefaultFetchGroupMemberDailyCalendarUseCase(memberCalendarRepository: DefaultGroupMemberCalendarRepository(apiProvider: nm))
+                let viewModel = SocialTodoDailyViewModel(
+                    getTokenUseCase: getTokenUseCase,
+                    refreshTokenUseCase: refTokenUseCase,
+                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
+                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase,
+                    createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
+                    updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
+                    deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
+                    updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
+                )
+                viewModel.setGroup(group: GroupName(groupId: groupId, groupName: groupName), type: .group(isLeader: isOwner), date: date)
+                let viewController = SocialTodoDailyViewController(viewModel: viewModel)
+                
+                let nav = UINavigationController(rootViewController: viewController)
+                nav.modalPresentationStyle = .pageSheet
+                if let sheet = nav.sheetPresentationController {
+                    sheet.detents = [.medium(), .large()]
+                }
+                vc.present(nav, animated: true)
+            })
+            .disposed(by: bag)
+        
+        output
+            .showMemberProfileAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                guard let groupId = viewModel.groupId,
+                      let groupTitle = viewModel.groupTitle,
+                      let member = viewModel.memberList?[index] else { return }
+                let groupName = GroupName(groupId: groupId, groupName: groupTitle)
+                
+                let api = NetworkManager()
+                let memberCalendarRepo = DefaultGroupMemberCalendarRepository(apiProvider: api)
+                let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
+                let fetchMemberTodoUseCase = DefaultFetchGroupMemberCalendarUseCase(memberCalendarRepository: memberCalendarRepo)
+                let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
+                let keyChainManager = KeyChainManager()
+                
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChainManager)
+                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+                
+                let vm = MemberProfileViewModel(
+                    createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
+                    dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
+                    getTokenUseCase: getTokenUseCase,
+                    refreshTokenUseCase: refreshTokenUseCase,
+                    fetchMemberCalendarUseCase: fetchMemberTodoUseCase,
+                    fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
+                )
+
+                vm.setMember(group: groupName, member: member)
+
+                let viewController = MemberProfileViewController(viewModel: vm)
+                vc.navigationController?.pushViewController(viewController, animated: true)
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {
@@ -240,86 +320,82 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             $0.trailing.equalToSuperview().inset(initialTrailing)
         }
 
-        var swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(ppp))
+        var swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(swipe))
         swipeLeft.direction = .left
         clearPanningView?.addGestureRecognizer(swipeLeft)
     }
-    @objc func ppp(_ gestureRecognizer: UISwipeGestureRecognizer) {
+    @objc func swipe(_ gestureRecognizer: UISwipeGestureRecognizer) {
         print(gestureRecognizer.direction)
         if gestureRecognizer.direction == .left {
             buttonsView.snp.remakeConstraints {
                 $0.bottom.equalToSuperview().inset(50)
                 $0.trailing.equalTo(self.view).inset(targetTrailing)
             }
-//            UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
-//                self.view.layoutIfNeeded()
-//            }, completion: { _ in
-                
+
             UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
                 self.view.layoutIfNeeded()
             }, completion: { _ in
                 self.buttonsView.stretch()
             })
-                self.clearPanningView?.isHidden = true
-//            })
+            self.clearPanningView?.isHidden = true
         }
     }
-    @objc func pan(_ gestureRecognizer: UIPanGestureRecognizer) {
-        let location = gestureRecognizer.location(in: view)
-        
-        switch gestureRecognizer.state {
-        case .began:
-            firstXOffset = location.x
-        case .changed:
-            // 보정된 x
-            guard let firstXOffset else { return }
-            let move = firstXOffset < location.x ? 0
-            : firstXOffset - location.x > targetTrailing ? targetTrailing
-            : firstXOffset - location.x
-
-            print("move: ", move)
-            buttonsView.snp.remakeConstraints {
-                $0.bottom.equalToSuperview().inset(50)
-                $0.trailing.equalToSuperview().inset(move)
-            }
-        case .ended:
-            guard let firstXOffset else { return }
-
-            let move = firstXOffset < location.x ? 0
-            : firstXOffset - location.x > targetTrailing ? targetTrailing
-            : firstXOffset - location.x
-            
-            if move < targetTrailing/4 {
-                buttonsView.snp.remakeConstraints {
-                    $0.bottom.equalToSuperview().inset(50)
-                    $0.trailing.equalTo(self.view).inset(initialTrailing)
-                }
-                UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseIn, animations: {
-                    self.view.layoutIfNeeded()
-                })
-            } else {
-                print("viewFrameWidth", view.frame.width, "screenWidth", UIScreen.main.bounds.width)
-                print("targetTrail: ", targetTrailing)
-                buttonsView.snp.remakeConstraints {
-                    $0.bottom.equalToSuperview().inset(50)
-                    $0.trailing.equalTo(self.view).inset(targetTrailing)
-                }
-                UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
-                    self.view.layoutIfNeeded()
-                }, completion: { _ in
-                    self.buttonsView.stretch()
-                    self.clearPanningView?.isHidden = true
-                })
-            }
-        default:
-            break
-        }
-    }
+    
+//    @objc func pan(_ gestureRecognizer: UIPanGestureRecognizer) {
+//        let location = gestureRecognizer.location(in: view)
+//
+//        switch gestureRecognizer.state {
+//        case .began:
+//            firstXOffset = location.x
+//        case .changed:
+//            // 보정된 x
+//            guard let firstXOffset else { return }
+//            let move = firstXOffset < location.x ? 0
+//            : firstXOffset - location.x > targetTrailing ? targetTrailing
+//            : firstXOffset - location.x
+//
+//            print("move: ", move)
+//            buttonsView.snp.remakeConstraints {
+//                $0.bottom.equalToSuperview().inset(50)
+//                $0.trailing.equalToSuperview().inset(move)
+//            }
+//        case .ended:
+//            guard let firstXOffset else { return }
+//
+//            let move = firstXOffset < location.x ? 0
+//            : firstXOffset - location.x > targetTrailing ? targetTrailing
+//            : firstXOffset - location.x
+//
+//            if move < targetTrailing/4 {
+//                buttonsView.snp.remakeConstraints {
+//                    $0.bottom.equalToSuperview().inset(50)
+//                    $0.trailing.equalTo(self.view).inset(initialTrailing)
+//                }
+//                UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseIn, animations: {
+//                    self.view.layoutIfNeeded()
+//                })
+//            } else {
+//                print("viewFrameWidth", view.frame.width, "screenWidth", UIScreen.main.bounds.width)
+//                print("targetTrail: ", targetTrailing)
+//                buttonsView.snp.remakeConstraints {
+//                    $0.bottom.equalToSuperview().inset(50)
+//                    $0.trailing.equalTo(self.view).inset(targetTrailing)
+//                }
+//                UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
+//                    self.view.layoutIfNeeded()
+//                }, completion: { _ in
+//                    self.buttonsView.stretch()
+//                    self.clearPanningView?.isHidden = true
+//                })
+//            }
+//        default:
+//            break
+//        }
+//    }
     
     @objc func buttonTapped(_ sender: UIButton) {
         if sender.tag == 0 {
             buttonsView.shrink { [weak self] in
-//            buttonsView.shrink()
                 UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
                     self?.buttonsView.snp.remakeConstraints {
                         $0.bottom.equalToSuperview().inset(50)
@@ -330,8 +406,6 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                     self?.clearPanningView?.isHidden = false
                 })
             }
-            
-            
         } else {
             didTappedButtonAt.onNext(sender.tag)
         }
@@ -345,7 +419,22 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     }
 }
 
-extension MyGroupDetailViewController2: UICollectionViewDataSource {
+extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        switch viewModel?.mode {
+        case .notice:
+            if indexPath.section == 2 {
+                didSelectedMemberAt.onNext(indexPath.item)
+            }
+        case .calendar:
+            if indexPath.section == 1 {
+                didSelectedDayAt.onNext(indexPath.item)
+            }
+        default: break
+        }
+        return false
+    }
+    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         var ret: Int
         if nowLoading {
@@ -493,7 +582,14 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource {
         switch mode {
         case .notice:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
-            view.fill(title: "우히히", description: "이히히히")
+            switch indexPath.section {
+            case 1:
+                view.fill(title: "공지 사항", description: "우리 이렇게 진행해요")
+            case 2:
+                view.fill(title: "그룹 멤버", description: "우리 이렇게 함께해요")
+            default:
+                break
+            }
             return view
         case .calendar:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier, for: indexPath) as? JoinedGroupDetailCalendarHeaderView else { return UICollectionReusableView() }

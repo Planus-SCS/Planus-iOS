@@ -97,6 +97,7 @@ final class TodoDetailIcnView: UIView {
             delegate?.deactivate(attr: selectedAttr)
             selectedAttr = .title
         }
+        print(selectedAttr)
         delegate?.move(from: viewingAttr, to: selectedAttr)
         viewingAttr = selectedAttr
     }

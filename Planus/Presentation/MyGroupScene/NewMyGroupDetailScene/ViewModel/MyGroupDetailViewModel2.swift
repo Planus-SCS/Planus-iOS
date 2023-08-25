@@ -31,13 +31,17 @@ class MyGroupDetailViewModel2 {
         var viewDidLoad: Observable<Void>
         var didTappedModeBtnAt: Observable<Int>
         var onlineStateChanged: Observable<Bool>
-        
+        var didChangedMonth: Observable<Date>
+        var didSelectedDayAt: Observable<Int>
+        var didSelectedMemberAt: Observable<Int>
     }
     
     struct Output {
         var showMessage: Observable<Message>
         var didFetchSection: Observable<MyGroupSecionType?>
         var nowLoadingWithBefore: Observable<MyGroupDetailMode?>
+        var showDailyPage: Observable<Date>
+        var showMemberProfileAt: Observable<Int>
     }
     var nowLoadingWithBefore = BehaviorSubject<MyGroupDetailMode?>(value: nil)
     
@@ -59,6 +63,8 @@ class MyGroupDetailViewModel2 {
     var memberList: [MyMember]?
     var memberKickedOutAt = PublishSubject<Int>()
     var needReloadMemberAt = PublishSubject<Int>()
+    var showDailyPage = PublishSubject<Date>()
+    var showMemberProfileAt = PublishSubject<Int>()
     
     var didFetchedSection = BehaviorSubject<MyGroupSecionType?>(value: nil)
     
@@ -152,6 +158,8 @@ class MyGroupDetailViewModel2 {
     
     func transform(input: Input) -> Output {
         
+        bindUseCase()
+        
         input
             .viewDidLoad
             .withUnretained(self)
@@ -182,7 +190,6 @@ class MyGroupDetailViewModel2 {
                         
                     }
                 case .calendar:
-                    
                     if vm.mainDayList.isEmpty {
                         vm.nowLoadingWithBefore.onNext(mode)
                         let components = Calendar.current.dateComponents(
@@ -203,11 +210,7 @@ class MyGroupDetailViewModel2 {
                 }
             })
             .disposed(by: bag)
-                    
-                    
-        
-        
-        
+
         input
             .onlineStateChanged
             .withUnretained(self)
@@ -218,9 +221,39 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-
+        input
+            .didChangedMonth
+            .withUnretained(self)
+            .subscribe(onNext: { vm, date in
+                vm.mode = .calendar
+                vm.createCalendar(date: date)
+            })
+            .disposed(by: bag)
         
-        return Output(showMessage: showMessage.asObservable(), didFetchSection: didFetchedSection.asObservable(), nowLoadingWithBefore: nowLoadingWithBefore.asObservable())
+        input
+            .didSelectedMemberAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                vm.showMemberProfileAt.onNext(index)
+            })
+            .disposed(by: bag)
+        
+        input
+            .didSelectedDayAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                let date = vm.mainDayList[index].date
+                vm.showDailyPage.onNext(date)
+            })
+            .disposed(by: bag)
+        
+        return Output(
+            showMessage: showMessage.asObservable(),
+            didFetchSection: didFetchedSection.asObservable(),
+            nowLoadingWithBefore: nowLoadingWithBefore.asObservable(),
+            showDailyPage: showDailyPage.asObservable(),
+            showMemberProfileAt: showMemberProfileAt.asObservable()
+        )
     }
     
     
@@ -271,11 +304,14 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-        createGroupTodoUseCase //삽입하고 리로드 or 다시 받기.. 뭐가 좋을랑가 -> 걍 다시받자!
+        createGroupTodoUseCase
             .didCreateGroupTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
+                print(todo)
                 guard vm.groupId == todo.groupId else { return }
+                print("have groupID but no appear,, why??")
+                print(vm.mode)
                 let startDate = vm.mainDayList.first?.date ?? Date()
                 let endDate = vm.mainDayList.last?.date ?? Date()
                 vm.fetchTodo(from: startDate, to: endDate)
@@ -422,6 +458,7 @@ class MyGroupDetailViewModel2 {
                 self.todos = todoDict
                 
                 if self.mode == .calendar {
+                    print("todo fetched!")
                     self.didFetchedSection.onNext(.calendar)
                 }
             })

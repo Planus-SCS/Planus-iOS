@@ -23,6 +23,7 @@ class DefaultCreateGroupTodoUseCase: CreateGroupTodoUseCase {
         groupCalendarRepository
             .createTodo(token: token.accessToken, groupId: groupId, todo: todo.toDTO())
             .map { [weak self] in
+                print("emit!")
                 self?.didCreateGroupTodo.onNext(todo)
                 return $0
             }

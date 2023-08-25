@@ -369,15 +369,16 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             readCategoryUseCase: readCateogryUseCase
         )
         
+        guard let groupDict = viewModel?.groupDict else { return false }
+        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+        vm.setGroup(groupList: groupList)
+        
         if item.isGroupTodo {
             guard let groupId = item.groupId,
                   let category = viewModel?.groupCategoryDict[item.categoryId] else { return false }
             let groupName = viewModel?.groupDict[groupId]
             vm.initMode(mode: .view, todo: item, category: category, groupName: groupName)
         } else {
-            guard let groupDict = viewModel?.groupDict else { return false }
-            let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-            vm.setGroup(groupList: groupList)
             guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
             var groupName: GroupName?
             if let groupId = item.groupId {
