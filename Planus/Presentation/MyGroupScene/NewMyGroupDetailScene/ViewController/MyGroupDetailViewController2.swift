@@ -29,13 +29,13 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     let didChangedMonth = PublishSubject<Date>()
     var didSelectedDayAt = PublishSubject<Int>()
     var didSelectedMemberAt = PublishSubject<Int>()
+    var didTappedOnlineButton = PublishSubject<Void>()
     
     static let headerElementKind = "my-group-detail-view-controller-header-kind"
     
     var nowLoading: Bool = true
     var didTappedButtonAt = PublishSubject<Int>()
     
-    var clearPanningView: UIView?
     
     let initialTrailing: CGFloat = -27
     let targetTrailing: CGFloat = 20
@@ -48,14 +48,15 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             button.setImage(image, for: .normal)
             button.tag = $0.rawValue
             button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-
-            if $0 == .dot {
-                let view = UIView(frame: button.frame)
-                button.addSubview(view)
-                self?.clearPanningView = view
-            }
             return button
         }
+    }()
+    
+    var swipeBar: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: "swipeBarLeft"))
+        imageView.contentMode = .scaleToFill
+        imageView.backgroundColor = .blue
+        return imageView
     }()
 
     var buttonsView: AnimatedStrechButtonListView = {
@@ -78,9 +79,9 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                     forSupplementaryViewOfKind: Self.headerElementKind,
                     withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier)
         
-        cv.register(GroupIntroduceInfoHeaderView.self,
+        cv.register(MyGroupInfoHeaderView.self,
                     forSupplementaryViewOfKind: Self.headerElementKind,
-                    withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier)
+                    withReuseIdentifier: MyGroupInfoHeaderView.reuseIdentifier)
         
         cv.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
         cv.register(JoinedGroupDetailCalendarHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier)
@@ -154,10 +155,10 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         let input = MyGroupDetailViewModel2.Input(
             viewDidLoad: Observable.just(()),
             didTappedModeBtnAt: didTappedButtonAt.asObservable(),
-            onlineStateChanged: Observable.just(true),
             didChangedMonth: didChangedMonth.asObservable(),
             didSelectedDayAt: didSelectedDayAt.asObservable(),
-            didSelectedMemberAt: didSelectedMemberAt.asObservable()
+            didSelectedMemberAt: didSelectedMemberAt.asObservable(),
+            didTappedOnlineButton: didTappedOnlineButton.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -171,16 +172,6 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             })
             .disposed(by: bag)
         
-//        output //한번에 말고,,, 먼저 오는거 순으로 패치하는게 맞나?? - 그럼 멤버가 먼저와도 이상함. 위에꺼 패치 후 멤버 패치해야하나?
-//            .didInitialFetch
-//            .observe(on: MainScheduler.asyncInstance)
-//            .withUnretained(self)
-//            .subscribe(onNext: { vc, _ in
-//                vc.nowLoading = false
-//                vc.collectionView.reloadData()
-//            })
-//            .disposed(by: bag)
-        
         output //한번에 말고,,, 먼저 오는거 순으로 패치하는게 맞나?? - 그럼 멤버가 먼저와도 이상함. 위에꺼 패치 후 멤버 패치해야하나?
             .didInitialFetch
             .take(1)
@@ -190,7 +181,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                 print("all")
                 vc.nowLoading = false
                 
-                vc.buttonsView.setAnimatedIsHidden(false, duration: 0.2)
+                vc.swipeBar.setAnimatedIsHidden(false, duration: 0.2)
                 
                 vc.collectionView.performBatchUpdates {
                     vc.collectionView.reloadSections(IndexSet(0...1))
@@ -324,6 +315,19 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .disposed(by: bag)
         
         output
+            .onlineStateChanged
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, isOnline in
+                guard let view = vc.collectionView.supplementaryView(forElementKind: Self.headerElementKind, at: IndexPath(item: 0, section: 0)) as? MyGroupInfoHeaderView else { return }
+                view.onlineButton.isOn = isOnline
+                view.onlineCountLabel.text = String(viewModel.onlineCount ?? 0)
+                
+            })
+            .disposed(by: bag)
+        
+        output
             .showDailyPage
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
@@ -406,108 +410,111 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         buttonList.forEach {
             buttonsView.addButton(button: $0)
         }
+        self.view.addSubview(swipeBar)
         
         buttonsView.isHidden = true
+//        swipeBar.isHidden = true
+        
     }
     
     func configureGestureRecognizer() {
-        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(swipe))
-        swipeLeft.direction = .left
-        clearPanningView?.addGestureRecognizer(swipeLeft)
+        print("ddd")
+        let pgr = UIPanGestureRecognizer(target: self, action: #selector(pan))
+        swipeBar.addGestureRecognizer(pgr)
     }
     
     func configureLayout() {
         collectionView.snp.makeConstraints {
             $0.top.leading.trailing.bottom.equalToSuperview()
         }
-
+        
+        swipeBar.snp.makeConstraints {
+            $0.trailing.equalToSuperview()
+            $0.width.equalTo(100)
+            $0.height.equalTo(40)
+            $0.bottom.equalToSuperview().inset(30)
+        }
 
         buttonsView.snp.makeConstraints {
-            $0.bottom.equalToSuperview().inset(50)
+            $0.centerY.equalTo(swipeBar)
             $0.trailing.equalToSuperview().inset(initialTrailing)
         }
     }
     @objc func swipe(_ gestureRecognizer: UISwipeGestureRecognizer) {
+        print("swipe")
         if gestureRecognizer.direction == .left {
-            buttonsView.snp.remakeConstraints {
-                $0.bottom.equalToSuperview().inset(50)
-                $0.trailing.equalTo(self.view).inset(targetTrailing)
-            }
-
-            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-                self.view.layoutIfNeeded()
-            }, completion: { _ in
-                self.buttonList[0].setImage(UIImage(named: "menuHideBtn"), for: .normal)
-                self.buttonsView.stretch()
-            })
-            self.clearPanningView?.isHidden = true
+            print("swipe")
+//            buttonsView.snp.remakeConstraints {
+//                $0.bottom.equalToSuperview().inset(50)
+//                $0.trailing.equalTo(self.view).inset(targetTrailing)
+//            }
+//
+//            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+//                self.view.layoutIfNeeded()
+//            }, completion: { _ in
+//                self.buttonList[0].setImage(UIImage(named: "menuHideBtn"), for: .normal)
+//                self.buttonsView.stretch()
+//            })
         }
     }
     
-//    @objc func pan(_ gestureRecognizer: UIPanGestureRecognizer) {
-//        let location = gestureRecognizer.location(in: view)
+    @objc func pan(_ gestureRecognizer: UIPanGestureRecognizer) {
+        print("in pgr")
+        let location = gestureRecognizer.location(in: view)
+        print(location)
+        switch gestureRecognizer.state {
+        case .began:
+            firstXOffset = location.x
+        case .ended:
+            guard let firstXOffset else { return }
+            let endXOffset = location.x
+            print("moved: \(firstXOffset - endXOffset)")
+            if firstXOffset - endXOffset >= 5 {
+//                self.buttonList[0].setImage(UIImage(named: "menuHideBtn"), for: .normal)
+//                self.buttonsView.alpha = 0
+//                self.buttonsView.isHidden = false
+//                self.buttonsView.stretch()
 //
-//        switch gestureRecognizer.state {
-//        case .began:
-//            firstXOffset = location.x
-//        case .changed:
-//            // 보정된 x
-//            guard let firstXOffset else { return }
-//            let move = firstXOffset < location.x ? 0
-//            : firstXOffset - location.x > targetTrailing ? targetTrailing
-//            : firstXOffset - location.x
-//
-//            print("move: ", move)
-//            buttonsView.snp.remakeConstraints {
-//                $0.bottom.equalToSuperview().inset(50)
-//                $0.trailing.equalToSuperview().inset(move)
-//            }
-//        case .ended:
-//            guard let firstXOffset else { return }
-//
-//            let move = firstXOffset < location.x ? 0
-//            : firstXOffset - location.x > targetTrailing ? targetTrailing
-//            : firstXOffset - location.x
-//
-//            if move < targetTrailing/4 {
-//                buttonsView.snp.remakeConstraints {
-//                    $0.bottom.equalToSuperview().inset(50)
-//                    $0.trailing.equalTo(self.view).inset(initialTrailing)
-//                }
-//                UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseIn, animations: {
-//                    self.view.layoutIfNeeded()
-//                })
-//            } else {
-//                print("viewFrameWidth", view.frame.width, "screenWidth", UIScreen.main.bounds.width)
-//                print("targetTrail: ", targetTrailing)
 //                buttonsView.snp.remakeConstraints {
 //                    $0.bottom.equalToSuperview().inset(50)
 //                    $0.trailing.equalTo(self.view).inset(targetTrailing)
 //                }
-//                UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
-//                    self.view.layoutIfNeeded()
-//                }, completion: { _ in
-//                    self.buttonsView.stretch()
-//                    self.clearPanningView?.isHidden = true
+//
+//                swipeBar.snp.remakeConstraints {
+//                    $0.leading.equalTo(self.view.snp.trailing)
+//                    $0.bottom.equalToSuperview().inset(30)
+//                }
+//                UIView.animate(withDuration: 0.1, animations: {
+//                    self.buttonsView.alpha = 1
 //                })
-//            }
-//        default:
-//            break
-//        }
-//    }
+//                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+//                    self.view.layoutIfNeeded()
+//                })
+            }
+            self.firstXOffset = nil
+        default:
+            break
+        }
+    }
     
     @objc func buttonTapped(_ sender: UIButton) {
         if sender.tag == 0 {
             buttonsView.shrink { [weak self] in
-                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
-                    self?.buttonsView.snp.remakeConstraints {
-                        $0.bottom.equalToSuperview().inset(50)
-                        $0.trailing.equalToSuperview().inset(self?.initialTrailing ?? 0)
-                    }
-                    self?.view.layoutIfNeeded()
+                self?.buttonsView.snp.remakeConstraints {
+                    $0.bottom.equalToSuperview().inset(50)
+                    $0.trailing.equalToSuperview().inset(self?.initialTrailing ?? 0)
+                }
+                self?.swipeBar.snp.remakeConstraints {
+                    $0.trailing.equalToSuperview()
+                    $0.bottom.equalToSuperview().inset(30)
+                }
+                UIView.animate(withDuration: 0.1, delay: 0.1, animations: {
+                    self?.buttonsView.alpha = 0
                 }, completion: { _ in
-                    self?.buttonList[0].setImage(UIImage(named: "menuShowBtn"), for: .normal)
-                    self?.clearPanningView?.isHidden = false
+                    self?.buttonsView.isHidden = true
+                })
+                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
+                    self?.view.layoutIfNeeded()
                 })
             }
         } else {
@@ -649,14 +656,17 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if indexPath.section == 0 {
-            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceInfoHeaderView else { return UICollectionReusableView() }
-
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: MyGroupInfoHeaderView.reuseIdentifier, for: indexPath) as? MyGroupInfoHeaderView else { return UICollectionReusableView() }
+            var viewBag = DisposeBag()
+            view.viewBag = viewBag
+            
             view.fill(
                 title: viewModel?.groupTitle ?? "",
                 tag: viewModel?.tag?.map { "#\($0)" }.joined(separator: " ") ?? "",
                 memCount: String(viewModel?.memberCount ?? 0),
                 captin: viewModel?.leaderName ?? "",
-                onlineCount: String((try? viewModel?.onlineCount.value()) ?? 0)
+                onlineCount: String(viewModel?.onlineCount ?? 0),
+                isOnline: (try? viewModel?.isOnline.value()) ?? false
             )
             
             if let url = viewModel?.groupImageUrl {
@@ -665,8 +675,19 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
                     .subscribe(onSuccess: { data in
                         view.fill(image: UIImage(data: data))
                     })
-                    .disposed(by: bag)
+                    .disposed(by: viewBag)
             }
+            
+            view.onlineButton
+                .rx.tap
+                .throttle(.milliseconds(500), latest: false, scheduler: MainScheduler.instance)
+                .withUnretained(self)
+                .subscribe(onNext: { vc, _ in
+                    view.onlineButton.isOn = !view.onlineButton.isOn
+                    vc.didTappedOnlineButton.onNext(())
+                })
+                .disposed(by: viewBag)
+            
             return view
         }
         

@@ -30,10 +30,10 @@ class MyGroupDetailViewModel2 {
     struct Input {
         var viewDidLoad: Observable<Void>
         var didTappedModeBtnAt: Observable<Int>
-        var onlineStateChanged: Observable<Bool>
         var didChangedMonth: Observable<Date>
         var didSelectedDayAt: Observable<Int>
         var didSelectedMemberAt: Observable<Int>
+        var didTappedOnlineButton: Observable<Void>
     }
     
     struct Output {
@@ -48,6 +48,7 @@ class MyGroupDetailViewModel2 {
         var showMemberProfileAt: Observable<Int>
         var memberKickedOutAt: Observable<Int>
         var needReloadMemberAt: Observable<Int>
+        var onlineStateChanged: Observable<Bool?>
     }
     
     var nowLoadingWithBefore = BehaviorSubject<MyGroupDetailMode?>(value: nil)
@@ -66,7 +67,7 @@ class MyGroupDetailViewModel2 {
     var leaderName: String?
     var isLeader: Bool?
     
-    var onlineCount = BehaviorSubject<Int?>(value: nil)
+    var onlineCount: Int?
     
     var isOnline = BehaviorSubject<Bool?>(value: nil)
     
@@ -214,16 +215,6 @@ class MyGroupDetailViewModel2 {
                 }
             })
             .disposed(by: bag)
-
-        input
-            .onlineStateChanged
-            .withUnretained(self)
-            .subscribe(onNext: { vm, isOnline in
-                guard let currentState = try? vm.isOnline.value(),
-                   currentState != isOnline else { return }
-                vm.setOnlineState(isOnline: isOnline)
-            })
-            .disposed(by: bag)
         
         input
             .didChangedMonth
@@ -251,6 +242,14 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
+        input
+            .didTappedOnlineButton
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.flipOnlineState()
+            })
+            .disposed(by: bag)
+        
         let initFetched = Observable.zip( //만약 먼저 방출하면? 어케되는거지????? 으으으음,,,, 상관없나??? 일단 해보자..!
             didFetchInfo.compactMap { $0 },
             didFetchNotice.compactMap { $0 },
@@ -270,7 +269,8 @@ class MyGroupDetailViewModel2 {
             showDailyPage: showDailyPage.asObservable(),
             showMemberProfileAt: showMemberProfileAt.asObservable(),
             memberKickedOutAt: memberKickedOutAt.asObservable(),
-            needReloadMemberAt: needReloadMemberAt.asObservable()
+            needReloadMemberAt: needReloadMemberAt.asObservable(),
+            onlineStateChanged: isOnline.asObservable()
         )
     }
     
@@ -286,11 +286,13 @@ class MyGroupDetailViewModel2 {
                 let (groupId, memberId) = arg
                 if groupId == vm.groupId {
                     guard let exValue = try? vm.isOnline.value(),
-                          let onlineCount = try? vm.onlineCount.value() else { return }
+                          let onlineCount = vm.onlineCount else { return }
                     let newValue = !exValue
-                    vm.isOnline.onNext(newValue)
-                    vm.onlineCount.onNext(newValue ? (onlineCount + 1) : (onlineCount - 1))
                     
+                    vm.onlineCount = newValue ? (onlineCount + 1) : (onlineCount - 1)
+                    vm.isOnline.onNext(newValue)
+                    
+                    vm.showMessage.onNext(Message(text: "\(vm.groupTitle ?? "") 그룹을 \(newValue ? "온" : "오프")라인으로 전환하였습니다.", state: .normal))
                     guard let index = vm.memberList?.firstIndex(where: { $0.memberId == memberId }),
                           var member = vm.memberList?[index] else { return }
                     
@@ -409,7 +411,7 @@ class MyGroupDetailViewModel2 {
                 self?.tag = detail.groupTags.map { $0.name }
                 self?.memberCount = detail.memberCount
                 self?.limitCount = detail.limitCount
-                self?.onlineCount.onNext(detail.onlineCount)
+                self?.onlineCount = detail.onlineCount
                 self?.leaderName = detail.leaderName
                 self?.notice = detail.notice
                 self?.isOnline.onNext(detail.isOnline)
@@ -494,7 +496,7 @@ class MyGroupDetailViewModel2 {
             .execute(key: key)
     }
     
-    func setOnlineState(isOnline: Bool) {
+    func flipOnlineState() {
         guard let groupId else { return }
         
         getTokenUseCase

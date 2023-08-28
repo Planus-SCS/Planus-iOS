@@ -6,10 +6,11 @@
 //
 
 import UIKit
+import RxSwift
 
 class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     static let reuseIdentifier = "group-introduce-info-header-supplementary-view"
-    
+    var viewBag: DisposeBag?
     var titleImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
