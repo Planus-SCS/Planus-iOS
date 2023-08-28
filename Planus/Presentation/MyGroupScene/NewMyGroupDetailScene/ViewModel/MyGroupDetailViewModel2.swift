@@ -38,12 +38,24 @@ class MyGroupDetailViewModel2 {
     
     struct Output {
         var showMessage: Observable<Message>
-        var didFetchSection: Observable<MyGroupSecionType?>
+        var didInitialFetch: Observable<Void>
+        var didFetchInfo: Observable<Void?>
+        var didFetchNotice: Observable<Void?>
+        var didFetchMember: Observable<Void?>
+        var didFetchCalendar: Observable<Void?>
         var nowLoadingWithBefore: Observable<MyGroupDetailMode?>
         var showDailyPage: Observable<Date>
         var showMemberProfileAt: Observable<Int>
+        var memberKickedOutAt: Observable<Int>
+        var needReloadMemberAt: Observable<Int>
     }
+    
     var nowLoadingWithBefore = BehaviorSubject<MyGroupDetailMode?>(value: nil)
+    
+    var didFetchInfo = BehaviorSubject<Void?>(value: nil)
+    var didFetchNotice = BehaviorSubject<Void?>(value: nil)
+    var didFetchMember = BehaviorSubject<Void?>(value: nil)
+    var didFetchCalendar = BehaviorSubject<Void?>(value: nil)
     
     var groupId: Int?
     var groupTitle: String?
@@ -65,9 +77,7 @@ class MyGroupDetailViewModel2 {
     var needReloadMemberAt = PublishSubject<Int>()
     var showDailyPage = PublishSubject<Date>()
     var showMemberProfileAt = PublishSubject<Int>()
-    
-    var didFetchedSection = BehaviorSubject<MyGroupSecionType?>(value: nil)
-    
+        
     // MARK: mode1, calendar section
     var today: Date = {
         let components = Calendar.current.dateComponents(
@@ -177,17 +187,15 @@ class MyGroupDetailViewModel2 {
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 let mode = MyGroupDetailMode(rawValue: index)
+                vm.mode = mode
                 switch mode {
                 case .notice:
-                    
                     if vm.memberList?.isEmpty ?? true {
                         vm.nowLoadingWithBefore.onNext(vm.mode)
-                        vm.mode = .notice
                         vm.fetchMemberList()
                     } else {
                         vm.mode = .notice
-                        vm.didFetchedSection.onNext(.notice)
-                        
+                        vm.didFetchNotice.onNext(())
                     }
                 case .calendar:
                     if vm.mainDayList.isEmpty {
@@ -198,15 +206,11 @@ class MyGroupDetailViewModel2 {
                         )
                         
                         let currentDate = Calendar.current.date(from: components) ?? Date()
-                        vm.mode = .calendar
                         vm.createCalendar(date: currentDate)
                     } else {
-                        vm.mode = .calendar
-                        vm.didFetchedSection.onNext(.calendar)
+                        vm.didFetchCalendar.onNext(())
                     }
-                case .none:
-                    break
-                default: break
+                default: return
                 }
             })
             .disposed(by: bag)
@@ -247,12 +251,26 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
+        let initFetched = Observable.zip( //만약 먼저 방출하면? 어케되는거지????? 으으으음,,,, 상관없나??? 일단 해보자..!
+            didFetchInfo.compactMap { $0 },
+            didFetchNotice.compactMap { $0 },
+            didFetchMember.compactMap { $0 }
+        )
+            .map { _ in () }
+        //그대로 하고 메인스레드에서 구독을 좀 늦춰서 실험 ㄱㄱ
+        
         return Output(
             showMessage: showMessage.asObservable(),
-            didFetchSection: didFetchedSection.asObservable(),
+            didInitialFetch: initFetched,
+            didFetchInfo: didFetchInfo.asObservable(),
+            didFetchNotice: didFetchNotice.asObservable(),
+            didFetchMember: didFetchMember.asObservable(),
+            didFetchCalendar: didFetchCalendar.asObservable(),
             nowLoadingWithBefore: nowLoadingWithBefore.asObservable(),
             showDailyPage: showDailyPage.asObservable(),
-            showMemberProfileAt: showMemberProfileAt.asObservable()
+            showMemberProfileAt: showMemberProfileAt.asObservable(),
+            memberKickedOutAt: memberKickedOutAt.asObservable(),
+            needReloadMemberAt: needReloadMemberAt.asObservable()
         )
     }
     
@@ -278,7 +296,10 @@ class MyGroupDetailViewModel2 {
                     
                     member.isOnline = !member.isOnline
                     vm.memberList?[index] = member
-                    vm.needReloadMemberAt.onNext(index)
+                    
+                    if vm.mode == .notice {
+                        vm.needReloadMemberAt.onNext(index)
+                    }
                 }
             })
             .disposed(by: bag)
@@ -290,8 +311,10 @@ class MyGroupDetailViewModel2 {
                 guard let id = vm.groupId,
                       id == groupNotice.groupId else { return }
                 vm.notice = groupNotice.notice
-                vm.didFetchedSection.onNext(.notice)
-                vm.showMessage.onNext(Message(text: "공지사항을 업데이트 하였습니다.", state: .normal))
+                if vm.mode == .notice {
+                    vm.didFetchNotice.onNext(())
+                    vm.showMessage.onNext(Message(text: "공지사항을 업데이트 하였습니다.", state: .normal))
+                }
             })
             .disposed(by: bag)
         
@@ -308,10 +331,7 @@ class MyGroupDetailViewModel2 {
             .didCreateGroupTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
-                print(todo)
                 guard vm.groupId == todo.groupId else { return }
-                print("have groupID but no appear,, why??")
-                print(vm.mode)
                 let startDate = vm.mainDayList.first?.date ?? Date()
                 let endDate = vm.mainDayList.last?.date ?? Date()
                 vm.fetchTodo(from: startDate, to: endDate)
@@ -353,12 +373,16 @@ class MyGroupDetailViewModel2 {
         
         memberKickOutUseCase
             .didKickOutMemberAt
-            .subscribe(onNext: { [weak self] (groupId, memberId) in
-                guard let currentGroupId = self?.groupId,
+            .withUnretained(self)
+            .subscribe(onNext: { vm, args in
+                let (groupId, memberId) = args
+                guard let currentGroupId = vm.groupId,
                       groupId == currentGroupId,
-                      let index = self?.memberList?.firstIndex(where: { $0.memberId == memberId }) else { return }
-                self?.memberList?.remove(at: index)
-                self?.memberKickedOutAt.onNext(index)
+                      let index = vm.memberList?.firstIndex(where: { $0.memberId == memberId }) else { return }
+                vm.memberList?.remove(at: index)
+                if vm.mode == .notice {
+                    vm.memberKickedOutAt.onNext(index)
+                }
             })
             .disposed(by: bag)
         
@@ -389,12 +413,12 @@ class MyGroupDetailViewModel2 {
                 self?.leaderName = detail.leaderName
                 self?.notice = detail.notice
                 self?.isOnline.onNext(detail.isOnline)
+                self?.didFetchInfo.onNext(())
                 if self?.mode == .notice {
-                    self?.didFetchedSection.onNext(.info)
-                    self?.didFetchedSection.onNext(.notice)
+                    self?.didFetchNotice.onNext(())
                 }
             })
-            .disposed(by: bag) //.map { "#\($0.name)" }.joined(separator: " ")
+            .disposed(by: bag)
     }
     
     func fetchMemberList() {
@@ -416,7 +440,7 @@ class MyGroupDetailViewModel2 {
                 self?.memberList = list
                 
                 if self?.mode == .notice {
-                    self?.didFetchedSection.onNext(.member)
+                    self?.didFetchMember.onNext(())
                 }
             })
             .disposed(by: bag)
@@ -458,8 +482,7 @@ class MyGroupDetailViewModel2 {
                 self.todos = todoDict
                 
                 if self.mode == .calendar {
-                    print("todo fetched!")
-                    self.didFetchedSection.onNext(.calendar)
+                    self.didFetchCalendar.onNext(())
                 }
             })
             .disposed(by: bag)

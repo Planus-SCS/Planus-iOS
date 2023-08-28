@@ -12,7 +12,7 @@ extension MyGroupDetailMode {
     var imageTitle: String {
         switch self {
         case .dot:
-            return "logoDotCircleBtn"
+            return "menuShowBtn"
         case .notice:
             return "NoticeCircleBtn"
         case .calendar:
@@ -117,6 +117,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
 
         configureView()
         configureLayout()
+        configureGestureRecognizer()
         
         bind()
         
@@ -170,40 +171,111 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             })
             .disposed(by: bag)
         
+//        output //한번에 말고,,, 먼저 오는거 순으로 패치하는게 맞나?? - 그럼 멤버가 먼저와도 이상함. 위에꺼 패치 후 멤버 패치해야하나?
+//            .didInitialFetch
+//            .observe(on: MainScheduler.asyncInstance)
+//            .withUnretained(self)
+//            .subscribe(onNext: { vc, _ in
+//                vc.nowLoading = false
+//                vc.collectionView.reloadData()
+//            })
+//            .disposed(by: bag)
+        
+        output //한번에 말고,,, 먼저 오는거 순으로 패치하는게 맞나?? - 그럼 멤버가 먼저와도 이상함. 위에꺼 패치 후 멤버 패치해야하나?
+            .didInitialFetch
+            .take(1)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                print("all")
+                vc.nowLoading = false
+                
+                vc.buttonsView.setAnimatedIsHidden(false, duration: 0.2)
+                
+                vc.collectionView.performBatchUpdates {
+                    vc.collectionView.reloadSections(IndexSet(0...1))
+                    if vc.collectionView.numberOfSections == 2 {
+                        vc.collectionView.insertSections(IndexSet(integer: 2))
+                    } else {
+                        vc.collectionView.reloadSections(IndexSet(integer: 2))
+                    }
+                }
+            })
+            .disposed(by: self.bag)
+        
+        
+        
         output
-            .didFetchSection
+            .didFetchInfo
+            .compactMap { $0 }
+            .skip(1)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                print("info")
+                vc.nowLoading = false
+                vc.collectionView.reloadSections(IndexSet(integer: 0))
+            })
+            .disposed(by: bag)
+        
+        output
+            .didFetchNotice
+            .compactMap { $0 }
+            .skip(1)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                print("notice")
+                vc.nowLoading = false
+                vc.collectionView.performBatchUpdates({
+                    if vc.collectionView.numberOfSections == 2 {
+                        vc.collectionView.insertSections(IndexSet(integer: 2))
+                    }
+                    vc.collectionView.reloadSections(IndexSet(integer: 1))
+                }, completion: { _ in
+                    vc.collectionView.scrollToItem(at: IndexPath(item: 0, section: 1), at: .top, animated: true)
+                })
+            })
+            .disposed(by: bag)
+        
+        output
+            .didFetchMember
+            .compactMap { $0 }
+            .skip(1)
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                print("member")
+                vc.nowLoading = false
+                vc.collectionView.performBatchUpdates({
+                    if vc.collectionView.numberOfSections == 2 {
+                        vc.collectionView.insertSections(IndexSet(integer: 2))
+                    } else if vc.collectionView.numberOfSections == 3 {
+                        vc.collectionView.reloadSections(IndexSet(integer: 2))
+                    }
+                }, completion: { _ in
+                    vc.collectionView.scrollToItem(at: IndexPath(item: 0, section: 1), at: .top, animated: true)
+                })
+            })
+            .disposed(by: bag)
+        
+        output
+            .didFetchCalendar
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, type in // 모드와 fetch 결과가 일치해야만 이쪽으로 옴. 따라서 여기선 로딩을 무조건 nil로 만들어도댐
+            .subscribe(onNext: { vc, _ in
+                print("calendar")
                 vc.nowLoading = false
-                
-                switch type {
-                case .info:
-                    vc.collectionView.reloadSections(IndexSet(integer: 0))
-                case .notice:
-                    vc.collectionView.performBatchUpdates {
-                        if vc.collectionView.numberOfSections == 2 {
-                            vc.collectionView.insertSections(IndexSet(integer: 2))
-                        }
-                        vc.collectionView.reloadSections(IndexSet(integer: 1))
+                vc.collectionView.performBatchUpdates ({
+                    if vc.collectionView.numberOfSections == 3 {
+                        vc.collectionView.deleteSections(IndexSet(integer: 2))
                     }
-                case .calendar:
-                    vc.collectionView.performBatchUpdates {
-                        if vc.collectionView.numberOfSections == 3 {
-                            vc.collectionView.deleteSections(IndexSet(2...2))
-                        }
-                        viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
-                        vc.collectionView.reloadSections(IndexSet(integer: 1))
-                    }
-                case .member:
-                    vc.collectionView.performBatchUpdates {
-                        if vc.collectionView.numberOfSections == 2 {
-                            vc.collectionView.insertSections(IndexSet(integer: 2))
-                        }
-                    }
-                case .chat: break
-                }
+                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
+                    vc.collectionView.reloadSections(IndexSet(integer: 1))
+                }, completion: { _ in
+                    vc.collectionView.scrollToItem(at: IndexPath(item: 0, section: 1), at: .top, animated: true)
+                })
             })
             .disposed(by: bag)
         
@@ -212,15 +284,42 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
+            .subscribe(onNext: { vc, mode in
                 vc.collectionView.performBatchUpdates {
-                    if vc.collectionView.numberOfSections == 3 {
-                        vc.collectionView.deleteSections(IndexSet(2...2))
-                    }
                     vc.nowLoading = true
+                    switch mode {
+                    case .notice:
+                        if vc.collectionView.numberOfSections == 2 {
+                            vc.collectionView.insertSections(IndexSet(integer: 2))
+                            vc.collectionView.reloadSections(IndexSet(1..<3))
+                        }
+                    case .calendar:
+                        if vc.collectionView.numberOfSections == 3 {
+                            vc.collectionView.deleteSections(IndexSet(integer: 2))
+                            vc.collectionView.reloadSections(IndexSet(1..<2))
+                        }
+                    default: break
+                    }
                     
-                    vc.collectionView.reloadSections(IndexSet(1...1))
                 }
+            })
+            .disposed(by: bag)
+        
+        output
+            .needReloadMemberAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                vc.collectionView.reloadItems(at: [IndexPath(item: index, section: 2)])
+            })
+            .disposed(by: bag)
+        
+        output
+            .memberKickedOutAt
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, index in
+                vc.collectionView.deleteItems(at: [IndexPath(item: index, section: 2)])
             })
             .disposed(by: bag)
         
@@ -303,6 +402,18 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(collectionView)
+        self.view.addSubview(buttonsView)
+        buttonList.forEach {
+            buttonsView.addButton(button: $0)
+        }
+        
+        buttonsView.isHidden = true
+    }
+    
+    func configureGestureRecognizer() {
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(swipe))
+        swipeLeft.direction = .left
+        clearPanningView?.addGestureRecognizer(swipeLeft)
     }
     
     func configureLayout() {
@@ -310,22 +421,13 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             $0.top.leading.trailing.bottom.equalToSuperview()
         }
 
-        self.view.addSubview(buttonsView)
-        buttonList.forEach {
-            buttonsView.addButton(button: $0)
-        }
 
         buttonsView.snp.makeConstraints {
             $0.bottom.equalToSuperview().inset(50)
             $0.trailing.equalToSuperview().inset(initialTrailing)
         }
-
-        var swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(swipe))
-        swipeLeft.direction = .left
-        clearPanningView?.addGestureRecognizer(swipeLeft)
     }
     @objc func swipe(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        print(gestureRecognizer.direction)
         if gestureRecognizer.direction == .left {
             buttonsView.snp.remakeConstraints {
                 $0.bottom.equalToSuperview().inset(50)
@@ -335,6 +437,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
                 self.view.layoutIfNeeded()
             }, completion: { _ in
+                self.buttonList[0].setImage(UIImage(named: "menuHideBtn"), for: .normal)
                 self.buttonsView.stretch()
             })
             self.clearPanningView?.isHidden = true
@@ -403,6 +506,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                     }
                     self?.view.layoutIfNeeded()
                 }, completion: { _ in
+                    self?.buttonList[0].setImage(UIImage(named: "menuShowBtn"), for: .normal)
                     self?.clearPanningView?.isHidden = false
                 })
             }
@@ -436,11 +540,6 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        var ret: Int
-        if nowLoading {
-            return 2
-        }
-        
         let mode = viewModel?.mode
         switch mode {
         case .notice:
@@ -455,18 +554,10 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if nowLoading {
-            switch section {
-            case 0:
-                return 0
-            case 1:
-                return 1
-            default:
-                return 0
-            }
+            return section == 0 ? 0 : 1
         }
         
-        let mode = viewModel?.mode
-        switch mode {
+        switch viewModel?.mode {
         case .notice:
             switch section {
             case 0:

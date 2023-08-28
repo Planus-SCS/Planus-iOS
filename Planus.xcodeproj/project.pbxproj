@@ -597,6 +597,12 @@
 		6AF0780F2A98E5480086692B /* onlineSmall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0780C2A98E5470086692B /* onlineSmall@2x.png */; };
 		6AF078102A98E5480086692B /* onlineSmall.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0780D2A98E5470086692B /* onlineSmall.png */; };
 		6AF078112A98E5480086692B /* onlineSmall@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0780E2A98E5480086692B /* onlineSmall@3x.png */; };
+		6AF078152A98E90F0086692B /* menuShowBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF078122A98E90F0086692B /* menuShowBtn@3x.png */; };
+		6AF078162A98E90F0086692B /* menuShowBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF078132A98E90F0086692B /* menuShowBtn@2x.png */; };
+		6AF078172A98E90F0086692B /* menuShowBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF078142A98E90F0086692B /* menuShowBtn.png */; };
+		6AF0781B2A98E9140086692B /* menuHideBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF078182A98E9140086692B /* menuHideBtn.png */; };
+		6AF0781C2A98E9140086692B /* menuHideBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF078192A98E9140086692B /* menuHideBtn@3x.png */; };
+		6AF0781D2A98E9140086692B /* menuHideBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0781A2A98E9140086692B /* menuHideBtn@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1193,6 +1199,12 @@
 		6AF0780C2A98E5470086692B /* onlineSmall@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "onlineSmall@2x.png"; sourceTree = "<group>"; };
 		6AF0780D2A98E5470086692B /* onlineSmall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = onlineSmall.png; sourceTree = "<group>"; };
 		6AF0780E2A98E5480086692B /* onlineSmall@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "onlineSmall@3x.png"; sourceTree = "<group>"; };
+		6AF078122A98E90F0086692B /* menuShowBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menuShowBtn@3x.png"; sourceTree = "<group>"; };
+		6AF078132A98E90F0086692B /* menuShowBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menuShowBtn@2x.png"; sourceTree = "<group>"; };
+		6AF078142A98E90F0086692B /* menuShowBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = menuShowBtn.png; sourceTree = "<group>"; };
+		6AF078182A98E9140086692B /* menuHideBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = menuHideBtn.png; sourceTree = "<group>"; };
+		6AF078192A98E9140086692B /* menuHideBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menuHideBtn@3x.png"; sourceTree = "<group>"; };
+		6AF0781A2A98E9140086692B /* menuHideBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menuHideBtn@2x.png"; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1351,6 +1363,12 @@
 		6A08AD7529C8927A005947D2 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				6AF078182A98E9140086692B /* menuHideBtn.png */,
+				6AF0781A2A98E9140086692B /* menuHideBtn@2x.png */,
+				6AF078192A98E9140086692B /* menuHideBtn@3x.png */,
+				6AF078142A98E90F0086692B /* menuShowBtn.png */,
+				6AF078132A98E90F0086692B /* menuShowBtn@2x.png */,
+				6AF078122A98E90F0086692B /* menuShowBtn@3x.png */,
 				6AF0780D2A98E5470086692B /* onlineSmall.png */,
 				6AF0780C2A98E5470086692B /* onlineSmall@2x.png */,
 				6AF0780E2A98E5480086692B /* onlineSmall@3x.png */,
@@ -3005,6 +3023,7 @@
 				6A876DD52A951784001D800E /* NoticeCircleBtn@2x.png in Resources */,
 				6A987A6C29DEE44D00C27D09 /* DefaultProfileMedium2@2x.png in Resources */,
 				6AF077B82A960DBE0086692B /* detailGroupBtn@2x.png in Resources */,
+				6AF0781D2A98E9140086692B /* menuHideBtn@2x.png in Resources */,
 				6A9199DF2A16A15100108BF4 /* whitePlusBtn.png in Resources */,
 				6AF078112A98E5480086692B /* onlineSmall@3x.png in Resources */,
 				6A24F8B729CE3F800000FD64 /* Pretendard-Bold.otf in Resources */,
@@ -3032,6 +3051,7 @@
 				6AF077A52A960D9B0086692B /* detailTitleBtn@2x.png in Resources */,
 				6A9AAAF629F8151A002A6DAF /* todoCheck@3x.png in Resources */,
 				6A08AD8B29C892E0005947D2 /* check-done-01@2x.png in Resources */,
+				6AF078152A98E90F0086692B /* menuShowBtn@3x.png in Resources */,
 				6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */,
 				6A95E00629D5B756009017D8 /* GroupAddBtn@2x.png in Resources */,
 				6A95DFF429D5B3DF009017D8 /* back@3x.png in Resources */,
@@ -3053,6 +3073,7 @@
 				6A24F8EC29D1D4A40000FD64 /* user-circle@3x.png in Resources */,
 				6A08AD8829C892E0005947D2 /* search-sm@3x.png in Resources */,
 				6A08AD8D29C892E0005947D2 /* users-02@2x.png in Resources */,
+				6AF078162A98E90F0086692B /* menuShowBtn@2x.png in Resources */,
 				6AF077BC2A960DC50086692B /* detailMemoBtn@2x.png in Resources */,
 				6A876DE12A9517CF001D800E /* ChatCircleBtn.png in Resources */,
 				6A95E01729D5D145009017D8 /* GroupCreateDefaultImage.png in Resources */,
@@ -3063,6 +3084,7 @@
 				6A1C81C92A871BBA002326AC /* today@2x.png in Resources */,
 				6A1B3EFF29D710BC00BFB3A6 /* JoinNotificationProfile@3x.png in Resources */,
 				6A987A6E29DEE44D00C27D09 /* DefaultProfileMedium2.png in Resources */,
+				6AF0781C2A98E9140086692B /* menuHideBtn@3x.png in Resources */,
 				6AC0794A2A0A369C007ACDB8 /* check@3x.png in Resources */,
 				6AC079492A0A369C007ACDB8 /* check@2x.png in Resources */,
 				6AF078102A98E5480086692B /* onlineSmall.png in Resources */,
@@ -3076,6 +3098,7 @@
 				6AF077BE2A960DC50086692B /* detailMemoBtn.png in Resources */,
 				6A24F8B329CE3F800000FD64 /* Pretendard-Medium.otf in Resources */,
 				6A24F8B929CE3F800000FD64 /* Pretendard-ExtraBold.otf in Resources */,
+				6AF078172A98E90F0086692B /* menuShowBtn.png in Resources */,
 				6A08ADAF29C89DEE005947D2 /* appleBtn@2x.png in Resources */,
 				6A9AAACC29F809CC002A6DAF /* todoGroup.png in Resources */,
 				6A987A0E29DBE60600C27D09 /* DefaultProfileSmall.png in Resources */,
@@ -3100,6 +3123,7 @@
 				6A08ADA829C89DEE005947D2 /* appleBtn.png in Resources */,
 				6AF077B02A960DA90086692B /* detailClockBtn@3x.png in Resources */,
 				6A2BB1AC29E406A70053C5CA /* smallArrow@2.png in Resources */,
+				6AF0781B2A98E9140086692B /* menuHideBtn.png in Resources */,
 				6A987A9529DF1A7A00C27D09 /* plusBtn@2x.png in Resources */,
 				6A987A6829DEE31600C27D09 /* downButton.png in Resources */,
 				6A24F8EA29D1D4A40000FD64 /* user-circle@2x.png in Resources */,
