@@ -26,7 +26,8 @@ enum MyGroupSecionType {
 
 class MyGroupDetailViewModel2 {
     let bag = DisposeBag()
-    
+    var actions: JoinedGroupDetailViewModelActions?
+
     struct Input {
         var viewDidLoad: Observable<Void>
         var didTappedModeBtnAt: Observable<Int>
@@ -394,6 +395,10 @@ class MyGroupDetailViewModel2 {
         
     }
     
+    func setActions(actions: JoinedGroupDetailViewModelActions) {
+        self.actions = actions
+    }
+    
     func fetchGroupDetail(groupId: Int, fetchType: FetchType) {
         getTokenUseCase
             .execute()
@@ -516,7 +521,7 @@ class MyGroupDetailViewModel2 {
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
-            .subscribe(onError: { [weak self] _ in
+            .subscribe(onFailure: { [weak self] _ in
                 self?.isOnline.onNext(try? self?.isOnline.value())
             })
             .disposed(by: bag)
@@ -540,7 +545,7 @@ class MyGroupDetailViewModel2 {
             )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
-//                self?.actions?.pop?()
+                self?.actions?.pop?()
             }, onError: {
                 print($0)
             })

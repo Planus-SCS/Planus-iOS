@@ -40,7 +40,7 @@ class MyGroupNoticeEditViewController: UIViewController {
     }()
     
     lazy var saveButton: UIBarButtonItem = {
-        let item = UIBarButtonItem(title: "저장", style: .plain, target: self, action: #selector(saveBtnAction))
+        let item = UIBarButtonItem(image: UIImage(named: "saveBarBtn"), style: .plain, target: self, action: #selector(saveBtnAction))
         item.tintColor = UIColor(hex: 0x6495F4)
         return item
     }()

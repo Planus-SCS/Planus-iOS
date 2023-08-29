@@ -50,7 +50,7 @@ class MyGroupInfoEditViewController: UIViewController {
     }()
     
     lazy var saveButton: UIBarButtonItem = {
-        let item = UIBarButtonItem(title: "저장", style: .plain, target: self, action: #selector(saveBtnTapped))
+        let item = UIBarButtonItem(image: UIImage(named: "saveBarBtn"), style: .plain, target: self, action: #selector(saveBtnTapped))
         item.tintColor = UIColor(hex: 0x6495F4)
         return item
     }()
@@ -92,6 +92,7 @@ class MyGroupInfoEditViewController: UIViewController {
         self.navigationItem.setLeftBarButton(backButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationItem.setRightBarButton(saveButton, animated: false)
+        self.navigationItem.rightBarButtonItem?.tintColor = .black
         self.navigationItem.title = "그룹 편집"
         addKeyboardNotifications()
     }

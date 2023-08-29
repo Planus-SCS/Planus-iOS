@@ -83,6 +83,8 @@ class JoinedGroupDetailCoordinator: Coordinator {
             deleteGroupTodoUseCase: deleteGroupTodoUseCase,
             updateGroupCategoryUseCase: updateGroupCategoryUseCase
         )
+        vm.setActions(actions: JoinedGroupDetailViewModelActions(pop: self?.popCurrentPage))
+
         vm.groupId = id
         let vc = MyGroupDetailViewController2(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true

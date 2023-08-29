@@ -179,6 +179,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                 vc.nowLoading = false
                 
                 vc.swipeBar.setAnimatedIsHidden(false, duration: 0.2)
+                vc.setMenuButton(isLeader: viewModel.isLeader)
                 
                 vc.collectionView.performBatchUpdates {
                     vc.collectionView.reloadSections(IndexSet(0...1))
@@ -583,8 +584,6 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
             default:
                 return 0
             }
-        case .chat:
-            return 0
         default:
             return 0
         }
