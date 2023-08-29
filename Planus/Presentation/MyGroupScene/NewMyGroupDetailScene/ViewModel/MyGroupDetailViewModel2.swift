@@ -49,6 +49,7 @@ class MyGroupDetailViewModel2 {
         var memberKickedOutAt: Observable<Int>
         var needReloadMemberAt: Observable<Int>
         var onlineStateChanged: Observable<Bool?>
+        var modeChanged: Observable<Void>
     }
     
     var nowLoadingWithBefore = BehaviorSubject<MyGroupDetailMode?>(value: nil)
@@ -105,7 +106,7 @@ class MyGroupDetailViewModel2 {
     var mode: MyGroupDetailMode?
     
     let showMessage = PublishSubject<Message>()
-    
+    let modeChanged = PublishSubject<Void>()
     
     
     
@@ -189,6 +190,7 @@ class MyGroupDetailViewModel2 {
             .subscribe(onNext: { vm, index in
                 let mode = MyGroupDetailMode(rawValue: index)
                 vm.mode = mode
+                vm.modeChanged.onNext(())
                 switch mode {
                 case .notice:
                     if vm.memberList?.isEmpty ?? true {
@@ -270,7 +272,9 @@ class MyGroupDetailViewModel2 {
             showMemberProfileAt: showMemberProfileAt.asObservable(),
             memberKickedOutAt: memberKickedOutAt.asObservable(),
             needReloadMemberAt: needReloadMemberAt.asObservable(),
-            onlineStateChanged: isOnline.asObservable()
+            onlineStateChanged: isOnline.asObservable(),
+            modeChanged: modeChanged.asObservable()
+
         )
     }
     

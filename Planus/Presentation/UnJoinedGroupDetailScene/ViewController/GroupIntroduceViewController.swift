@@ -52,7 +52,6 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
     
     var backButtonTapped = PublishSubject<Void>()
     
-    static let headerElementKind = "group-introduce-view-controller-header-kind"
     var headerSize: CGFloat = 330
     
     var viewModel: GroupIntroduceViewModel?
@@ -67,11 +66,11 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
             forCellWithReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier)
         
         cv.register(GroupIntroduceDefaultHeaderView.self,
-                    forSupplementaryViewOfKind: Self.headerElementKind,
+                    forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                     withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier)
         
         cv.register(GroupIntroduceInfoHeaderView.self,
-                    forSupplementaryViewOfKind: Self.headerElementKind,
+                    forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                     withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier)
         cv.dataSource = self
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
@@ -319,12 +318,12 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
-        guard kind == Self.headerElementKind,
+        guard kind == UICollectionView.elementKindSectionHeader,
               let sectionKind = GroupIntroduceSectionKind(rawValue: indexPath.section) else { return UICollectionReusableView() }
         
         switch sectionKind {
         case .info:
-            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceInfoHeaderView else { return UICollectionReusableView() }
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceInfoHeaderView else { return UICollectionReusableView() }
             // 이부분 아무래도 셀로 만들어야할거같다.. 네트워크 받아오면 업댓해야되서 그전까지 비워놔야한다,,, 그냥 빈화면으로 보여줄까? 것도 낫베드긴한디
             view.fill(
                 title: viewModel?.groupTitle ?? "",
@@ -332,7 +331,7 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
                 memCount: viewModel?.memberCount ?? "",
                 captin: viewModel?.captin ?? ""
             )
-            
+            print("info reloaded")
             if let url = viewModel?.groupImageUrl {
                 viewModel?.fetchImage(key: url)
                     .observe(on: MainScheduler.asyncInstance)
@@ -343,7 +342,7 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
             }
             return view
         case .notice, .member:
-            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
             view.fill(title: sectionKind.title, description: sectionKind.desc)
             return view
         }
@@ -367,7 +366,7 @@ extension GroupIntroduceViewController {
 
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
+            elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
 
@@ -393,7 +392,7 @@ extension GroupIntroduceViewController {
         
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
+            elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
 
@@ -419,7 +418,7 @@ extension GroupIntroduceViewController {
         
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
+            elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
         
@@ -459,7 +458,7 @@ class StickyTopCompositionalLayout: UICollectionViewCompositionalLayout {
         
         if offset.y < 0 {
             for attributes in stLayoutAttributes
-            where attributes.representedElementKind == GroupIntroduceViewController.headerElementKind
+            where attributes.representedElementKind == UICollectionView.elementKindSectionHeader
             && attributes.indexPath.section == 0 {
                 let width = collectionView!.frame.width
                 let height = headerSize - offset.y

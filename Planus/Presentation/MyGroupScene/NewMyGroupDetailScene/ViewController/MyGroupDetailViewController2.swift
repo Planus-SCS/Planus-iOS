@@ -12,7 +12,7 @@ extension MyGroupDetailMode {
     var imageTitle: String {
         switch self {
         case .dot:
-            return "menuShowBtn"
+            return "menuHideBtn"
         case .notice:
             return "NoticeCircleBtn"
         case .calendar:
@@ -30,17 +30,15 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     var didSelectedDayAt = PublishSubject<Int>()
     var didSelectedMemberAt = PublishSubject<Int>()
     var didTappedOnlineButton = PublishSubject<Void>()
-    
-    static let headerElementKind = "my-group-detail-view-controller-header-kind"
-    
+        
     var nowLoading: Bool = true
     var didTappedButtonAt = PublishSubject<Int>()
-    
+    var modeChanged: Bool = false
     
     let initialTrailing: CGFloat = -27
     let targetTrailing: CGFloat = 20
     var firstXOffset: CGFloat?
-    
+        
     lazy var buttonList: [UIButton] = {
         return MyGroupDetailMode.allCases.map { [weak self] in
             let image = UIImage(named: $0.imageTitle) ?? UIImage()
@@ -55,7 +53,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     var swipeBar: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "swipeBarLeft"))
         imageView.contentMode = .scaleToFill
-        imageView.backgroundColor = .blue
+        imageView.isUserInteractionEnabled = true
         return imageView
     }()
 
@@ -76,11 +74,11 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             forCellWithReuseIdentifier: JoinedGroupMemberCell.reuseIdentifier)
         
         cv.register(GroupIntroduceDefaultHeaderView.self,
-                    forSupplementaryViewOfKind: Self.headerElementKind,
+                    forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                     withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier)
         
         cv.register(MyGroupInfoHeaderView.self,
-                    forSupplementaryViewOfKind: Self.headerElementKind,
+                    forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                     withReuseIdentifier: MyGroupInfoHeaderView.reuseIdentifier)
         
         cv.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
@@ -126,7 +124,6 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
         navigationItem.setLeftBarButton(backButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
 
@@ -172,7 +169,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             })
             .disposed(by: bag)
         
-        output //한번에 말고,,, 먼저 오는거 순으로 패치하는게 맞나?? - 그럼 멤버가 먼저와도 이상함. 위에꺼 패치 후 멤버 패치해야하나?
+        output
             .didInitialFetch
             .take(1)
             .observe(on: MainScheduler.asyncInstance)
@@ -194,7 +191,14 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             })
             .disposed(by: self.bag)
         
-        
+        output
+            .modeChanged
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.modeChanged = true
+            })
+            .disposed(by: bag)
         
         output
             .didFetchInfo
@@ -224,7 +228,10 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                     }
                     vc.collectionView.reloadSections(IndexSet(integer: 1))
                 }, completion: { _ in
-                    vc.collectionView.scrollToItem(at: IndexPath(item: 0, section: 1), at: .top, animated: true)
+                    if vc.modeChanged {
+                        vc.modeChanged = false
+                        vc.scrollToHeader(section: 1)
+                    }
                 })
             })
             .disposed(by: bag)
@@ -245,12 +252,15 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                         vc.collectionView.reloadSections(IndexSet(integer: 2))
                     }
                 }, completion: { _ in
-                    vc.collectionView.scrollToItem(at: IndexPath(item: 0, section: 1), at: .top, animated: true)
+                    if vc.modeChanged {
+                        vc.modeChanged = false
+                        vc.scrollToHeader(section: 1)
+                    }
                 })
             })
             .disposed(by: bag)
         
-        output
+        output //모드 바꿀때 말고는 움직일 필요까진 없을듯한디,,,
             .didFetchCalendar
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
@@ -265,7 +275,10 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                     viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                     vc.collectionView.reloadSections(IndexSet(integer: 1))
                 }, completion: { _ in
-                    vc.collectionView.scrollToItem(at: IndexPath(item: 0, section: 1), at: .top, animated: true)
+                    if vc.modeChanged {
+                        vc.modeChanged = false
+                        vc.scrollToHeader(section: 1)
+                    }
                 })
             })
             .disposed(by: bag)
@@ -276,7 +289,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, mode in
-                vc.collectionView.performBatchUpdates {
+                vc.collectionView.performBatchUpdates({
                     vc.nowLoading = true
                     switch mode {
                     case .notice:
@@ -291,8 +304,8 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                         }
                     default: break
                     }
-                    
-                }
+
+                })
             })
             .disposed(by: bag)
         
@@ -320,7 +333,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, isOnline in
-                guard let view = vc.collectionView.supplementaryView(forElementKind: Self.headerElementKind, at: IndexPath(item: 0, section: 0)) as? MyGroupInfoHeaderView else { return }
+                guard let view = vc.collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as? MyGroupInfoHeaderView else { return }
                 view.onlineButton.isOn = isOnline
                 view.onlineCountLabel.text = String(viewModel.onlineCount ?? 0)
                 
@@ -401,6 +414,16 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                 vc.navigationController?.pushViewController(viewController, animated: true)
             })
             .disposed(by: bag)
+
+    }
+    
+    func scrollToHeader(section: Int) {
+        guard let layoutAttributes =  collectionView.layoutAttributesForSupplementaryElement(ofKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 1)) else { return }
+        let viewOrigin = CGPoint(x: layoutAttributes.frame.origin.x, y: layoutAttributes.frame.origin.y);
+        var offset = collectionView.contentOffset;
+        let height = (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0) + (navigationController?.navigationBar.frame.height ?? 0)
+        offset.y = viewOrigin.y - collectionView.contentInset.top - height
+        collectionView.setContentOffset(offset, animated: true)
     }
     
     func configureView() {
@@ -413,14 +436,13 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         self.view.addSubview(swipeBar)
         
         buttonsView.isHidden = true
-//        swipeBar.isHidden = true
         
     }
     
     func configureGestureRecognizer() {
-        print("ddd")
-        let pgr = UIPanGestureRecognizer(target: self, action: #selector(pan))
-        swipeBar.addGestureRecognizer(pgr)
+        let sgr = UISwipeGestureRecognizer(target: self, action: #selector(swipe))
+        sgr.direction = .left
+        swipeBar.addGestureRecognizer(sgr)
     }
     
     func configureLayout() {
@@ -430,8 +452,6 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         
         swipeBar.snp.makeConstraints {
             $0.trailing.equalToSuperview()
-            $0.width.equalTo(100)
-            $0.height.equalTo(40)
             $0.bottom.equalToSuperview().inset(30)
         }
 
@@ -441,82 +461,60 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         }
     }
     @objc func swipe(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        print("swipe")
         if gestureRecognizer.direction == .left {
-            print("swipe")
-//            buttonsView.snp.remakeConstraints {
-//                $0.bottom.equalToSuperview().inset(50)
-//                $0.trailing.equalTo(self.view).inset(targetTrailing)
-//            }
-//
-//            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-//                self.view.layoutIfNeeded()
-//            }, completion: { _ in
-//                self.buttonList[0].setImage(UIImage(named: "menuHideBtn"), for: .normal)
-//                self.buttonsView.stretch()
-//            })
+            showModeSelection()
         }
     }
     
-    @objc func pan(_ gestureRecognizer: UIPanGestureRecognizer) {
-        print("in pgr")
-        let location = gestureRecognizer.location(in: view)
-        print(location)
-        switch gestureRecognizer.state {
-        case .began:
-            firstXOffset = location.x
-        case .ended:
-            guard let firstXOffset else { return }
-            let endXOffset = location.x
-            print("moved: \(firstXOffset - endXOffset)")
-            if firstXOffset - endXOffset >= 5 {
-//                self.buttonList[0].setImage(UIImage(named: "menuHideBtn"), for: .normal)
-//                self.buttonsView.alpha = 0
-//                self.buttonsView.isHidden = false
-//                self.buttonsView.stretch()
-//
-//                buttonsView.snp.remakeConstraints {
-//                    $0.bottom.equalToSuperview().inset(50)
-//                    $0.trailing.equalTo(self.view).inset(targetTrailing)
-//                }
-//
-//                swipeBar.snp.remakeConstraints {
-//                    $0.leading.equalTo(self.view.snp.trailing)
-//                    $0.bottom.equalToSuperview().inset(30)
-//                }
-//                UIView.animate(withDuration: 0.1, animations: {
-//                    self.buttonsView.alpha = 1
-//                })
-//                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-//                    self.view.layoutIfNeeded()
-//                })
-            }
-            self.firstXOffset = nil
-        default:
-            break
+    func showModeSelection() {
+        self.buttonsView.alpha = 0
+        self.buttonsView.isHidden = false
+        self.buttonsView.stretch()
+        
+        buttonsView.snp.remakeConstraints {
+            $0.bottom.equalToSuperview().inset(50)
+            $0.trailing.equalTo(self.view).inset(targetTrailing)
         }
+        
+        swipeBar.snp.remakeConstraints {
+            $0.leading.equalTo(self.view.snp.trailing)
+            $0.bottom.equalToSuperview().inset(30)
+        }
+        UIView.animate(withDuration: 0.1, animations: {
+            self.buttonsView.alpha = 1
+        })
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+            self.view.layoutIfNeeded()
+        })
+        
     }
+    
+    func hideModeSelection() {
+        buttonsView.shrink { [weak self] in
+            self?.buttonsView.snp.remakeConstraints {
+                $0.bottom.equalToSuperview().inset(50)
+                $0.trailing.equalToSuperview().inset(self?.initialTrailing ?? 0)
+            }
+            self?.swipeBar.snp.remakeConstraints {
+                $0.trailing.equalToSuperview()
+                $0.bottom.equalToSuperview().inset(30)
+            }
+            UIView.animate(withDuration: 0.1, delay: 0.1, animations: {
+                self?.buttonsView.alpha = 0
+            }, completion: { _ in
+                self?.buttonsView.isHidden = true
+            })
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
+                self?.view.layoutIfNeeded()
+            })
+        }
+        
+    }
+    
     
     @objc func buttonTapped(_ sender: UIButton) {
         if sender.tag == 0 {
-            buttonsView.shrink { [weak self] in
-                self?.buttonsView.snp.remakeConstraints {
-                    $0.bottom.equalToSuperview().inset(50)
-                    $0.trailing.equalToSuperview().inset(self?.initialTrailing ?? 0)
-                }
-                self?.swipeBar.snp.remakeConstraints {
-                    $0.trailing.equalToSuperview()
-                    $0.bottom.equalToSuperview().inset(30)
-                }
-                UIView.animate(withDuration: 0.1, delay: 0.1, animations: {
-                    self?.buttonsView.alpha = 0
-                }, completion: { _ in
-                    self?.buttonsView.isHidden = true
-                })
-                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn, animations: {
-                    self?.view.layoutIfNeeded()
-                })
-            }
+            hideModeSelection()
         } else {
             didTappedButtonAt.onNext(sender.tag)
         }
@@ -656,10 +654,10 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if indexPath.section == 0 {
-            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: MyGroupInfoHeaderView.reuseIdentifier, for: indexPath) as? MyGroupInfoHeaderView else { return UICollectionReusableView() }
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: MyGroupInfoHeaderView.reuseIdentifier, for: indexPath) as? MyGroupInfoHeaderView else { return UICollectionReusableView() }
             var viewBag = DisposeBag()
             view.viewBag = viewBag
-            
+            print("info reloaded")
             view.fill(
                 title: viewModel?.groupTitle ?? "",
                 tag: viewModel?.tag?.map { "#\($0)" }.joined(separator: " ") ?? "",
@@ -694,7 +692,7 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
         let mode = viewModel?.mode
         switch mode {
         case .notice:
-            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
             switch indexPath.section {
             case 1:
                 view.fill(title: "공지 사항", description: "우리 이렇게 진행해요")
@@ -877,7 +875,7 @@ extension MyGroupDetailViewController2 {
 
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
+            elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
 
@@ -903,7 +901,7 @@ extension MyGroupDetailViewController2 {
         
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
+            elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
 
@@ -929,7 +927,7 @@ extension MyGroupDetailViewController2 {
         
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
+            elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
         
