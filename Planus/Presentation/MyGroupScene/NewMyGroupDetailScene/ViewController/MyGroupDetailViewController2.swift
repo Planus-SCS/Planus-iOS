@@ -30,6 +30,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     var didSelectedDayAt = PublishSubject<Int>()
     var didSelectedMemberAt = PublishSubject<Int>()
     var didTappedOnlineButton = PublishSubject<Void>()
+    var didTappedShareBtn = PublishSubject<Void>()
         
     var nowLoading: Bool = true
     var didTappedButtonAt = PublishSubject<Int>()
@@ -99,13 +100,6 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         return item
     }()
     
-    lazy var shareButton: UIBarButtonItem = {
-        let image = UIImage(named: "share")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(shareBtnAction))
-        item.tintColor = .black
-        return item
-    }()
-    
     convenience init(viewModel: MyGroupDetailViewModel2) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
@@ -155,7 +149,8 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             didChangedMonth: didChangedMonth.asObservable(),
             didSelectedDayAt: didSelectedDayAt.asObservable(),
             didSelectedMemberAt: didSelectedMemberAt.asObservable(),
-            didTappedOnlineButton: didTappedOnlineButton.asObservable()
+            didTappedOnlineButton: didTappedOnlineButton.asObservable(),
+            shareBtnTapped: didTappedShareBtn.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -415,7 +410,26 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                 vc.navigationController?.pushViewController(viewController, animated: true)
             })
             .disposed(by: bag)
+        
+        output
+            .showShareMenu
+            .compactMap { $0 }
+            .withUnretained(self)
+            .subscribe(onNext: { vc, url in
+                vc.showShareActivityVC(with: url)
+            })
+            .disposed(by: bag)
 
+    }
+    
+    func showShareActivityVC(with url: String) {
+        var objectsToShare = [String]()
+        objectsToShare.append(url)
+        let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
+        activityVC.popoverPresentationController?.sourceView = self.view
+        activityVC.excludedActivityTypes = [.addToReadingList, .assignToContact, .markupAsPDF, .openInIBooks, .saveToCameraRoll]
+        
+        self.present(activityVC, animated: true, completion: nil)
     }
     
     func scrollToHeader(section: Int) {
@@ -523,9 +537,6 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     
     @objc func backBtnAction() {
         navigationController?.popViewController(animated: true)
-    }
-    
-    @objc func shareBtnAction() {
     }
 }
 
@@ -747,6 +758,11 @@ extension MyGroupDetailViewController2 {
         let image = UIImage(named: "dotBtn")
         var item: UIBarButtonItem
         var menuChild = [UIAction]()
+        
+        let share = UIAction(title: "공유하기", image: UIImage(systemName: "square.and.arrow.up"), handler: { [weak self] _ in
+            self?.didTappedShareBtn.onNext(())
+        })
+        menuChild.append(share)
 
         if isLeader ?? false {
             let editInfo = UIAction(title: "그룹 정보 수정", image: UIImage(systemName: "pencil"), handler: { [weak self] _ in

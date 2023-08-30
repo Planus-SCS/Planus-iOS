@@ -47,7 +47,8 @@ class GroupIntroduceCoordinator: Coordinator {
             fetchUnjoinedGroupUseCase: fetchUnjoinedGroupUseCase,
             fetchMemberListUseCase: fetchMemberListUseCase,
             fetchImageUseCase: fetchImageUseCase,
-            applyGroupJoinUseCase: applyGroupJoinUseCase
+            applyGroupJoinUseCase: applyGroupJoinUseCase,
+            generateGroupLinkUseCase: DefaultGenerateGroupLinkUseCase()
         )
         vm.setActions(actions: GroupIntroduceViewModelActions(
             popCurrentPage: self?.popCurrentPage,

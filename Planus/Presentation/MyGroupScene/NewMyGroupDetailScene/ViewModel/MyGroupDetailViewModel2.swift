@@ -35,6 +35,7 @@ class MyGroupDetailViewModel2 {
         var didSelectedDayAt: Observable<Int>
         var didSelectedMemberAt: Observable<Int>
         var didTappedOnlineButton: Observable<Void>
+        var shareBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -51,6 +52,7 @@ class MyGroupDetailViewModel2 {
         var needReloadMemberAt: Observable<Int>
         var onlineStateChanged: Observable<Bool?>
         var modeChanged: Observable<Void>
+        var showShareMenu: Observable<String?>
     }
     
     var nowLoadingWithBefore = BehaviorSubject<MyGroupDetailMode?>(value: nil)
@@ -59,6 +61,7 @@ class MyGroupDetailViewModel2 {
     var didFetchNotice = BehaviorSubject<Void?>(value: nil)
     var didFetchMember = BehaviorSubject<Void?>(value: nil)
     var didFetchCalendar = BehaviorSubject<Void?>(value: nil)
+    var showShareMenu = PublishSubject<String?>()
     
     var groupId: Int?
     var groupTitle: String?
@@ -132,6 +135,8 @@ class MyGroupDetailViewModel2 {
     let deleteGroupTodoUseCase: DeleteGroupTodoUseCase
     let updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
     
+    let generateGroupLinkUseCase: GenerateGroupLinkUseCase
+    
     
     init(
         getTokenUseCase: GetTokenUseCase,
@@ -149,7 +154,8 @@ class MyGroupDetailViewModel2 {
         createGroupTodoUseCase: CreateGroupTodoUseCase,
         updateGroupTodoUseCase: UpdateGroupTodoUseCase,
         deleteGroupTodoUseCase: DeleteGroupTodoUseCase,
-        updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
+        updateGroupCategoryUseCase: UpdateGroupCategoryUseCase,
+        generateGroupLinkUseCase: GenerateGroupLinkUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -167,6 +173,7 @@ class MyGroupDetailViewModel2 {
         self.updateGroupTodoUseCase = updateGroupTodoUseCase
         self.deleteGroupTodoUseCase = deleteGroupTodoUseCase
         self.updateGroupCategoryUseCase = updateGroupCategoryUseCase
+        self.generateGroupLinkUseCase = generateGroupLinkUseCase
     }
     
     func transform(input: Input) -> Output {
@@ -253,6 +260,15 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
+        input
+            .shareBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                let urlString = vm.generateShareLink()
+                vm.showShareMenu.onNext(urlString)
+            })
+            .disposed(by: bag)
+        
         let initFetched = Observable.zip( //만약 먼저 방출하면? 어케되는거지????? 으으으음,,,, 상관없나??? 일단 해보자..!
             didFetchInfo.compactMap { $0 },
             didFetchNotice.compactMap { $0 },
@@ -274,14 +290,16 @@ class MyGroupDetailViewModel2 {
             memberKickedOutAt: memberKickedOutAt.asObservable(),
             needReloadMemberAt: needReloadMemberAt.asObservable(),
             onlineStateChanged: isOnline.asObservable(),
-            modeChanged: modeChanged.asObservable()
+            modeChanged: modeChanged.asObservable(),
+            showShareMenu: showShareMenu.asObservable()
 
         )
     }
     
-    
-    
-    
+    func generateShareLink() -> String? {
+        guard let groupId = groupId else { return nil }
+        return generateGroupLinkUseCase.execute(groupId: groupId)
+    }
     
     func bindUseCase() {
         setOnlineUseCase

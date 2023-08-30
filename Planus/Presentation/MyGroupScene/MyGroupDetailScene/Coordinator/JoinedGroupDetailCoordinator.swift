@@ -81,7 +81,8 @@ class JoinedGroupDetailCoordinator: Coordinator {
             createGroupTodoUseCase: createGroupTodoUseCase,
             updateGroupTodoUseCase: updateGroupTodoUseCase,
             deleteGroupTodoUseCase: deleteGroupTodoUseCase,
-            updateGroupCategoryUseCase: updateGroupCategoryUseCase
+            updateGroupCategoryUseCase: updateGroupCategoryUseCase,
+            generateGroupLinkUseCase: DefaultGenerateGroupLinkUseCase()
         )
         vm.setActions(actions: JoinedGroupDetailViewModelActions(pop: self?.popCurrentPage))
 

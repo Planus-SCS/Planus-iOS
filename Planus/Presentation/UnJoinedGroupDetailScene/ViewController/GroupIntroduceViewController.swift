@@ -113,7 +113,7 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
     
     lazy var shareButton: UIBarButtonItem = {
         let image = UIImage(named: "share")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(shareBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: nil)
         item.tintColor = .black
         return item
     }()
@@ -135,10 +135,9 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        self.navigationItem.setLeftBarButton(backButton, animated: false)
-//        self.navigationItem.setRightBarButton(shareButton, animated: false)
-//        self.navigationItem.title = "dkssddd"
+
         navigationItem.setLeftBarButton(backButton, animated: false)
+        self.navigationItem.setRightBarButton(shareButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
 
         let initialAppearance = UINavigationBarAppearance()
@@ -168,7 +167,8 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
         let input = GroupIntroduceViewModel.Input(
             viewDidLoad: Observable.just(()),
             didTappedJoinBtn: joinButton.rx.tap.asObservable(),
-            didTappedBackBtn: backButtonTapped.asObservable()
+            didTappedBackBtn: backButtonTapped.asObservable(),
+            shareBtnTapped: shareButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -233,6 +233,25 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
                 vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
             })
             .disposed(by: bag)
+        
+        output
+            .showShareMenu
+            .compactMap { $0 }
+            .withUnretained(self)
+            .subscribe(onNext: { vc, url in
+                vc.showShareActivityVC(with: url)
+            })
+            .disposed(by: bag)
+    }
+    
+    func showShareActivityVC(with url: String) {
+        var objectsToShare = [String]()
+        objectsToShare.append(url)
+        let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
+        activityVC.popoverPresentationController?.sourceView = self.view
+        activityVC.excludedActivityTypes = [.addToReadingList, .assignToContact, .markupAsPDF, .openInIBooks, .saveToCameraRoll]
+        
+        self.present(activityVC, animated: true, completion: nil)
     }
     
     func configureView() {

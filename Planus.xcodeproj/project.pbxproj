@@ -617,6 +617,8 @@
 		6AF078552A9DE9640086692B /* detailMemoBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF078522A9DE9640086692B /* detailMemoBtn.png */; };
 		6AF078562A9DE9640086692B /* detailMemoBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF078532A9DE9640086692B /* detailMemoBtn@3x.png */; };
 		6AF078572A9DE9640086692B /* detailMemoBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6AF078542A9DE9640086692B /* detailMemoBtn@2x.png */; };
+		6AF0785B2A9EE8080086692B /* DefaultGenerateGroupLinkUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF0785A2A9EE8080086692B /* DefaultGenerateGroupLinkUseCase.swift */; };
+		6AF0785D2A9EE9DB0086692B /* GenerateGroupLinkUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF0785C2A9EE9DB0086692B /* GenerateGroupLinkUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1233,6 +1235,8 @@
 		6AF078522A9DE9640086692B /* detailMemoBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = detailMemoBtn.png; sourceTree = "<group>"; };
 		6AF078532A9DE9640086692B /* detailMemoBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "detailMemoBtn@3x.png"; sourceTree = "<group>"; };
 		6AF078542A9DE9640086692B /* detailMemoBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "detailMemoBtn@2x.png"; sourceTree = "<group>"; };
+		6AF0785A2A9EE8080086692B /* DefaultGenerateGroupLinkUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultGenerateGroupLinkUseCase.swift; sourceTree = "<group>"; };
+		6AF0785C2A9EE9DB0086692B /* GenerateGroupLinkUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateGroupLinkUseCase.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -2932,6 +2936,7 @@
 				6AC079972A0AA67F007ACDB8 /* DefaultApplyGroupJoinUseCase.swift */,
 				6A9199E22A1E504200108BF4 /* DefaultFetchSearchHomeUseCase.swift */,
 				6A919A0A2A210C7100108BF4 /* DefaultFetchSearchResultUseCase.swift */,
+				6AF0785A2A9EE8080086692B /* DefaultGenerateGroupLinkUseCase.swift */,
 			);
 			path = Group;
 			sourceTree = "<group>";
@@ -2944,6 +2949,7 @@
 				6AC079992A0AA6F1007ACDB8 /* ApplyGroupJoinUseCase.swift */,
 				6A9199E42A1E51AD00108BF4 /* FetchSearchHomeUseCase.swift */,
 				6A919A0C2A210D0B00108BF4 /* FetchSearchResultUseCase.swift */,
+				6AF0785C2A9EE9DB0086692B /* GenerateGroupLinkUseCase.swift */,
 			);
 			path = Group;
 			sourceTree = "<group>";
@@ -3397,6 +3403,7 @@
 				6A9199862A1247B700108BF4 /* DefaultUpdateGroupInfoUseCase.swift in Sources */,
 				6AC079A02A0AAAD1007ACDB8 /* AcceptGroupJoinUseCase.swift in Sources */,
 				6A9AAB3B29FA5DE2002A6DAF /* ReadCategoryListUseCase.swift in Sources */,
+				6AF0785D2A9EE9DB0086692B /* GenerateGroupLinkUseCase.swift in Sources */,
 				6AF077D02A961C980086692B /* TodoDetailGroupView.swift in Sources */,
 				6A9199F72A20AC2700108BF4 /* SocialTodoDailyViewModel.swift in Sources */,
 				6AD888D42A89283500F4B887 /* DefaultRevokeAppleTokenUseCase.swift in Sources */,
@@ -3681,6 +3688,7 @@
 				6A95DFD529D50913009017D8 /* SearchResultViewModel.swift in Sources */,
 				6A9199ED2A20958600108BF4 /* DefaultFetchGroupMonthlyCalendarUseCase.swift in Sources */,
 				6A9199842A12461300108BF4 /* MyGroupInfoEditDTO.swift in Sources */,
+				6AF0785B2A9EE8080086692B /* DefaultGenerateGroupLinkUseCase.swift in Sources */,
 				6A08ADE029C8D6CD005947D2 /* KakaoSignInUseCase.swift in Sources */,
 				6A2744372A0E81AC008FB4F5 /* MyGroupNoticeEditDTO.swift in Sources */,
 				6AC0790D2A08C98F007ACDB8 /* DefaultReadProfileUseCase.swift in Sources */,

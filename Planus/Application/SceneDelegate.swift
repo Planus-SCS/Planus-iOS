@@ -22,19 +22,49 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let window = window else { return }
 
-//        let vm = GroupCreateViewModel(getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), setTokenUseCase: DefaultSetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyChainManager: KeyChainManager())), groupCreateUseCase: DefaultGroupCreateUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager())))
-//        let vc = GroupCreateViewController(viewModel: vm)
-//        let navi = UINavigationController(rootViewController: vc)
-//        let vc = TodoDetailViewController(nibName: nil, bundle: nil)
-//
-//        window.rootViewController = vc
-//
-//        window.makeKeyAndVisible()
-//
-
         self.appCoordinator = AppCoordinator(window: window)
         self.appCoordinator?.start()
-////
+        
+        
+        // Custom Link
+        if let url = connectionOptions.urlContexts.first?.url {
+            return
+        }
+     
+        // Universal Link를 통해 앱이 실행된 경우
+        if let userActivity = connectionOptions.userActivities.first,
+           userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+           let incomingURL = userActivity.webpageURL {
+            parseUniversalLink(url: incomingURL)
+        }
+    }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let url = URLContexts.first?.url else { return }
+        print(url)
+    }
+    
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+       // Get URL components from the incoming user activity.
+       guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+             let incomingURL = userActivity.webpageURL else {
+           return
+       }
+        
+        parseUniversalLink(url: incomingURL)
+   }
+    
+    func parseUniversalLink(url: URL) {
+        var paths = url.pathComponents
+        let pathString = String(paths.joined(separator: "/"))
+        
+        switch pathString {
+        case "group": break
+            /*
+             navigation ㄱㄱ
+             */
+        default: break
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
