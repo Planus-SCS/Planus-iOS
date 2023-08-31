@@ -46,39 +46,6 @@ class SearchHomeViewController: UIViewController {
         return item
     }()
     
-//    var headerView: UIView = {
-//        let view = UIView(frame: .zero)
-//        view.backgroundColor = UIColor(hex: 0xF5F5FB)
-//        view.layer.masksToBounds = false
-//        view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
-//        view.layer.shadowOpacity = 1
-//        view.layer.shadowOffset = CGSize(width: 0, height: 1)
-//        view.layer.shadowRadius = 2
-//        return view
-//    }()
-//
-//    lazy var searchBarField: UITextField = {
-//        let textField = UITextField(frame: .zero)
-//        textField.textColor = .black
-//        textField.font = UIFont(name: "Pretendard-Medium", size: 12)
-//
-//        textField.backgroundColor = .white
-//        textField.layer.cornerRadius = 10
-//        textField.clipsToBounds = true
-//        textField.clearButtonMode = .whileEditing
-//        textField.delegate = self
-//        if let image = UIImage(named: "searchBarIcon") {
-//            textField.addleftimage(image: image, padding: 12)
-//        }
-//
-//        textField.attributedPlaceholder = NSAttributedString(
-//            string: "그룹명 또는 태그를 검색해보세요.",
-//            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
-//        )
-//
-//        return textField
-//    }()
-    
     var createGroupButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
         button.setImage(UIImage(named: "GroupAddBtn"), for: .normal)
@@ -148,7 +115,6 @@ class SearchHomeViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, range in
                 let indexList = Array(range).map { IndexPath(item: $0, section: 0) }
-                vc.isInitLoading = false
                 vc.resultCollectionView.performBatchUpdates({
                     print("addition")
                     vc.resultCollectionView.insertItems(at: indexList)
@@ -184,6 +150,17 @@ class SearchHomeViewController: UIViewController {
                 vc.isEnded = true
             })
             .disposed(by: bag)
+        
+        output
+            .didStartFetching
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.isInitLoading = true
+                vc.resultCollectionView.reloadData()
+            })
+            .disposed(by: bag)
     }
     
     func configureView() {
@@ -207,9 +184,7 @@ class SearchHomeViewController: UIViewController {
     
     @objc func refresh(_ sender: UIRefreshControl) {
         if !isLoading {
-            isInitLoading = true
             sender.endRefreshing()
-            resultCollectionView.reloadData()
             isLoading = true
             isEnded = false
             refreshRequired.onNext(())
@@ -227,7 +202,7 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if isInitLoading {
-            return Int(collectionView.frame.height/250 * 2)
+            return Int(collectionView.frame.height/250)*2
         }
         return viewModel?.result.count ?? Int()
     }

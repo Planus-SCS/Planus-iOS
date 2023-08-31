@@ -111,6 +111,7 @@ class SearchResultViewModel {
                 let keyword = vm.history[index]
                 vm.keyword.onNext(keyword)
                 vm.fetchInitialresult(keyword: keyword)
+                
             })
             .disposed(by: bag)
         
@@ -123,6 +124,7 @@ class SearchResultViewModel {
                     return
                 }
                 vm.fetchInitialresult(keyword: keyword)
+                
             })
             .disposed(by: bag)
         
@@ -139,8 +141,8 @@ class SearchResultViewModel {
                       !keyword.isEmpty else {
                     return
                 }
-
                 vm.fetchInitialresult(keyword: keyword)
+                
             })
             .disposed(by: bag)
         
@@ -239,7 +241,9 @@ class SearchResultViewModel {
         saveRecentQuery(keyword: keyword)
         didStartFetching.onNext(())
         page = 0
-        fetchResult(keyword: keyword, isInitial: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: { [weak self] in
+            self?.fetchResult(keyword: keyword, isInitial: true)
+        })
     }
     
     func fetchResult(keyword: String, isInitial: Bool) {

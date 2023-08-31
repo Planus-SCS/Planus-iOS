@@ -26,6 +26,7 @@ class SearchHomeViewModel {
     
     var isLoading: Bool = false
     
+    var didStartFetching = BehaviorSubject<Void?>(value: nil)
     var didFetchInitialResult = BehaviorSubject<Void?>(value: nil)
     var didFetchAdditionalResult = PublishSubject<Range<Int>>()
     var resultEnded = PublishSubject<Void>()
@@ -46,6 +47,7 @@ class SearchHomeViewModel {
         var didFetchInitialResult: Observable<Void?>
         var didFetchAdditionalResult: Observable<Range<Int>>
         var resultEnded: Observable<Void>
+        var didStartFetching: Observable<Void?>
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -74,9 +76,7 @@ class SearchHomeViewModel {
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
-                    vm.fetchInitialresult()
-                })
+                vm.fetchInitialresult()
             })
             .disposed(by: bag)
         
@@ -101,9 +101,7 @@ class SearchHomeViewModel {
             .refreshRequired
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
-                    vm.fetchInitialresult()
-                })
+                vm.fetchInitialresult()
             })
             .disposed(by: bag)
         
@@ -124,14 +122,18 @@ class SearchHomeViewModel {
         return Output(
             didFetchInitialResult: didFetchInitialResult.asObservable(),
             didFetchAdditionalResult: didFetchAdditionalResult.asObservable(),
-            resultEnded: resultEnded.asObservable()
+            resultEnded: resultEnded.asObservable(),
+            didStartFetching: didStartFetching.asObservable()
         )
     }
     
     func fetchInitialresult() {
         page = 0
         print("remove!")
-        fetchResult(isInitial: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: { [weak self] in
+            self?.fetchResult(isInitial: true)
+        })
+        
     }
     
     func fetchResult(isInitial: Bool) {

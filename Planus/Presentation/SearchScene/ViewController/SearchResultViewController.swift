@@ -16,6 +16,7 @@ class SearchResultViewController: UIViewController {
     
     var viewModel: SearchResultViewModel?
     
+    var isInitLoading = false
     var isLoading: Bool = true
     var isEnded: Bool = false
     var tappedItemAt = PublishSubject<Int>()
@@ -31,12 +32,6 @@ class SearchResultViewController: UIViewController {
         let rc = UIRefreshControl(frame: .zero)
         rc.addTarget(self, action: #selector(refresh), for: .valueChanged)
         return rc
-    }()
-    
-    var spinner: UIActivityIndicatorView = {
-        let spinner = UIActivityIndicatorView(style: .medium)
-        spinner.hidesWhenStopped = true
-        return spinner
     }()
     
     lazy var historyView: SearchHistoryView = {
@@ -215,9 +210,11 @@ class SearchResultViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.historyView.isHidden = true
-                vc.spinner.setAnimatedIsHidden(false)
-                vc.spinner.startAnimating()
                 vc.needFetchHistory.onNext(())
+                
+                vc.isInitLoading = true
+                vc.resultCollectionView.isHidden = false
+                vc.resultCollectionView.reloadData()
             })
             .disposed(by: bag)
         
@@ -226,8 +223,7 @@ class SearchResultViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.spinner.stopAnimating()
-                vc.spinner.setAnimatedIsHidden(true)
+                vc.isInitLoading = false
                 vc.resultCollectionView.performBatchUpdates({
                     vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
                 }, completion: { _ in
@@ -235,7 +231,6 @@ class SearchResultViewController: UIViewController {
                         vc.refreshControl.endRefreshing()
                     }
                     vc.isLoading = false
-                    vc.resultCollectionView.setAnimatedIsHidden(viewModel.result.count == 0)
                     vc.emptyResultView.setAnimatedIsHidden(viewModel.result.count != 0)
                 })
             })
@@ -270,7 +265,6 @@ class SearchResultViewController: UIViewController {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(resultCollectionView)
         self.view.addSubview(emptyResultView)
-        self.view.addSubview(spinner)
         self.view.addSubview(historyView)
         self.view.addSubview(createGroupButton)
     }
@@ -289,11 +283,6 @@ class SearchResultViewController: UIViewController {
             $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
         
-        spinner.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.top.equalTo(self.view.safeAreaLayoutGuide).inset(50)
-        }
-        
         emptyResultView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -301,9 +290,11 @@ class SearchResultViewController: UIViewController {
     
     @objc func refresh(_ sender: UIRefreshControl) {
         if !isLoading {
-            refreshRequired.onNext(())
+            sender.endRefreshing()
+            
             isEnded = false
             isLoading = true
+            refreshRequired.onNext(())
         } else {
             sender.endRefreshing()
         }
@@ -338,6 +329,9 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
         
         switch collectionView {
         case self.resultCollectionView:
+            if isInitLoading {
+                return Int(collectionView.frame.height/250)*2
+            }
             return viewModel?.result.count ?? Int()
         case historyView.collectionView:
             return viewModel?.history.count ?? Int()
@@ -349,8 +343,14 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         switch collectionView {
         case self.resultCollectionView:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
-                  let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell else { return UICollectionViewCell() }
+            if isInitLoading {
+                cell.startSkeletonAnimation()
+                return cell
+            }
+            
+            guard let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
+            cell.stopSkeletonAnimation()
             
             cell.fill(
                 title: item.name,
