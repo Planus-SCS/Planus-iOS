@@ -18,6 +18,7 @@ struct GroupJoinRequest {
 
 class NotificationViewController: UIViewController {
     var bag = DisposeBag()
+    var nowLoading = true
 
     var viewModel: NotificationViewModel?
     
@@ -96,9 +97,7 @@ class NotificationViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, type in
-                if vc.refreshControl.isRefreshing {
-                    vc.refreshControl.endRefreshing()
-                }
+                vc.nowLoading = false
                 vc.resultCollectionView.reloadData()
                 vc.emptyResultView.isHidden = !(viewModel.joinAppliedList?.count == 0)
 
@@ -160,6 +159,12 @@ class NotificationViewController: UIViewController {
     }
     
     @objc func refresh(_ sender: UIRefreshControl) {
+        if sender.isRefreshing {
+            sender.endRefreshing()
+        }
+        nowLoading = true
+        emptyResultView.isHidden = true
+        resultCollectionView.reloadData()
         refreshRequired.onNext(())
     }
 }
@@ -170,12 +175,22 @@ extension NotificationViewController: UICollectionViewDataSource, UICollectionVi
         1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel?.joinAppliedList?.count ?? Int()
+        if nowLoading {
+            return Int(collectionView.frame.height/122)
+        }
+        return viewModel?.joinAppliedList?.count ?? Int()
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let item = viewModel?.joinAppliedList?[indexPath.item],
-              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupJoinNotificationCell.reuseIdentifier, for: indexPath) as? GroupJoinNotificationCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupJoinNotificationCell.reuseIdentifier, for: indexPath) as? GroupJoinNotificationCell else { return UICollectionViewCell() }
+        
+        if nowLoading {
+            cell.startSkeletonAnimation()
+            return cell
+        }
+        
+        guard let item = viewModel?.joinAppliedList?[indexPath.item] else { return UICollectionViewCell() }
+        cell.stopSkeletonAnimation()
         
         let bag = DisposeBag()
         cell.fill(bag: bag, indexPath: indexPath, isAllowTapped: didAllowBtnTappedAt, isDenyTapped: didDenyBtnTappedAt)

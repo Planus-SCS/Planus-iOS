@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SkeletonLayer: CAGradientLayer {
+class SkeletonLayer: CALayer {
     
     let animation: CAAnimation = {
         let startPointAnim = CABasicAnimation(keyPath: #keyPath(CAGradientLayer.startPoint))
@@ -30,6 +30,13 @@ class SkeletonLayer: CAGradientLayer {
         return animationGroup
     }()
     
+    let gradientLayer: CAGradientLayer = {
+        let layer = CAGradientLayer()
+        layer.colors = [UIColor(hex: 0xBDBDBD).cgColor, UIColor(hex: 0xF5F5F5).cgColor, UIColor(hex: 0xBDBDBD).cgColor]
+        layer.locations = [0, 0.5, 1]
+        return layer
+    }()
+    
     weak var holder: UIView?
     
     convenience init(holder: UIView) {
@@ -40,9 +47,10 @@ class SkeletonLayer: CAGradientLayer {
     }
     
     func configureLayer() {
-        self.colors = [UIColor.white.cgColor, UIColor.lightGray.cgColor, UIColor.white.cgColor]
-        self.locations = [0, 0.5, 1]
+        self.backgroundColor = UIColor(hex: 0xF5F5FB).cgColor
+        self.addSublayer(gradientLayer)
         self.frame = UIScreen.main.bounds
+        gradientLayer.frame = UIScreen.main.bounds
     }
     
     func startAnimating() {
@@ -51,7 +59,7 @@ class SkeletonLayer: CAGradientLayer {
         holder?.clipsToBounds = true
         setOpacity(from: 0, to: 1, duration: 1) {
             DispatchQueue.main.async { CATransaction.begin() }
-            self.add(self.animation, forKey: "skeletonAnimation")
+            self.gradientLayer.add(self.animation, forKey: "skeletonAnimation")
             DispatchQueue.main.async { CATransaction.commit() }
         }
     }
@@ -72,7 +80,7 @@ class SkeletonLayer: CAGradientLayer {
         animation.duration = duration
         animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
         DispatchQueue.main.async { CATransaction.setCompletionBlock(completion) }
-        add(animation, forKey: "setOpacityAnimation")
+        gradientLayer.add(animation, forKey: "setOpacityAnimation")
         DispatchQueue.main.async { CATransaction.commit() }
     }
 }
