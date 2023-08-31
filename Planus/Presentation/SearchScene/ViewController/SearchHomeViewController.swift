@@ -16,6 +16,7 @@ class SearchHomeViewController: UIViewController {
     
     var viewModel: SearchHomeViewModel?
     
+    var isInitLoading = true
     var isLoading: Bool = true
     var isEnded: Bool = false
     var tappedItemAt = PublishSubject<Int>()
@@ -147,6 +148,7 @@ class SearchHomeViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, range in
                 let indexList = Array(range).map { IndexPath(item: $0, section: 0) }
+                vc.isInitLoading = false
                 vc.resultCollectionView.performBatchUpdates({
                     print("addition")
                     vc.resultCollectionView.insertItems(at: indexList)
@@ -162,6 +164,7 @@ class SearchHomeViewController: UIViewController {
             .compactMap { $0 }
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                vc.isInitLoading = false
                 vc.resultCollectionView.performBatchUpdates({
                     print("init")
                     vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
@@ -204,6 +207,9 @@ class SearchHomeViewController: UIViewController {
     
     @objc func refresh(_ sender: UIRefreshControl) {
         if !isLoading {
+            isInitLoading = true
+            sender.endRefreshing()
+            resultCollectionView.reloadData()
             isLoading = true
             isEnded = false
             refreshRequired.onNext(())
@@ -220,12 +226,22 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
         1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel?.result.count ?? Int()
+        if isInitLoading {
+            return Int(collectionView.frame.height/250 * 2)
+        }
+        return viewModel?.result.count ?? Int()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
-              let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell else { return UICollectionViewCell() }
+        if isInitLoading {
+            cell.startSkeletonAnimation()
+            return cell
+        }
+        
+        guard let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
+        print(indexPath.item, "stop!")
+        cell.stopSkeletonAnimation()
         cell.fill(
             title: item.name,
             tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),

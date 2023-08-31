@@ -18,6 +18,8 @@ extension UIView {
         static var skeletonLayer = "SkeletonLayerAssociatedKey"
         static var isSkeletonable = "isSkeletonableAssociatedKey"
         static var skeletonAttribute = "SkeletonAttributeAssociatedKey"
+        static var isSkeletonAnimating = "isSkeletonAnimatingAssociatedKey"
+        static var isHiddenAtSkeleton = "isHiddenAtSkeletonAssociatedKey"
     }
     
     private var skeletonLayer: SkeletonLayer? {
@@ -47,38 +49,65 @@ extension UIView {
         }
     }
     
+    public var isHiddenAtSkeleton: Bool {
+        get {
+            return objc_getAssociatedObject(self, &AssociatedKeys.isHiddenAtSkeleton) as? Bool ?? false
+        }
+        set {
+            objc_setAssociatedObject(self, &AssociatedKeys.isHiddenAtSkeleton, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
+    public var isSkeletonAnimating: Bool {
+        get {
+            return objc_getAssociatedObject(self, &AssociatedKeys.isSkeletonAnimating) as? Bool ?? false
+        }
+        set {
+            objc_setAssociatedObject(self, &AssociatedKeys.isSkeletonAnimating, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
     public func startSkeletonAnimation() {
-        recursiveSearchSubviews(toDo: { (view) in
-            skeletonAttribute = SkeletonAttribute(
-                shadowOpacity: self.layer.shadowOpacity,
-                backgroundColor: self.backgroundColor,
-                userInteractionEnabled: self.isUserInteractionEnabled
-            )
-            
-            view.backgroundColor = .clear
-            view.layer.shadowOpacity = 0
-            view.isUserInteractionEnabled = false
-            if view.isSkeletonable {
-                let skeletonLayer = SkeletonLayer(holder: view)
-                view.skeletonLayer = skeletonLayer
-                skeletonLayer.startAnimating()
-            }
-        })
+        if !isSkeletonAnimating {
+            recursiveSearchSubviews(toDo: { (view) in
+                view.skeletonAttribute = SkeletonAttribute(
+                    shadowOpacity: view.layer.shadowOpacity,
+                    backgroundColor: view.backgroundColor,
+                    userInteractionEnabled: view.isUserInteractionEnabled
+                )
+                
+                view.backgroundColor = .clear
+                view.layer.shadowOpacity = 0
+                view.isUserInteractionEnabled = false
+                if view.isSkeletonable {
+                    let skeletonLayer = SkeletonLayer(holder: view)
+                    view.skeletonLayer = skeletonLayer
+                    skeletonLayer.startAnimating()
+                }
+                if view.isHiddenAtSkeleton {
+                    view.isHidden = true
+                }
+            })
+            isSkeletonAnimating = true
+        }
     }
     
     public func stopSkeletonAnimation() {
-        recursiveSearchSubviews(toDo: { (view) in
-            guard let attribute = view.skeletonAttribute else { return }
-            
-            view.backgroundColor = attribute.backgroundColor
-            view.layer.shadowOpacity = attribute.shadowOpacity
-            view.isUserInteractionEnabled = attribute.userInteractionEnabled
-            
-            if view.isSkeletonable {
-                view.skeletonLayer?.stopAnimating()
-                view.skeletonLayer = nil
-            }
-        })
+        if isSkeletonAnimating {
+            recursiveSearchSubviews(toDo: { (view) in
+                guard let attribute = view.skeletonAttribute else { return }
+                
+                view.backgroundColor = attribute.backgroundColor
+                view.layer.shadowOpacity = attribute.shadowOpacity
+                view.isUserInteractionEnabled = attribute.userInteractionEnabled
+                view.isHidden = false
+                if view.isSkeletonable {
+                    view.skeletonLayer?.stopAnimating()
+                    view.skeletonLayer = nil
+                }
+            })
+            isSkeletonAnimating = false
+        }
     }
     
     private func recursiveSearchSubviews(toDo: (UIView) -> Void) {

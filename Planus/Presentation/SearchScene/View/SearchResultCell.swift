@@ -26,8 +26,6 @@ class SearchResultCell: SpringableCollectionViewCell {
     var captinIconView: UIImageView = {
         let image = UIImage(named: "captinSmall")
         let imageView = UIImageView(image: image)
-        imageView.contentMode = .scaleAspectFit
-        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -44,14 +42,13 @@ class SearchResultCell: SpringableCollectionViewCell {
         stackView.axis = .horizontal
         stackView.alignment = .center
         stackView.spacing = 4
+        stackView.isSkeletonable = true
         return stackView
     }()
     
     var memberIconView: UIImageView = {
         let image = UIImage(named: "peopleSmall")
         let imageView = UIImageView(image: image)
-        imageView.contentMode = .scaleAspectFit
-        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -67,6 +64,17 @@ class SearchResultCell: SpringableCollectionViewCell {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .horizontal
         stackView.alignment = .center
+        
+        stackView.spacing = 4
+        stackView.isSkeletonable = true
+        return stackView
+    }()
+    
+    var bottomStackView: UIStackView = {
+        let stackView = UIStackView(frame: .zero)
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .fillEqually
         stackView.spacing = 4
         return stackView
     }()
@@ -89,6 +97,7 @@ class SearchResultCell: SpringableCollectionViewCell {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 14)
         label.textColor = .black
+        label.isSkeletonable = true
         return label
     }()
     
@@ -98,6 +107,7 @@ class SearchResultCell: SpringableCollectionViewCell {
         label.textColor = UIColor(hex: 0x6F81A9)
         label.font = UIFont(name: "Pretendard-Medium", size: 12)
         label.numberOfLines = 2
+        label.isSkeletonable = true
         return label
     }()
     
@@ -134,10 +144,12 @@ class SearchResultCell: SpringableCollectionViewCell {
     func configureView() {
         self.addSubview(titleImageView)
         self.addSubview(bottomContentsView)
+        
         bottomContentsView.addSubview(titleLabel)
         bottomContentsView.addSubview(tagLabel)
-        bottomContentsView.addSubview(memberStackView)
-        bottomContentsView.addSubview(captinStackView)
+        bottomContentsView.addSubview(bottomStackView)
+        bottomStackView.addArrangedSubview(memberStackView)
+        bottomStackView.addArrangedSubview(captinStackView)
         memberStackView.addArrangedSubview(memberIconView)
         memberStackView.addArrangedSubview(memberCountLabel)
         captinStackView.addArrangedSubview(captinIconView)
@@ -164,22 +176,22 @@ class SearchResultCell: SpringableCollectionViewCell {
         tagLabel.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(12)
             $0.top.equalTo(titleLabel.snp.bottom).offset(16)
+            $0.height.greaterThanOrEqualTo(14)
         }
         
-        memberStackView.snp.makeConstraints {
+        bottomStackView.snp.makeConstraints {
             $0.bottom.equalToSuperview().inset(7)
-            $0.leading.equalToSuperview().inset(12)
+            $0.leading.trailing.equalToSuperview().inset(12)
             $0.height.equalTo(14)
-            $0.width.lessThanOrEqualToSuperview().offset(-12).dividedBy(2)
+        }
+
+        memberIconView.snp.makeConstraints {
+            $0.width.height.equalTo(14)
         }
         
-        captinStackView.snp.makeConstraints {
-            $0.bottom.equalToSuperview().inset(7)
-            $0.trailing.equalToSuperview().inset(12)
-            $0.height.equalTo(14)
-            $0.width.lessThanOrEqualToSuperview().offset(-12).dividedBy(2)
+        captinIconView.snp.makeConstraints {
+            $0.width.height.equalTo(14)
         }
-        
     }
     
     func fill(title: String, tag: String?, memCount: String, captin: String) {

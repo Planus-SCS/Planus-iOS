@@ -34,6 +34,7 @@ class SkeletonLayer: CALayer {
         let layer = CAGradientLayer()
         layer.colors = [UIColor(hex: 0xBDBDBD).cgColor, UIColor(hex: 0xF5F5F5).cgColor, UIColor(hex: 0xBDBDBD).cgColor]
         layer.locations = [0, 0.5, 1]
+        layer.name = "skeletonGradientLayer"
         return layer
     }()
     
@@ -47,6 +48,7 @@ class SkeletonLayer: CALayer {
     }
     
     func configureLayer() {
+        self.name == "skeletonLayer"
         self.backgroundColor = UIColor(hex: 0xF5F5FB).cgColor
         self.addSublayer(gradientLayer)
         self.frame = UIScreen.main.bounds
@@ -67,8 +69,13 @@ class SkeletonLayer: CALayer {
     func stopAnimating() {
         setOpacity(from: 1, to: 0, duration: 3, completion: { [weak self] in
             guard let self else { return }
-            self.holder?.layer.mask = nil
+            self.holder?.layer.sublayers?.removeAll(where: {
+                $0.name == "skeletonGradientLayer" || $0.name == "skeletonLayer"
+            })
+            self.gradientLayer.removeFromSuperlayer()
             self.removeFromSuperlayer()
+            self.gradientLayer.removeAnimation(forKey: "skeletonAnimation")
+            self.holder?.layer.mask = nil
         })
     }
     

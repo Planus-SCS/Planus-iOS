@@ -74,7 +74,9 @@ class SearchHomeViewModel {
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchInitialresult()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                    vm.fetchInitialresult()
+                })
             })
             .disposed(by: bag)
         
@@ -99,7 +101,9 @@ class SearchHomeViewModel {
             .refreshRequired
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchInitialresult()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                    vm.fetchInitialresult()
+                })
             })
             .disposed(by: bag)
         
