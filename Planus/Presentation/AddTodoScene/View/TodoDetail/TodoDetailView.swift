@@ -98,6 +98,7 @@ class TodoDetailView: UIView {
             
             icnView.snp.remakeConstraints {
                 $0.leading.trailing.equalToSuperview()
+                $0.bottom.equalToSuperview().inset(34) // homeIndicator height
             }
         }
     }

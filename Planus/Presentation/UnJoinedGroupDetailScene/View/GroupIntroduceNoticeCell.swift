@@ -7,7 +7,7 @@
 
 import UIKit
 
-class GroupIntroduceNoticeCell: UICollectionViewCell {
+class GroupIntroduceNoticeCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "group-introduce-notice-cell"
 
     var noticeTextView: UITextView = {
@@ -15,7 +15,6 @@ class GroupIntroduceNoticeCell: UICollectionViewCell {
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
         textView.textColor = .black
         textView.textAlignment = NSTextAlignment.left
-//        textView.dataDetectorTypes = UIDataDetectorTypes.all
         textView.isEditable = false
         textView.isScrollEnabled = false
         textView.backgroundColor = UIColor(hex: 0xF5F5FB)
@@ -32,6 +31,7 @@ class GroupIntroduceNoticeCell: UICollectionViewCell {
 
         // TextView에 세팅
         textView.attributedText = attributedString
+        textView.isSkeletonable = true
         return textView
     }()
     
@@ -55,6 +55,7 @@ class GroupIntroduceNoticeCell: UICollectionViewCell {
         noticeTextView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(24)
             $0.top.bottom.equalToSuperview()
+            $0.height.greaterThanOrEqualTo(16)
         }
     }
     

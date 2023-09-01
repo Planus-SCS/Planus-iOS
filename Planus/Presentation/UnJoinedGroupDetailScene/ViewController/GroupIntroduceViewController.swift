@@ -47,31 +47,31 @@ struct Member {
 }
 
 class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegate {
-
+    
     var bag = DisposeBag()
     
+    var nowLoading: Bool = true
     var backButtonTapped = PublishSubject<Void>()
     
-    static let headerElementKind = "group-introduce-view-controller-header-kind"
     var headerSize: CGFloat = 330
     
     var viewModel: GroupIntroduceViewModel?
     
     lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-
+        
         cv.register(GroupIntroduceNoticeCell.self,
-            forCellWithReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier)
+                    forCellWithReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier)
         
         cv.register(GroupIntroduceMemberCell.self,
-            forCellWithReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier)
+                    forCellWithReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier)
         
         cv.register(GroupIntroduceDefaultHeaderView.self,
-                    forSupplementaryViewOfKind: Self.headerElementKind,
+                    forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                     withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier)
         
         cv.register(GroupIntroduceInfoHeaderView.self,
-                    forSupplementaryViewOfKind: Self.headerElementKind,
+                    forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                     withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier)
         cv.dataSource = self
         cv.backgroundColor = UIColor(hex: 0xF5F5FB)
@@ -114,7 +114,7 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
     
     lazy var shareButton: UIBarButtonItem = {
         let image = UIImage(named: "share")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(shareBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: nil)
         item.tintColor = .black
         return item
     }()
@@ -126,7 +126,7 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         configureView()
         configureLayout()
         
@@ -136,12 +136,11 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        self.navigationItem.setLeftBarButton(backButton, animated: false)
-//        self.navigationItem.setRightBarButton(shareButton, animated: false)
-//        self.navigationItem.title = "dkssddd"
+        
         navigationItem.setLeftBarButton(backButton, animated: false)
+        self.navigationItem.setRightBarButton(shareButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
-
+        
         let initialAppearance = UINavigationBarAppearance()
         let scrollingAppearance = UINavigationBarAppearance()
         scrollingAppearance.configureWithOpaqueBackground()
@@ -169,34 +168,23 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
         let input = GroupIntroduceViewModel.Input(
             viewDidLoad: Observable.just(()),
             didTappedJoinBtn: joinButton.rx.tap.asObservable(),
-            didTappedBackBtn: backButtonTapped.asObservable()
+            didTappedBackBtn: backButtonTapped.asObservable(),
+            shareBtnTapped: shareButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
-        output
-            .didGroupInfoFetched
-            .compactMap { $0 }
-            .withUnretained(self)
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { vc, _ in
-                UIView.performWithoutAnimation {
-                    vc.collectionView.reloadSections(IndexSet(0...1))
-                }
-            })
-            .disposed(by: bag)
-        
-        output
-            .didGroupMemberFetched
-            .compactMap { $0 }
-            .withUnretained(self)
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { vc, _ in
-                UIView.performWithoutAnimation {
-                    vc.collectionView.reloadSections(IndexSet(2...2))
-                }
-            })
-            .disposed(by: bag)
+        Observable.zip(
+            output.didGroupInfoFetched.compactMap { $0 },
+            output.didGroupMemberFetched.compactMap { $0 }
+        )
+        .observe(on: MainScheduler.asyncInstance)
+        .withUnretained(self)
+        .subscribe(onNext: { vc, _ in
+            vc.nowLoading = false
+            vc.collectionView.reloadSections(IndexSet(0...2))
+        })
+        .disposed(by: bag)
         
         output
             .isJoinableGroup
@@ -234,6 +222,25 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
                 vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
             })
             .disposed(by: bag)
+        
+        output
+            .showShareMenu
+            .compactMap { $0 }
+            .withUnretained(self)
+            .subscribe(onNext: { vc, url in
+                vc.showShareActivityVC(with: url)
+            })
+            .disposed(by: bag)
+    }
+    
+    func showShareActivityVC(with url: String) {
+        var objectsToShare = [String]()
+        objectsToShare.append(url)
+        let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
+        activityVC.popoverPresentationController?.sourceView = self.view
+        activityVC.excludedActivityTypes = [.addToReadingList, .assignToContact, .markupAsPDF, .openInIBooks, .saveToCameraRoll]
+        
+        self.present(activityVC, animated: true, completion: nil)
     }
     
     func configureView() {
@@ -279,9 +286,9 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
         case .info:
             return 0
         case .notice:
-            return viewModel?.notice != nil ? 1 : 0
+            return nowLoading ? 1 : viewModel?.notice != nil ? 1 : 0
         case .member:
-            return viewModel?.memberList?.count ?? 0
+            return nowLoading ? 6 : viewModel?.memberList?.count ?? 0
         }
     }
     
@@ -292,14 +299,23 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
         case .info:
             return UICollectionViewCell()
         case .notice:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier, for: indexPath) as? GroupIntroduceNoticeCell,
-                  let item = viewModel?.notice else { return UICollectionViewCell() }
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier, for: indexPath) as? GroupIntroduceNoticeCell else { return UICollectionViewCell() }
+            if nowLoading {
+                cell.startSkeletonAnimation()
+                return cell
+            }
+            guard   let item = viewModel?.notice else { return UICollectionViewCell() }
+            cell.stopSkeletonAnimation()
             cell.fill(notice: item)
             return cell
         case .member:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier, for: indexPath) as? GroupIntroduceMemberCell,
-                  let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
-
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceMemberCell.reuseIdentifier, for: indexPath) as? GroupIntroduceMemberCell else { return UICollectionViewCell() }
+            if nowLoading {
+                cell.startSkeletonAnimation()
+                return cell
+            }
+            guard   let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
+            cell.stopSkeletonAnimation()
             cell.fill(name: item.name, introduce: item.description, isCaptin: item.isLeader)
             
             if let url = item.profileImageUrl {
@@ -319,12 +335,18 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
-        guard kind == Self.headerElementKind,
+        guard kind == UICollectionView.elementKindSectionHeader,
               let sectionKind = GroupIntroduceSectionKind(rawValue: indexPath.section) else { return UICollectionReusableView() }
         
         switch sectionKind {
         case .info:
-            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceInfoHeaderView else { return UICollectionReusableView() }
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceInfoHeaderView else { return UICollectionReusableView() }
+            
+            if nowLoading {
+                view.startSkeletonAnimation()
+                return view
+            }
+            view.stopSkeletonAnimation()
             // 이부분 아무래도 셀로 만들어야할거같다.. 네트워크 받아오면 업댓해야되서 그전까지 비워놔야한다,,, 그냥 빈화면으로 보여줄까? 것도 낫베드긴한디
             view.fill(
                 title: viewModel?.groupTitle ?? "",
@@ -332,7 +354,6 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
                 memCount: viewModel?.memberCount ?? "",
                 captin: viewModel?.captin ?? ""
             )
-            
             if let url = viewModel?.groupImageUrl {
                 viewModel?.fetchImage(key: url)
                     .observe(on: MainScheduler.asyncInstance)
@@ -343,7 +364,12 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
             }
             return view
         case .notice, .member:
-            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: Self.headerElementKind, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
+            if nowLoading {
+                view.startSkeletonAnimation()
+                return view
+            }
+            view.stopSkeletonAnimation()
             view.fill(title: sectionKind.title, description: sectionKind.desc)
             return view
         }
@@ -358,21 +384,21 @@ extension GroupIntroduceViewController {
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(1),heightDimension: .absolute(1))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-
+        
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
         
         let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                        heightDimension: .absolute(330))
-
+        
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
+            elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
-
+        
         section.boundarySupplementaryItems = [sectionHeader]
-                
+        
         return section
     }
     
@@ -393,12 +419,12 @@ extension GroupIntroduceViewController {
         
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
+            elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
-
+        
         section.boundarySupplementaryItems = [sectionHeader]
-
+        
         return section
     }
     
@@ -419,12 +445,12 @@ extension GroupIntroduceViewController {
         
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
+            elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
         
         section.boundarySupplementaryItems = [sectionHeader]
-
+        
         return section
     }
     
@@ -459,7 +485,7 @@ class StickyTopCompositionalLayout: UICollectionViewCompositionalLayout {
         
         if offset.y < 0 {
             for attributes in stLayoutAttributes
-            where attributes.representedElementKind == GroupIntroduceViewController.headerElementKind
+            where attributes.representedElementKind == UICollectionView.elementKindSectionHeader
             && attributes.indexPath.section == 0 {
                 let width = collectionView!.frame.width
                 let height = headerSize - offset.y

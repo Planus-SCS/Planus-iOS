@@ -18,6 +18,7 @@ class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
         let label = UILabel(frame: .zero)
         label.textColor = UIColor(hex: 0x6495F4)
         label.font = UIFont(name: "Pretendard-Medium", size: 16)
+        label.isSkeletonable = true
         return label
     }()
     
@@ -25,14 +26,8 @@ class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
         let label = UILabel(frame: .zero)
         label.textColor = .black
         label.font = UIFont(name: "Pretendard-SemiBold", size: 18)
+        label.isSkeletonable = true
         return label
-    }()
-    
-    var stackView: UIStackView = {
-        let stackView = UIStackView(frame: .zero)
-        stackView.axis = .vertical
-        stackView.spacing = 3
-        return stackView
     }()
     
     override init(frame: CGRect) {
@@ -47,19 +42,29 @@ class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
     
     func configureView() {
         self.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.addSubview(stackView)
-        stackView.addArrangedSubview(titleLabel)
-        stackView.addArrangedSubview(descLabel)
+        self.addSubview(titleLabel)
+        self.addSubview(descLabel)
     }
     
     func configureLayout() {
-        stackView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(24)
-            $0.centerY.equalToSuperview()
+        titleLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(14)
+            $0.leading.equalToSuperview().inset(24)
+            $0.height.equalTo(19)
+            $0.width.greaterThanOrEqualTo(70).priority(999)
+            $0.trailing.lessThanOrEqualToSuperview().inset(24).priority(1000)
+        }
+        
+        descLabel.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(3)
+            $0.leading.equalToSuperview().inset(24)
+            $0.height.equalTo(21)
+            $0.width.greaterThanOrEqualTo(170).priority(999)
+            $0.trailing.lessThanOrEqualToSuperview().inset(24).priority(1000)
         }
     }
     
-    func fill(title: String, description: String) {
+    func fill(title: String?, description: String?) {
         self.titleLabel.text = title
         self.descLabel.text = description
     }

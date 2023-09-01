@@ -26,6 +26,7 @@ class SearchHomeViewModel {
     
     var isLoading: Bool = false
     
+    var didStartFetching = BehaviorSubject<Void?>(value: nil)
     var didFetchInitialResult = BehaviorSubject<Void?>(value: nil)
     var didFetchAdditionalResult = PublishSubject<Range<Int>>()
     var resultEnded = PublishSubject<Void>()
@@ -46,6 +47,7 @@ class SearchHomeViewModel {
         var didFetchInitialResult: Observable<Void?>
         var didFetchAdditionalResult: Observable<Range<Int>>
         var resultEnded: Observable<Void>
+        var didStartFetching: Observable<Void?>
     }
     
     let getTokenUseCase: GetTokenUseCase
@@ -120,14 +122,19 @@ class SearchHomeViewModel {
         return Output(
             didFetchInitialResult: didFetchInitialResult.asObservable(),
             didFetchAdditionalResult: didFetchAdditionalResult.asObservable(),
-            resultEnded: resultEnded.asObservable()
+            resultEnded: resultEnded.asObservable(),
+            didStartFetching: didStartFetching.asObservable()
         )
     }
     
     func fetchInitialresult() {
         page = 0
+        didStartFetching.onNext(())
         print("remove!")
-        fetchResult(isInitial: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: { [weak self] in
+            self?.fetchResult(isInitial: true)
+        })
+        
     }
     
     func fetchResult(isInitial: Bool) {

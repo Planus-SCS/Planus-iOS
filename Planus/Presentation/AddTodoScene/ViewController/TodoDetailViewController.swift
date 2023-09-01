@@ -163,6 +163,9 @@ final class TodoDetailViewController: UIViewController {
                 
                 let memoAttrIndex = TodoDetailAttribute.memo.rawValue
                 vc.todoDetailView.icnView.buttonList[memoAttrIndex].tintColor = (text == nil) ? .gray : .black
+                if viewModel.mode == .view {
+                    vc.todoDetailView.icnView.buttonList[memoAttrIndex].isUserInteractionEnabled = text != nil
+                }
             })
             .disposed(by: bag)
         
@@ -181,6 +184,11 @@ final class TodoDetailViewController: UIViewController {
             .subscribe(onNext: { vc, time in
                 let clockAttrIndex = TodoDetailAttribute.clock.rawValue
                 vc.todoDetailView.icnView.buttonList[clockAttrIndex].tintColor = (time == nil) ? .gray : .black
+                
+                if viewModel.mode == .view {
+                    vc.todoDetailView.icnView.buttonList[clockAttrIndex].isUserInteractionEnabled = time != nil
+                }
+
                 guard let time else { return }
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat =  "HH:mm"
@@ -216,7 +224,10 @@ final class TodoDetailViewController: UIViewController {
             .subscribe(onNext: { vc, groupName in
                 let groupAttrIndex = TodoDetailAttribute.group.rawValue
                 vc.todoDetailView.icnView.buttonList[groupAttrIndex].tintColor = (groupName == nil) ? .gray : .black
-                
+                if viewModel.mode == .view {
+                    vc.todoDetailView.icnView.buttonList[groupAttrIndex].isUserInteractionEnabled = groupName != nil
+                }
+
                 if let groupName {
                     let index = viewModel.groups.firstIndex(of: groupName) ?? 0
                     vc.todoDetailView.groupView.groupPickerView.selectRow(index, inComponent: 0, animated: false)
@@ -307,13 +318,18 @@ final class TodoDetailViewController: UIViewController {
             .subscribe(onNext: { vc, _ in
                 vc.showPopUp(
                     title: "일정, 카테고리는 필수에요",
-                    message: "멘트가\n떠오르지 않을 때도 있죠 😌",
+                    message: "가끔 멘트가\n떠오르지 않을 때도 있죠 😌",
                     alertAttrs: [CustomAlertAttr(title: "확인", actionHandler: {}, type: .normal)]
                 )
             })
             .disposed(by: bag)
                         
         todoDetailView.setMode(mode: viewModel.mode)
+        switch viewModel.mode {
+        case .view:
+            dayPickerViewController.view.isHidden = true
+        default: break
+        }
 
         viewModel.initFetch()
     }
@@ -405,7 +421,9 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
         case .clock:
             didChangedTimeValue.onNext(nil)
         case .group:
-            didSelectedGroupAt.onNext(nil)
+            if viewModel?.type == .memberTodo {
+                didSelectedGroupAt.onNext(nil)
+            }
         case .memo:
             isMemoActive.onNext(false)
             todoDetailView.memoView.memoTextView.text = nil
@@ -442,21 +460,23 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
             })
         }
         
-        switch to {
-        case .title:
-            todoDetailView.titleView.todoTitleField.becomeFirstResponder()
-        case .calendar:
-            self.view.endEditing(true)
-        case .clock:
-            todoDetailView.titleView.todoTitleField.becomeFirstResponder()
-            didChangeTime(todoDetailView.clockView.timePicker)
-        case .group:
-            todoDetailView.titleView.todoTitleField.becomeFirstResponder()
-            let index = todoDetailView.groupView.groupPickerView.selectedRow(inComponent: 0)
-            didSelectedGroupAt.onNext(index)
-        case .memo:
-            isMemoActive.onNext(true)
-            todoDetailView.memoView.memoTextView.becomeFirstResponder()
+        if viewModel?.mode != .view {
+            switch to {
+            case .title:
+                todoDetailView.titleView.todoTitleField.becomeFirstResponder()
+            case .calendar:
+                self.view.endEditing(true)
+            case .clock:
+                todoDetailView.titleView.todoTitleField.becomeFirstResponder()
+                didChangeTime(todoDetailView.clockView.timePicker)
+            case .group:
+                todoDetailView.titleView.todoTitleField.becomeFirstResponder()
+                let index = todoDetailView.groupView.groupPickerView.selectedRow(inComponent: 0)
+                didSelectedGroupAt.onNext(index)
+            case .memo:
+                isMemoActive.onNext(true)
+                todoDetailView.memoView.memoTextView.becomeFirstResponder()
+            }
         }
     }
 }

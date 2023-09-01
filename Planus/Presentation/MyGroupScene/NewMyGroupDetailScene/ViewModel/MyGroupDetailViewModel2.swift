@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-enum MyGroupDetailMode: Int, CaseIterable { //일케하면 데드락 생길수도 있음. 로딩을 분리? 아니면 아에 fetch 메서드를 다르게 가져갈까?
+enum MyGroupDetailNavigatorType: Int, CaseIterable { //일케하면 데드락 생길수도 있음. 로딩을 분리? 아니면 아에 fetch 메서드를 다르게 가져갈까?
     // 이걸로 구분하면 0눌렀을때 로딩중 바뀌고 fetch 시작, 다되기 전에 1눌러서 fetch 시작, 그럼 1결과를 보여주기 전에 0을 먼저 보여줄 수 있음.
     case dot = 0
     case notice
@@ -26,20 +26,44 @@ enum MyGroupSecionType {
 
 class MyGroupDetailViewModel2 {
     let bag = DisposeBag()
-    
+    var actions: JoinedGroupDetailViewModelActions?
+
     struct Input {
         var viewDidLoad: Observable<Void>
         var didTappedModeBtnAt: Observable<Int>
-        var onlineStateChanged: Observable<Bool>
-        
+        var didChangedMonth: Observable<Date>
+        var didSelectedDayAt: Observable<Int>
+        var didSelectedMemberAt: Observable<Int>
+        var didTappedOnlineButton: Observable<Void>
+        var shareBtnTapped: Observable<Void>
     }
     
     struct Output {
         var showMessage: Observable<Message>
-        var didFetchSection: Observable<MyGroupSecionType?>
-        var nowLoadingWithBefore: Observable<MyGroupDetailMode?>
+        var didInitialFetch: Observable<Void>
+        var didFetchInfo: Observable<Void?>
+        var didFetchNotice: Observable<Void?>
+        var didFetchMember: Observable<Void?>
+        var didFetchCalendar: Observable<Void?>
+        var nowLoadingWithBefore: Observable<MyGroupDetailPageType?>
+        var showDailyPage: Observable<Date>
+        var showMemberProfileAt: Observable<Int>
+        var memberKickedOutAt: Observable<Int>
+        var needReloadMemberAt: Observable<Int>
+        var onlineStateChanged: Observable<Bool?>
+        var modeChanged: Observable<Void>
+        var showShareMenu: Observable<String?>
+        var nowInitLoading: Observable<Void?>
     }
-    var nowLoadingWithBefore = BehaviorSubject<MyGroupDetailMode?>(value: nil)
+    
+    var nowLoadingWithBefore = BehaviorSubject<MyGroupDetailPageType?>(value: nil)
+    var nowInitLoading = BehaviorSubject<Void?>(value: nil)
+    
+    var didFetchInfo = BehaviorSubject<Void?>(value: nil)
+    var didFetchNotice = BehaviorSubject<Void?>(value: nil)
+    var didFetchMember = BehaviorSubject<Void?>(value: nil)
+    var didFetchCalendar = BehaviorSubject<Void?>(value: nil)
+    var showShareMenu = PublishSubject<String?>()
     
     var groupId: Int?
     var groupTitle: String?
@@ -50,7 +74,7 @@ class MyGroupDetailViewModel2 {
     var leaderName: String?
     var isLeader: Bool?
     
-    var onlineCount = BehaviorSubject<Int?>(value: nil)
+    var onlineCount: Int?
     
     var isOnline = BehaviorSubject<Bool?>(value: nil)
     
@@ -59,9 +83,9 @@ class MyGroupDetailViewModel2 {
     var memberList: [MyMember]?
     var memberKickedOutAt = PublishSubject<Int>()
     var needReloadMemberAt = PublishSubject<Int>()
-    
-    var didFetchedSection = BehaviorSubject<MyGroupSecionType?>(value: nil)
-    
+    var showDailyPage = PublishSubject<Date>()
+    var showMemberProfileAt = PublishSubject<Int>()
+        
     // MARK: mode1, calendar section
     var today: Date = {
         let components = Calendar.current.dateComponents(
@@ -85,10 +109,10 @@ class MyGroupDetailViewModel2 {
         
     var showDaily = PublishSubject<Date>()
     
-    var mode: MyGroupDetailMode?
+    var mode: MyGroupDetailPageType?
     
     let showMessage = PublishSubject<Message>()
-    
+    let modeChanged = PublishSubject<Void>()
     
     
     
@@ -113,6 +137,8 @@ class MyGroupDetailViewModel2 {
     let deleteGroupTodoUseCase: DeleteGroupTodoUseCase
     let updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
     
+    let generateGroupLinkUseCase: GenerateGroupLinkUseCase
+    
     
     init(
         getTokenUseCase: GetTokenUseCase,
@@ -130,7 +156,8 @@ class MyGroupDetailViewModel2 {
         createGroupTodoUseCase: CreateGroupTodoUseCase,
         updateGroupTodoUseCase: UpdateGroupTodoUseCase,
         deleteGroupTodoUseCase: DeleteGroupTodoUseCase,
-        updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
+        updateGroupCategoryUseCase: UpdateGroupCategoryUseCase,
+        generateGroupLinkUseCase: GenerateGroupLinkUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -148,9 +175,12 @@ class MyGroupDetailViewModel2 {
         self.updateGroupTodoUseCase = updateGroupTodoUseCase
         self.deleteGroupTodoUseCase = deleteGroupTodoUseCase
         self.updateGroupCategoryUseCase = updateGroupCategoryUseCase
+        self.generateGroupLinkUseCase = generateGroupLinkUseCase
     }
     
     func transform(input: Input) -> Output {
+        
+        bindUseCase()
         
         input
             .viewDidLoad
@@ -158,9 +188,12 @@ class MyGroupDetailViewModel2 {
             .subscribe(onNext: { vm, _ in
                 guard let groupId = vm.groupId else { return }
                 vm.mode = .notice
-                vm.nowLoadingWithBefore.onNext(vm.mode)
-                vm.fetchGroupDetail(groupId: groupId, fetchType: .initail)
-                vm.fetchMemberList()
+                vm.nowInitLoading.onNext(())
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                    vm.fetchGroupDetail(groupId: groupId, fetchType: .initail)
+                    vm.fetchMemberList()
+                })
             })
             .disposed(by: bag)
 
@@ -168,21 +201,22 @@ class MyGroupDetailViewModel2 {
             .didTappedModeBtnAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                let mode = MyGroupDetailMode(rawValue: index)
+                let mode = MyGroupDetailPageType(rawValue: index)
+                vm.mode = mode
+                vm.modeChanged.onNext(())
                 switch mode {
                 case .notice:
-                    
                     if vm.memberList?.isEmpty ?? true {
                         vm.nowLoadingWithBefore.onNext(vm.mode)
-                        vm.mode = .notice
-                        vm.fetchMemberList()
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                            vm.fetchMemberList()
+                        })
                     } else {
                         vm.mode = .notice
-                        vm.didFetchedSection.onNext(.notice)
-                        
+                        vm.didFetchNotice.onNext(())
                     }
                 case .calendar:
-                    
                     if vm.mainDayList.isEmpty {
                         vm.nowLoadingWithBefore.onNext(mode)
                         let components = Calendar.current.dateComponents(
@@ -191,41 +225,92 @@ class MyGroupDetailViewModel2 {
                         )
                         
                         let currentDate = Calendar.current.date(from: components) ?? Date()
-                        vm.mode = .calendar
-                        vm.createCalendar(date: currentDate)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                            vm.createCalendar(date: currentDate)
+                        })
+                        
                     } else {
-                        vm.mode = .calendar
-                        vm.didFetchedSection.onNext(.calendar)
+                        vm.didFetchCalendar.onNext(())
                     }
-                case .none:
-                    break
-                default: break
+                default: return
                 }
             })
             .disposed(by: bag)
-                    
-                    
-        
-        
         
         input
-            .onlineStateChanged
+            .didChangedMonth
             .withUnretained(self)
-            .subscribe(onNext: { vm, isOnline in
-                guard let currentState = try? vm.isOnline.value(),
-                   currentState != isOnline else { return }
-                vm.setOnlineState(isOnline: isOnline)
+            .subscribe(onNext: { vm, date in
+                vm.mode = .calendar
+                vm.createCalendar(date: date)
             })
             .disposed(by: bag)
         
-
+        input
+            .didSelectedMemberAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                vm.showMemberProfileAt.onNext(index)
+            })
+            .disposed(by: bag)
         
-        return Output(showMessage: showMessage.asObservable(), didFetchSection: didFetchedSection.asObservable(), nowLoadingWithBefore: nowLoadingWithBefore.asObservable())
+        input
+            .didSelectedDayAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, index in
+                let date = vm.mainDayList[index].date
+                vm.showDailyPage.onNext(date)
+            })
+            .disposed(by: bag)
+        
+        input
+            .didTappedOnlineButton
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.flipOnlineState()
+            })
+            .disposed(by: bag)
+        
+        input
+            .shareBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                let urlString = vm.generateShareLink()
+                vm.showShareMenu.onNext(urlString)
+            })
+            .disposed(by: bag)
+        
+        let initFetched = Observable.zip( //만약 먼저 방출하면? 어케되는거지????? 으으으음,,,, 상관없나??? 일단 해보자..!
+            didFetchInfo.compactMap { $0 },
+            didFetchNotice.compactMap { $0 },
+            didFetchMember.compactMap { $0 }
+        )
+            .map { _ in () }
+        //그대로 하고 메인스레드에서 구독을 좀 늦춰서 실험 ㄱㄱ
+        
+        return Output(
+            showMessage: showMessage.asObservable(),
+            didInitialFetch: initFetched,
+            didFetchInfo: didFetchInfo.asObservable(),
+            didFetchNotice: didFetchNotice.asObservable(),
+            didFetchMember: didFetchMember.asObservable(),
+            didFetchCalendar: didFetchCalendar.asObservable(),
+            nowLoadingWithBefore: nowLoadingWithBefore.asObservable(),
+            showDailyPage: showDailyPage.asObservable(),
+            showMemberProfileAt: showMemberProfileAt.asObservable(),
+            memberKickedOutAt: memberKickedOutAt.asObservable(),
+            needReloadMemberAt: needReloadMemberAt.asObservable(),
+            onlineStateChanged: isOnline.asObservable(),
+            modeChanged: modeChanged.asObservable(),
+            showShareMenu: showShareMenu.asObservable(),
+            nowInitLoading: nowInitLoading.asObservable()
+        )
     }
     
-    
-    
-    
+    func generateShareLink() -> String? {
+        guard let groupId = groupId else { return nil }
+        return generateGroupLinkUseCase.execute(groupId: groupId)
+    }
     
     func bindUseCase() {
         setOnlineUseCase
@@ -235,17 +320,22 @@ class MyGroupDetailViewModel2 {
                 let (groupId, memberId) = arg
                 if groupId == vm.groupId {
                     guard let exValue = try? vm.isOnline.value(),
-                          let onlineCount = try? vm.onlineCount.value() else { return }
+                          let onlineCount = vm.onlineCount else { return }
                     let newValue = !exValue
-                    vm.isOnline.onNext(newValue)
-                    vm.onlineCount.onNext(newValue ? (onlineCount + 1) : (onlineCount - 1))
                     
+                    vm.onlineCount = newValue ? (onlineCount + 1) : (onlineCount - 1)
+                    vm.isOnline.onNext(newValue)
+                    
+                    vm.showMessage.onNext(Message(text: "\(vm.groupTitle ?? "") 그룹을 \(newValue ? "온" : "오프")라인으로 전환하였습니다.", state: .normal))
                     guard let index = vm.memberList?.firstIndex(where: { $0.memberId == memberId }),
                           var member = vm.memberList?[index] else { return }
                     
                     member.isOnline = !member.isOnline
                     vm.memberList?[index] = member
-                    vm.needReloadMemberAt.onNext(index)
+                    
+                    if vm.mode == .notice {
+                        vm.needReloadMemberAt.onNext(index)
+                    }
                 }
             })
             .disposed(by: bag)
@@ -257,8 +347,10 @@ class MyGroupDetailViewModel2 {
                 guard let id = vm.groupId,
                       id == groupNotice.groupId else { return }
                 vm.notice = groupNotice.notice
-                vm.didFetchedSection.onNext(.notice)
-                vm.showMessage.onNext(Message(text: "공지사항을 업데이트 하였습니다.", state: .normal))
+                if vm.mode == .notice {
+                    vm.didFetchNotice.onNext(())
+                    vm.showMessage.onNext(Message(text: "공지사항을 업데이트 하였습니다.", state: .normal))
+                }
             })
             .disposed(by: bag)
         
@@ -271,7 +363,7 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-        createGroupTodoUseCase //삽입하고 리로드 or 다시 받기.. 뭐가 좋을랑가 -> 걍 다시받자!
+        createGroupTodoUseCase
             .didCreateGroupTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
@@ -317,15 +409,23 @@ class MyGroupDetailViewModel2 {
         
         memberKickOutUseCase
             .didKickOutMemberAt
-            .subscribe(onNext: { [weak self] (groupId, memberId) in
-                guard let currentGroupId = self?.groupId,
+            .withUnretained(self)
+            .subscribe(onNext: { vm, args in
+                let (groupId, memberId) = args
+                guard let currentGroupId = vm.groupId,
                       groupId == currentGroupId,
-                      let index = self?.memberList?.firstIndex(where: { $0.memberId == memberId }) else { return }
-                self?.memberList?.remove(at: index)
-                self?.memberKickedOutAt.onNext(index)
+                      let index = vm.memberList?.firstIndex(where: { $0.memberId == memberId }) else { return }
+                vm.memberList?.remove(at: index)
+                if vm.mode == .notice {
+                    vm.memberKickedOutAt.onNext(index)
+                }
             })
             .disposed(by: bag)
         
+    }
+    
+    func setActions(actions: JoinedGroupDetailViewModelActions) {
+        self.actions = actions
     }
     
     func fetchGroupDetail(groupId: Int, fetchType: FetchType) {
@@ -349,16 +449,16 @@ class MyGroupDetailViewModel2 {
                 self?.tag = detail.groupTags.map { $0.name }
                 self?.memberCount = detail.memberCount
                 self?.limitCount = detail.limitCount
-                self?.onlineCount.onNext(detail.onlineCount)
+                self?.onlineCount = detail.onlineCount
                 self?.leaderName = detail.leaderName
                 self?.notice = detail.notice
                 self?.isOnline.onNext(detail.isOnline)
+                self?.didFetchInfo.onNext(())
                 if self?.mode == .notice {
-                    self?.didFetchedSection.onNext(.info)
-                    self?.didFetchedSection.onNext(.notice)
+                    self?.didFetchNotice.onNext(())
                 }
             })
-            .disposed(by: bag) //.map { "#\($0.name)" }.joined(separator: " ")
+            .disposed(by: bag)
     }
     
     func fetchMemberList() {
@@ -380,7 +480,7 @@ class MyGroupDetailViewModel2 {
                 self?.memberList = list
                 
                 if self?.mode == .notice {
-                    self?.didFetchedSection.onNext(.member)
+                    self?.didFetchMember.onNext(())
                 }
             })
             .disposed(by: bag)
@@ -422,7 +522,7 @@ class MyGroupDetailViewModel2 {
                 self.todos = todoDict
                 
                 if self.mode == .calendar {
-                    self.didFetchedSection.onNext(.calendar)
+                    self.didFetchCalendar.onNext(())
                 }
             })
             .disposed(by: bag)
@@ -434,7 +534,7 @@ class MyGroupDetailViewModel2 {
             .execute(key: key)
     }
     
-    func setOnlineState(isOnline: Bool) {
+    func flipOnlineState() {
         guard let groupId else { return }
         
         getTokenUseCase
@@ -450,7 +550,7 @@ class MyGroupDetailViewModel2 {
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
-            .subscribe(onError: { [weak self] _ in
+            .subscribe(onFailure: { [weak self] _ in
                 self?.isOnline.onNext(try? self?.isOnline.value())
             })
             .disposed(by: bag)
@@ -474,7 +574,7 @@ class MyGroupDetailViewModel2 {
             )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
-//                self?.actions?.pop?()
+                self?.actions?.pop?()
             }, onError: {
                 print($0)
             })

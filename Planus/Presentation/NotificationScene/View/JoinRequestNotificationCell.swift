@@ -22,6 +22,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         imageView.layer.cornerRadius = 10
         imageView.layer.cornerCurve = .continuous
         imageView.contentMode = .scaleAspectFill
+        imageView.isSkeletonable = true
         return imageView
     }()
     
@@ -29,6 +30,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 12)
         label.textColor = UIColor(hex: 0x6495F4)
+        label.isSkeletonable = true
         return label
     }()
     
@@ -36,6 +38,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-SemiBold", size: 16)
         label.textColor = .black
+        label.isSkeletonable = true
         return label
     }()
     
@@ -43,6 +46,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
         label.textColor = UIColor(hex: 0x6F81A9)
+        label.isSkeletonable = true
         return label
     }()
     
@@ -55,6 +59,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         button.layer.cornerRadius = 10
         button.layer.cornerCurve = .continuous
         button.addTarget(self, action: #selector(allowBtnTapped), for: .touchUpInside)
+        button.isSkeletonable = true
         return button
     }()
     
@@ -67,6 +72,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         button.layer.cornerRadius = 10
         button.layer.cornerCurve = .continuous
         button.addTarget(self, action: #selector(denyBtnTapped), for: .touchUpInside)
+        button.isSkeletonable = true
         return button
     }()
     
@@ -87,7 +93,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         self.layer.cornerCurve = .continuous
         self.layer.masksToBounds = false
         self.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
-        self.layer.shadowOpacity = 1
+        self.layer.shadowOpacity = 0
         self.layer.shadowOffset = CGSize(width: 0, height: 1)
         self.layer.shadowRadius = 2
         
@@ -108,23 +114,23 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         }
         
         groupTitleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(12)
+            $0.top.equalTo(profileImageView)
             $0.leading.equalTo(profileImageView.snp.trailing).offset(9)
-            $0.trailing.lessThanOrEqualToSuperview().inset(9)
+            $0.trailing.equalToSuperview().inset(9)
             $0.height.equalTo(14)
         }
         
         nameLabel.snp.makeConstraints {
-            $0.top.equalTo(groupTitleLabel.snp.bottom)
+            $0.top.equalTo(groupTitleLabel.snp.bottom).offset(2)
             $0.leading.equalTo(profileImageView.snp.trailing).offset(9)
-            $0.trailing.lessThanOrEqualToSuperview().inset(9)
+            $0.trailing.equalToSuperview().inset(9)
             $0.height.equalTo(19)
         }
         
         descLabel.snp.makeConstraints {
-            $0.top.equalTo(nameLabel.snp.bottom).offset(4)
+            $0.bottom.equalTo(profileImageView)
             $0.leading.equalTo(profileImageView.snp.trailing).offset(9)
-            $0.trailing.lessThanOrEqualToSuperview().inset(9)
+            $0.trailing.equalToSuperview().inset(9)
             $0.height.equalTo(17)
         }
         

@@ -16,6 +16,7 @@ class SearchHomeViewController: UIViewController {
     
     var viewModel: SearchHomeViewModel?
     
+    var isInitLoading = true
     var isLoading: Bool = true
     var isEnded: Bool = false
     var tappedItemAt = PublishSubject<Int>()
@@ -44,39 +45,6 @@ class SearchHomeViewController: UIViewController {
         item.tintColor = .black
         return item
     }()
-    
-//    var headerView: UIView = {
-//        let view = UIView(frame: .zero)
-//        view.backgroundColor = UIColor(hex: 0xF5F5FB)
-//        view.layer.masksToBounds = false
-//        view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
-//        view.layer.shadowOpacity = 1
-//        view.layer.shadowOffset = CGSize(width: 0, height: 1)
-//        view.layer.shadowRadius = 2
-//        return view
-//    }()
-//
-//    lazy var searchBarField: UITextField = {
-//        let textField = UITextField(frame: .zero)
-//        textField.textColor = .black
-//        textField.font = UIFont(name: "Pretendard-Medium", size: 12)
-//
-//        textField.backgroundColor = .white
-//        textField.layer.cornerRadius = 10
-//        textField.clipsToBounds = true
-//        textField.clearButtonMode = .whileEditing
-//        textField.delegate = self
-//        if let image = UIImage(named: "searchBarIcon") {
-//            textField.addleftimage(image: image, padding: 12)
-//        }
-//
-//        textField.attributedPlaceholder = NSAttributedString(
-//            string: "그룹명 또는 태그를 검색해보세요.",
-//            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
-//        )
-//
-//        return textField
-//    }()
     
     var createGroupButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
@@ -162,6 +130,7 @@ class SearchHomeViewController: UIViewController {
             .compactMap { $0 }
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                vc.isInitLoading = false
                 vc.resultCollectionView.performBatchUpdates({
                     print("init")
                     vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
@@ -179,6 +148,17 @@ class SearchHomeViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.isEnded = true
+            })
+            .disposed(by: bag)
+        
+        output
+            .didStartFetching
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.isInitLoading = true
+                vc.resultCollectionView.reloadData()
             })
             .disposed(by: bag)
     }
@@ -204,6 +184,7 @@ class SearchHomeViewController: UIViewController {
     
     @objc func refresh(_ sender: UIRefreshControl) {
         if !isLoading {
+            sender.endRefreshing()
             isLoading = true
             isEnded = false
             refreshRequired.onNext(())
@@ -220,12 +201,22 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
         1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel?.result.count ?? Int()
+        if isInitLoading {
+            return Int(collectionView.frame.height/250)*2
+        }
+        return viewModel?.result.count ?? Int()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell,
-              let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell else { return UICollectionViewCell() }
+        if isInitLoading {
+            cell.startSkeletonAnimation()
+            return cell
+        }
+        
+        guard let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
+        print(indexPath.item, "stop!")
+        cell.stopSkeletonAnimation()
         cell.fill(
             title: item.name,
             tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),

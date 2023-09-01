@@ -22,7 +22,9 @@ class JoinedGroupDetailCalendarHeaderView: UICollectionReusableView {
         button.imageEdgeInsets = .init(top: 0, left: 5, bottom: 0, right: -5)
         button.tintColor = .black
         button.setTitleColor(.black, for: .normal)
-
+        button.layer.cornerRadius = 3
+        button.layer.cornerCurve = .continuous
+        button.isSkeletonable = true
         return button
     }()
     
@@ -62,7 +64,7 @@ class JoinedGroupDetailCalendarHeaderView: UICollectionReusableView {
         yearMonthButton.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.width.equalTo(150)
-            $0.height.equalTo(50)
+            $0.height.equalTo(30)
             $0.centerX.equalToSuperview()
         }
         

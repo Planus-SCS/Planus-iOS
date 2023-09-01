@@ -39,11 +39,13 @@ class GroupIntroduceViewModel {
     var isJoinableGroup = BehaviorSubject<GroupJoinableState?>(value: nil)
     var applyCompleted = PublishSubject<Void>()
     var showMessage = PublishSubject<Message>()
+    var showShareMenu = PublishSubject<String?>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
         var didTappedJoinBtn: Observable<Void>
         var didTappedBackBtn: Observable<Void>
+        var shareBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -53,6 +55,7 @@ class GroupIntroduceViewModel {
         var didCompleteApply: Observable<Void>
         var showGroupDetailPage: Observable<Int>
         var showMessage: Observable<Message>
+        var showShareMenu: Observable<String?>
     }
     
     var getTokenUseCase: GetTokenUseCase
@@ -62,6 +65,7 @@ class GroupIntroduceViewModel {
     var fetchMemberListUseCase: FetchMemberListUseCase
     var fetchImageUseCase: FetchImageUseCase
     var applyGroupJoinUseCase: ApplyGroupJoinUseCase
+    var generateGroupLinkUseCase: GenerateGroupLinkUseCase
     
     init(
         getTokenUseCase: GetTokenUseCase,
@@ -70,7 +74,8 @@ class GroupIntroduceViewModel {
         fetchUnjoinedGroupUseCase: FetchUnJoinedGroupUseCase,
         fetchMemberListUseCase: FetchMemberListUseCase,
         fetchImageUseCase: FetchImageUseCase,
-        applyGroupJoinUseCase: ApplyGroupJoinUseCase
+        applyGroupJoinUseCase: ApplyGroupJoinUseCase,
+        generateGroupLinkUseCase: GenerateGroupLinkUseCase
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -79,6 +84,7 @@ class GroupIntroduceViewModel {
         self.fetchMemberListUseCase = fetchMemberListUseCase
         self.fetchImageUseCase = fetchImageUseCase
         self.applyGroupJoinUseCase = applyGroupJoinUseCase
+        self.generateGroupLinkUseCase = generateGroupLinkUseCase
     }
     
     func setGroupId(id: Int) {
@@ -96,7 +102,9 @@ class GroupIntroduceViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 guard let id = vm.groupId else { return }
-                vm.fetchGroupInfo(id: id)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                    vm.fetchGroupInfo(id: id)
+                })
             })
             .disposed(by: bag)
         
@@ -127,14 +135,29 @@ class GroupIntroduceViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .shareBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                let urlString = vm.generateShareLink()
+                vm.showShareMenu.onNext(urlString)
+            })
+            .disposed(by: bag)
+        
         return Output(
             didGroupInfoFetched: didGroupInfoFetched.asObservable(),
             didGroupMemberFetched: didGroupMemberFetched.asObservable(),
             isJoinableGroup: isJoinableGroup.asObservable(),
             didCompleteApply: applyCompleted.asObservable(),
             showGroupDetailPage: showGroupDetailPage.asObservable(),
-            showMessage: showMessage.asObservable()
+            showMessage: showMessage.asObservable(),
+            showShareMenu: showShareMenu.asObservable()
         )
+    }
+    
+    func generateShareLink() -> String? {
+        guard let groupId = groupId else { return nil }
+        return generateGroupLinkUseCase.execute(groupId: groupId)
     }
     
     func fetchGroupInfo(id: Int) {

@@ -15,6 +15,7 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerCurve = .continuous
+        imageView.isSkeletonable = true
         return imageView
     }()
     
@@ -22,6 +23,7 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-SemiBold", size: 16)
         label.textColor = .black
+        label.isSkeletonable = true
         return label
     }()
     
@@ -30,6 +32,7 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
         imageView.image = UIImage(named: "captinSmall")
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
+        imageView.isHiddenAtSkeleton = true
         return imageView
     }()
     
@@ -37,6 +40,7 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
         label.textColor = UIColor(hex: 0x6F81A9)
+        label.isSkeletonable = true
         return label
     }()
     
@@ -74,14 +78,15 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
         
         memberNameLabel.snp.makeConstraints {
             $0.leading.equalTo(memberImageView.snp.trailing).offset(12)
-            $0.trailing.lessThanOrEqualToSuperview()
+            $0.trailing.lessThanOrEqualToSuperview().priority(1000)
+            $0.width.greaterThanOrEqualTo(20).priority(999)
             $0.top.equalToSuperview().inset(4)
             $0.height.equalTo(20)
         }
         
         memberIntroduceLabel.snp.makeConstraints {
             $0.leading.equalTo(memberImageView.snp.trailing).offset(12)
-            $0.trailing.lessThanOrEqualToSuperview()
+            $0.trailing.equalToSuperview()
             $0.top.equalTo(memberNameLabel.snp.bottom).offset(6)
             $0.height.equalTo(17)
         }
