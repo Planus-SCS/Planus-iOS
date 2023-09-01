@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-enum MyGroupDetailMode: Int, CaseIterable { //일케하면 데드락 생길수도 있음. 로딩을 분리? 아니면 아에 fetch 메서드를 다르게 가져갈까?
+enum MyGroupDetailNavigatorType: Int, CaseIterable { //일케하면 데드락 생길수도 있음. 로딩을 분리? 아니면 아에 fetch 메서드를 다르게 가져갈까?
     // 이걸로 구분하면 0눌렀을때 로딩중 바뀌고 fetch 시작, 다되기 전에 1눌러서 fetch 시작, 그럼 1결과를 보여주기 전에 0을 먼저 보여줄 수 있음.
     case dot = 0
     case notice
@@ -45,7 +45,7 @@ class MyGroupDetailViewModel2 {
         var didFetchNotice: Observable<Void?>
         var didFetchMember: Observable<Void?>
         var didFetchCalendar: Observable<Void?>
-        var nowLoadingWithBefore: Observable<MyGroupDetailMode?>
+        var nowLoadingWithBefore: Observable<MyGroupDetailPageType?>
         var showDailyPage: Observable<Date>
         var showMemberProfileAt: Observable<Int>
         var memberKickedOutAt: Observable<Int>
@@ -55,7 +55,7 @@ class MyGroupDetailViewModel2 {
         var showShareMenu: Observable<String?>
     }
     
-    var nowLoadingWithBefore = BehaviorSubject<MyGroupDetailMode?>(value: nil)
+    var nowLoadingWithBefore = BehaviorSubject<MyGroupDetailPageType?>(value: nil)
     
     var didFetchInfo = BehaviorSubject<Void?>(value: nil)
     var didFetchNotice = BehaviorSubject<Void?>(value: nil)
@@ -107,7 +107,7 @@ class MyGroupDetailViewModel2 {
         
     var showDaily = PublishSubject<Date>()
     
-    var mode: MyGroupDetailMode?
+    var mode: MyGroupDetailPageType?
     
     let showMessage = PublishSubject<Message>()
     let modeChanged = PublishSubject<Void>()
@@ -187,8 +187,11 @@ class MyGroupDetailViewModel2 {
                 guard let groupId = vm.groupId else { return }
                 vm.mode = .notice
                 vm.nowLoadingWithBefore.onNext(vm.mode)
-                vm.fetchGroupDetail(groupId: groupId, fetchType: .initail)
-                vm.fetchMemberList()
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                    vm.fetchGroupDetail(groupId: groupId, fetchType: .initail)
+                    vm.fetchMemberList()
+                })
             })
             .disposed(by: bag)
 
@@ -196,14 +199,17 @@ class MyGroupDetailViewModel2 {
             .didTappedModeBtnAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                let mode = MyGroupDetailMode(rawValue: index)
+                let mode = MyGroupDetailPageType(rawValue: index)
                 vm.mode = mode
                 vm.modeChanged.onNext(())
                 switch mode {
                 case .notice:
                     if vm.memberList?.isEmpty ?? true {
                         vm.nowLoadingWithBefore.onNext(vm.mode)
-                        vm.fetchMemberList()
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                            vm.fetchMemberList()
+                        })
                     } else {
                         vm.mode = .notice
                         vm.didFetchNotice.onNext(())
@@ -217,7 +223,10 @@ class MyGroupDetailViewModel2 {
                         )
                         
                         let currentDate = Calendar.current.date(from: components) ?? Date()
-                        vm.createCalendar(date: currentDate)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                            vm.createCalendar(date: currentDate)
+                        })
+                        
                     } else {
                         vm.didFetchCalendar.onNext(())
                     }

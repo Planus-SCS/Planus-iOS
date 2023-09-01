@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-extension MyGroupDetailMode {
+extension MyGroupDetailNavigatorType {
     var imageTitle: String {
         switch self {
         case .dot:
@@ -23,6 +23,60 @@ extension MyGroupDetailMode {
     }
 }
 
+enum MyGroupDetailPageType: Int {
+    case notice = 1
+    case calendar = 2
+    
+    var attributes: [MyGroupDetailPageAttribute] {
+        switch self {
+        case .notice:
+            return [.info, .notice, .member]
+        case .calendar:
+            return [.info, .calendar]
+        }
+    }
+}
+
+enum MyGroupDetailPageAttribute {
+    case info
+    case notice
+    case member
+    case calendar
+    
+    var sectionIndex: Int {
+        switch self {
+        case .info:
+            return 0
+        case .notice:
+            return 1
+        case .member:
+            return 2
+        case .calendar:
+            return 1
+        }
+    }
+    
+    var headerTitle: String? {
+        switch self {
+        case .notice:
+            return "공지사항"
+        case .member:
+            return "그룹멤버"
+        default: return nil
+        }
+    }
+    
+    var headerMessage: String? {
+        switch self {
+        case .notice:
+            return "우리 이렇게 진행해요"
+        case .member:
+            return "우리 이렇게 함께해요"
+        default: return nil
+        }
+    }
+}
+
 class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegate {
     var bag = DisposeBag()
     
@@ -33,6 +87,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     var didTappedShareBtn = PublishSubject<Void>()
         
     var nowLoading: Bool = true
+    
     var didTappedButtonAt = PublishSubject<Int>()
     var modeChanged: Bool = false
     
@@ -41,7 +96,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     var firstXOffset: CGFloat?
         
     lazy var buttonList: [UIButton] = {
-        return MyGroupDetailMode.allCases.map { [weak self] in
+        return MyGroupDetailNavigatorType.allCases.map { [weak self] in
             let image = UIImage(named: $0.imageTitle) ?? UIImage()
             let button = SpringableButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
             button.setImage(image, for: .normal)
@@ -176,14 +231,10 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                 vc.swipeBar.setAnimatedIsHidden(false, duration: 0.2)
                 vc.setMenuButton(isLeader: viewModel.isLeader)
                 
-                vc.collectionView.performBatchUpdates {
-                    vc.collectionView.reloadSections(IndexSet(0...1))
-                    if vc.collectionView.numberOfSections == 2 {
-                        vc.collectionView.insertSections(IndexSet(integer: 2))
-                    } else {
-                        vc.collectionView.reloadSections(IndexSet(integer: 2))
-                    }
-                }
+                guard let mode = viewModel.mode else { return }
+                vc.setSectionCount(mode: mode, trailingAction: {
+                    vc.collectionView.reloadData()
+                })
             })
             .disposed(by: self.bag)
         
@@ -216,14 +267,11 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("notice")
+                guard let mode = viewModel.mode else { return }
                 vc.nowLoading = false
-                vc.collectionView.performBatchUpdates({
-                    if vc.collectionView.numberOfSections == 2 {
-                        vc.collectionView.insertSections(IndexSet(integer: 2))
-                    }
-                    vc.collectionView.reloadSections(IndexSet(integer: 1))
-                }, completion: { _ in
+                vc.setSectionCount(mode: mode, trailingAction: {
+                    vc.collectionView.reloadSections(IndexSet(integer: MyGroupDetailPageAttribute.notice.sectionIndex))
+                }, completion: {
                     if vc.modeChanged {
                         vc.modeChanged = false
                         vc.scrollToHeader(section: 1)
@@ -232,6 +280,13 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             })
             .disposed(by: bag)
         
+        // 모드 바꾸는 순서
+        /*
+         만약 데이터 없으면?
+         섹션 갯수 줄이기 -> 바로 fetching
+         섹션 갯수 줄이기 -> 로딩뷰 -> fetching
+         */
+        
         output
             .didFetchMember
             .compactMap { $0 }
@@ -239,15 +294,11 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("member")
+                guard let mode = viewModel.mode else { return }
                 vc.nowLoading = false
-                vc.collectionView.performBatchUpdates({
-                    if vc.collectionView.numberOfSections == 2 {
-                        vc.collectionView.insertSections(IndexSet(integer: 2))
-                    } else if vc.collectionView.numberOfSections == 3 {
-                        vc.collectionView.reloadSections(IndexSet(integer: 2))
-                    }
-                }, completion: { _ in
+                vc.setSectionCount(mode: mode, trailingAction: {
+                    vc.collectionView.reloadSections(IndexSet(integer: MyGroupDetailPageAttribute.member.sectionIndex))
+                }, completion: {
                     if vc.modeChanged {
                         vc.modeChanged = false
                         vc.scrollToHeader(section: 1)
@@ -262,15 +313,12 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("calendar")
+                guard let mode = viewModel.mode else { return }
                 vc.nowLoading = false
-                vc.collectionView.performBatchUpdates ({
-                    if vc.collectionView.numberOfSections == 3 {
-                        vc.collectionView.deleteSections(IndexSet(integer: 2))
-                    }
-                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
-                    vc.collectionView.reloadSections(IndexSet(integer: 1))
-                }, completion: { _ in
+                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
+                vc.setSectionCount(mode: mode, trailingAction: {
+                    vc.collectionView.reloadSections(IndexSet(integer: MyGroupDetailPageAttribute.calendar.sectionIndex))
+                }, completion: {
                     if vc.modeChanged {
                         vc.modeChanged = false
                         vc.scrollToHeader(section: 1)
@@ -285,22 +333,9 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, mode in
-                vc.collectionView.performBatchUpdates({
-                    vc.nowLoading = true
-                    switch mode {
-                    case .notice:
-                        if vc.collectionView.numberOfSections == 2 {
-                            vc.collectionView.insertSections(IndexSet(integer: 2))
-                            vc.collectionView.reloadSections(IndexSet(1..<3))
-                        }
-                    case .calendar:
-                        if vc.collectionView.numberOfSections == 3 {
-                            vc.collectionView.deleteSections(IndexSet(integer: 2))
-                            vc.collectionView.reloadSections(IndexSet(1..<2))
-                        }
-                    default: break
-                    }
-
+                vc.setSectionCount(mode: mode, trailingAction: {
+                    let indexSet = IndexSet(mode.attributes.filter { $0 != .info }.map { $0.sectionIndex })
+                    vc.collectionView.reloadSections(indexSet)
                 })
             })
             .disposed(by: bag)
@@ -420,6 +455,21 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             })
             .disposed(by: bag)
 
+    }
+    
+    func setSectionCount(mode: MyGroupDetailPageType, trailingAction: (() -> Void)? = nil, completion: (() -> Void)? = nil) {
+        let newSectionCount = mode.attributes.count
+        let currentSectionCount = collectionView.numberOfSections
+
+        collectionView.performBatchUpdates({
+            nowLoading = true
+            if newSectionCount < currentSectionCount {
+                collectionView.deleteSections(IndexSet(newSectionCount..<currentSectionCount))
+            } else if newSectionCount > currentSectionCount {
+                collectionView.insertSections(IndexSet(currentSectionCount..<newSectionCount))
+            }
+            trailingAction?()
+        }, completion: { _ in completion?() })
     }
     
     func showShareActivityVC(with url: String) {
@@ -542,130 +592,104 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
 
 extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        switch viewModel?.mode {
+        guard let mode = viewModel?.mode else { return false }
+        
+        switch mode {
         case .notice:
-            if indexPath.section == 2 {
+            if indexPath.section == MyGroupDetailPageAttribute.member.sectionIndex {
                 didSelectedMemberAt.onNext(indexPath.item)
             }
         case .calendar:
-            if indexPath.section == 1 {
+            if indexPath.section == MyGroupDetailPageAttribute.calendar.sectionIndex {
                 didSelectedDayAt.onNext(indexPath.item)
             }
-        default: break
         }
+
         return false
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        let mode = viewModel?.mode
-        switch mode {
-        case .notice:
-            return 3
-        case .calendar:
-            return 2
-        case .chat:
-            return 2
-        default:
-            return 0
-        }
+        viewModel?.mode?.attributes.count ?? 0
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if nowLoading {
-            return section == 0 ? 0 : 1
-        }
+        guard let mode = viewModel?.mode else { return 0 }
         
-        switch viewModel?.mode {
-        case .notice:
-            switch section {
-            case 0:
-                return 0
-            case 1:
-                return 1
-            case 2:
-                return viewModel?.memberList?.count ?? 0 // 똥글뱅이 보여줘야함..!!!
-            default:
-                return 0
-            }
-        case .calendar:
-            switch section {
-            case 0:
-                return 0
-            case 1:
-                return viewModel?.mainDayList.count ?? 0
-            default:
-                return 0
-            }
-        default:
-            return 0
+        switch mode.attributes[section] {
+        case .info: return 0
+        case .notice: return nowLoading ? 1 : 1
+        case .member: return nowLoading ? 1 : (viewModel?.memberList?.count ?? 0)
+        case .calendar: return nowLoading ? 42 : (viewModel?.mainDayList.count ?? 0)
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let mode = viewModel?.mode else { return UICollectionViewCell() }
         
-        if nowLoading {
-            switch indexPath.section {
-            case 1:
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MyGroupDetailLoadingCell.reuseIdentifier, for: indexPath) as? MyGroupDetailLoadingCell else { return UICollectionViewCell() }
-                cell.start()
-                return cell
-            default:
-                return UICollectionViewCell()
-            }
-        }
-        
-        let mode = viewModel?.mode
-        switch mode {
+        switch mode.attributes[indexPath.section] {
+        case .info: return UICollectionViewCell()
         case .notice:
-            switch indexPath.section {
-            case 1:
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier, for: indexPath) as? GroupIntroduceNoticeCell,
-                      let item = viewModel?.notice else { return UICollectionViewCell() }
-                cell.fill(notice: item)
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier, for: indexPath) as? GroupIntroduceNoticeCell else { return UICollectionViewCell() }
+            if nowLoading {
+                cell.startSkeletonAnimation()
                 return cell
-            case 2:
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupMemberCell.reuseIdentifier, for: indexPath) as? JoinedGroupMemberCell,
-                        let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
-                
-                cell.fill(name: item.nickname, introduce: item.description, isCaptin: item.isLeader, isOnline: item.isOnline)
-                
-                if let url = item.profileImageUrl {
-                    viewModel?.fetchImage(key: url)
-                        .observe(on: MainScheduler.asyncInstance)
-                        .subscribe(onSuccess: { data in
-                            cell.fill(image: UIImage(data: data))
-                        })
-                        .disposed(by: bag)
-                } else {
-                    cell.fill(image: UIImage(named: "DefaultProfileMedium"))
-                }
-                
-                return cell
-                
-            default:
-                return UICollectionViewCell()
             }
+            
+            guard let item = viewModel?.notice else { return UICollectionViewCell() }
+            cell.stopSkeletonAnimation()
+            cell.fill(notice: item)
+            return cell
+        case .member:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupMemberCell.reuseIdentifier, for: indexPath) as? JoinedGroupMemberCell else { return UICollectionViewCell() }
+            if nowLoading {
+                cell.startSkeletonAnimation()
+                return cell
+            }
+            
+            guard let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
+            cell.stopSkeletonAnimation()
+            
+            cell.fill(name: item.nickname, introduce: item.description, isCaptin: item.isLeader, isOnline: item.isOnline)
+            
+            if let url = item.profileImageUrl {
+                viewModel?.fetchImage(key: url)
+                    .observe(on: MainScheduler.asyncInstance)
+                    .subscribe(onSuccess: { data in
+                        cell.fill(image: UIImage(data: data))
+                    })
+                    .disposed(by: bag)
+            } else {
+                cell.fill(image: UIImage(named: "DefaultProfileMedium"))
+            }
+            
+            return cell
         case .calendar:
-            switch indexPath.section {
-            case 1:
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
-                    return UICollectionViewCell()
-                }
-                return calendarCell(cell: cell, indexPath: indexPath)
-            default:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
                 return UICollectionViewCell()
             }
-        case .chat:
-            return UICollectionViewCell()
-        default:
-            return UICollectionViewCell()
+            if nowLoading {
+                cell.startSkeletonAnimation()
+                return cell
+            }
+            
+            return calendarCell(cell: cell, indexPath: indexPath)
         }
-    
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if indexPath.section == 0 {
+        
+        guard let mode = viewModel?.mode else { return UICollectionViewCell() }
+        
+        switch mode.attributes[indexPath.section] {
+        case .info:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: MyGroupInfoHeaderView.reuseIdentifier, for: indexPath) as? MyGroupInfoHeaderView else { return UICollectionReusableView() }
-            var viewBag = DisposeBag()
+            
+            if nowLoading {
+                view.startSkeletonAnimation()
+                return view
+            }
+            view.stopSkeletonAnimation()
+            
+            let viewBag = DisposeBag()
             view.viewBag = viewBag
             print("info reloaded")
             view.fill(
@@ -697,23 +721,25 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
                 .disposed(by: viewBag)
             
             return view
-        }
-        
-        let mode = viewModel?.mode
-        switch mode {
-        case .notice:
+        case .notice, .member:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
-            switch indexPath.section {
-            case 1:
-                view.fill(title: "공지 사항", description: "우리 이렇게 진행해요")
-            case 2:
-                view.fill(title: "그룹 멤버", description: "우리 이렇게 함께해요")
-            default:
-                break
+            if nowLoading {
+                view.startSkeletonAnimation()
+                return view
             }
+            view.stopSkeletonAnimation()
+            view.fill(title: mode.attributes[indexPath.section].headerTitle, description: mode.attributes[indexPath.section].headerMessage)
             return view
         case .calendar:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier, for: indexPath) as? JoinedGroupDetailCalendarHeaderView else { return UICollectionReusableView() }
+            
+            if nowLoading {
+                view.startSkeletonAnimation()
+                return view
+            }
+            
+            view.stopSkeletonAnimation()
+            
             let bag = DisposeBag()
             view.yearMonthButton.setTitle(viewModel?.currentDateText, for: .normal)
             view.yearMonthButton.rx.tap
@@ -743,11 +769,11 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
                 .disposed(by: bag)
             view.bag = bag
             return view
-        case .chat:
-            return UICollectionReusableView()
-        default:
-            return UICollectionReusableView()
         }
+        
+        
+        
+
         
     }
 }
@@ -1022,10 +1048,6 @@ extension MyGroupDetailViewController2 {
                 }
             case .calendar:
                 return self.createCalendarSection()
-            case .chat:
-                return nil
-            default:
-                return nil
             }
         }
     }

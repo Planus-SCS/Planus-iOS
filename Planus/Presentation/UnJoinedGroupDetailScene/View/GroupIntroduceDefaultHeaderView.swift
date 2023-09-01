@@ -59,7 +59,7 @@ class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
         }
     }
     
-    func fill(title: String, description: String) {
+    func fill(title: String?, description: String?) {
         self.titleLabel.text = title
         self.descLabel.text = description
     }
