@@ -13,6 +13,7 @@ class JoinedGroupMemberCell: GroupIntroduceMemberCell {
         super.init(frame: frame)
         
         memberImageView.layer.borderWidth = 2
+        memberImageView.layer.borderColor = UIColor.gray.cgColor
     }
     
     required init?(coder: NSCoder) {

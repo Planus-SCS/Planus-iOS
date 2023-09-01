@@ -27,7 +27,11 @@ class OnlineFlagButton: UIButton {
 }
 
 class MyGroupInfoHeaderView: GroupIntroduceInfoHeaderView {
-    var onlineButton = OnlineFlagButton(frame: .zero)
+    var onlineButton: OnlineFlagButton = {
+        let button = OnlineFlagButton(frame: .zero)
+        button.isHiddenAtSkeleton = true
+        return button
+    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)

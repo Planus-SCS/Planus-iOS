@@ -53,9 +53,11 @@ class MyGroupDetailViewModel2 {
         var onlineStateChanged: Observable<Bool?>
         var modeChanged: Observable<Void>
         var showShareMenu: Observable<String?>
+        var nowInitLoading: Observable<Void?>
     }
     
     var nowLoadingWithBefore = BehaviorSubject<MyGroupDetailPageType?>(value: nil)
+    var nowInitLoading = BehaviorSubject<Void?>(value: nil)
     
     var didFetchInfo = BehaviorSubject<Void?>(value: nil)
     var didFetchNotice = BehaviorSubject<Void?>(value: nil)
@@ -186,9 +188,9 @@ class MyGroupDetailViewModel2 {
             .subscribe(onNext: { vm, _ in
                 guard let groupId = vm.groupId else { return }
                 vm.mode = .notice
-                vm.nowLoadingWithBefore.onNext(vm.mode)
+                vm.nowInitLoading.onNext(())
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
                     vm.fetchGroupDetail(groupId: groupId, fetchType: .initail)
                     vm.fetchMemberList()
                 })
@@ -207,7 +209,7 @@ class MyGroupDetailViewModel2 {
                     if vm.memberList?.isEmpty ?? true {
                         vm.nowLoadingWithBefore.onNext(vm.mode)
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
                             vm.fetchMemberList()
                         })
                     } else {
@@ -223,7 +225,7 @@ class MyGroupDetailViewModel2 {
                         )
                         
                         let currentDate = Calendar.current.date(from: components) ?? Date()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
                             vm.createCalendar(date: currentDate)
                         })
                         
@@ -300,8 +302,8 @@ class MyGroupDetailViewModel2 {
             needReloadMemberAt: needReloadMemberAt.asObservable(),
             onlineStateChanged: isOnline.asObservable(),
             modeChanged: modeChanged.asObservable(),
-            showShareMenu: showShareMenu.asObservable()
-
+            showShareMenu: showShareMenu.asObservable(),
+            nowInitLoading: nowInitLoading.asObservable()
         )
     }
     

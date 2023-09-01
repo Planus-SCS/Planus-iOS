@@ -15,6 +15,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
+        imageView.isHiddenAtSkeleton = true
         return imageView
     }()
     
@@ -95,6 +96,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         stackView.axis = .horizontal
         stackView.alignment = .center
         stackView.spacing = 20
+        stackView.isHiddenAtSkeleton = true
         return stackView
     }()
     
@@ -102,6 +104,8 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 20)
         label.textColor = .black
+        label.textAlignment = .center
+        label.isSkeletonable = true
         return label
     }()
     
@@ -111,6 +115,8 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         label.textColor = UIColor(hex: 0x6F81A9)
         label.font = UIFont(name: "Pretendard-Medium", size: 16)
         label.numberOfLines = 2
+        label.textAlignment = .center
+        label.isSkeletonable = true
         return label
     }()
     
@@ -185,15 +191,15 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         }
         
         titleLabel.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
             $0.top.equalToSuperview().inset(30)
-            $0.width.lessThanOrEqualToSuperview().offset(-20)
+            $0.leading.trailing.equalToSuperview().inset(50)
+            $0.height.equalTo(27)
         }
         
         tagLabel.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
             $0.top.equalTo(titleLabel.snp.bottom).offset(16)
-            $0.width.lessThanOrEqualToSuperview().offset(-20)
+            $0.leading.trailing.equalToSuperview().inset(18)
+            $0.height.greaterThanOrEqualTo(18)
         }
         
         
@@ -213,6 +219,13 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     }
     
     func fill(image: UIImage?) {
-        self.titleImageView.image = image
+        UIView.transition(with: titleImageView,
+                          duration: 0.1,
+                          options: .transitionCrossDissolve,
+                          animations: {
+            self.titleImageView.image = image
+            
+        },
+                          completion: nil)
     }
 }

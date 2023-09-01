@@ -59,7 +59,7 @@ class SkeletonLayer: CALayer {
         holder?.layer.mask = self
         holder?.layer.addSublayer(self)
         holder?.clipsToBounds = true
-        setOpacity(from: 0, to: 1, duration: 1) {
+        setOpacity(from: 0, to: 1, duration: 0.5) {
             DispatchQueue.main.async { CATransaction.begin() }
             self.gradientLayer.add(self.animation, forKey: "skeletonAnimation")
             DispatchQueue.main.async { CATransaction.commit() }
@@ -67,7 +67,7 @@ class SkeletonLayer: CALayer {
     }
     
     func stopAnimating() {
-        setOpacity(from: 1, to: 0, duration: 3, completion: { [weak self] in
+        setOpacity(from: 1, to: 0, duration: 0.5, completion: { [weak self] in
             guard let self else { return }
             self.holder?.layer.sublayers?.removeAll(where: {
                 $0.name == "skeletonGradientLayer" || $0.name == "skeletonLayer"

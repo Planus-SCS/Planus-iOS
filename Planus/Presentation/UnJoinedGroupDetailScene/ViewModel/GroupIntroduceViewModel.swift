@@ -102,7 +102,9 @@ class GroupIntroduceViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 guard let id = vm.groupId else { return }
-                vm.fetchGroupInfo(id: id)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                    vm.fetchGroupInfo(id: id)
+                })
             })
             .disposed(by: bag)
         

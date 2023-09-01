@@ -86,7 +86,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     var didTappedOnlineButton = PublishSubject<Void>()
     var didTappedShareBtn = PublishSubject<Void>()
         
-    var nowLoading: Bool = true
+    var nowLoading: Bool = false
     
     var didTappedButtonAt = PublishSubject<Int>()
     var modeChanged: Bool = false
@@ -140,7 +140,6 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         cv.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
         cv.register(JoinedGroupDetailCalendarHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier)
         
-        cv.register(MyGroupDetailLoadingCell.self, forCellWithReuseIdentifier: MyGroupDetailLoadingCell.reuseIdentifier)
         
         cv.dataSource = self
         cv.delegate = self
@@ -225,15 +224,16 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("all")
+                print("output initFetch")
                 vc.nowLoading = false
                 
-                vc.swipeBar.setAnimatedIsHidden(false, duration: 0.2)
                 vc.setMenuButton(isLeader: viewModel.isLeader)
                 
                 guard let mode = viewModel.mode else { return }
                 vc.setSectionCount(mode: mode, trailingAction: {
-                    vc.collectionView.reloadData()
+                    vc.collectionView.reloadSections(IndexSet(mode.attributes.map { $0.sectionIndex }))
+                }, completion: {
+                    vc.swipeBar.setAnimatedIsHidden(false, duration: 0.2)
                 })
             })
             .disposed(by: self.bag)
@@ -243,6 +243,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                print("output mode")
                 vc.modeChanged = true
             })
             .disposed(by: bag)
@@ -254,7 +255,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("info")
+                print("output info")
                 vc.nowLoading = false
                 vc.collectionView.reloadSections(IndexSet(integer: 0))
             })
@@ -267,6 +268,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                print("output notice")
                 guard let mode = viewModel.mode else { return }
                 vc.nowLoading = false
                 vc.setSectionCount(mode: mode, trailingAction: {
@@ -294,6 +296,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
+                print("output member")
                 guard let mode = viewModel.mode else { return }
                 vc.nowLoading = false
                 vc.setSectionCount(mode: mode, trailingAction: {
@@ -333,8 +336,26 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, mode in
+                print("output load")
+                vc.nowLoading = true
                 vc.setSectionCount(mode: mode, trailingAction: {
                     let indexSet = IndexSet(mode.attributes.filter { $0 != .info }.map { $0.sectionIndex })
+                    vc.collectionView.reloadSections(indexSet)
+                })
+            })
+            .disposed(by: bag)
+        
+        output
+            .nowInitLoading
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                print("output initLoad")
+                vc.nowLoading = true
+                guard let mode = viewModel.mode else { return }
+                vc.setSectionCount(mode: mode, trailingAction: {
+                    let indexSet = IndexSet(mode.attributes.map { $0.sectionIndex })
                     vc.collectionView.reloadSections(indexSet)
                 })
             })
@@ -462,7 +483,6 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         let currentSectionCount = collectionView.numberOfSections
 
         collectionView.performBatchUpdates({
-            nowLoading = true
             if newSectionCount < currentSectionCount {
                 collectionView.deleteSections(IndexSet(newSectionCount..<currentSectionCount))
             } else if newSectionCount > currentSectionCount {
@@ -501,7 +521,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         self.view.addSubview(swipeBar)
         
         buttonsView.isHidden = true
-        
+        swipeBar.isHidden = true
     }
     
     func configureGestureRecognizer() {
@@ -616,8 +636,8 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
         
         switch mode.attributes[section] {
         case .info: return 0
-        case .notice: return nowLoading ? 1 : 1
-        case .member: return nowLoading ? 1 : (viewModel?.memberList?.count ?? 0)
+        case .notice: return nowLoading ? 1 : (viewModel?.notice != nil) ? 1 : 0
+        case .member: return nowLoading ? 6 : (viewModel?.memberList?.count ?? 0)
         case .calendar: return nowLoading ? 42 : (viewModel?.mainDayList.count ?? 0)
         }
     }
@@ -635,6 +655,7 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
             }
             
             guard let item = viewModel?.notice else { return UICollectionViewCell() }
+            print("stop notice skele")
             cell.stopSkeletonAnimation()
             cell.fill(notice: item)
             return cell
@@ -643,7 +664,7 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
             if nowLoading {
                 cell.startSkeletonAnimation()
                 return cell
-            }
+            } // nowLoading을 처음부터 true로? 아니면 갯술
             
             guard let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
             cell.stopSkeletonAnimation()
@@ -670,6 +691,7 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
                 cell.startSkeletonAnimation()
                 return cell
             }
+            cell.stopSkeletonAnimation()
             
             return calendarCell(cell: cell, indexPath: indexPath)
         }
@@ -682,16 +704,15 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
         switch mode.attributes[indexPath.section] {
         case .info:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: MyGroupInfoHeaderView.reuseIdentifier, for: indexPath) as? MyGroupInfoHeaderView else { return UICollectionReusableView() }
-            
             if nowLoading {
                 view.startSkeletonAnimation()
                 return view
             }
+            
             view.stopSkeletonAnimation()
             
             let viewBag = DisposeBag()
             view.viewBag = viewBag
-            print("info reloaded")
             view.fill(
                 title: viewModel?.groupTitle ?? "",
                 tag: viewModel?.tag?.map { "#\($0)" }.joined(separator: " ") ?? "",
@@ -1027,25 +1048,14 @@ extension MyGroupDetailViewController2 {
         return StickyTopCompositionalLayout { [weak self] (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
             guard let self,
                   let mode = self.viewModel?.mode else { return nil }
-            
-            if sectionIndex == 0 {
-                return self.createInfoSection()
-            }
-            
-            if self.nowLoading {
-                return self.createLoadSection()
-            }
 
-            switch mode {
+            switch mode.attributes[sectionIndex] {
+            case .info:
+                return self.createInfoSection()
             case .notice:
-                switch sectionIndex {
-                case 1:
-                    return self.createNoticeSection()
-                case 2:
-                    return self.createMemberSection()
-                default:
-                    return nil
-                }
+                return self.createNoticeSection()
+            case .member:
+                return self.createMemberSection()
             case .calendar:
                 return self.createCalendarSection()
             }

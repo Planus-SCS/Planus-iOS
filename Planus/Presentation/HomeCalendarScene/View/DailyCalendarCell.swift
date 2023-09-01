@@ -46,6 +46,9 @@ class DailyCalendarCell: SpringableCollectionViewCell {
         label.text = "0"
         label.textAlignment = .center
         label.layer.masksToBounds = true
+        label.isSkeletonable = true
+        label.layer.cornerCurve = .continuous
+        label.layer.cornerRadius = 8
         return label
     }()
     
