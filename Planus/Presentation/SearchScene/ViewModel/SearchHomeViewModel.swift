@@ -129,6 +129,7 @@ class SearchHomeViewModel {
     
     func fetchInitialresult() {
         page = 0
+        didStartFetching.onNext(())
         print("remove!")
         DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: { [weak self] in
             self?.fetchResult(isInitial: true)

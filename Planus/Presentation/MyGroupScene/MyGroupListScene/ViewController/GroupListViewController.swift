@@ -16,6 +16,7 @@ class GroupListViewController: UIViewController {
 
     var bag = DisposeBag()
         
+    var isInitLoading = false
     var tappedItemAt = PublishSubject<Int>()
     var becameOnlineStateAt = PublishSubject<Int>()
     var becameOfflineStateAt = PublishSubject<Int>()
@@ -116,9 +117,7 @@ class GroupListViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, type in
-                if (vc.refreshControl.isRefreshing) {
-                    vc.refreshControl.endRefreshing()
-                }
+                vc.isInitLoading = false
                 vc.resultCollectionView.reloadData()
                 vc.emptyResultView.isHidden = !((viewModel.groupList?.count == 0) ?? true)
 
@@ -130,6 +129,18 @@ class GroupListViewController: UIViewController {
                 default:
                     return
                 }
+            })
+            .disposed(by: bag)
+        
+        output
+            .didStartFetching
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.isInitLoading = true
+                vc.resultCollectionView.reloadData()
+                vc.emptyResultView.isHidden = true
             })
             .disposed(by: bag)
         
@@ -203,6 +214,7 @@ class GroupListViewController: UIViewController {
     }
     
     @objc func refresh(_ sender: UIRefreshControl) {
+        sender.endRefreshing()
         refreshRequired.onNext(())
     }
 }
@@ -213,13 +225,20 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
         1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel?.groupList?.count ?? 0
+        if isInitLoading {
+            return Int(collectionView.frame.height/250)*2
+        }
+        return viewModel?.groupList?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupCell.reuseIdentifier, for: indexPath) as? JoinedGroupCell,
-              let item = viewModel?.groupList?[indexPath.item] else { return UICollectionViewCell() }
-        
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupCell.reuseIdentifier, for: indexPath) as? JoinedGroupCell else { return UICollectionViewCell() }
+        if isInitLoading {
+            cell.startSkeletonAnimation()
+            return cell
+        }
+        guard let item = viewModel?.groupList?[indexPath.item] else { return UICollectionViewCell() }
+        cell.stopSkeletonAnimation()
         // 이전에 바인딩되있던게 있다면 전부 버림
         cell.bag = nil
         cell.fill(
@@ -269,6 +288,11 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: JoinedGroupSectionHeaderView.reuseIdentifier, for: indexPath) as? JoinedGroupSectionHeaderView else { return UICollectionReusableView() }
+        if isInitLoading {
+            view.startSkeletonAnimation()
+            return view
+        }
+        view.stopSkeletonAnimation()
         view.fill(title: "그룹 이미지 상단의 슬라이드를 움직여 스터디를 시작하세요")
         return view
     }

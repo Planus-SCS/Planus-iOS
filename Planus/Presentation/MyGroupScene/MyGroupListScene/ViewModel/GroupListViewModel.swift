@@ -19,6 +19,7 @@ class GroupListViewModel {
     
     var groupList: [MyGroupSummary]?
     
+    var didStartFetching = BehaviorSubject<Void?>(value: nil)
     var didFetchGroupList = BehaviorSubject<FetchType?>(value: nil)
     var needReloadItemAt = PublishSubject<Int>()
     var didSuccessOnlineStateChange = PublishSubject<(Int, Bool)>() //index, isSuccess
@@ -33,6 +34,7 @@ class GroupListViewModel {
     }
     
     struct Output {
+        var didStartFetching: Observable<Void?>
         var didFetchJoinedGroup: Observable<FetchType?>
         var needReloadItemAt: Observable<Int>
         var showMessage: Observable<String>
@@ -124,6 +126,7 @@ class GroupListViewModel {
             .disposed(by: bag)
         
         return Output(
+            didStartFetching: didStartFetching.asObservable(),
             didFetchJoinedGroup: didFetchGroupList.asObservable(),
             needReloadItemAt: needReloadItemAt.asObservable(),
             showMessage: showMessage.asObservable(),
@@ -209,24 +212,29 @@ class GroupListViewModel {
     }
     
     func fetchMyGroupList(fetchType: FetchType) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[MyGroupSummary]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
+        didStartFetching.onNext(())
+        
+        DispatchQueue.main.asyncAfter(deadline: .now()+2, execute: { [weak self] in
+            guard let self else { return }
+            self.getTokenUseCase
+                .execute()
+                .flatMap { [weak self] token -> Single<[MyGroupSummary]> in
+                    guard let self else {
+                        throw DefaultError.noCapturedSelf
+                    }
+                    return self.fetchMyGroupListUseCase
+                        .execute(token: token)
                 }
-                return self.fetchMyGroupListUseCase
-                    .execute(token: token)
-            }
-            .handleRetry(
-                retryObservable: refreshTokenUsecase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
-            .subscribe(onSuccess: { [weak self] list in
-                self?.groupList = list
-                self?.didFetchGroupList.onNext((fetchType))
-            })
-            .disposed(by: bag)
+                .handleRetry(
+                    retryObservable: self.refreshTokenUsecase.execute(),
+                    errorType: NetworkManagerError.tokenExpired
+                )
+                .subscribe(onSuccess: { [weak self] list in
+                    self?.groupList = list
+                    self?.didFetchGroupList.onNext((fetchType))
+                })
+                .disposed(by: self.bag)
+        })
     }
     
     func fetchImage(key: String) -> Single<Data> {

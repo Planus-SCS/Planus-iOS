@@ -26,6 +26,7 @@ class JoinedGroupCell: SearchResultCell {
         button.contentEdgeInsets = .init(top: 0, left: 10, bottom: 0, right: 10)
         button.layer.cornerRadius = 10
         button.layer.cornerCurve = .continuous
+        button.isSkeletonable = true
         return button
     }()
     
@@ -40,6 +41,7 @@ class JoinedGroupCell: SearchResultCell {
         button.contentEdgeInsets = .init(top: 0, left: 10, bottom: 0, right: 10)
         button.layer.cornerRadius = 10
         button.layer.cornerCurve = .continuous
+        button.isSkeletonable = true
         return button
     }()
     
@@ -53,7 +55,7 @@ class JoinedGroupCell: SearchResultCell {
         swicth.layer.cornerRadius = 14
         swicth.backgroundColor = UIColor(hex: 0x6F81A9)
         swicth.clipsToBounds = true
-        
+        swicth.isSkeletonable = true
         return swicth
     }()
     
@@ -78,7 +80,6 @@ class JoinedGroupCell: SearchResultCell {
         super.configureView()
         
         self.addSubview(onlineButton)
-//        self.addSubview(chatButton)
         self.addSubview(onlineSwitch)
     }
     

@@ -14,6 +14,7 @@ class JoinedGroupSectionHeaderView: UICollectionReusableView {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         label.textColor = UIColor(hex: 0x6F81A9)
+        label.isSkeletonable = true
         return label
     }()
     
@@ -34,8 +35,9 @@ class JoinedGroupSectionHeaderView: UICollectionReusableView {
     func configureLayout() {
         titleLabel.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(12)
-            $0.trailing.lessThanOrEqualToSuperview().inset(12)
+            $0.trailing.equalToSuperview().inset(12)
             $0.centerY.equalToSuperview()
+            $0.height.equalTo(14)
         }
     }
     

@@ -9,6 +9,6 @@ import Foundation
 
 class DefaultGenerateGroupLinkUseCase: GenerateGroupLinkUseCase {
     func execute(groupId: Int) -> String {
-        return BaseURL.main + "/group?groupID=\(groupId)"
+        return BaseURL.main + "/groups?groupID=\(groupId)"
     }
 }

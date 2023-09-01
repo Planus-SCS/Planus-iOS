@@ -28,6 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         // Custom Link
         if let url = connectionOptions.urlContexts.first?.url {
+            print("1")
             return
         }
      
@@ -35,17 +36,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let userActivity = connectionOptions.userActivities.first,
            userActivity.activityType == NSUserActivityTypeBrowsingWeb,
            let incomingURL = userActivity.webpageURL {
+            print("2")
             parseUniversalLink(url: incomingURL)
+        } else {
+            print("2-2")
         }
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        print("3")
         guard let url = URLContexts.first?.url else { return }
+        
         print(url)
     }
     
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
        // Get URL components from the incoming user activity.
+        print("4")
        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
              let incomingURL = userActivity.webpageURL else {
            return
