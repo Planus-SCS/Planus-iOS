@@ -621,6 +621,7 @@
 		6AF0785D2A9EE9DB0086692B /* GenerateGroupLinkUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF0785C2A9EE9DB0086692B /* GenerateGroupLinkUseCase.swift */; };
 		6AF078842AA09E890086692B /* UIView+Skeleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF078832AA09E890086692B /* UIView+Skeleton.swift */; };
 		6AF078862AA09EAD0086692B /* SkeletonLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF078852AA09EAD0086692B /* SkeletonLayer.swift */; };
+		6AF0788E2AA78C400086692B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0788D2AA78C400086692B /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1241,6 +1242,7 @@
 		6AF0785C2A9EE9DB0086692B /* GenerateGroupLinkUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateGroupLinkUseCase.swift; sourceTree = "<group>"; };
 		6AF078832AA09E890086692B /* UIView+Skeleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Skeleton.swift"; sourceTree = "<group>"; };
 		6AF078852AA09EAD0086692B /* SkeletonLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLayer.swift; sourceTree = "<group>"; };
+		6AF0788D2AA78C400086692B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1288,6 +1290,7 @@
 		6A08AD4F29C87C61005947D2 /* Planus */ = {
 			isa = PBXGroup;
 			children = (
+				6AF0788D2AA78C400086692B /* GoogleService-Info.plist */,
 				6A24F89F29CE3C6F0000FD64 /* Font */,
 				6A483DB129CA804C003375BF /* PlanusRelease.entitlements */,
 				6A08AD8E29C89753005947D2 /* Util */,
@@ -3113,6 +3116,7 @@
 				6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */,
 				6A95E00629D5B756009017D8 /* GroupAddBtn@2x.png in Resources */,
 				6A95DFF429D5B3DF009017D8 /* back@3x.png in Resources */,
+				6AF0788E2AA78C400086692B /* GoogleService-Info.plist in Resources */,
 				6A987A3129DD995400C27D09 /* editBlack@3x.png in Resources */,
 				6A24F8B829CE3F800000FD64 /* Pretendard-Light.otf in Resources */,
 				6A987A3229DD995400C27D09 /* editBlack@2x.png in Resources */,
