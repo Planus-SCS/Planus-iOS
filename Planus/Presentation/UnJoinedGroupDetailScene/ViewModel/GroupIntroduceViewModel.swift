@@ -102,7 +102,7 @@ class GroupIntroduceViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 guard let id = vm.groupId else { return }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
                     vm.fetchGroupInfo(id: id)
                 })
             })
@@ -184,6 +184,8 @@ class GroupIntroduceViewModel {
                 self?.groupImageUrl = groupDetail.groupImageUrl
                 self?.didGroupInfoFetched.onNext(())
                 self?.isJoinableGroup.onNext(groupDetail.isJoined ? .isJoined : (groupDetail.memberCount >= groupDetail.limitCount) ? .full : .notJoined)
+            }, onFailure: { [weak self] error in
+                self?.didGroupInfoFetched.onError(error)
             })
             .disposed(by: bag)
         
@@ -203,6 +205,7 @@ class GroupIntroduceViewModel {
             .subscribe(onSuccess: { [weak self] list in
                 self?.memberList = list
                 self?.didGroupMemberFetched.onNext(())
+            }, onFailure: { error in
             })
             .disposed(by: bag)
     }

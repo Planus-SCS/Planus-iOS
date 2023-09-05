@@ -10,6 +10,11 @@ import RxSwift
 
 final class AppCoordinator: Coordinator {
     
+    /*
+     큐를 하나 만들어서 메인탭이 실행된 뒤에 가야할 길을 넣어두기..? 그럼 로그인 후에도 그쪽으로 갈듯?
+     아니면 로그인이 필요하다고 하고 끝내??
+     */
+    
     var bag = DisposeBag()
         
     weak var finishDelegate: CoordinatorFinishDelegate?
@@ -17,6 +22,7 @@ final class AppCoordinator: Coordinator {
     var window: UIWindow
         
     var childCoordinators: [Coordinator] = []
+    var actionAfterSignInQueue: [() -> Void] = []
 
     var type: CoordinatorType = .app
             
@@ -25,9 +31,6 @@ final class AppCoordinator: Coordinator {
     }
     
     func start() {
-        /*
-         자동 로그인 여부에 따라 로그인 로직 or 메인화면 로직 실행
-         */
         checkAutoSignIn()
     }
     
@@ -48,7 +51,14 @@ final class AppCoordinator: Coordinator {
             }
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] token in
-                self?.showMainTabFlow()
+                guard let self else { return }
+                self.showMainTabFlow()
+                DispatchQueue.main.async {
+                    while !self.actionAfterSignInQueue.isEmpty {
+                        let action = self.actionAfterSignInQueue.removeFirst()
+                        action()
+                    }
+                }
             }, onFailure: { [weak self] error in
                 if let ne = error as? NetworkManagerError,
                    case NetworkManagerError.clientError(let int, let string) = ne {
@@ -88,6 +98,7 @@ final class AppCoordinator: Coordinator {
             self?.window.makeKeyAndVisible()
             self?.viewTransitionAnimation()
         }
+    
     }
     
     func viewTransitionAnimation() {
@@ -98,7 +109,9 @@ final class AppCoordinator: Coordinator {
                           completion: nil)
     }
 
-    
+    func appendActionAfterAutoSignIn(action: @escaping () -> Void) {
+        actionAfterSignInQueue.append(action)
+    }
 }
 
 extension AppCoordinator: CoordinatorFinishDelegate {

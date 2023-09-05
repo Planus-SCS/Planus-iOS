@@ -98,7 +98,9 @@ class NotificationViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, type in
                 vc.nowLoading = false
-                vc.resultCollectionView.reloadData()
+                vc.resultCollectionView.performBatchUpdates {
+                    vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
+                }
                 vc.emptyResultView.isHidden = !(viewModel.joinAppliedList?.count == 0)
 
                 switch type {
@@ -176,7 +178,7 @@ extension NotificationViewController: UICollectionViewDataSource, UICollectionVi
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if nowLoading {
-            return Int(collectionView.frame.height/122)
+            return Int(UIScreen.main.bounds.height/122)
         }
         return viewModel?.joinAppliedList?.count ?? Int()
     }

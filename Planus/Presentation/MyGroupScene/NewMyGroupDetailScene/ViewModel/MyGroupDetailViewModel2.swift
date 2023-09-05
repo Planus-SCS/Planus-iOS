@@ -190,7 +190,7 @@ class MyGroupDetailViewModel2 {
                 vm.mode = .notice
                 vm.nowInitLoading.onNext(())
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
                     vm.fetchGroupDetail(groupId: groupId, fetchType: .initail)
                     vm.fetchMemberList()
                 })
@@ -209,7 +209,7 @@ class MyGroupDetailViewModel2 {
                     if vm.memberList?.isEmpty ?? true {
                         vm.nowLoadingWithBefore.onNext(vm.mode)
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
                             vm.fetchMemberList()
                         })
                     } else {
@@ -225,7 +225,7 @@ class MyGroupDetailViewModel2 {
                         )
                         
                         let currentDate = Calendar.current.date(from: components) ?? Date()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
                             vm.createCalendar(date: currentDate)
                         })
                         

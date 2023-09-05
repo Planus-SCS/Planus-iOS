@@ -118,7 +118,9 @@ class GroupListViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, type in
                 vc.isInitLoading = false
-                vc.resultCollectionView.reloadData()
+                vc.resultCollectionView.performBatchUpdates({
+                    vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
+                })
                 vc.emptyResultView.isHidden = !((viewModel.groupList?.count == 0) ?? true)
 
                 switch type {
@@ -226,7 +228,7 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if isInitLoading {
-            return Int(collectionView.frame.height/250)*2
+            return Int(UIScreen.main.bounds.height/250)*2
         }
         return viewModel?.groupList?.count ?? 0
     }

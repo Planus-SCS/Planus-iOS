@@ -498,8 +498,9 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = self.view
         activityVC.excludedActivityTypes = [.addToReadingList, .assignToContact, .markupAsPDF, .openInIBooks, .saveToCameraRoll]
-        
-        self.present(activityVC, animated: true, completion: nil)
+        DispatchQueue.main.async { [weak self] in
+            self?.present(activityVC, animated: true)
+        }
     }
     
     func scrollToHeader(section: Int) {

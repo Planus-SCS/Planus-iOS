@@ -17,8 +17,6 @@ enum TabBarPage: Int, CaseIterable {
         switch self {
         case .calendar:
             return "캘린더"
-//        case .todo:
-//            return "투두"
         case .search:
             return "검색"
         case .group:
@@ -66,6 +64,11 @@ final class MainTabCoordinator: NSObject, Coordinator {
         prepareTabBarController(withTabControllers: controllers)
     }
     
+    func setTabBarControllerPage(page: TabBarPage) {
+        currentPage = page
+        tabBarController.selectedIndex = page.rawValue
+    }
+    
     private func prepareTabBarController(withTabControllers tabControllers: [UIViewController]) {
         tabBarController.setViewControllers(tabControllers, animated: true)
         tabBarController.selectedIndex = TabBarPage.calendar.rawValue
@@ -104,11 +107,6 @@ final class MainTabCoordinator: NSObject, Coordinator {
             homeCalendarCoordinator.finishDelegate = self
             childCoordinators.append(homeCalendarCoordinator)
             homeCalendarCoordinator.start()
-//        case .todo:
-//            let todoCoordinator = TodoCoordinator(navigationController: navigation)
-//            todoCoordinator.finishDelegate = self
-//            childCoordinators.append(todoCoordinator)
-//            todoCoordinator.start()
         case .search:
             let searchCoordinator = SearchCoordinator(navigationController: navigation)
             searchCoordinator.finishDelegate = self

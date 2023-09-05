@@ -330,7 +330,7 @@ extension SearchResultViewController: UICollectionViewDataSource, UICollectionVi
         switch collectionView {
         case self.resultCollectionView:
             if isInitLoading {
-                return Int(collectionView.frame.height/250)*2
+                return Int(UIScreen.main.bounds.height/250)*2
             }
             return viewModel?.result.count ?? Int()
         case historyView.collectionView:

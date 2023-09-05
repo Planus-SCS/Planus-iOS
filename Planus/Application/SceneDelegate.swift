@@ -23,53 +23,57 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let window = window else { return }
 
         self.appCoordinator = AppCoordinator(window: window)
-        self.appCoordinator?.start()
-        
-        
         // Custom Link
         if let url = connectionOptions.urlContexts.first?.url {
-            print("1")
+            appCoordinator?.appendActionAfterAutoSignIn { [weak self] in
+                self?.parseUniversalLink(url: url)
+            }
             return
         }
      
         // Universal Link를 통해 앱이 실행된 경우
         if let userActivity = connectionOptions.userActivities.first,
            userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-           let incomingURL = userActivity.webpageURL {
-            print("2")
-            parseUniversalLink(url: incomingURL)
-        } else {
-            print("2-2")
+           let url = userActivity.webpageURL {
+            appCoordinator?.appendActionAfterAutoSignIn { [weak self] in
+                self?.parseUniversalLink(url: url)
+            }
         }
+        
+        self.appCoordinator?.start()
+                
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        print("3")
         guard let url = URLContexts.first?.url else { return }
         
-        print(url)
+        parseUniversalLink(url: url)
     }
     
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
        // Get URL components from the incoming user activity.
-        print("4")
        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
              let incomingURL = userActivity.webpageURL else {
            return
        }
-        
+        //이거를 바로 실행? 아니면 애도 로그인 안되있으면 확인?
         parseUniversalLink(url: incomingURL)
    }
     
     func parseUniversalLink(url: URL) {
-        var paths = url.pathComponents
-        let pathString = String(paths.joined(separator: "/"))
-        
-        switch pathString {
-        case "group": break
-            /*
-             navigation ㄱㄱ
-             */
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
+        let paths = components.path.split(separator: "/")
+
+        switch paths.first {
+        case "groups":
+
+            guard let groupIdString = components.queryItems?.first(where: { $0.name == "groupID"})?.value,
+            let groupId = Int(groupIdString) else { return }
+            
+            let mainTabCoordinator = appCoordinator?.childCoordinators.first(where: { $0 is MainTabCoordinator }) as? MainTabCoordinator
+            mainTabCoordinator?.setTabBarControllerPage(page: .search)
+            let searchCoordinator = mainTabCoordinator?.childCoordinators.first(where: { $0 is SearchCoordinator }) as? SearchCoordinator
+            searchCoordinator?.showGroupIntroducePage(groupId)
         default: break
         }
     }
