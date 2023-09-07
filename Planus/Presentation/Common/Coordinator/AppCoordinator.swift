@@ -43,12 +43,10 @@ final class AppCoordinator: Coordinator {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
-
+        let fcmRepo = DefaultFCMRepository(apiProvider: api)
         getTokenUseCase
             .execute()
-            .flatMap { _ in
-                return refreshTokenUseCase.execute()
-            }
+            .flatMap { _ in refreshTokenUseCase.execute() }
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] token in
                 guard let self else { return }
@@ -98,7 +96,8 @@ final class AppCoordinator: Coordinator {
             self?.window.makeKeyAndVisible()
             self?.viewTransitionAnimation()
         }
-    
+        
+        patchFCMToken()
     }
     
     func viewTransitionAnimation() {
@@ -111,6 +110,33 @@ final class AppCoordinator: Coordinator {
 
     func appendActionAfterAutoSignIn(action: @escaping () -> Void) {
         actionAfterSignInQueue.append(action)
+    }
+    
+    func patchFCMToken() {
+        let api = NetworkManager()
+        let keyChainManager = KeyChainManager()
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChainManager)
+        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+        let fcmRepo = DefaultFCMRepository(apiProvider: NetworkManager())
+
+        guard let fcm = UserDefaultsManager().get(key: "fcmToken") as? String else { return }
+
+        getTokenUseCase
+            .execute()
+            .flatMap { [weak self] token -> Single<Void> in
+                fcmRepo.patchFCMToken(token: token.accessToken, fcmToken: fcm).map { _ in () }
+            }
+            .handleRetry(
+                retryObservable: refreshTokenUseCase.execute(),
+                errorType: NetworkManagerError.tokenExpired
+            )
+            .subscribe(onSuccess: { [weak self] _ in
+                print("fcm patch success")
+            }, onFailure: { [weak self] error in
+                print(error)
+            })
+            .disposed(by: bag)
     }
 }
 

@@ -14,7 +14,7 @@ struct KakaoAuthURL {
 
 struct GoogleAuthURL {
     static let googleAuthCodeURL = "https://accounts.google.com/o/oauth2/v2/auth?client_id=7772745345-82ah7rvqp7fttqh3eaoih7el6rtikvqu.apps.googleusercontent.com&redirect_uri=\(Self.redirectURI)&response_type=code&scope=profile+email"
-    static let redirectURI = "http://localhost:8080/app/oauth/login/google"
+    static let redirectURI = URLPool.oauthGoogle
 }
 
 struct WebViewCustomUserAgent {
