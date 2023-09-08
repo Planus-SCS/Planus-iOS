@@ -139,6 +139,26 @@ class MyGroupDetailViewModel2 {
     
     let generateGroupLinkUseCase: GenerateGroupLinkUseCase
     
+    lazy var membersFetcher: (Int) -> Single<[MyMember]>? = { [weak self] groupId in
+        guard let self else { return nil }
+        return self.getTokenUseCase
+            .execute()
+            .flatMap { token -> Single<[MyMember]> in
+                return self.fetchMyGroupMemberListUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+    }
+    
+    lazy var groupDetailFetcher: (Int) -> Single<MyGroupDetail>? = { [weak self] groupId in
+        guard let self else { return nil }
+        return self.getTokenUseCase
+            .execute()
+            .flatMap { token -> Single<MyGroupDetail> in
+                return self.fetchMyGroupDetailUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+    }
+    
     
     init(
         getTokenUseCase: GetTokenUseCase,
@@ -191,8 +211,7 @@ class MyGroupDetailViewModel2 {
                 vm.nowInitLoading.onNext(())
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
-                    vm.fetchGroupDetail(groupId: groupId, fetchType: .initail)
-                    vm.fetchMemberList()
+                    vm.initFetchDetails(groupId: groupId, fetchType: .initail)
                 })
             })
             .disposed(by: bag)
@@ -428,31 +447,50 @@ class MyGroupDetailViewModel2 {
         self.actions = actions
     }
     
-    func fetchGroupDetail(groupId: Int, fetchType: FetchType) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<MyGroupDetail> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.fetchMyGroupDetailUseCase
-                    .execute(token: token, groupId: groupId)
+    func setGroupDetail(detail: MyGroupDetail) {
+        self.isLeader = detail.isLeader
+        self.groupTitle = detail.groupName
+        self.groupImageUrl = detail.groupImageUrl
+        self.tag = detail.groupTags.map { $0.name }
+        self.memberCount = detail.memberCount
+        self.limitCount = detail.limitCount
+        self.onlineCount = detail.onlineCount
+        self.leaderName = detail.leaderName
+        self.notice = detail.notice
+        self.isOnline.onNext(detail.isOnline)
+    }
+    
+    func initFetchDetails(groupId: Int, fetchType: FetchType) {
+        guard let groupDetailFetcher = groupDetailFetcher(groupId),
+              let membersFetcher = membersFetcher(groupId) else { return }
+        Single.zip(
+            groupDetailFetcher,
+            membersFetcher
+        )
+        .handleRetry(
+            retryObservable: refreshTokenUseCase.execute(),
+            errorType: NetworkManagerError.tokenExpired
+        )
+        .subscribe(onSuccess: { [weak self] (detail, members) in
+            self?.setGroupDetail(detail: detail)
+            self?.memberList = members
+            
+            self?.didFetchInfo.onNext(())
+            if self?.mode == .notice {
+                self?.didFetchNotice.onNext(())
+                self?.didFetchMember.onNext(())
             }
+        })
+    }
+    
+    func fetchGroupDetail(groupId: Int, fetchType: FetchType) {
+        groupDetailFetcher(groupId)?
             .handleRetry(
                 retryObservable: refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] detail in
-                self?.isLeader = detail.isLeader
-                self?.groupTitle = detail.groupName
-                self?.groupImageUrl = detail.groupImageUrl
-                self?.tag = detail.groupTags.map { $0.name }
-                self?.memberCount = detail.memberCount
-                self?.limitCount = detail.limitCount
-                self?.onlineCount = detail.onlineCount
-                self?.leaderName = detail.leaderName
-                self?.notice = detail.notice
-                self?.isOnline.onNext(detail.isOnline)
+                self?.setGroupDetail(detail: detail)
                 self?.didFetchInfo.onNext(())
                 if self?.mode == .notice {
                     self?.didFetchNotice.onNext(())
@@ -463,19 +501,7 @@ class MyGroupDetailViewModel2 {
     
     func fetchMemberList() {
         guard let groupId else { return }
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[MyMember]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.fetchMyGroupMemberListUseCase
-                    .execute(token: token, groupId: groupId)
-            }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
+        membersFetcher(groupId)?
             .subscribe(onSuccess: { [weak self] list in
                 self?.memberList = list
                 
@@ -485,6 +511,8 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
     }
+    
+    
     
     func createCalendar(date: Date) {
         updateCurrentDate(date: date)

@@ -69,6 +69,27 @@ class HomeCalendarViewModel {
     var needWelcome = BehaviorSubject<String?>(value: nil)
     var homeTabReselected: PublishSubject<Void>?
     
+    lazy var categoryFetcher: () -> Single<[Category]>? = { [weak self] in
+        guard let self else { return nil }
+        return self.getTokenUseCase
+            .execute()
+            .flatMap { token in self.readCategoryListUseCase.execute(token: token) }
+    }
+    
+    lazy var groupCategoryFetcher: () -> Single<[Category]>? = { [weak self] in
+        guard let self else { return nil }
+        return self.getTokenUseCase
+            .execute()
+            .flatMap { token in self.fetchGroupCategoryListUseCase.execute(token: token) }
+    }
+    
+    lazy var groupFetcher: () -> Single<[GroupName]>? = { [weak self] in
+        guard let self else { return nil }
+        return self.getTokenUseCase
+            .execute()
+            .flatMap { token in self.fetchMyGroupNameListUseCase.execute(token: token) }
+    }
+    
     lazy var categoryAndGroupZip = Observable.zip(
         initialReadGroup.compactMap { $0 },
         initialReadGroupCategory.compactMap { $0 },
@@ -203,16 +224,15 @@ class HomeCalendarViewModel {
             .take(1)
             .withUnretained(self)
             .subscribe(onNext: { vm, date in
-                vm.fetchCategory()
-                vm.fetchGroupCategory()
-                vm.fetchGroup()
+                vm.fetchGroupAndCategory()
                 vm.fetchProfile()
+                
                 vm.bindCategoryUseCase()
                 vm.bindTodoUseCase(initialDate: date)
                 vm.bindProfileUseCase()
                 vm.bindGroupUseCase()
                 vm.initCalendar(date: date)
-
+                
                 vm.categoryAndGroupZip
                     .take(1)
                     .subscribe(onNext: { _ in
@@ -356,9 +376,7 @@ class HomeCalendarViewModel {
         initialReadCategory.onNext(nil)
         initialReadGroupCategory.onNext(nil)
         
-        fetchGroup()
-        fetchCategory()
-        fetchGroupCategory()
+        fetchGroupAndCategory()
         
         categoryAndGroupZip
             .withUnretained(self)
@@ -367,6 +385,31 @@ class HomeCalendarViewModel {
                 vm.initTodoList()
             })
             .disposed(by: bag)
+    }
+    
+    func fetchGroupAndCategory() {
+        guard let groupFetcher = groupFetcher(),
+              let categoryFetcher = categoryFetcher(),
+              let groupCategoryFetcher = groupCategoryFetcher() else { return }
+        
+        Single.zip(
+            groupFetcher,
+            categoryFetcher,
+            groupCategoryFetcher
+        )
+        .handleRetry(
+            retryObservable: refreshTokenUseCase.execute(),
+            errorType: NetworkManagerError.tokenExpired
+        )
+        .subscribe(onSuccess: { [weak self] (groups, categories, groupCategories) in
+            self?.setGroups(groups: groups)
+            self?.setCategories(categories: categories)
+            self?.setGroupCategories(categories: groupCategories)
+            self?.initialReadCategory.onNext(())
+            self?.initialReadGroupCategory.onNext(())
+            self?.initialReadGroup.onNext(())
+        })
+        .disposed(by: bag)
     }
     
     func bindGroupUseCase() {
@@ -557,78 +600,27 @@ class HomeCalendarViewModel {
             .disposed(by: bag)
     }
     
-    func fetchCategory() {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[Category]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.readCategoryListUseCase
-                    .execute(token: token)
-            }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
-            .subscribe(onSuccess: { [weak self] list in
-                self?.memberCategories = [:]
-                list.forEach {
-                    guard let id = $0.id else { return }
-                    self?.memberCategories[id] = $0
-                }
-                self?.initialReadCategory.onNext(())
-            })
-            .disposed(by: bag)
+    func setCategories(categories: [Category]) {
+        self.memberCategories = [:]
+        categories.forEach {
+            guard let id = $0.id else { return }
+            self.memberCategories[id] = $0
+        }
     }
     
-    func fetchGroupCategory() {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[Category]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.fetchGroupCategoryListUseCase
-                    .execute(token: token)
-            }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
-            .subscribe(onSuccess: { [weak self] list in
-                self?.groupCategories = [:]
-                list.forEach {
-                    guard let id = $0.id else { return }
-                    self?.groupCategories[id] = $0
-                }
-                self?.initialReadGroupCategory.onNext(())
-            })
-            .disposed(by: bag)
+    func setGroupCategories(categories: [Category]) {
+        self.groupCategories = [:]
+        categories.forEach {
+            guard let id = $0.id else { return }
+            self.groupCategories[id] = $0
+        }
     }
     
-    func fetchGroup() {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[GroupName]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.fetchMyGroupNameListUseCase
-                    .execute(token: token)
-            }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
-            .subscribe(onSuccess: { [weak self] list in
-                self?.groups = [:]
-                list.forEach {
-                    self?.groups[$0.groupId] = $0
-                }
-                self?.initialReadGroup.onNext(())
-            })
-            .disposed(by: bag)
+    func setGroups(groups: [GroupName]) {
+        self.groups = [:]
+        groups.forEach {
+            self.groups[$0.groupId] = $0
+        }
     }
     
     func fetchProfile() {

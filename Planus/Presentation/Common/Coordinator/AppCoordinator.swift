@@ -85,6 +85,7 @@ final class AppCoordinator: Coordinator {
     
     func showMainTabFlow() {
         DispatchQueue.main.async { [weak self] in
+            print("showMainTabFlow")
             let navigation = UINavigationController()
             self?.window.rootViewController = navigation
 
@@ -95,9 +96,9 @@ final class AppCoordinator: Coordinator {
             
             self?.window.makeKeyAndVisible()
             self?.viewTransitionAnimation()
+            
+//            self?.patchFCMToken()
         }
-        
-        patchFCMToken()
     }
     
     func viewTransitionAnimation() {

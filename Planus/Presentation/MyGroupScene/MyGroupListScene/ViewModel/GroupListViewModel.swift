@@ -230,8 +230,11 @@ class GroupListViewModel {
                     errorType: NetworkManagerError.tokenExpired
                 )
                 .subscribe(onSuccess: { [weak self] list in
+                    print("here!")
                     self?.groupList = list
                     self?.didFetchGroupList.onNext((fetchType))
+                }, onFailure: {
+                    print($0)
                 })
                 .disposed(by: self.bag)
         })

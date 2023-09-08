@@ -162,7 +162,7 @@ class GroupIntroduceViewModel {
     
     func fetchGroupInfo(id: Int) {
         
-        getTokenUseCase
+        let fetchGroupDetail = getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<UnJoinedGroupDetail> in
                 guard let self else {
@@ -171,25 +171,8 @@ class GroupIntroduceViewModel {
                 return self.fetchUnJoinedGroupUseCase
                     .execute(token: token, id: id)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
-            .subscribe(onSuccess: { [weak self] groupDetail in
-                self?.groupTitle = groupDetail.name
-                self?.tag = groupDetail.groupTags.map { "#\($0.name)" }.joined(separator: " ")
-                self?.memberCount = "\(groupDetail.memberCount)/\(groupDetail.limitCount)"
-                self?.captin = groupDetail.leaderName
-                self?.notice = groupDetail.notice
-                self?.groupImageUrl = groupDetail.groupImageUrl
-                self?.didGroupInfoFetched.onNext(())
-                self?.isJoinableGroup.onNext(groupDetail.isJoined ? .isJoined : (groupDetail.memberCount >= groupDetail.limitCount) ? .full : .notJoined)
-            }, onFailure: { [weak self] error in
-                self?.didGroupInfoFetched.onError(error)
-            })
-            .disposed(by: bag)
         
-        getTokenUseCase
+        let fetchGroupMember = getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[Member]> in
                 guard let self else {
@@ -198,16 +181,32 @@ class GroupIntroduceViewModel {
                 return self.fetchMemberListUseCase
                     .execute(token: token, groupId: id)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
-            .subscribe(onSuccess: { [weak self] list in
-                self?.memberList = list
-                self?.didGroupMemberFetched.onNext(())
-            }, onFailure: { error in
-            })
-            .disposed(by: bag)
+        
+        Single.zip(
+            fetchGroupDetail,
+            fetchGroupMember
+        )
+        .handleRetry( //특정 놈이 에러 방출 시 전체에 영향감
+            retryObservable: refreshTokenUseCase.execute(),
+            errorType: NetworkManagerError.tokenExpired
+        )
+        .subscribe(onSuccess: { [weak self] (groupDetail, memberList) in
+            self?.groupTitle = groupDetail.name
+            self?.tag = groupDetail.groupTags.map { "#\($0.name)" }.joined(separator: " ")
+            self?.memberCount = "\(groupDetail.memberCount)/\(groupDetail.limitCount)"
+            self?.captin = groupDetail.leaderName
+            self?.notice = groupDetail.notice
+            self?.groupImageUrl = groupDetail.groupImageUrl
+            self?.didGroupInfoFetched.onNext(())
+            self?.isJoinableGroup.onNext(groupDetail.isJoined ? .isJoined : (groupDetail.memberCount >= groupDetail.limitCount) ? .full : .notJoined)
+            
+            self?.memberList = memberList
+            self?.didGroupMemberFetched.onNext(())
+        }, onFailure: { [weak self] error in
+            self?.didGroupInfoFetched.onError(error)
+        })
+        .disposed(by: bag)
+
     }
     
     func requestJoinGroup() {
