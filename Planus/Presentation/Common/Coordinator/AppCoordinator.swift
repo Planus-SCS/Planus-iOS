@@ -78,6 +78,7 @@ final class AppCoordinator: Coordinator {
         let signInCoordinator = SignInCoordinator(navigationController: navigation)
         signInCoordinator.finishDelegate = self
         signInCoordinator.start()
+        childCoordinators.removeAll()
         childCoordinators.append(signInCoordinator)
         
         window.makeKeyAndVisible()

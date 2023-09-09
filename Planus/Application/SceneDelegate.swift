@@ -68,12 +68,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         case "groups":
 
             guard let groupIdString = components.queryItems?.first(where: { $0.name == "groupID"})?.value,
-            let groupId = Int(groupIdString) else { return }
-            
+            let groupId = Int(groupIdString) else { return } //잘못된 링크
+            print("without link1")
             let mainTabCoordinator = appCoordinator?.childCoordinators.first(where: { $0 is MainTabCoordinator }) as? MainTabCoordinator
+            print("without link2")
             mainTabCoordinator?.setTabBarControllerPage(page: .search)
             let searchCoordinator = mainTabCoordinator?.childCoordinators.first(where: { $0 is SearchCoordinator }) as? SearchCoordinator
+            print("without link3")
             searchCoordinator?.showGroupIntroducePage(groupId)
+            print("without link4")
         default: break
         }
     }
