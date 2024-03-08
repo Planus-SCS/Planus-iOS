@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol FCMRepository {
-    func patchFCMToken(token: String, fcmToken: String) -> Single<ResponseDTO<FCMTokenResponseDTO>>
+    func patchFCMToken(token: String) -> Single<ResponseDTO<FCMTokenResponseDTO>>
 }

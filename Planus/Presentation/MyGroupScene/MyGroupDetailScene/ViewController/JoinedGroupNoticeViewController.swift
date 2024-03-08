@@ -228,7 +228,7 @@ extension JoinedGroupNoticeViewController: UICollectionViewDataSource, UICollect
         let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
         let keyChainManager = KeyChainManager()
         
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChainManager)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChainManager)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         

@@ -73,7 +73,7 @@ class GroupCreateLoadViewController: UIViewController {
 
                 let api = NetworkManager()
                 let keyChain = KeyChainManager()
-                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
                 let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
                 let imageRepo = DefaultImageRepository(apiProvider: api)
                 let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)

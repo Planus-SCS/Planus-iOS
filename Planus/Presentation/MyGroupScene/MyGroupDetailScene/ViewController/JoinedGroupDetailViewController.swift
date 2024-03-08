@@ -238,7 +238,7 @@ class JoinedGroupDetailViewController: UIViewController {
         
         let api = NetworkManager()
         let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
@@ -259,7 +259,7 @@ class JoinedGroupDetailViewController: UIViewController {
         
         let api = NetworkManager()
         let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
@@ -282,7 +282,7 @@ class JoinedGroupDetailViewController: UIViewController {
     lazy var editInfo: () -> Void = { [weak self] in
         let api = NetworkManager()
         let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
@@ -362,7 +362,7 @@ class JoinedGroupDetailViewController: UIViewController {
         guard let groupId = viewModel?.groupId else { return }
         let api = NetworkManager()
         let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
         let groupCalendarRepo = DefaultGroupCalendarRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)

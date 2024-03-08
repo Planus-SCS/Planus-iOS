@@ -30,7 +30,7 @@ class GroupCreateCoordinator: Coordinator {
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         
-        let tokenRepository = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepository = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepository)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepository)

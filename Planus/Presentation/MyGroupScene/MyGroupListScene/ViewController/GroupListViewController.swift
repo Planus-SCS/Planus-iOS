@@ -56,7 +56,7 @@ class GroupListViewController: UIViewController {
     @objc func notificationBtnAction() {
         let api = NetworkManager()
         let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)

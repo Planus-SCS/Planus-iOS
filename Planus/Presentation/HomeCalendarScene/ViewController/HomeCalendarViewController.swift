@@ -161,7 +161,7 @@ class HomeCalendarViewController: UIViewController {
             .subscribe(onNext: { vc, dayViewModel in
                 let api = NetworkManager()
                 let keyChain = KeyChainManager()
-                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
                 let categoryRepo = DefaultCategoryRepository(apiProvider: api)
 
                 let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
@@ -220,7 +220,7 @@ class HomeCalendarViewController: UIViewController {
                 let api = NetworkManager()
                 let keyChain = KeyChainManager()
                 
-                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
                 let todoRepo = TestTodoDetailRepository(apiProvider: api)
                 let categoryRepo = DefaultCategoryRepository(apiProvider: api)
                 
@@ -421,7 +421,7 @@ class HomeCalendarViewController: UIViewController {
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         let userDefaults = UserDefaultsManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let socialAuthRepo = DefaultSocialAuthRepository(apiProvider: api, keyValueStorage: userDefaults)
         let profileRepo = DefaultProfileRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)

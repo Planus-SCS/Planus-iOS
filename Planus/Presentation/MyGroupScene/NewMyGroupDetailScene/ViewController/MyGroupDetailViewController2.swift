@@ -402,7 +402,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                       let isOwner = viewModel.isLeader else { return }
                 let nm = NetworkManager()
                 let kc = KeyChainManager()
-                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyChainManager: kc)
+                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyValueStorage: kc)
                 let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
                 let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
                 let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
@@ -447,7 +447,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
                 let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
                 let keyChainManager = KeyChainManager()
                 
-                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChainManager)
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChainManager)
                 let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
                 let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
                 
@@ -854,7 +854,7 @@ extension MyGroupDetailViewController2 {
         
         let api = NetworkManager()
         let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
@@ -875,7 +875,7 @@ extension MyGroupDetailViewController2 {
         
         let api = NetworkManager()
         let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
@@ -898,7 +898,7 @@ extension MyGroupDetailViewController2 {
     func editInfo() {
         let api = NetworkManager()
         let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)

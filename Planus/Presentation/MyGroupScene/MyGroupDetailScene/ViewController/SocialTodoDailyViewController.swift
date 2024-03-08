@@ -134,7 +134,7 @@ class SocialTodoDailyViewController: UIViewController {
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let groupCalendarRepo = DefaultGroupCalendarRepository(apiProvider: api)
         let groupCategoryRepo = DefaultGroupCategoryRepository(apiProvider: api)
         let groupMemberCalendarRepo = DefaultGroupMemberCalendarRepository(apiProvider: api)
@@ -278,7 +278,7 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let groupCalendarRepo = DefaultGroupCalendarRepository(apiProvider: api)
         let groupCategoryRepo = DefaultGroupCategoryRepository(apiProvider: api)
         let groupMemberCalendarRepo = DefaultGroupMemberCalendarRepository(apiProvider: api)

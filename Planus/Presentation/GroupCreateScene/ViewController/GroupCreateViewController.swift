@@ -195,7 +195,7 @@ class GroupCreateViewController: UIViewController {
             .subscribe(onNext: { vc, groupInfo in
                 let api = NetworkManager()
                 let keyChain = KeyChainManager()
-                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
                 let getToken = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
                 let refToken = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
                 let groupCreate = DefaultGroupCreateUseCase.shared

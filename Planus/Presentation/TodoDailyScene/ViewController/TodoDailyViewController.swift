@@ -189,7 +189,7 @@ class TodoDailyViewController: UIViewController {
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let todoRepo = TestTodoDetailRepository(apiProvider: api)
         let categoryRepo = DefaultCategoryRepository(apiProvider: api)
         
@@ -344,7 +344,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let categoryRepo = DefaultCategoryRepository(apiProvider: api)
         
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)

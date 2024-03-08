@@ -115,22 +115,3 @@ class DefaultSocialAuthRepository: SocialAuthRepository {
         keyValueStorage.set(key: SocialAuthType.authType, value: type.rawValue)
     }
 }
-
-struct AppleSignInRequestDTO: Codable {
-    var identityToken: String
-    var fullName: PersonNameComponents?
-}
-
-struct AppleIDTokenResponseDTO: Codable {
-    
-    var access_token: String
-    var token_type: String
-    var expires_in: Int
-    var refresh_token: String
-    var id_token: String
-    
-}
-
-struct AppleClientSecret: Codable {
-    var clientSecret: String
-}

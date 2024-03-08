@@ -29,7 +29,7 @@ class SignInCoordinator: Coordinator {
         let api = NetworkManager()
         let keyChain = KeyChainManager()
         let socialAuthRepo = DefaultSocialAuthRepository(apiProvider: api, keyValueStorage: UserDefaultsManager())
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let kakaoSignInUseCase = DefaultKakaoSignInUseCase(socialAuthRepository: socialAuthRepo)
         let googleSignInUseCase = DefaultGoogleSignInUseCase(socialAuthRepository: socialAuthRepo)
         let appleSignInUseCase = DefaultAppleSignInUseCase(socialAuthRepository: socialAuthRepo)

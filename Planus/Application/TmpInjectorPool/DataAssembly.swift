@@ -12,8 +12,8 @@ public struct DataAssembly: Assembly {
     public func assemble(container: Swinject.Container) {
         container.register(SocialAuthRepository.self) { _ in
             let apiProvider = container.resolve(APIProvider.self)!
-            let keyValueStorage = container.resolve(KeyValueStorage.self)!
-            return DefaultSocialAuthRepository(apiProvider: apiProvider, keyValueStorage: keyValueStorage)
+            let userDefaultsManager = container.resolve(UserDefaultsManager.self)!
+            return DefaultSocialAuthRepository(apiProvider: apiProvider, keyValueStorage: userDefaultsManager)
         }
         
         container.register(TodoRepository.self) { _ in
@@ -29,7 +29,7 @@ public struct DataAssembly: Assembly {
         container.register(TokenRepository.self) { _ in
             let apiProvider = container.resolve(APIProvider.self)!
             let keyChainManager = container.resolve(KeyChainManager.self)!
-            return DefaultTokenRepository(apiProvider: apiProvider, keyChainManager: keyChainManager)
+            return DefaultTokenRepository(apiProvider: apiProvider, keyValueStorage: keyChainManager)
         }
         
         container.register(ProfileRepository.self) { _ in
@@ -73,7 +73,8 @@ public struct DataAssembly: Assembly {
         
         container.register(FCMRepository.self) { _ in
             let apiProvider = container.resolve(APIProvider.self)!
-            return DefaultFCMRepository(apiProvider: apiProvider)
+            let userDefaultsManager = container.resolve(UserDefaultsManager.self)!
+            return DefaultFCMRepository(apiProvider: apiProvider, keyValueStorage: userDefaultsManager)
         }
     }
     

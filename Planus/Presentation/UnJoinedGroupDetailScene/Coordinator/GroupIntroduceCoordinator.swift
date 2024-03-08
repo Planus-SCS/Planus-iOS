@@ -28,7 +28,7 @@ class GroupIntroduceCoordinator: Coordinator {
     lazy var showGroupIntroducePage: (Int) -> Void = { [weak self] id in
         let api = NetworkManager()
         let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyChainManager: keyChain)
+        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
         let categoryRepo = DefaultCategoryRepository(apiProvider: api)
         let profileRepo = DefaultProfileRepository(apiProvider: api)
         let imageRepo = DefaultImageRepository(apiProvider: api)

@@ -134,7 +134,7 @@ class MemberProfileViewController: UIViewController {
                       let memberId = vc.viewModel?.member?.memberId else { return }
                 let nm = NetworkManager()
                 let kc = KeyChainManager()
-                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyChainManager: kc)
+                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyValueStorage: kc)
                 let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
                 let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
                 let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)

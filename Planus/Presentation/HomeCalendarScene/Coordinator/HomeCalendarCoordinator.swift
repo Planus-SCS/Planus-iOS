@@ -33,7 +33,7 @@ class HomeCalendarCoordinator: Coordinator {
         let keyChain = KeyChainManager()
         
         let todoRepository = TestTodoDetailRepository(apiProvider: apiProvider)
-        let tokenRepository = DefaultTokenRepository(apiProvider: apiProvider, keyChainManager: keyChain)
+        let tokenRepository = DefaultTokenRepository(apiProvider: apiProvider, keyValueStorage: keyChain)
         let categoryRepository = DefaultCategoryRepository(apiProvider: apiProvider)
         let groupCategoryRepository = DefaultGroupCategoryRepository(apiProvider: apiProvider)
         let profileRepository = DefaultProfileRepository(apiProvider: apiProvider)
