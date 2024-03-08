@@ -6,10 +6,12 @@
 //
 
 import UIKit
+import Swinject
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    private let injector: Injector = DependencyInjector(container: Container())
     var appCoordinator: AppCoordinator?
 
 
@@ -22,21 +24,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let window = window else { return }
 
-        self.appCoordinator = AppCoordinator(window: window)
-        // Custom Link
-        if let url = connectionOptions.urlContexts.first?.url {
-            appCoordinator?.appendActionAfterAutoSignIn { [weak self] in
-                self?.parseUniversalLink(url: url)
-            }
-            return
-        }
+        self.appCoordinator = AppCoordinator(dependency: AppCoordinator.Dependency(window: window, injector: injector))
      
         // Universal Link를 통해 앱이 실행된 경우
         if let userActivity = connectionOptions.userActivities.first,
            userActivity.activityType == NSUserActivityTypeBrowsingWeb,
            let url = userActivity.webpageURL {
             appCoordinator?.appendActionAfterAutoSignIn { [weak self] in
-                self?.parseUniversalLink(url: url)
+                self?.appCoordinator?.parseUniversalLink(url: url)
             }
         }
         
@@ -46,8 +41,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
         guard let url = URLContexts.first?.url else { return }
-        
-        parseUniversalLink(url: url)
+        appCoordinator?.parseUniversalLink(url: url)
     }
     
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
@@ -57,30 +51,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
            return
        }
         //이거를 바로 실행? 아니면 애도 로그인 안되있으면 확인?
-        parseUniversalLink(url: incomingURL)
+        appCoordinator?.parseUniversalLink(url: url)
    }
     
-    func parseUniversalLink(url: URL) {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
-        let paths = components.path.split(separator: "/")
-
-        switch paths.first {
-        case "groups":
-
-            guard let groupIdString = components.queryItems?.first(where: { $0.name == "groupID"})?.value,
-            let groupId = Int(groupIdString) else { return } //잘못된 링크
-            print("without link1")
-            let mainTabCoordinator = appCoordinator?.childCoordinators.first(where: { $0 is MainTabCoordinator }) as? MainTabCoordinator
-            print("without link2")
-            mainTabCoordinator?.setTabBarControllerPage(page: .search)
-            let searchCoordinator = mainTabCoordinator?.childCoordinators.first(where: { $0 is SearchCoordinator }) as? SearchCoordinator
-            print("without link3")
-            searchCoordinator?.showGroupIntroducePage(groupId)
-            print("without link4")
-        default: break
-        }
-    }
-
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.

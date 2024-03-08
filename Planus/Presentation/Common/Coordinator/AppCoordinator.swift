@@ -9,25 +9,23 @@ import UIKit
 import RxSwift
 
 final class AppCoordinator: Coordinator {
-    
-    /*
-     큐를 하나 만들어서 메인탭이 실행된 뒤에 가야할 길을 넣어두기..? 그럼 로그인 후에도 그쪽으로 갈듯?
-     아니면 로그인이 필요하다고 하고 끝내??
-     */
+    struct Dependency {
+        let window: UIWindow
+        let injector: Injector
+    }
     
     var bag = DisposeBag()
         
-    weak var finishDelegate: CoordinatorFinishDelegate?
-    
-    var window: UIWindow
+    private let dependency: Dependency
         
     var childCoordinators: [Coordinator] = []
     var actionAfterSignInQueue: [() -> Void] = []
+    weak var finishDelegate: CoordinatorFinishDelegate?
 
     var type: CoordinatorType = .app
             
-    init(window: UIWindow) {
-        self.window = window
+    init(dependency: Dependency) {
+        self.dependency = dependency
     }
     
     func start() {
@@ -73,7 +71,7 @@ final class AppCoordinator: Coordinator {
     
     func showSignInFlow() {
         let navigation = UINavigationController()
-        window.rootViewController = navigation
+        dependency.window.rootViewController = navigation
 
         let signInCoordinator = SignInCoordinator(navigationController: navigation)
         signInCoordinator.finishDelegate = self
@@ -81,21 +79,20 @@ final class AppCoordinator: Coordinator {
         childCoordinators.removeAll()
         childCoordinators.append(signInCoordinator)
         
-        window.makeKeyAndVisible()
+        dependency.window.makeKeyAndVisible()
     }
     
     func showMainTabFlow() {
         DispatchQueue.main.async { [weak self] in
-            print("showMainTabFlow")
             let navigation = UINavigationController()
-            self?.window.rootViewController = navigation
+            self?.dependency.window.rootViewController = navigation
 
             let tabCoordinator = MainTabCoordinator(navigationController: navigation)
             tabCoordinator.finishDelegate = self
             tabCoordinator.start()
             self?.childCoordinators.append(tabCoordinator)
             
-            self?.window.makeKeyAndVisible()
+            self?.dependency.window.makeKeyAndVisible()
             self?.viewTransitionAnimation()
             
 //            self?.patchFCMToken()
@@ -103,7 +100,7 @@ final class AppCoordinator: Coordinator {
     }
     
     func viewTransitionAnimation() {
-        UIView.transition(with: window,
+        UIView.transition(with: dependency.window,
                           duration: 0.3,
                           options: .transitionCrossDissolve,
                           animations: nil,
@@ -114,6 +111,23 @@ final class AppCoordinator: Coordinator {
         actionAfterSignInQueue.append(action)
     }
     
+    func parseUniversalLink(url: URL) {
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
+        let paths = components.path.split(separator: "/")
+
+        switch paths.first {
+        case "groups":
+
+            guard let groupIdString = components.queryItems?.first(where: { $0.name == "groupID"})?.value,
+            let groupId = Int(groupIdString) else { return } //잘못된 링크
+            let mainTabCoordinator = childCoordinators.first(where: { $0 is MainTabCoordinator }) as? MainTabCoordinator
+            mainTabCoordinator?.setTabBarControllerPage(page: .search)
+            let searchCoordinator = mainTabCoordinator?.childCoordinators.first(where: { $0 is SearchCoordinator }) as? SearchCoordinator
+            searchCoordinator?.showGroupIntroducePage(groupId)
+        default: break
+        }
+    }
+    
     func patchFCMToken() {
         let api = NetworkManager()
         let keyChainManager = KeyChainManager()
@@ -121,7 +135,7 @@ final class AppCoordinator: Coordinator {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let fcmRepo = DefaultFCMRepository(apiProvider: NetworkManager())
-
+        
         guard let fcm = UserDefaultsManager().get(key: "fcmToken") as? String else { return }
 
         getTokenUseCase
