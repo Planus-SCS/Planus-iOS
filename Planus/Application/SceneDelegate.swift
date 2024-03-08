@@ -51,7 +51,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
            return
        }
         //이거를 바로 실행? 아니면 애도 로그인 안되있으면 확인?
-        appCoordinator?.parseUniversalLink(url: url)
+        appCoordinator?.parseUniversalLink(url: incomingURL)
    }
     
     func sceneDidDisconnect(_ scene: UIScene) {
