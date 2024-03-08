@@ -14,7 +14,7 @@ class DefaultUpdateNoticeUseCase: UpdateNoticeUseCase {
     
     var didUpdateNotice = PublishSubject<GroupNotice>()
     
-    private init(myGroupRepository: MyGroupRepository) {
+    init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository
     }
     

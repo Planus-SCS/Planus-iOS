@@ -142,7 +142,7 @@ class SocialTodoDailyViewController: UIViewController {
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let fetchGroupMemberTodoDetailUseCase = DefaultFetchGroupMemberTodoDetailUseCase(groupMemberCalendarRepository: groupMemberCalendarRepo)
-        let fetchGroupTodoDetailUseCase = DefaultFetchGroupTodoDetailUseCase(groupCalendarRepositry: groupCalendarRepo)
+        let fetchGroupTodoDetailUseCase = DefaultFetchGroupTodoDetailUseCase(groupCalendarRepository: groupCalendarRepo)
         let createGroupTodoUseCase = DefaultCreateGroupTodoUseCase.shared
         let updateGroupTodoUseCase = DefaultUpdateGroupTodoUseCase.shared
         let deleteGroupTodoUseCase = DefaultDeleteGroupTodoUseCase.shared
@@ -286,7 +286,7 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
         let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
         let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
         let fetchGroupMemberTodoDetailUseCase = DefaultFetchGroupMemberTodoDetailUseCase(groupMemberCalendarRepository: groupMemberCalendarRepo)
-        let fetchGroupTodoDetailUseCase = DefaultFetchGroupTodoDetailUseCase(groupCalendarRepositry: groupCalendarRepo)
+        let fetchGroupTodoDetailUseCase = DefaultFetchGroupTodoDetailUseCase(groupCalendarRepository: groupCalendarRepo)
         let createGroupTodoUseCase = DefaultCreateGroupTodoUseCase.shared
         let updateGroupTodoUseCase = DefaultUpdateGroupTodoUseCase.shared
         let deleteGroupTodoUseCase = DefaultDeleteGroupTodoUseCase.shared

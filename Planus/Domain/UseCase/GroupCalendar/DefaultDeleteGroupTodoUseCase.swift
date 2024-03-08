@@ -14,7 +14,7 @@ class DefaultDeleteGroupTodoUseCase: DeleteGroupTodoUseCase {
     
     var didDeleteGroupTodoWithIds = PublishSubject<(groupId: Int, todoId: Int)>()
     
-    private init(groupCalendarRepository: GroupCalendarRepository) {
+    init(groupCalendarRepository: GroupCalendarRepository) {
         self.groupCalendarRepository = groupCalendarRepository
     }
     

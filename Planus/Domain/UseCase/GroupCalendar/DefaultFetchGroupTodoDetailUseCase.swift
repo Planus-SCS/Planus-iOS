@@ -9,14 +9,14 @@ import Foundation
 import RxSwift
 
 class DefaultFetchGroupTodoDetailUseCase: FetchGroupTodoDetailUseCase {
-    let groupCalendarRepositry: GroupCalendarRepository
+    let groupCalendarRepository: GroupCalendarRepository
     
-    init(groupCalendarRepositry: GroupCalendarRepository) {
-        self.groupCalendarRepositry = groupCalendarRepositry
+    init(groupCalendarRepository: GroupCalendarRepository) {
+        self.groupCalendarRepository = groupCalendarRepository
     }
     
     func execute(token: Token, groupId: Int, todoId: Int) -> Single<SocialTodoDetail> {
-        groupCalendarRepositry
+        groupCalendarRepository
             .fetchTodoDetail(token: token.accessToken, groupId: groupId, todoId: todoId)
             .map {
                 $0.data.toDomain()

@@ -57,6 +57,19 @@
 		6A0B761D2B9AA00A008BC571 /* DataAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B761C2B9AA00A008BC571 /* DataAssembly.swift */; };
 		6A0B761F2B9BA5BD008BC571 /* InfraAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B761E2B9BA5BD008BC571 /* InfraAssembly.swift */; };
 		6A0B76212B9BA775008BC571 /* AppleSignInDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76202B9BA775008BC571 /* AppleSignInDTO.swift */; };
+		6A0B76272B9BA9D7008BC571 /* DomainAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76262B9BA9D7008BC571 /* DomainAssembly.swift */; };
+		6A0B762B2B9BCF69008BC571 /* DomainAssembly+GroupMemberCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B762A2B9BCF69008BC571 /* DomainAssembly+GroupMemberCalendar.swift */; };
+		6A0B762D2B9BCF86008BC571 /* DomainAssembly+GroupCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B762C2B9BCF86008BC571 /* DomainAssembly+GroupCategory.swift */; };
+		6A0B762F2B9BCFA8008BC571 /* DomainAssembly+GroupCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B762E2B9BCFA8008BC571 /* DomainAssembly+GroupCalendar.swift */; };
+		6A0B76312B9BCFD7008BC571 /* DomainAssembly+Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76302B9BCFD7008BC571 /* DomainAssembly+Group.swift */; };
+		6A0B76332B9BCFF3008BC571 /* DomainAssembly+MyGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76322B9BCFF3008BC571 /* DomainAssembly+MyGroup.swift */; };
+		6A0B76352B9BD047008BC571 /* DomainAssembly+Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76342B9BD047008BC571 /* DomainAssembly+Image.swift */; };
+		6A0B76372B9BD06A008BC571 /* DomainAssembly+Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76362B9BD06A008BC571 /* DomainAssembly+Profile.swift */; };
+		6A0B76392B9BD082008BC571 /* DomainAssembly+SignIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76382B9BD082008BC571 /* DomainAssembly+SignIn.swift */; };
+		6A0B763B2B9BD09F008BC571 /* DomainAssembly+Calendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B763A2B9BD09F008BC571 /* DomainAssembly+Calendar.swift */; };
+		6A0B763D2B9BD0BB008BC571 /* DomainAssembly+Todo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B763C2B9BD0BB008BC571 /* DomainAssembly+Todo.swift */; };
+		6A0B763F2B9BD0E0008BC571 /* DomainAssembly+Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B763E2B9BD0E0008BC571 /* DomainAssembly+Category.swift */; };
+		6A0B76412B9BD0F6008BC571 /* DomainAssembly+Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76402B9BD0F6008BC571 /* DomainAssembly+Token.swift */; };
 		6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75B29D2C25B006F2604 /* edit@2x.png */; };
 		6A0BF75F29D2C25B006F2604 /* edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75C29D2C25B006F2604 /* edit.png */; };
 		6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75D29D2C25B006F2604 /* edit@3x.png */; };
@@ -684,6 +697,19 @@
 		6A0B761C2B9AA00A008BC571 /* DataAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataAssembly.swift; sourceTree = "<group>"; };
 		6A0B761E2B9BA5BD008BC571 /* InfraAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfraAssembly.swift; sourceTree = "<group>"; };
 		6A0B76202B9BA775008BC571 /* AppleSignInDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInDTO.swift; sourceTree = "<group>"; };
+		6A0B76262B9BA9D7008BC571 /* DomainAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainAssembly.swift; sourceTree = "<group>"; };
+		6A0B762A2B9BCF69008BC571 /* DomainAssembly+GroupMemberCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+GroupMemberCalendar.swift"; sourceTree = "<group>"; };
+		6A0B762C2B9BCF86008BC571 /* DomainAssembly+GroupCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+GroupCategory.swift"; sourceTree = "<group>"; };
+		6A0B762E2B9BCFA8008BC571 /* DomainAssembly+GroupCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+GroupCalendar.swift"; sourceTree = "<group>"; };
+		6A0B76302B9BCFD7008BC571 /* DomainAssembly+Group.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+Group.swift"; sourceTree = "<group>"; };
+		6A0B76322B9BCFF3008BC571 /* DomainAssembly+MyGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+MyGroup.swift"; sourceTree = "<group>"; };
+		6A0B76342B9BD047008BC571 /* DomainAssembly+Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+Image.swift"; sourceTree = "<group>"; };
+		6A0B76362B9BD06A008BC571 /* DomainAssembly+Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+Profile.swift"; sourceTree = "<group>"; };
+		6A0B76382B9BD082008BC571 /* DomainAssembly+SignIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+SignIn.swift"; sourceTree = "<group>"; };
+		6A0B763A2B9BD09F008BC571 /* DomainAssembly+Calendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+Calendar.swift"; sourceTree = "<group>"; };
+		6A0B763C2B9BD0BB008BC571 /* DomainAssembly+Todo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+Todo.swift"; sourceTree = "<group>"; };
+		6A0B763E2B9BD0E0008BC571 /* DomainAssembly+Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+Category.swift"; sourceTree = "<group>"; };
+		6A0B76402B9BD0F6008BC571 /* DomainAssembly+Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainAssembly+Token.swift"; sourceTree = "<group>"; };
 		6A0BF75B29D2C25B006F2604 /* edit@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@2x.png"; sourceTree = "<group>"; };
 		6A0BF75C29D2C25B006F2604 /* edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit.png; sourceTree = "<group>"; };
 		6A0BF75D29D2C25B006F2604 /* edit@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@3x.png"; sourceTree = "<group>"; };
@@ -1848,10 +1874,31 @@
 		6A0B761B2B9A9FC9008BC571 /* TmpInjectorPool */ = {
 			isa = PBXGroup;
 			children = (
+				6A0B76292B9BCF0C008BC571 /* Domain */,
 				6A0B761C2B9AA00A008BC571 /* DataAssembly.swift */,
 				6A0B761E2B9BA5BD008BC571 /* InfraAssembly.swift */,
 			);
 			path = TmpInjectorPool;
+			sourceTree = "<group>";
+		};
+		6A0B76292B9BCF0C008BC571 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				6A0B76262B9BA9D7008BC571 /* DomainAssembly.swift */,
+				6A0B762A2B9BCF69008BC571 /* DomainAssembly+GroupMemberCalendar.swift */,
+				6A0B762C2B9BCF86008BC571 /* DomainAssembly+GroupCategory.swift */,
+				6A0B762E2B9BCFA8008BC571 /* DomainAssembly+GroupCalendar.swift */,
+				6A0B76302B9BCFD7008BC571 /* DomainAssembly+Group.swift */,
+				6A0B76322B9BCFF3008BC571 /* DomainAssembly+MyGroup.swift */,
+				6A0B76342B9BD047008BC571 /* DomainAssembly+Image.swift */,
+				6A0B76362B9BD06A008BC571 /* DomainAssembly+Profile.swift */,
+				6A0B76382B9BD082008BC571 /* DomainAssembly+SignIn.swift */,
+				6A0B763A2B9BD09F008BC571 /* DomainAssembly+Calendar.swift */,
+				6A0B763C2B9BD0BB008BC571 /* DomainAssembly+Todo.swift */,
+				6A0B763E2B9BD0E0008BC571 /* DomainAssembly+Category.swift */,
+				6A0B76402B9BD0F6008BC571 /* DomainAssembly+Token.swift */,
+			);
+			path = Domain;
 			sourceTree = "<group>";
 		};
 		6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */ = {
@@ -3427,6 +3474,7 @@
 				6A24F90829D210450000FD64 /* TodoMainViewModel.swift in Sources */,
 				6A876DAB2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift in Sources */,
 				6A08ADCA29C8C1F3005947D2 /* APIEndPoint.swift in Sources */,
+				6A0B762F2B9BCFA8008BC571 /* DomainAssembly+GroupCalendar.swift in Sources */,
 				6AC0799E2A0AAA74007ACDB8 /* DefaultDenyGroupJoinUseCase.swift in Sources */,
 				6A987A5029DE4A1400C27D09 /* MemberProfileViewController.swift in Sources */,
 				6A919A0B2A210C7100108BF4 /* DefaultFetchSearchResultUseCase.swift in Sources */,
@@ -3471,6 +3519,7 @@
 				6A987A7929DEFC6600C27D09 /* TodoDailyViewModel.swift in Sources */,
 				6A6C7B932A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift in Sources */,
 				6AC0793F2A0A3650007ACDB8 /* ValidationCheckView.swift in Sources */,
+				6A0B76272B9BA9D7008BC571 /* DomainAssembly.swift in Sources */,
 				6A2C00CA2A70FD4F003D6B95 /* UpdateGroupCategoryUseCase.swift in Sources */,
 				6A08AD6E29C88969005947D2 /* Coordinator.swift in Sources */,
 				6A24F91F29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift in Sources */,
@@ -3479,6 +3528,7 @@
 				6A987A4329DDAE1000C27D09 /* MyGroupMemberEditViewModel.swift in Sources */,
 				6A27441B2A0CC9EF008FB4F5 /* PrimitiveSequence+Ext.swift in Sources */,
 				6A9A080229D40C130051AD43 /* TodoDetailViewController.swift in Sources */,
+				6A0B76392B9BD082008BC571 /* DomainAssembly+SignIn.swift in Sources */,
 				6AF077D22A961CB20086692B /* TodoDetailClockView.swift in Sources */,
 				6A08ADCF29C8C231005947D2 /* APIProvider.swift in Sources */,
 				6A21862D2A815148005CF505 /* AppleSignInNonce.swift in Sources */,
@@ -3572,6 +3622,7 @@
 				6A2744392A0E829A008FB4F5 /* DefaultUpdateNoticeUseCase.swift in Sources */,
 				6A24F8F029D1D5F80000FD64 /* MonthPickerViewCell.swift in Sources */,
 				6AC079A42A0B5E0D007ACDB8 /* MyGroupSummaryDTO.swift in Sources */,
+				6A0B763F2B9BD0E0008BC571 /* DomainAssembly+Category.swift in Sources */,
 				6A9199592A12004100108BF4 /* MyGroupInfoEditViewModel.swift in Sources */,
 				6A91998A2A1254F300108BF4 /* GroupCreateLoadViewController.swift in Sources */,
 				6A61C3FC2A6EB38100DCA088 /* RemoveProfileUseCase.swift in Sources */,
@@ -3647,7 +3698,9 @@
 				6A987A3E29DDA88800C27D09 /* MyGroupMemberEditCell.swift in Sources */,
 				6A27442B2A0E4834008FB4F5 /* DefaultFetchMyGroupMemberListUseCase.swift in Sources */,
 				6A9AAB4329FAC180002A6DAF /* DefaultSetTokenUseCase.swift in Sources */,
+				6A0B76312B9BCFD7008BC571 /* DomainAssembly+Group.swift in Sources */,
 				6A24F90C29D223960000FD64 /* DetailDayViewModel.swift in Sources */,
+				6A0B762D2B9BCF86008BC571 /* DomainAssembly+GroupCategory.swift in Sources */,
 				6A9199952A13211E00108BF4 /* DefaultFetchGroupMemberCalendarUseCase.swift in Sources */,
 				6AF078032A98BE0A0086692B /* TodoDetailVC+animatedMove.swift in Sources */,
 				6A9A07FD29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift in Sources */,
@@ -3666,6 +3719,7 @@
 				6A987A0429DBD40A00C27D09 /* JoinedGroupDetailHeaderView.swift in Sources */,
 				6A24F83E29CB4A440000FD64 /* Todo.swift in Sources */,
 				6A9AAB0229F8E442002A6DAF /* DefaultCategoryRepository.swift in Sources */,
+				6A0B763D2B9BD0BB008BC571 /* DomainAssembly+Todo.swift in Sources */,
 				6A9199972A13222000108BF4 /* FetchGroupMemberCalendarUseCase.swift in Sources */,
 				6A24F8BE29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift in Sources */,
 				6A95DFDE29D53B87009017D8 /* GroupIntroduceNoticeCell.swift in Sources */,
@@ -3675,6 +3729,7 @@
 				6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */,
 				6A987A7B29DF0E7600C27D09 /* SmallCalendarViewController.swift in Sources */,
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,
+				6A0B76332B9BCFF3008BC571 /* DomainAssembly+MyGroup.swift in Sources */,
 				6A876DA72A94AC70001D800E /* MyGroupDetailViewController2.swift in Sources */,
 				6A987A8E29DF119300C27D09 /* SmallCalendarCollectionView.swift in Sources */,
 				6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */,
@@ -3712,11 +3767,13 @@
 				6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */,
 				6A9AAB1D29FA534F002A6DAF /* DefaultGetTokenUseCase.swift in Sources */,
 				6A9AAB3F29FA5F87002A6DAF /* BaseResponseDTO.swift in Sources */,
+				6A0B76352B9BD047008BC571 /* DomainAssembly+Image.swift in Sources */,
 				6A9199F52A20AC1400108BF4 /* SocialTodoDailyViewController.swift in Sources */,
 				6A919A0F2A210DC700108BF4 /* SearchResultViewController.swift in Sources */,
 				6A24F86429CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift in Sources */,
 				6AC0799A2A0AA6F1007ACDB8 /* ApplyGroupJoinUseCase.swift in Sources */,
 				6A9199FB2A20B87500108BF4 /* DefaultGroupCalendarRepository.swift in Sources */,
+				6A0B76372B9BD06A008BC571 /* DomainAssembly+Profile.swift in Sources */,
 				6A24F91929D22D080000FD64 /* TodoDailyCollectionView.swift in Sources */,
 				6AC079612A0A52C5007ACDB8 /* GroupCreateUseCase.swift in Sources */,
 				6AC079122A08CCF9007ACDB8 /* ReadProfileUseCase.swift in Sources */,
@@ -3751,6 +3808,7 @@
 				6AF078842AA09E890086692B /* UIView+Skeleton.swift in Sources */,
 				6A987A5929DECACB00C27D09 /* MemberProfileCalendarHeaderView.swift in Sources */,
 				6A9191982A82780D006C3F80 /* Data+Ext.swift in Sources */,
+				6A0B763B2B9BD09F008BC571 /* DomainAssembly+Calendar.swift in Sources */,
 				6A24F85029CB77830000FD64 /* Calendar+Ext.swift in Sources */,
 				6AC079042A07DC45007ACDB8 /* Array+Ext.swift in Sources */,
 				6A987A3B29DDA61F00C27D09 /* MyGroupMemberEditViewController.swift in Sources */,
@@ -3767,8 +3825,10 @@
 				6AC079302A0A1272007ACDB8 /* GroupCreateInfoView.swift in Sources */,
 				6A9A07F329D40B5D0051AD43 /* DayPickerView.swift in Sources */,
 				6A987A1B29DBFF3300C27D09 /* JoinedGroupDetailViewModel.swift in Sources */,
+				6A0B762B2B9BCF69008BC571 /* DomainAssembly+GroupMemberCalendar.swift in Sources */,
 				6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */,
 				6A9AAB2529FA588F002A6DAF /* DefaultUpdateCategoryUseCase.swift in Sources */,
+				6A0B76412B9BD0F6008BC571 /* DomainAssembly+Token.swift in Sources */,
 				6A08ADDD29C8D5C0005947D2 /* SocialAuthRepository.swift in Sources */,
 				6A9199882A1248B000108BF4 /* UpdateGroupInfoUseCase.swift in Sources */,
 				6A9199D52A1693BA00108BF4 /* GroupCreateTagCell.swift in Sources */,

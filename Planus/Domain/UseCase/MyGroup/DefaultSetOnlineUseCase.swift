@@ -14,7 +14,7 @@ class DefaultSetOnlineUseCase: SetOnlineUseCase {
     
     var didChangeOnlineState = PublishSubject<(Int, Int)>()
     
-    private init(myGroupRepository: MyGroupRepository) {
+    init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository
     }
     

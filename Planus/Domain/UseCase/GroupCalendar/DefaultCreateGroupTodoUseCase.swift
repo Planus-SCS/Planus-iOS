@@ -15,7 +15,7 @@ class DefaultCreateGroupTodoUseCase: CreateGroupTodoUseCase {
     
     var didCreateGroupTodo = PublishSubject<Todo>()
     
-    private init(groupCalendarRepository: GroupCalendarRepository) {
+    init(groupCalendarRepository: GroupCalendarRepository) {
         self.groupCalendarRepository = groupCalendarRepository
     }
     
