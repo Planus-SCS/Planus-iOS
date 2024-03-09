@@ -24,6 +24,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let window = window else { return }
 
+        injector.assemble([
+            InfraAssembly(),
+            DataAssembly(),
+            DomainAssembly(),
+            PresentationAssembly()
+        ])
+        
         self.appCoordinator = AppCoordinator(dependency: AppCoordinator.Dependency(window: window, injector: injector))
      
         // Universal Link를 통해 앱이 실행된 경우

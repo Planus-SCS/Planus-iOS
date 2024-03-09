@@ -418,25 +418,7 @@ class HomeCalendarViewController: UIViewController {
 
     @objc func profileButtonTapped() {
         guard let profile = viewModel?.profile else { return }
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
-        let userDefaults = UserDefaultsManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-        let socialAuthRepo = DefaultSocialAuthRepository(apiProvider: api, keyValueStorage: userDefaults)
-        let profileRepo = DefaultProfileRepository(apiProvider: api)
-        let imageRepo = DefaultImageRepository(apiProvider: api)
-        let readProfileUseCase = DefaultReadProfileUseCase(profileRepository: profileRepo)
-        let updateProfileUseCase = DefaultUpdateProfileUseCase(profileRepository: profileRepo)
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        let removeTokenUseCase = DefaultRemoveTokenUseCase(tokenRepository: tokenRepo)
-        let removeProfileUseCase = DefaultRemoveProfileUseCase(profileRepository: profileRepo)
-        let vm = MyPageMainViewModel(updateProfileUseCase: updateProfileUseCase, getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, removeTokenUseCase: removeTokenUseCase, removeProfileUseCase: removeProfileUseCase, fetchImageUseCase: fetchImageUseCase, getSignedInSNSTypeUseCase: DefaultGetSignedInSNSTypeUseCase(socialAuthRepository: socialAuthRepo), convertToSha256UseCase: DefaultConvertToSha256UseCase(), revokeAppleTokenUseCase: DefaultRevokeAppleTokenUseCase(socialAuthRepository: socialAuthRepo))
-        vm.setProfile(profile: profile)
-        let vc = MyPageMainViewController(viewModel: vm)
-        vc.hidesBottomBarWhenPushed = true
-        self.navigationController?.pushViewController(vc, animated: true)
+        viewModel?.actions.showMyPage?(profile)
     }
 }
 

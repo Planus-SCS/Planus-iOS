@@ -10,17 +10,22 @@ import RxSwift
 
 class HomeCalendarCoordinator: Coordinator {
     
+    struct Dependency {
+        let navigationController: UINavigationController
+        let injector: Injector
+    }
+    
+    let dependency: Dependency
     weak var finishDelegate: CoordinatorFinishDelegate?
     
-    var navigationController: UINavigationController
         
     var childCoordinators: [Coordinator] = []
     
     var type: CoordinatorType = .homeCalendar
     var homeTapReselected = PublishSubject<Void>()
     
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
+    init(dependency: Dependency) {
+        self.dependency = dependency
     }
     
     func start() {
@@ -28,67 +33,35 @@ class HomeCalendarCoordinator: Coordinator {
     }
     
     lazy var showHomeCalendarPage: () -> Void = { [weak self] in
-        
-        let apiProvider = NetworkManager()
-        let keyChain = KeyChainManager()
-        
-        let todoRepository = TestTodoDetailRepository(apiProvider: apiProvider)
-        let tokenRepository = DefaultTokenRepository(apiProvider: apiProvider, keyValueStorage: keyChain)
-        let categoryRepository = DefaultCategoryRepository(apiProvider: apiProvider)
-        let groupCategoryRepository = DefaultGroupCategoryRepository(apiProvider: apiProvider)
-        let profileRepository = DefaultProfileRepository(apiProvider: apiProvider)
-        let myGroupRepository = DefaultMyGroupRepository(apiProvider: apiProvider)
-        let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-        let readTodoListUseCase = DefaultReadTodoListUseCase(todoRepository: todoRepository)
-        let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
-        let createTodoUseCase = DefaultCreateTodoUseCase.shared
-        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
-        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepository)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepository)
-        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
-        let readCategoryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepository)
-        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
-        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
-        let readProfileUseCase = DefaultReadProfileUseCase(profileRepository: profileRepository)
-        let updateProfileUseCase = DefaultUpdateProfileUseCase.shared
-        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
-        let fetchMyGroupNameListUseCase = DefaultFetchMyGroupNameListUseCase(myGroupRepo: myGroupRepository)
-        let fetchGroupCategoryListUseCase = DefaultFetchAllGroupCategoryListUseCase(categoryRepository: groupCategoryRepository)
-        let vm = HomeCalendarViewModel(
-            getTokenUseCase: getTokenUseCase,
-            refreshTokenUseCase: refreshTokenUseCase,
-            createTodoUseCase: createTodoUseCase,
-            readTodoListUseCase: readTodoListUseCase,
-            updateTodoUseCase: updateTodoUseCase,
-            deleteTodoUseCase: deleteTodoUseCase,
-            todoCompleteUseCase: DefaultTodoCompleteUseCase.shared,
-            createCategoryUseCase: createCategoryUseCase,
-            readCategoryListUseCase: readCategoryUseCase,
-            updateCategoryUseCase: updateCategoryUseCase,
-            deleteCategoryUseCase: deleteCategoryUseCase,
-            fetchGroupCategoryListUseCase: fetchGroupCategoryListUseCase,
-            fetchMyGroupNameListUseCase: fetchMyGroupNameListUseCase,
-            groupCreateUseCase: DefaultGroupCreateUseCase.shared,
-            createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
-            dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
-            readProfileUseCase: readProfileUseCase,
-            updateProfileUseCase: updateProfileUseCase,
-            fetchImageUseCase: fetchImageUseCase,
-            withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared,
-            deleteGroupUseCase: DefaultDeleteGroupUseCase.shared
+        guard let self else { return }
+        let vc = self.dependency.injector.resolve(
+            HomeCalendarViewController.self,
+            argument: HomeCalendarViewModel.Injectable(
+                actions: .init(
+                    showTodoModal: self.showTodoModal,
+                    showMyPage: self.showMyPage
+                ),
+                args: .init()
+            )
         )
-        vm.homeTabReselected = self?.homeTapReselected
-
-        let vc = HomeCalendarViewController(viewModel: vm)
-        self?.navigationController.pushViewController(vc, animated: true)
+        self.dependency.navigationController.pushViewController(vc, animated: true)
     }
     
     lazy var showTodoModal: () -> Void = { [weak self] in
     }
     
-    lazy var showMyPage: () -> Void = {
+    lazy var showMyPage: (Profile) -> Void = { [weak self] profile in
+        guard let self else { return }
         
+        let vc = self.dependency.injector.resolve(
+            MyPageMainViewController.self,
+            argument: MyPageMainViewModel.Injectable(
+                actions: .init(),
+                args: .init(profile: profile)
+            )
+        )
+        vc.hidesBottomBarWhenPushed = true
+        self.dependency.navigationController.pushViewController(vc, animated: true)
     }
 }
 

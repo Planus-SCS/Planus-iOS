@@ -39,28 +39,30 @@ enum TabBarPage: Int, CaseIterable {
 }
 
 final class MainTabCoordinator: NSObject, Coordinator {
+    
+    struct Dependency {
+        let navigationController: UINavigationController
+        let injector: Injector
+    }
         
+    let dependency: Dependency
     weak var finishDelegate: CoordinatorFinishDelegate?
-    
-    var navigationController: UINavigationController
-    
+        
     private var tabBarController: UITabBarController
-    
     var childCoordinators: [Coordinator] = []
-    
     var type: CoordinatorType = .mainTab
     
     private var currentPage: TabBarPage = .calendar
     
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
+    init(dependency: Dependency) {
+        self.dependency = dependency
         self.tabBarController = UITabBarController()
     }
     
     func start() {
         let pages = TabBarPage.allCases
         let controllers: [UINavigationController] = pages.map { getTabController($0) }
-        self.navigationController.setNavigationBarHidden(true, animated: false)
+        dependency.navigationController.setNavigationBarHidden(true, animated: false)
         prepareTabBarController(withTabControllers: controllers)
     }
     
@@ -88,7 +90,7 @@ final class MainTabCoordinator: NSObject, Coordinator {
         self.tabBarController.tabBar.tintColor = UIColor(hex: 0x000000)
         self.tabBarController.tabBar.unselectedItemTintColor = UIColor(hex: 0xBFC7D7)
         
-        navigationController.viewControllers = [tabBarController]
+        dependency.navigationController.viewControllers = [tabBarController]
     }
     
     private func getTabController(_ page: TabBarPage) -> UINavigationController {
@@ -103,7 +105,7 @@ final class MainTabCoordinator: NSObject, Coordinator {
         // 각 코디네이터 생성 후 추가 예정
         switch page {
         case .calendar:
-            let homeCalendarCoordinator = HomeCalendarCoordinator(navigationController: navigation)
+            let homeCalendarCoordinator = HomeCalendarCoordinator(dependency: HomeCalendarCoordinator.Dependency(navigationController: navigation, injector: dependency.injector))
             homeCalendarCoordinator.finishDelegate = self
             childCoordinators.append(homeCalendarCoordinator)
             homeCalendarCoordinator.start()

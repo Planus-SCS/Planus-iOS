@@ -9,7 +9,34 @@ import Foundation
 import RxSwift
 import AuthenticationServices
 
-class MyPageMainViewModel {
+class MyPageMainViewModel: ViewModel {
+    struct UseCases {
+        let updateProfileUseCase: UpdateProfileUseCase
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        let removeTokenUseCase: RemoveTokenUseCase
+        let removeProfileUseCase: RemoveProfileUseCase
+        let fetchImageUseCase: FetchImageUseCase
+        let getSignedInSNSTypeUseCase: GetSignedInSNSTypeUseCase
+        let convertToSha256UseCase: ConvertToSha256UseCase
+        let revokeAppleTokenUseCase: RevokeAppleTokenUseCase
+    }
+    
+    struct Actions {
+    }
+    
+    struct Args {
+        let profile: Profile
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
+    let useCases: UseCases
+    let actions: Actions
+    
     var bag = DisposeBag()
     
     var imageURL: String?
@@ -49,42 +76,16 @@ class MyPageMainViewModel {
         var didRequireAppleSignInWithRequest: Observable<ASAuthorizationAppleIDRequest>
     }
     
-    var updateProfileUseCase: UpdateProfileUseCase
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
-    var removeTokenUseCase: RemoveTokenUseCase
-    var removeProfileUseCase: RemoveProfileUseCase
-    var fetchImageUseCase: FetchImageUseCase
-    var getSignedInSNSTypeUseCase: GetSignedInSNSTypeUseCase
-    var convertToSha256UseCase: ConvertToSha256UseCase
-    var revokeAppleTokenUseCase: RevokeAppleTokenUseCase
-    
     init(
-        updateProfileUseCase: UpdateProfileUseCase,
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        removeTokenUseCase: RemoveTokenUseCase,
-        removeProfileUseCase: RemoveProfileUseCase,
-        fetchImageUseCase: FetchImageUseCase,
-        getSignedInSNSTypeUseCase: GetSignedInSNSTypeUseCase,
-        convertToSha256UseCase: ConvertToSha256UseCase,
-        revokeAppleTokenUseCase: RevokeAppleTokenUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.updateProfileUseCase = DefaultUpdateProfileUseCase.shared
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.removeTokenUseCase = removeTokenUseCase
-        self.removeProfileUseCase = removeProfileUseCase
-        self.fetchImageUseCase = fetchImageUseCase
-        self.getSignedInSNSTypeUseCase = getSignedInSNSTypeUseCase
-        self.convertToSha256UseCase = convertToSha256UseCase
-        self.revokeAppleTokenUseCase = revokeAppleTokenUseCase
-    }
-    
-    func setProfile(profile: Profile) {
-        self.name = profile.nickName
-        self.introduce = profile.description
-        self.imageURL = profile.imageUrl
+        self.useCases = useCases
+        self.actions = injectable.actions
+        
+        self.name = injectable.args.profile.nickName
+        self.introduce = injectable.args.profile.description
+        self.imageURL = injectable.args.profile.imageUrl
     }
     
     func transform(input: Input) -> Output {
@@ -137,7 +138,7 @@ class MyPageMainViewModel {
     }
     
     func bindUseCase() {
-        updateProfileUseCase
+        useCases.updateProfileUseCase
             .didUpdateProfile
             .withUnretained(self)
             .subscribe(onNext: { vm, profile in
@@ -150,12 +151,12 @@ class MyPageMainViewModel {
     }
     
     func signOut() {
-        removeTokenUseCase.execute()
+        useCases.removeTokenUseCase.execute()
     }
     
     func resignTapped() {
         nowResigning = true
-        guard let authType = getSignedInSNSTypeUseCase.execute() else { return }
+        guard let authType = useCases.getSignedInSNSTypeUseCase.execute() else { return }
         
         switch authType {
         case .kakao, .google:
@@ -168,16 +169,16 @@ class MyPageMainViewModel {
     
     func resign() {
         guard nowResigning else { return }
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.removeProfileUseCase.execute(token: token)
+                return self.useCases.removeProfileUseCase.execute(token: token)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
@@ -191,27 +192,27 @@ class MyPageMainViewModel {
     }
     
     func fetchImage(key: String) -> Single<Data> {
-        return fetchImageUseCase.execute(key: key)
+        return useCases.fetchImageUseCase.execute(key: key)
     }
     
     func generateAppleSignInRequest() -> ASAuthorizationAppleIDRequest {
         let provider = ASAuthorizationAppleIDProvider()
         let request = provider.createRequest()
         request.requestedScopes = [.fullName, .email]
-        request.nonce = convertToSha256UseCase.execute(AppleSignInNonce.nonce)
+        request.nonce = useCases.convertToSha256UseCase.execute(AppleSignInNonce.nonce)
         return request
     }
 
     func revokeAppleToken(code: String) {
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else { throw DefaultError.noCapturedSelf }
-                return self.revokeAppleTokenUseCase
+                return self.useCases.revokeAppleTokenUseCase
                     .execute(token: token, authorizationCode: code)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in

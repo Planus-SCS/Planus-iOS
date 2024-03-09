@@ -40,6 +40,10 @@ extension DomainAssembly {
             let socialAuthRepository = r.resolve(SocialAuthRepository.self)!
             return DefaultRevokeAppleTokenUseCase(socialAuthRepository: socialAuthRepository)
         }
+        
+        container.register(ConvertToSha256UseCase.self) { r in
+            return DefaultConvertToSha256UseCase()
+        }
     }
     
 }

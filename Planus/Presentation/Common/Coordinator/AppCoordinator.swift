@@ -34,14 +34,10 @@ final class AppCoordinator: Coordinator {
     
     private func checkAutoSignIn() {
         // 우선 여기서 자동로그인이 되있는지를 봐야한다..!
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
+        let getTokenUseCase = dependency.injector.resolve(GetTokenUseCase.self)
+        let refreshTokenUseCase = dependency.injector.resolve(RefreshTokenUseCase.self)
+        let setTokenUseCase = dependency.injector.resolve(SetTokenUseCase.self)
         
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
-
         getTokenUseCase
             .execute()
             .flatMap { _ in refreshTokenUseCase.execute() }
@@ -84,16 +80,17 @@ final class AppCoordinator: Coordinator {
     
     func showMainTabFlow() {
         DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
             let navigation = UINavigationController()
-            self?.dependency.window.rootViewController = navigation
+            self.dependency.window.rootViewController = navigation
 
-            let tabCoordinator = MainTabCoordinator(navigationController: navigation)
+            let tabCoordinator = MainTabCoordinator(dependency: MainTabCoordinator.Dependency(navigationController: navigation, injector: self.dependency.injector))
             tabCoordinator.finishDelegate = self
             tabCoordinator.start()
-            self?.childCoordinators.append(tabCoordinator)
+            self.childCoordinators.append(tabCoordinator)
             
-            self?.dependency.window.makeKeyAndVisible()
-            self?.viewTransitionAnimation()
+            self.dependency.window.makeKeyAndVisible()
+            self.viewTransitionAnimation()
             
 //            self?.patchFCMToken()
         }

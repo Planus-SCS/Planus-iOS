@@ -14,10 +14,67 @@ struct FilteredTodoViewModel {
     var holiday: (Int, String)?
 }
 
-class HomeCalendarViewModel {
+protocol ViewModel {
+    associatedtype UseCases
+    associatedtype Actions
+    associatedtype Args
+    associatedtype Injectable
+    
+    var useCases: UseCases { get }
+    var actions: Actions { get }
+    
+    associatedtype Input
+    associatedtype Output
+}
+
+class HomeCalendarViewModel: ViewModel {
+    
+    struct UseCases {
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        
+        let createTodoUseCase: CreateTodoUseCase
+        let readTodoListUseCase: ReadTodoListUseCase
+        let updateTodoUseCase: UpdateTodoUseCase
+        let deleteTodoUseCase: DeleteTodoUseCase
+        let todoCompleteUseCase: TodoCompleteUseCase
+        
+        let createCategoryUseCase: CreateCategoryUseCase
+        let readCategoryListUseCase: ReadCategoryListUseCase
+        let updateCategoryUseCase: UpdateCategoryUseCase
+        let deleteCategoryUseCase: DeleteCategoryUseCase
+        let fetchGroupCategoryListUseCase: FetchAllGroupCategoryListUseCase
+        
+        let fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase
+        let groupCreateUseCase: GroupCreateUseCase
+        let withdrawGroupUseCase: WithdrawGroupUseCase
+        let deleteGroupUseCase: DeleteGroupUseCase
+        
+        let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
+        let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
+        
+        let readProfileUseCase: ReadProfileUseCase
+        let updateProfileUseCase: UpdateProfileUseCase
+        let fetchImageUseCase: FetchImageUseCase
+    }
+    
+    struct Actions {
+        var showTodoModal: (() -> Void)?
+        var showMyPage: ((Profile) -> Void)?
+    }
+    
+    struct Args {}
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
     
     var bag = DisposeBag()
     
+    let useCases: UseCases
+    let actions: Actions
+
     let calendar = Calendar.current
     
     var filteredGroupId = BehaviorSubject<Int?>(value: nil)
@@ -71,23 +128,23 @@ class HomeCalendarViewModel {
     
     lazy var categoryFetcher: () -> Single<[Category]>? = { [weak self] in
         guard let self else { return nil }
-        return self.getTokenUseCase
+        return self.useCases.getTokenUseCase
             .execute()
-            .flatMap { token in self.readCategoryListUseCase.execute(token: token) }
+            .flatMap { token in self.useCases.readCategoryListUseCase.execute(token: token) }
     }
     
     lazy var groupCategoryFetcher: () -> Single<[Category]>? = { [weak self] in
         guard let self else { return nil }
-        return self.getTokenUseCase
+        return self.useCases.getTokenUseCase
             .execute()
-            .flatMap { token in self.fetchGroupCategoryListUseCase.execute(token: token) }
+            .flatMap { token in self.useCases.fetchGroupCategoryListUseCase.execute(token: token) }
     }
     
     lazy var groupFetcher: () -> Single<[GroupName]>? = { [weak self] in
         guard let self else { return nil }
-        return self.getTokenUseCase
+        return self.useCases.getTokenUseCase
             .execute()
-            .flatMap { token in self.fetchMyGroupNameListUseCase.execute(token: token) }
+            .flatMap { token in self.useCases.fetchMyGroupNameListUseCase.execute(token: token) }
     }
     
     lazy var categoryAndGroupZip = Observable.zip(
@@ -133,81 +190,13 @@ class HomeCalendarViewModel {
         var didFinishRefreshing: Observable<Void>
         var needScrollToHome: Observable<Void>
     }
-    
-    let getTokenUseCase: GetTokenUseCase
-    let refreshTokenUseCase: RefreshTokenUseCase
-    
-    let createTodoUseCase: CreateTodoUseCase
-    let readTodoListUseCase: ReadTodoListUseCase
-    let updateTodoUseCase: UpdateTodoUseCase
-    let deleteTodoUseCase: DeleteTodoUseCase
-    let todoCompleteUseCase: TodoCompleteUseCase
-    
-    let createCategoryUseCase: CreateCategoryUseCase
-    let readCategoryListUseCase: ReadCategoryListUseCase
-    let updateCategoryUseCase: UpdateCategoryUseCase
-    let deleteCategoryUseCase: DeleteCategoryUseCase
-    let fetchGroupCategoryListUseCase: FetchAllGroupCategoryListUseCase
-    
-    let fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase
-    let groupCreateUseCase: GroupCreateUseCase
-    let withdrawGroupUseCase: WithdrawGroupUseCase
-    let deleteGroupUseCase: DeleteGroupUseCase
-    
-    let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
-    let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
-    
-    let readProfileUseCase: ReadProfileUseCase
-    let updateProfileUseCase: UpdateProfileUseCase
-    let fetchImageUseCase: FetchImageUseCase
-    
+        
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        createTodoUseCase: CreateTodoUseCase,
-        readTodoListUseCase: ReadTodoListUseCase,
-        updateTodoUseCase: UpdateTodoUseCase,
-        deleteTodoUseCase: DeleteTodoUseCase,
-        todoCompleteUseCase: TodoCompleteUseCase,
-        createCategoryUseCase: CreateCategoryUseCase,
-        readCategoryListUseCase: ReadCategoryListUseCase,
-        updateCategoryUseCase: UpdateCategoryUseCase,
-        deleteCategoryUseCase: DeleteCategoryUseCase,
-        fetchGroupCategoryListUseCase: FetchAllGroupCategoryListUseCase,
-        fetchMyGroupNameListUseCase: FetchMyGroupNameListUseCase,
-        groupCreateUseCase: GroupCreateUseCase,
-        createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
-        readProfileUseCase: ReadProfileUseCase,
-        updateProfileUseCase: UpdateProfileUseCase,
-        fetchImageUseCase: FetchImageUseCase,
-        withdrawGroupUseCase: WithdrawGroupUseCase,
-        deleteGroupUseCase: DeleteGroupUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        
-        self.createTodoUseCase = createTodoUseCase
-        self.readTodoListUseCase = readTodoListUseCase
-        self.updateTodoUseCase = updateTodoUseCase
-        self.deleteTodoUseCase = deleteTodoUseCase
-        self.todoCompleteUseCase = todoCompleteUseCase
-        
-        self.createCategoryUseCase = createCategoryUseCase
-        self.readCategoryListUseCase = readCategoryListUseCase
-        self.updateCategoryUseCase = updateCategoryUseCase
-        self.deleteCategoryUseCase = deleteCategoryUseCase
-        self.fetchGroupCategoryListUseCase = fetchGroupCategoryListUseCase
-        
-        self.fetchMyGroupNameListUseCase = fetchMyGroupNameListUseCase
-        self.groupCreateUseCase = groupCreateUseCase
-        self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
-        self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
-        self.readProfileUseCase = readProfileUseCase
-        self.updateProfileUseCase = updateProfileUseCase
-        self.fetchImageUseCase = fetchImageUseCase
-        self.withdrawGroupUseCase = withdrawGroupUseCase
-        self.deleteGroupUseCase = deleteGroupUseCase
+        self.useCases = useCases
+        self.actions = injectable.actions
     }
     
     func bind() {
@@ -356,13 +345,13 @@ class HomeCalendarViewModel {
     }
     
     func updateTitle(date: Date) {
-        currentYYYYMM.onNext(dateFormatYYYYMMUseCase.execute(date: date))
+        currentYYYYMM.onNext(useCases.dateFormatYYYYMMUseCase.execute(date: date))
     }
     
     func initCalendar(date: Date) {
         mainDays = (endOfFirstIndex...endOfLastIndex).map { diff -> [DayViewModel] in
             let calendarDate = self.calendar.date(byAdding: DateComponents(month: diff), to: date) ?? Date()
-            return createMonthlyCalendarUseCase.execute(date: calendarDate)
+            return useCases.createMonthlyCalendarUseCase.execute(date: calendarDate)
         }
         currentIndex = -endOfFirstIndex
         latestPrevCacheRequestedIndex = currentIndex
@@ -398,7 +387,7 @@ class HomeCalendarViewModel {
             groupCategoryFetcher
         )
         .handleRetry(
-            retryObservable: refreshTokenUseCase.execute(),
+            retryObservable: useCases.refreshTokenUseCase.execute(),
             errorType: NetworkManagerError.tokenExpired
         )
         .subscribe(onSuccess: { [weak self] (groups, categories, groupCategories) in
@@ -413,7 +402,7 @@ class HomeCalendarViewModel {
     }
     
     func bindGroupUseCase() {
-        groupCreateUseCase //그룹 생성이나 탈퇴 시 새로 fetch
+        useCases.groupCreateUseCase //그룹 생성이나 탈퇴 시 새로 fetch
             .didCreateGroup
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
@@ -421,7 +410,7 @@ class HomeCalendarViewModel {
             })
             .disposed(by: bag)
         
-        withdrawGroupUseCase
+        useCases.withdrawGroupUseCase
             .didWithdrawGroup
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
@@ -429,7 +418,7 @@ class HomeCalendarViewModel {
             })
             .disposed(by: bag)
         
-        deleteGroupUseCase
+        useCases.deleteGroupUseCase
             .didDeleteGroupWithId
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
@@ -439,7 +428,7 @@ class HomeCalendarViewModel {
     }
     
     func bindProfileUseCase() {
-        updateProfileUseCase
+        useCases.updateProfileUseCase
             .didUpdateProfile
             .subscribe(onNext: { [weak self] profile in
             guard let self else { return }
@@ -448,7 +437,7 @@ class HomeCalendarViewModel {
                 self.fetchedProfileImage.onNext(nil)
                 return
             }
-            self.fetchImageUseCase.execute(key: imageUrl)
+                self.useCases.fetchImageUseCase.execute(key: imageUrl)
                 .subscribe(onSuccess: { data in
                     self.fetchedProfileImage.onNext(data)
                 })
@@ -458,7 +447,7 @@ class HomeCalendarViewModel {
     }
     
     func bindCategoryUseCase() {
-        createCategoryUseCase
+        useCases.createCategoryUseCase
             .didCreateCategory
             .withUnretained(self)
             .subscribe(onNext: { vm, category in
@@ -467,7 +456,7 @@ class HomeCalendarViewModel {
             })
             .disposed(by: bag)
         
-        updateCategoryUseCase
+        useCases.updateCategoryUseCase
             .didUpdateCategory
             .withUnretained(self)
             .subscribe(onNext: { vm, category in
@@ -484,7 +473,7 @@ class HomeCalendarViewModel {
             to: initialDate
         ) else { return }
         
-        createTodoUseCase
+        useCases.createTodoUseCase
             .didCreateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
@@ -492,7 +481,7 @@ class HomeCalendarViewModel {
             })
             .disposed(by: bag)
         
-        updateTodoUseCase
+        useCases.updateTodoUseCase
             .didUpdateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todoUpdate in
@@ -500,7 +489,7 @@ class HomeCalendarViewModel {
             })
             .disposed(by: bag)
         
-        deleteTodoUseCase
+        useCases.deleteTodoUseCase
             .didDeleteTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
@@ -508,7 +497,7 @@ class HomeCalendarViewModel {
             })
             .disposed(by: bag)
         
-        todoCompleteUseCase
+        useCases.todoCompleteUseCase
             .didCompleteTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
@@ -574,17 +563,17 @@ class HomeCalendarViewModel {
         
         print(fromMonthStart, toMonthStart)
 
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[Date: [Todo]]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.readTodoListUseCase
+                return self.useCases.readTodoListUseCase
                     .execute(token: token, from: fromMonthStart, to: toMonthStart)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] todoDict in
@@ -625,17 +614,17 @@ class HomeCalendarViewModel {
     
     func fetchProfile() {
         
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Profile> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.readProfileUseCase
+                return self.useCases.readProfileUseCase
                     .execute(token: token)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] profile in
@@ -648,7 +637,7 @@ class HomeCalendarViewModel {
                     self.fetchedProfileImage.onNext(nil)
                     return
                 }
-                self.fetchImageUseCase.execute(key: imageUrl)
+                self.useCases.fetchImageUseCase.execute(key: imageUrl)
                     .subscribe(onSuccess: { data in
                         self.fetchedProfileImage.onNext(data)
                     })
