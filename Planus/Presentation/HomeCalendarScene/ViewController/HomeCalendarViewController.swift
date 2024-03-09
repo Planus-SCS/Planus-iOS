@@ -159,52 +159,15 @@ class HomeCalendarViewController: UIViewController {
         output.showDailyTodoPage
             .withUnretained(self)
             .subscribe(onNext: { vc, dayViewModel in
-                let api = NetworkManager()
-                let keyChain = KeyChainManager()
-                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-                let categoryRepo = DefaultCategoryRepository(apiProvider: api)
-
-                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-                let createTodoUseCase = DefaultCreateTodoUseCase.shared
-                let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
-                let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
-                let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
-                let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
-                let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
-                let readCategoryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
-                
-                
-                let viewModel = TodoDailyViewModel(
-                    getTokenUseCase: getTokenUseCase,
-                    refreshTokenUseCase: refreshTokenUseCase,
-                    createTodoUseCase: createTodoUseCase,
-                    updateTodoUseCase: updateTodoUseCase,
-                    deleteTodoUseCase: deleteTodoUseCase,
-                    todoCompleteUseCase: DefaultTodoCompleteUseCase.shared,
-                    createCategoryUseCase: createCategoryUseCase,
-                    updateCategoryUseCase: updateCategoryUseCase,
-                    deleteCategoryUseCase: deleteCategoryUseCase,
-                    readCategoryUseCase: readCategoryUseCase
-                )
-                
-                viewModel.setDate(currentDate: dayViewModel.date)
-                viewModel.setTodoList(
-                    todoList: vc.viewModel?.todos[dayViewModel.date] ?? [],
-                    categoryDict: vc.viewModel?.memberCategories ?? [:],
-                    groupDict: vc.viewModel?.groups ?? [:],
-                    groupCategoryDict: vc.viewModel?.groupCategories ?? [:],
+                print("herer!!")
+                viewModel.actions.showDailyCalendarPage?(TodoDailyViewModel.Args(
+                    currentDate: dayViewModel.date,
+                    todoList: viewModel.todos[dayViewModel.date] ?? [],
+                    categoryDict: viewModel.memberCategories ,
+                    groupDict: viewModel.groups ,
+                    groupCategoryDict: viewModel.groupCategories ,
                     filteringGroupId: try? vc.viewModel?.filteredGroupId.value()
-                ) //투두리스트를 필터링해야함..! 아니 걍 다 올리고 저짝에서 필터링하자 그게 편하다..!
-                let viewController = TodoDailyViewController(viewModel: viewModel)
-                let nav = UINavigationController(rootViewController: viewController)
-                nav.modalPresentationStyle = .pageSheet
-                if let sheet = nav.sheetPresentationController {
-                    sheet.detents = [.medium(), .large()]
-                }
-                vc.present(nav, animated: true)
-                
-                // viewController에 completionHandler를 달아야함. 어떻게 달까??
+                ))
             })
             .disposed(by: bag)
         

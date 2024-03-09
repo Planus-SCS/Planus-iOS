@@ -12,6 +12,7 @@ class PresentationAssembly: Assembly {
     func assemble(container: Swinject.Container) {
         assembleMyPageMain(container: container)
         assembleHomeCalendar(container: container)
+        assembleDailyCalendar(container: container)
     }
     
 }
@@ -114,6 +115,32 @@ extension PresentationAssembly {
         
         container.register(HomeCalendarViewController.self) { (r, injectable: HomeCalendarViewModel.Injectable) in
             return HomeCalendarViewController(viewModel: r.resolve(HomeCalendarViewModel.self, argument: injectable)!)
+        }
+    }
+}
+
+extension PresentationAssembly {
+    func assembleDailyCalendar(container: Container) {
+        container.register(TodoDailyViewModel.self) { (r, injectable: TodoDailyViewModel.Injectable) in
+            return TodoDailyViewModel(
+                useCases: .init(
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    createTodoUseCase: r.resolve(CreateTodoUseCase.self)!,
+                    updateTodoUseCase: r.resolve(UpdateTodoUseCase.self)!,
+                    deleteTodoUseCase: r.resolve(DeleteTodoUseCase.self)!,
+                    todoCompleteUseCase: r.resolve(TodoCompleteUseCase.self)!,
+                    createCategoryUseCase: r.resolve(CreateCategoryUseCase.self)!,
+                    updateCategoryUseCase: r.resolve(UpdateCategoryUseCase.self)!,
+                    deleteCategoryUseCase: r.resolve(DeleteCategoryUseCase.self)!,
+                    readCategoryUseCase: r.resolve(ReadCategoryListUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
+        container.register(TodoDailyViewController.self) { (r, injectable: TodoDailyViewModel.Injectable) in
+            return TodoDailyViewController(viewModel: r.resolve(TodoDailyViewModel.self, argument: injectable)!)
         }
     }
 }

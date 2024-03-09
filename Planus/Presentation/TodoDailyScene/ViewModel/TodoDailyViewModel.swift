@@ -8,7 +8,45 @@
 import Foundation
 import RxSwift
 
-class TodoDailyViewModel {
+class TodoDailyViewModel: ViewModel {
+    
+    struct UseCases {
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        
+        let createTodoUseCase: CreateTodoUseCase
+        let updateTodoUseCase: UpdateTodoUseCase
+        let deleteTodoUseCase: DeleteTodoUseCase
+        
+        let todoCompleteUseCase: TodoCompleteUseCase
+        
+        let createCategoryUseCase: CreateCategoryUseCase
+        let updateCategoryUseCase: UpdateCategoryUseCase
+        let deleteCategoryUseCase: DeleteCategoryUseCase
+        let readCategoryUseCase: ReadCategoryListUseCase
+    }
+    
+    struct Actions {
+        
+    }
+    
+    struct Args {
+        let currentDate: Date
+        let todoList: [Todo]
+        let categoryDict: [Int: Category]
+        let groupDict: [Int: GroupName]
+        let groupCategoryDict: [Int: Category]
+        let filteringGroupId: Int?
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
+    let useCases: UseCases
+    let actions: Actions
+    
     var bag = DisposeBag()
     
     var scheduledTodoList: [Todo]?
@@ -49,42 +87,22 @@ class TodoDailyViewModel {
     var needReloadData = PublishSubject<Void>()
     var needMoveItem = PublishSubject<(IndexPath, IndexPath)>()
     
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
-    
-    var createTodoUseCase: CreateTodoUseCase
-    var updateTodoUseCase: UpdateTodoUseCase
-    var deleteTodoUseCase: DeleteTodoUseCase
-    
-    var todoCompleteUseCase: TodoCompleteUseCase
-    
-    var createCategoryUseCase: CreateCategoryUseCase
-    var updateCategoryUseCase: UpdateCategoryUseCase
-    var deleteCategoryUseCase: DeleteCategoryUseCase
-    var readCategoryUseCase: ReadCategoryListUseCase
-    
+
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        createTodoUseCase: CreateTodoUseCase,
-        updateTodoUseCase: UpdateTodoUseCase,
-        deleteTodoUseCase: DeleteTodoUseCase,
-        todoCompleteUseCase: TodoCompleteUseCase,
-        createCategoryUseCase: CreateCategoryUseCase,
-        updateCategoryUseCase: UpdateCategoryUseCase,
-        deleteCategoryUseCase: DeleteCategoryUseCase,
-        readCategoryUseCase: ReadCategoryListUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.createTodoUseCase = createTodoUseCase
-        self.updateTodoUseCase = updateTodoUseCase
-        self.deleteTodoUseCase = deleteTodoUseCase
-        self.todoCompleteUseCase = todoCompleteUseCase
-        self.createCategoryUseCase = createCategoryUseCase
-        self.updateCategoryUseCase = updateCategoryUseCase
-        self.deleteCategoryUseCase = deleteCategoryUseCase
-        self.readCategoryUseCase = readCategoryUseCase
+        self.useCases = useCases
+        self.actions = injectable.actions
+        
+        setDate(currentDate: injectable.args.currentDate)
+        setTodoList(
+            todoList: injectable.args.todoList,
+            categoryDict: injectable.args.categoryDict,
+            groupDict: injectable.args.groupDict,
+            groupCategoryDict: injectable.args.groupCategoryDict,
+            filteringGroupId: injectable.args.filteringGroupId
+        )
     }
     
     func setDate(currentDate: Date) {
@@ -134,7 +152,7 @@ class TodoDailyViewModel {
     }
     
     func bindCategoryUseCase() {
-        createCategoryUseCase
+        useCases.createCategoryUseCase
             .didCreateCategory
             .withUnretained(self)
             .subscribe(onNext: { vm, category in
@@ -144,7 +162,7 @@ class TodoDailyViewModel {
             })
             .disposed(by: bag)
         
-        updateCategoryUseCase
+        useCases.updateCategoryUseCase
             .didUpdateCategory
             .withUnretained(self)
             .subscribe(onNext: { vm, category in
@@ -158,7 +176,7 @@ class TodoDailyViewModel {
     
     // 내 투두 볼때만 불릴예정
     func bindTodoUseCase() {
-        createTodoUseCase
+        useCases.createTodoUseCase
             .didCreateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in //무조건 추가하면 안된다.. 그룹보고 필터그룹이랑 다르면 추가 x
@@ -193,7 +211,7 @@ class TodoDailyViewModel {
             })
             .disposed(by: bag)
         
-        updateTodoUseCase
+        useCases.updateTodoUseCase
             .didUpdateTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todoUpdate in //무조건 그대로 두면 안된다,,, 그룹을 확인해서 빼줘야한다..!
@@ -304,7 +322,7 @@ class TodoDailyViewModel {
             })
             .disposed(by: bag)
         
-        deleteTodoUseCase
+        useCases.deleteTodoUseCase
             .didDeleteTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
@@ -364,17 +382,17 @@ class TodoDailyViewModel {
     }
     
     func updateCompletionState(todo: Todo) {
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.todoCompleteUseCase
+                return self.useCases.todoCompleteUseCase
                     .execute(token: token, todo: todo)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onFailure: { _ in

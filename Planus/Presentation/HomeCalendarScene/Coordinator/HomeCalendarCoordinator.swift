@@ -38,7 +38,7 @@ class HomeCalendarCoordinator: Coordinator {
             HomeCalendarViewController.self,
             argument: HomeCalendarViewModel.Injectable(
                 actions: .init(
-                    showTodoModal: self.showTodoModal,
+                    showDailyCalendarPage: self.showDailyCalendarPage,
                     showMyPage: self.showMyPage
                 ),
                 args: .init()
@@ -47,7 +47,27 @@ class HomeCalendarCoordinator: Coordinator {
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }
     
-    lazy var showTodoModal: () -> Void = { [weak self] in
+    lazy var showDailyCalendarPage: (TodoDailyViewModel.Args) -> Void = { [weak self] args in
+        guard let self else { return }
+        let viewController = self.dependency.injector.resolve(
+            TodoDailyViewController.self,
+            argument: TodoDailyViewModel.Injectable(
+                actions: .init(),
+                args: args
+            )
+        )
+        
+        let nav = UINavigationController(rootViewController: viewController)
+        nav.modalPresentationStyle = .pageSheet
+        if let sheet = nav.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+        }
+        dependency.navigationController.present(nav, animated: true)
+    }
+    
+    lazy var showCreatePeriodTodoPage: (Date, Date) -> Void = { startDate, endDate in
+        
+        
     }
     
     lazy var showMyPage: (Profile) -> Void = { [weak self] profile in

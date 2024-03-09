@@ -59,7 +59,8 @@ class HomeCalendarViewModel: ViewModel {
     }
     
     struct Actions {
-        var showTodoModal: (() -> Void)?
+        var showDailyCalendarPage: ((TodoDailyViewModel.Args) -> Void)?
+        var showCreatePeriodTodoPage: ((Date, Date) -> Void)?
         var showMyPage: ((Profile) -> Void)?
     }
     
