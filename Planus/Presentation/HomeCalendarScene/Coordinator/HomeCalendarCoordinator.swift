@@ -50,20 +50,16 @@ class HomeCalendarCoordinator: Coordinator {
     
     lazy var showDailyCalendarPage: (TodoDailyViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
-        let viewController = self.dependency.injector.resolve(
-            TodoDailyViewController.self,
-            argument: TodoDailyViewModel.Injectable(
-                actions: .init(showTodoDetailPage: showTodoDetailPage),
-                args: args
+        
+        let coordinator = TodoDailyCoordinator(
+            dependency:TodoDailyCoordinator.Dependency(
+                navigationController: self.dependency.navigationController,
+                injector: self.dependency.injector
             )
         )
-        
-        let nav = UINavigationController(rootViewController: viewController)
-        nav.modalPresentationStyle = .pageSheet
-        if let sheet = nav.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
-        }
-        dependency.navigationController.present(nav, animated: true)
+        coordinator.finishDelegate = self
+        self.childCoordinators.append(coordinator)
+        coordinator.start(args: args)
     }
     
     lazy var showTodoDetailPage: (TodoDetailViewModelArgs, (() -> Void)?) -> Void = { [weak self] args, closeHandler in
