@@ -33,6 +33,20 @@ enum TodoDetailSceneType {
     case socialTodo
 }
 
+struct TodoDetailViewModelArgs {
+    let groupList: [GroupName]
+    let mode: TodoDetailSceneMode
+    let todo: Todo?
+    let category: Category?
+    let groupName: GroupName?
+    let start: Date?
+    let end: Date?
+}
+
+struct TodoDetailViewModelActions {
+    var close: (() -> Void)?
+}
+
 struct TodoDetailViewModelableInput {
     // MARK: Control Value
     var titleTextChanged: Observable<String?>
@@ -82,6 +96,7 @@ struct TodoDetailViewModelableOutput {
 protocol TodoDetailViewModelable: AnyObject {
     
     var bag: DisposeBag { get }
+    var actions: TodoDetailViewModelActions { get }
     
     var mode: TodoDetailSceneMode { get set }
     var type: TodoDetailSceneType { get }

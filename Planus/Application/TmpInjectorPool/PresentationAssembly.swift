@@ -13,6 +13,7 @@ class PresentationAssembly: Assembly {
         assembleMyPageMain(container: container)
         assembleHomeCalendar(container: container)
         assembleDailyCalendar(container: container)
+        assembleTodoDetail(container: container)
     }
     
 }
@@ -141,6 +142,40 @@ extension PresentationAssembly {
         
         container.register(TodoDailyViewController.self) { (r, injectable: TodoDailyViewModel.Injectable) in
             return TodoDailyViewController(viewModel: r.resolve(TodoDailyViewModel.self, argument: injectable)!)
+        }
+    }
+}
+
+extension PresentationAssembly {
+    enum TodoDetailPageType: String {
+        case memberTodo = "MEMBER_TODO_DETAIL"
+        case socialTodo = "SOCIAL_TODO_DETAIL"
+    }
+    
+    func assembleTodoDetail(container: Container) {
+        container.register(
+            MemberTodoDetailViewModel.self
+        ) { (r, injectable: MemberTodoDetailViewModel.Injectable) in
+            return MemberTodoDetailViewModel(
+                getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                createTodoUseCase: r.resolve(CreateTodoUseCase.self)!,
+                updateTodoUseCase: r.resolve(UpdateTodoUseCase.self)!,
+                deleteTodoUseCase: r.resolve(DeleteTodoUseCase.self)!,
+                createCategoryUseCase: r.resolve(CreateCategoryUseCase.self)!,
+                updateCategoryUseCase: r.resolve(UpdateCategoryUseCase.self)!,
+                deleteCategoryUseCase: r.resolve(DeleteCategoryUseCase.self)!,
+                readCategoryUseCase: r.resolve(ReadCategoryListUseCase.self)!,
+                injectable: injectable
+            )
+        }
+        
+        container.register(
+            TodoDetailViewController.self,
+            name: TodoDetailPageType.memberTodo.rawValue
+        ) { (r, injectable: MemberTodoDetailViewModel.Injectable) in
+            let vm = r.resolve(MemberTodoDetailViewModel.self, argument: injectable)!
+            return TodoDetailViewController(viewModel: vm)
         }
     }
 }

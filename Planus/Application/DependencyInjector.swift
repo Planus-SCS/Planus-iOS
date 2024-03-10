@@ -34,5 +34,9 @@ public final class DependencyInjector {
     public func resolve<T, Arg>(_ serviceType: T.Type, argument: Arg) -> T {
         container.resolve(serviceType, argument: argument)!
     }
+    
+    public func resolve<T, Arg>(_ serviceType: T.Type, name: String, argument: Arg) -> T {
+        container.resolve(serviceType, name: name, argument: argument)!
+    }
 }
 

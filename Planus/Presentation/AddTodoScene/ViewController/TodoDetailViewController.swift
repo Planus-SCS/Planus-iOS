@@ -307,7 +307,7 @@ final class TodoDetailViewController: UIViewController {
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.dismiss(animated: true)
+                viewModel.actions.close?()
             })
             .disposed(by: bag)
         

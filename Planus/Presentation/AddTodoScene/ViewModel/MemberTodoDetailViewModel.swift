@@ -9,7 +9,14 @@ import Foundation
 import RxSwift
 
 final class MemberTodoDetailViewModel: TodoDetailViewModelable {
-
+    
+    struct Injectable {
+        let actions: TodoDetailViewModelActions
+        let args: TodoDetailViewModelArgs
+    }
+    
+    let actions: TodoDetailViewModelActions
+    
     var exTodo: Todo?
     var type: TodoDetailSceneType = .memberTodo
     var mode: TodoDetailSceneMode = .new
@@ -71,7 +78,8 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
         createCategoryUseCase: CreateCategoryUseCase,
         updateCategoryUseCase: UpdateCategoryUseCase,
         deleteCategoryUseCase: DeleteCategoryUseCase,
-        readCategoryUseCase: ReadCategoryListUseCase
+        readCategoryUseCase: ReadCategoryListUseCase,
+        injectable: Injectable
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -82,13 +90,31 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
         self.updateCategoryUseCase = updateCategoryUseCase
         self.deleteCategoryUseCase = deleteCategoryUseCase
         self.readCategoryUseCase = readCategoryUseCase
+        self.actions = injectable.actions
+        
+        setGroup(groupList: injectable.args.groupList)
+        initMode(
+            mode: injectable.args.mode,
+            todo: injectable.args.todo,
+            category: injectable.args.category,
+            groupName: injectable.args.groupName,
+            start: injectable.args.start,
+            end: injectable.args.end
+        )
     }
     
     func setGroup(groupList: [GroupName]) { //애도 원래 이럼 안되고 fetch해와야함!
         self.groups = groupList
     }
     
-    func initMode(mode: TodoDetailSceneMode, todo: Todo? = nil, category: Category? = nil, groupName: GroupName? = nil, start: Date? = nil, end: Date? = nil) { //여기서 new는 date, 아님 투두임. 하씨,,, 이거 어케 안되냐..?
+    func initMode(
+        mode: TodoDetailSceneMode,
+        todo: Todo? = nil,
+        category: Category? = nil, 
+        groupName: GroupName? = nil,
+        start: Date? = nil,
+        end: Date? = nil
+    ) {
         self.todoGroup.onNext(groupName)
         self.todoCategory.onNext(category)
         self.mode = mode

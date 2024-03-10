@@ -39,6 +39,7 @@ class HomeCalendarCoordinator: Coordinator {
             argument: HomeCalendarViewModel.Injectable(
                 actions: .init(
                     showDailyCalendarPage: self.showDailyCalendarPage,
+                    showCreatePeriodTodoPage: self.showTodoDetailPage,
                     showMyPage: self.showMyPage
                 ),
                 args: .init()
@@ -52,7 +53,7 @@ class HomeCalendarCoordinator: Coordinator {
         let viewController = self.dependency.injector.resolve(
             TodoDailyViewController.self,
             argument: TodoDailyViewModel.Injectable(
-                actions: .init(),
+                actions: .init(showTodoDetailPage: showTodoDetailPage),
                 args: args
             )
         )
@@ -65,9 +66,19 @@ class HomeCalendarCoordinator: Coordinator {
         dependency.navigationController.present(nav, animated: true)
     }
     
-    lazy var showCreatePeriodTodoPage: (Date, Date) -> Void = { startDate, endDate in
-        
-        
+    lazy var showTodoDetailPage: (TodoDetailViewModelArgs, (() -> Void)?) -> Void = { [weak self] args, closeHandler in
+        guard let self else { return }
+
+        let coordinator = TodoDetailCoordinator(
+            dependency: TodoDetailCoordinator.Dependency(
+                navigationController: self.dependency.navigationController,
+                injector: self.dependency.injector,
+                closeHandler: closeHandler
+            )
+        )
+        coordinator.finishDelegate = self
+        self.childCoordinators.append(coordinator)
+        coordinator.start(type: .memberTodo, args: args)
     }
     
     lazy var showMyPage: (Profile) -> Void = { [weak self] profile in

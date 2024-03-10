@@ -159,7 +159,6 @@ class HomeCalendarViewController: UIViewController {
         output.showDailyTodoPage
             .withUnretained(self)
             .subscribe(onNext: { vc, dayViewModel in
-                print("herer!!")
                 viewModel.actions.showDailyCalendarPage?(TodoDailyViewModel.Args(
                     currentDate: dayViewModel.date,
                     todoList: viewModel.todos[dayViewModel.date] ?? [],
@@ -179,36 +178,7 @@ class HomeCalendarViewController: UIViewController {
                 if startDate > endDate {
                     swap(&startDate, &endDate)
                 }
-                
-                let api = NetworkManager()
-                let keyChain = KeyChainManager()
-                
-                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-                let todoRepo = TestTodoDetailRepository(apiProvider: api)
-                let categoryRepo = DefaultCategoryRepository(apiProvider: api)
-                
-                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-                let createTodoUseCase = DefaultCreateTodoUseCase.shared
-                let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
-                let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
-                let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
-                let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
-                let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
-                let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
-                
-                let vm = MemberTodoDetailViewModel(
-                    getTokenUseCase: getTokenUseCase,
-                    refreshTokenUseCase: refreshTokenUseCase,
-                    createTodoUseCase: createTodoUseCase,
-                    updateTodoUseCase: updateTodoUseCase,
-                    deleteTodoUseCase: deleteTodoUseCase,
-                    createCategoryUseCase: createCategoryUseCase,
-                    updateCategoryUseCase: updateCategoryUseCase,
-                    deleteCategoryUseCase: deleteCategoryUseCase,
-                    readCategoryUseCase: readCateogryUseCase
-                )
-                
+
                 let groupList = Array(viewModel.groups.values).sorted(by: { $0.groupId < $1.groupId })
                 
                 var groupName: GroupName?
@@ -216,17 +186,23 @@ class HomeCalendarViewController: UIViewController {
                    let filteredGroupName = viewModel.groups[filteredGroupId] {
                     groupName = filteredGroupName
                 }
-                vm.setGroup(groupList: groupList)
-                vm.initMode(mode: .new, groupName: groupName, start: startDate, end: endDate)
                 
-                let vc = TodoDetailViewController(viewModel: vm)
-                vc.pageDismissCompletionHandler = { [weak self] in
-                    guard let cell = self?.collectionView.cellForItem(at: IndexPath(item: 0, section: indexRange.0)) as? MonthlyCalendarCell else { return }
+                viewModel.actions.showCreatePeriodTodoPage?(
+                    TodoDetailViewModelArgs(
+                        groupList: groupList,
+                        mode: .new,
+                        todo: nil,
+                        category: nil,
+                        groupName: groupName,
+                        start: startDate,
+                        end: endDate
+                    )
+                ) { [weak self] in
+                    guard let cell = self?.collectionView.cellForItem(
+                        at: IndexPath(item: 0, section: indexRange.0)
+                    ) as? MonthlyCalendarCell else { return }
                     cell.deselectItems()
                 }
-                
-                vc.modalPresentationStyle = .overFullScreen
-                self.present(vc, animated: false, completion: nil)
             })
             .disposed(by: bag)
         

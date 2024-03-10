@@ -15,6 +15,14 @@ struct SocialTodoInfo { //그룹투두 또한 조회만 되기도 하고 주인�
 }
 
 final class SocialTodoDetailViewModel: TodoDetailViewModelable {
+    
+    struct Injectable {
+        let actions: TodoDetailViewModelActions
+        let args: TodoDetailViewModelArgs
+    }
+    
+    var actions: TodoDetailViewModelActions
+    
 
     var info: SocialTodoInfo?
     
@@ -96,6 +104,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         self.updateGroupCategoryUseCase = updateGroupCategoryUseCase
         self.deleteGroupCategoryUseCase = deleteGroupCategoryUseCase
         self.fetchGroupCategorysUseCase = fetchGroupCategorysUseCase
+        self.actions = .init()
     }
     
     func initMode(mode: TodoDetailSceneMode, info: SocialTodoInfo, date: Date? = nil) {

@@ -186,47 +186,28 @@ class TodoDailyViewController: UIViewController {
     }
     
     @objc func addTodoTapped(_ sender: UIButton) {
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
-        
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-        let todoRepo = TestTodoDetailRepository(apiProvider: api)
-        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
-        
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let createTodoUseCase = DefaultCreateTodoUseCase.shared
-        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
-        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
-        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
-        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
-        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
-        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
-        
-        let vm = MemberTodoDetailViewModel(
-            getTokenUseCase: getTokenUseCase,
-            refreshTokenUseCase: refreshTokenUseCase,
-            createTodoUseCase: createTodoUseCase,
-            updateTodoUseCase: updateTodoUseCase,
-            deleteTodoUseCase: deleteTodoUseCase,
-            createCategoryUseCase: createCategoryUseCase,
-            updateCategoryUseCase: updateCategoryUseCase,
-            deleteCategoryUseCase: deleteCategoryUseCase,
-            readCategoryUseCase: readCateogryUseCase
-        )
+
         guard let groupDict = viewModel?.groupDict else { return }
         let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-        vm.setGroup(groupList: groupList)
         
         var groupName: GroupName?
         if let filteredGroupId = viewModel?.filteringGroupId,
            let filteredGroupName = groupDict[filteredGroupId] {
             groupName = filteredGroupName
         }
-        vm.initMode(mode: .new, groupName: groupName, start: viewModel?.currentDate)
-        let vc = TodoDetailViewController(viewModel: vm)
-        vc.modalPresentationStyle = .overFullScreen
-        self.present(vc, animated: false, completion: nil)
+
+        
+        viewModel?.actions.showTodoDetailPage?(
+            TodoDetailViewModelArgs(
+                groupList: groupList,
+                mode: .new,
+                todo: nil,
+                category: nil,
+                groupName: groupName,
+                start: viewModel?.currentDate,
+                end: nil
+            ), nil
+        )
     }
 
 }
@@ -341,57 +322,37 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
             return false
         }
         guard let item else { return false }
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
-        
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-        let categoryRepo = DefaultCategoryRepository(apiProvider: api)
-        
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let createTodoUseCase = DefaultCreateTodoUseCase.shared
-        let updateTodoUseCase = DefaultUpdateTodoUseCase.shared
-        let deleteTodoUseCase = DefaultDeleteTodoUseCase.shared
-        let createCategoryUseCase = DefaultCreateCategoryUseCase.shared
-        let updateCategoryUseCase = DefaultUpdateCategoryUseCase.shared
-        let readCateogryUseCase = DefaultReadCategoryListUseCase(categoryRepository: categoryRepo)
-        let deleteCategoryUseCase = DefaultDeleteCategoryUseCase.shared
-        
-        let vm = MemberTodoDetailViewModel(
-            getTokenUseCase: getTokenUseCase,
-            refreshTokenUseCase: refreshTokenUseCase,
-            createTodoUseCase: createTodoUseCase,
-            updateTodoUseCase: updateTodoUseCase,
-            deleteTodoUseCase: deleteTodoUseCase,
-            createCategoryUseCase: createCategoryUseCase,
-            updateCategoryUseCase: updateCategoryUseCase,
-            deleteCategoryUseCase: deleteCategoryUseCase,
-            readCategoryUseCase: readCateogryUseCase
-        )
-        
+
         guard let groupDict = viewModel?.groupDict else { return false }
         let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-        vm.setGroup(groupList: groupList)
+        var groupName: GroupName?
+        var mode: TodoDetailSceneMode
+        var category: Category?
         
         if item.isGroupTodo {
-            guard let groupId = item.groupId,
-                  let category = viewModel?.groupCategoryDict[item.categoryId] else { return false }
-            let groupName = viewModel?.groupDict[groupId]
-            vm.initMode(mode: .view, todo: item, category: category, groupName: groupName)
+            guard let groupId = item.groupId else { return false }
+            groupName = groupDict[groupId]
+            mode = .view
+            category = viewModel?.groupCategoryDict[item.categoryId]
         } else {
-            guard let category = viewModel?.categoryDict[item.categoryId] else { return false }
-            var groupName: GroupName?
             if let groupId = item.groupId {
                 groupName = groupDict[groupId]
             }
-            
-            vm.initMode(mode: .edit, todo: item, category: category, groupName: groupName)
+            mode = .edit
+            category = viewModel?.categoryDict[item.categoryId]
         }
 
-
-        let vc = TodoDetailViewController(viewModel: vm)
-        vc.modalPresentationStyle = .overFullScreen
-        self.present(vc, animated: false, completion: nil)
+        viewModel?.actions.showTodoDetailPage?(
+            TodoDetailViewModelArgs(
+                groupList: groupList,
+                mode: mode,
+                todo: item,
+                category: category,
+                groupName: groupName,
+                start: viewModel?.currentDate,
+                end: nil
+            ), nil
+        )
         
         return false
     }

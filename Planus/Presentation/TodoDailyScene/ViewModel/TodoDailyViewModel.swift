@@ -27,7 +27,7 @@ class TodoDailyViewModel: ViewModel {
     }
     
     struct Actions {
-        
+        var showTodoDetailPage: ((TodoDetailViewModelArgs, (() -> Void)?) -> Void)?
     }
     
     struct Args {
