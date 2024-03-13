@@ -39,20 +39,24 @@ extension PresentationAssembly {
             )
         }
         
-        container.register(MyPageMainViewController.self) { (r, profile: Profile) in
-            return MyPageMainViewController(viewModel: r.resolve(MyPageMainViewModel.self, argument: profile)!)
+        container.register(MyPageMainViewController.self) { (r, injectable: MyPageMainViewModel.Injectable) in
+            return MyPageMainViewController(viewModel: r.resolve(MyPageMainViewModel.self, argument: injectable)!)
         }
     }
     
     func assembleMyPageReadableViewModel(container: Container) {
-        container.register(MyPageReadableViewModel.self) { (r, type: MyPageReadableType) in
-            return MyPageReadableViewModel(type: type)
+        container.register(MyPageReadableViewModel.self) { (r, injectable: MyPageReadableViewModel.Injectable) in
+            return MyPageReadableViewModel(
+                useCases: .init(),
+                injectable: injectable
+            )
         }
         
-        container.register(MyPageReadableViewController.self) { (r, type: MyPageReadableType) in
-            return MyPageReadableViewController(viewModel: r.resolve(MyPageReadableViewModel.self, argument: type)!)
+        container.register(MyPageReadableViewController.self) { (r, injectable: MyPageReadableViewModel.Injectable) in
+            return MyPageReadableViewController(viewModel: r.resolve(MyPageReadableViewModel.self, argument: injectable)!)
         }
     }
+
     
     func assembleMyPageEnquire(container: Container) {
         container.register(MyPageEnquireViewModel.self) { r in

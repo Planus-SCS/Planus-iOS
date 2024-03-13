@@ -8,7 +8,29 @@
 import Foundation
 import RxSwift
 
-class MyPageEditViewModel {
+class MyPageEditViewModel: ViewModel {
+    struct UseCases {
+        var getTokenUseCase: GetTokenUseCase
+        var refreshTokenUseCase: RefreshTokenUseCase
+        var readProfileUseCase: ReadProfileUseCase
+        var updateProfileUseCase: UpdateProfileUseCase
+        var fetchImageUseCase: FetchImageUseCase
+    }
+    
+    struct Actions {
+        
+    }
+    
+    struct Args {}
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
+    let useCases: UseCases
+    let actions: Actions
+    
     var bag = DisposeBag()
     
     var name = BehaviorSubject<String?>(value: nil)
@@ -38,24 +60,12 @@ class MyPageEditViewModel {
         var showMessage: Observable<Message>
     }
     
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
-    var readProfileUseCase: ReadProfileUseCase
-    var updateProfileUseCase: UpdateProfileUseCase
-    var fetchImageUseCase: FetchImageUseCase
-    
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        readProfileUseCase: ReadProfileUseCase,
-        updateProfileUseCase: UpdateProfileUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.readProfileUseCase = readProfileUseCase
-        self.updateProfileUseCase = DefaultUpdateProfileUseCase.shared
-        self.fetchImageUseCase = fetchImageUseCase
+        self.useCases = useCases
+        self.actions = injectable.actions
     }
     
     func transform(input: Input) -> Output {
@@ -121,16 +131,16 @@ class MyPageEditViewModel {
     
     func fetchProfile() {
 
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Profile> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.readProfileUseCase.execute(token: token)
+                return self.useCases.readProfileUseCase.execute(token: token)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] profile in
@@ -165,13 +175,13 @@ class MyPageEditViewModel {
             isImageRemoved = !isInitialValueNil
         }
 
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.updateProfileUseCase.execute(
+                return self.useCases.updateProfileUseCase.execute(
                     token: token,
                     name: name,
                     introduce: try? self.introduce.value(),
@@ -180,7 +190,7 @@ class MyPageEditViewModel {
                 )
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
@@ -195,6 +205,6 @@ class MyPageEditViewModel {
     }
     
     func fetchImage(key: String) -> Single<Data> {
-        return fetchImageUseCase.execute(key: key)
+        return useCases.fetchImageUseCase.execute(key: key)
     }
 }

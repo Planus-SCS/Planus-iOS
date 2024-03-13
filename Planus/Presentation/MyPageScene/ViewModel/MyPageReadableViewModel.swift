@@ -7,10 +7,10 @@
 
 import Foundation
 
-enum MyPageReadableType {
-    case notice
-    case serviceTerms
-    case privacyPolicy
+enum MyPageReadableType: String {
+    case notice = "NOTICE"
+    case serviceTerms = "SERVICE_TERM"
+    case privacyPolicy = "PRIVACY_POLICY"
     
     var title: String {
         switch self {
@@ -299,7 +299,23 @@ enum MyPageReadableType {
     }
 }
 
-class MyPageReadableViewModel {
+class MyPageReadableViewModel: ViewModel {
+    struct UseCases {}
+    
+    struct Actions {}
+    
+    struct Args {
+        let type: MyPageReadableType
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
+    let useCases: UseCases
+    let actions: Actions
+    
     var navigationTitle: String?
     var text: String?
     
@@ -310,9 +326,14 @@ class MyPageReadableViewModel {
         var text: String?
     }
     
-    init(type: MyPageReadableType) {
-        self.text = type.text
-        self.navigationTitle = type.title
+    init(
+        useCases: UseCases,
+        injectable: Injectable
+    ) {
+        self.useCases = useCases
+        self.text = injectable.args.type.text
+        self.navigationTitle = injectable.args.type.title
+        self.actions = injectable.actions
     }
     
     func transform(input: Input) -> Output {
