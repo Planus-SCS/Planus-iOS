@@ -8,17 +8,31 @@
 import Foundation
 import RxSwift
 
-struct SearchHomeViewModelActions {
-    var showSearchResultPage: (() -> Void)?
-    var showGroupIntroducePage: ((Int) -> Void)?
-    var showGroupCreatePage: (() -> Void)?
-}
-
-class SearchHomeViewModel {
+class SearchHomeViewModel: ViewModel {
+    
+    struct UseCases {
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        let fetchSearchHomeUseCase: FetchSearchHomeUseCase
+        let fetchImageUseCase: FetchImageUseCase
+    }
+    
+    struct Actions {
+        var showSearchResultPage: (() -> Void)?
+        var showGroupIntroducePage: ((Int) -> Void)?
+        var showGroupCreatePage: (() -> Void)?
+    }
+    
+    struct Args {}
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
     
     var bag = DisposeBag()
-    
-    var actions: SearchHomeViewModelActions?
+    let useCases: UseCases
+    let actions: Actions
     
     var result: [GroupSummary] = []
     
@@ -50,27 +64,14 @@ class SearchHomeViewModel {
         var didStartFetching: Observable<Void?>
     }
     
-    let getTokenUseCase: GetTokenUseCase
-    let refreshTokenUseCase: RefreshTokenUseCase
-    let fetchSearchHomeUseCase: FetchSearchHomeUseCase
-    let fetchImageUseCase: FetchImageUseCase
-    
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        fetchSearchHomeUseCase: FetchSearchHomeUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.fetchSearchHomeUseCase = fetchSearchHomeUseCase
-        self.fetchImageUseCase = fetchImageUseCase
+        self.useCases = useCases
+        self.actions = injectable.actions
     }
-    
-    func setActions(actions: SearchHomeViewModelActions) {
-        self.actions = actions
-    }
-    
+
     func transform(input: Input) -> Output {
         input
             .viewDidLoad
@@ -84,7 +85,7 @@ class SearchHomeViewModel {
             .searchBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.actions?.showSearchResultPage?()
+                vm.actions.showSearchResultPage?()
             })
             .disposed(by: bag)
         
@@ -93,7 +94,7 @@ class SearchHomeViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 let groupId = vm.result[index].groupId
-                vm.actions?.showGroupIntroducePage?(groupId)
+                vm.actions.showGroupIntroducePage?(groupId)
             })
             .disposed(by: bag)
         
@@ -108,7 +109,7 @@ class SearchHomeViewModel {
         input.createBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.actions?.showGroupCreatePage?()
+                vm.actions.showGroupCreatePage?()
             })
             .disposed(by: bag)
         
@@ -138,17 +139,17 @@ class SearchHomeViewModel {
     }
     
     func fetchResult(isInitial: Bool) {
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[GroupSummary]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.fetchSearchHomeUseCase
+                return self.useCases.fetchSearchHomeUseCase
                     .execute(token: token, page: self.page, size: self.size)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
@@ -170,7 +171,8 @@ class SearchHomeViewModel {
     }
     
     func fetchImage(key: String) -> Single<Data> {
-        fetchImageUseCase
+        useCases
+            .fetchImageUseCase
             .execute(key: key)
     }
 }

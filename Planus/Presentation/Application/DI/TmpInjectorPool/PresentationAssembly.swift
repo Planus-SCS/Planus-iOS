@@ -21,6 +21,8 @@ class PresentationAssembly: Assembly {
         
         assembleSignIn(container: container)
         assembleRedirectionalWeb(container: container)
+        
+        assembleSearchHome(container: container)
     }
     
 }
@@ -225,5 +227,29 @@ extension PresentationAssembly {
         container.register(RedirectionalWebViewController.self) { (r, injectable: RedirectionalWebViewModel.Injectable) in
             return RedirectionalWebViewController(viewModel: r.resolve(RedirectionalWebViewModel.self, argument: injectable)!)
         }
+    }
+}
+
+extension PresentationAssembly {
+    func assembleSearchHome(container: Container) {
+        container.register(SearchHomeViewModel.self) { (r, injectable: SearchHomeViewModel.Injectable) in
+            return SearchHomeViewModel(
+                useCases: .init(
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    fetchSearchHomeUseCase: r.resolve(FetchSearchHomeUseCase.self)!,
+                    fetchImageUseCase: r.resolve(FetchImageUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
+        container.register(SearchHomeViewController.self) { (r, injectable: SearchHomeViewModel.Injectable) in
+            return SearchHomeViewController(viewModel: r.resolve(SearchHomeViewModel.self, argument: injectable)!)
+        }
+    }
+    
+    func assembleSearchResult(container: Container) {
+        
     }
 }

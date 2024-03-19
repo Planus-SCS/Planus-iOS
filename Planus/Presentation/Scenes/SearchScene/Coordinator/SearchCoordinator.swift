@@ -8,17 +8,19 @@
 import UIKit
 
 class SearchCoordinator: Coordinator {
+    struct Dependency {
+        let navigationController: UINavigationController
+        let injector: Injector
+    }
+    
+    let dependency: Dependency
     
     weak var finishDelegate: CoordinatorFinishDelegate?
-    
-    var navigationController: UINavigationController
-        
     var childCoordinators: [Coordinator] = []
-    
     var type: CoordinatorType = .search
     
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
+    init(dependency: Dependency) {
+        self.dependency = dependency
     }
     
     func start() {
@@ -26,16 +28,21 @@ class SearchCoordinator: Coordinator {
     }
     
     lazy var showInitialSearchPage: () -> Void = { [weak self] in
-        let vm = SearchHomeViewModel(
-            getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyValueStorage: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyValueStorage: KeyChainManager())),
-            fetchSearchHomeUseCase: DefaultFetchSearchHomeUseCase(groupRepository: DefaultGroupRepository(apiProvider: NetworkManager())), fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared))
-        vm.setActions(actions: SearchHomeViewModelActions(
-            showSearchResultPage: self?.showSearchResultPage,
-            showGroupIntroducePage: self?.showGroupIntroducePage,
-            showGroupCreatePage: self?.showGroupCreatePage
-        ))
-        let vc = SearchHomeViewController(viewModel: vm)
-        self?.navigationController.pushViewController(vc, animated: false)
+        guard let self else { return }
+        
+        let vc = dependency.injector.resolve(
+            SearchHomeViewController.self,
+            argument: SearchHomeViewModel.Injectable(
+                actions: .init(
+                    showSearchResultPage: self.showSearchResultPage,
+                    showGroupIntroducePage: self.showGroupIntroducePage,
+                    showGroupCreatePage: self.showGroupCreatePage
+                ),
+                args: .init()
+            )
+        )
+        
+        self.dependency.navigationController.pushViewController(vc, animated: true)
     }
 
     lazy var showSearchResultPage: () -> Void = { [weak self] in
@@ -52,12 +59,12 @@ class SearchCoordinator: Coordinator {
         ))
         
         let vc = SearchResultViewController(viewModel: vm)
-        self?.navigationController.pushViewController(vc, animated: false)
+        self?.dependency.navigationController.pushViewController(vc, animated: false)
     }
     
     lazy var showGroupIntroducePage: (Int) -> Void = { [weak self] groupId in
         guard let self else { return }
-        let groupIntroduceCoordinator = GroupIntroduceCoordinator(navigationController: self.navigationController)
+        let groupIntroduceCoordinator = GroupIntroduceCoordinator(navigationController: self.dependency.navigationController)
         groupIntroduceCoordinator.finishDelegate = self
         self.childCoordinators.append(groupIntroduceCoordinator)
         groupIntroduceCoordinator.start(id: groupId)
@@ -65,14 +72,14 @@ class SearchCoordinator: Coordinator {
     
     lazy var showGroupCreatePage: () -> Void = { [weak self] in
         guard let self else { return }
-        let groupCreateCoordinator = GroupCreateCoordinator(navigationController: self.navigationController)
+        let groupCreateCoordinator = GroupCreateCoordinator(navigationController: self.dependency.navigationController)
         groupCreateCoordinator.finishDelegate = self
         self.childCoordinators.append(groupCreateCoordinator)
         groupCreateCoordinator.start()
     }
     
     lazy var popCurrentPage: () -> Void = { [weak self] in
-        self?.navigationController.popViewController(animated: true)
+        self?.dependency.navigationController.popViewController(animated: true)
     }
 }
 
