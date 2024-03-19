@@ -15,7 +15,7 @@ class DefaultFetchSearchResultUseCase: FetchSearchResultUseCase {
         self.groupRepository = groupRepository
     }
     
-    func execute(token: Token, keyWord: String, page: Int, size: Int) -> Single<[UnJoinedGroupSummary]> {
+    func execute(token: Token, keyWord: String, page: Int, size: Int) -> Single<[GroupSummary]> {
         groupRepository
             .fetchSearchResult(
                 token: token.accessToken,

@@ -20,7 +20,7 @@ class SearchHomeViewModel {
     
     var actions: SearchHomeViewModelActions?
     
-    var result: [UnJoinedGroupSummary] = []
+    var result: [GroupSummary] = []
     
     var keyword = BehaviorSubject<String?>(value: nil)
     
@@ -140,7 +140,7 @@ class SearchHomeViewModel {
     func fetchResult(isInitial: Bool) {
         getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<[UnJoinedGroupSummary]> in
+            .flatMap { [weak self] token -> Single<[GroupSummary]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }

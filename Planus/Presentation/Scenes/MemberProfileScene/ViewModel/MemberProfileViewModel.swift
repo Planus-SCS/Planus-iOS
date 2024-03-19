@@ -20,7 +20,7 @@ class MemberProfileViewModel {
     let calendar = Calendar.current
     
     var group: GroupName?
-    var member: MyMember?
+    var member: MyGroupMemberProfile?
     
     // for todoList caching
     let cachingIndexDiff = 8
@@ -44,7 +44,7 @@ class MemberProfileViewModel {
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
-    var mainDayList = [[DayViewModel]]()
+    var mainDayList = [[Day]]()
     var todos = [Date: [SocialTodoSummary]]()
     
     var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 30), count: 42) //todoId
@@ -57,7 +57,7 @@ class MemberProfileViewModel {
     var categoryFetched = BehaviorSubject<Void?>(value: nil)
     var needReloadSection = BehaviorSubject<IndexSet?>(value: nil)
     
-    var showDailyTodoPage = PublishSubject<DayViewModel>()
+    var showDailyTodoPage = PublishSubject<Day>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
     
@@ -75,7 +75,7 @@ class MemberProfileViewModel {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var needReloadSectionInRange: Observable<IndexSet?> // a부터 b까지 리로드 해라!
-        var showDailyTodoPage: Observable<DayViewModel>
+        var showDailyTodoPage: Observable<Day>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var memberName: String?
@@ -106,7 +106,7 @@ class MemberProfileViewModel {
         self.fetchImageUseCase = fetchImageUseCase
     }
     
-    func setMember(group: GroupName, member: MyMember) {
+    func setMember(group: GroupName, member: MyGroupMemberProfile) {
         self.group = group
         self.member = member
     }
@@ -204,7 +204,7 @@ class MemberProfileViewModel {
     }
     
     func initCalendar(date: Date) {
-        mainDayList = (endOfFirstIndex...endOfLastIndex).map { difference -> [DayViewModel] in
+        mainDayList = (endOfFirstIndex...endOfLastIndex).map { difference -> [Day] in
             let calendarDate = self.calendar.date(byAdding: DateComponents(month: difference), to: date) ?? Date()
             return createMonthlyCalendarUseCase.execute(date: calendarDate)
         }

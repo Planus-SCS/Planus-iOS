@@ -24,7 +24,7 @@ class NotificationViewModel {
         var showMessage: Observable<Message>
     }
     
-    var joinAppliedList: [GroupJoinApplied]?
+    var joinAppliedList: [MyGroupJoinAppliance]?
     var nowProcessingJoinId: [Int] = []
     var didFetchJoinApplyList = BehaviorSubject<FetchType?>(value: nil)
     var needRemoveAt = PublishSubject<Int>()
@@ -168,7 +168,7 @@ class NotificationViewModel {
     func fetchJoinApplyList(fetchType: FetchType) {
         getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<[GroupJoinApplied]> in
+            .flatMap { [weak self] token -> Single<[MyGroupJoinAppliance]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }

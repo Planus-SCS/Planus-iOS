@@ -19,9 +19,6 @@ extension DomainAssembly {
             return DefaultDateFormatYYYYMMUseCase()
         }
         
-        container.register(CreateDailyCalendarUseCase.self) { _ in
-            return DefaultCreateDailyCalendarUseCase()
-        }
     }
     
 }

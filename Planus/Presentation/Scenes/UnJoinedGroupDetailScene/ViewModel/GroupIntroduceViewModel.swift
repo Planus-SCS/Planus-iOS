@@ -164,7 +164,7 @@ class GroupIntroduceViewModel {
         
         let fetchGroupDetail = getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<UnJoinedGroupDetail> in
+            .flatMap { [weak self] token -> Single<GroupDetail> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }

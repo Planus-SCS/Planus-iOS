@@ -102,7 +102,7 @@ class HomeCalendarViewModel: ViewModel {
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
-    var mainDays = [[DayViewModel]]()
+    var mainDays = [[Day]]()
     var todos = [Date: [Todo]]()
     
     var blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 20), count: 42) //todoId, groupTodo인가?
@@ -119,7 +119,7 @@ class HomeCalendarViewModel: ViewModel {
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
     var showCreateMultipleTodo = PublishSubject<(Date, Date)>()
-    var showDailyTodoPage = PublishSubject<DayViewModel>()
+    var showDailyTodoPage = PublishSubject<Day>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
     var needReloadSectionSet = PublishSubject<IndexSet>() //리로드 섹션을 해야함 왜?
@@ -179,7 +179,7 @@ class HomeCalendarViewModel: ViewModel {
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var todoListFetchedInIndexRange: Observable<(Int, Int)?> // a부터 b까지 리로드 해라!
         var showCreateMultipleTodo: Observable<(Date, Date)>
-        var showDailyTodoPage: Observable<DayViewModel>
+        var showDailyTodoPage: Observable<Day>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var needReloadSectionSet: Observable<IndexSet>
@@ -350,7 +350,7 @@ class HomeCalendarViewModel: ViewModel {
     }
     
     func initCalendar(date: Date) {
-        mainDays = (endOfFirstIndex...endOfLastIndex).map { diff -> [DayViewModel] in
+        mainDays = (endOfFirstIndex...endOfLastIndex).map { diff -> [Day] in
             let calendarDate = self.calendar.date(byAdding: DateComponents(month: diff), to: date) ?? Date()
             return useCases.createMonthlyCalendarUseCase.execute(date: calendarDate)
         }

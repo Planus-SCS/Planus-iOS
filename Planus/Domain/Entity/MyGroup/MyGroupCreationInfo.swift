@@ -1,5 +1,5 @@
 //
-//  GroupCreate.swift
+//  MyGroupCreationInfo.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/05/09.
@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct GroupCreate {
+struct MyGroupCreationInfo {
     var name: String
     var notice: String
     var tagList: [GroupTag]
     var limitCount: Int
 }
 
-extension GroupCreate {
+extension MyGroupCreationInfo {
     func toDTO() -> GroupCreateRequestDTO {
         return GroupCreateRequestDTO(
             name: name,

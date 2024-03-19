@@ -18,8 +18,8 @@ struct GroupJoinAppliedResponseDTO: Codable {
 }
 
 extension GroupJoinAppliedResponseDTO {
-    func toDomain() -> GroupJoinApplied {
-        return GroupJoinApplied(
+    func toDomain() -> MyGroupJoinAppliance {
+        return MyGroupJoinAppliance(
             groupJoinId: groupJoinId,
             groupId: groupId,
             groupName: groupName,

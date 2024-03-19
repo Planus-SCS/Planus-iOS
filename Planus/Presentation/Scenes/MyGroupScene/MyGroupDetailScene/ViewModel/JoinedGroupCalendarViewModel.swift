@@ -36,7 +36,7 @@ class JoinedGroupCalendarViewModel {
     
     var currentDate: Date?
     var currentDateText: String?
-    var mainDayList = [DayViewModel]()
+    var mainDayList = [Day]()
     var todos = [Date: [SocialTodoSummary]]()
     
     var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 20), count: 42) //todoId

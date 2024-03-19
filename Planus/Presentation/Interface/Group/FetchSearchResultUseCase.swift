@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol FetchSearchResultUseCase {
-    func execute(token: Token, keyWord: String, page: Int, size: Int) -> Single<[UnJoinedGroupSummary]>
+    func execute(token: Token, keyWord: String, page: Int, size: Int) -> Single<[GroupSummary]>
 }

@@ -80,7 +80,7 @@ class MyGroupDetailViewModel2 {
     
     // MARK: mode 0, notice section
     var notice: String?
-    var memberList: [MyMember]?
+    var memberList: [MyGroupMemberProfile]?
     var memberKickedOutAt = PublishSubject<Int>()
     var needReloadMemberAt = PublishSubject<Int>()
     var showDailyPage = PublishSubject<Date>()
@@ -98,7 +98,7 @@ class MyGroupDetailViewModel2 {
     
     var currentDate: Date?
     var currentDateText: String?
-    var mainDayList = [DayViewModel]()
+    var mainDayList = [Day]()
     var todos = [Date: [SocialTodoSummary]]()
     
     var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 20), count: 42)
@@ -139,11 +139,11 @@ class MyGroupDetailViewModel2 {
     
     let generateGroupLinkUseCase: GenerateGroupLinkUseCase
     
-    lazy var membersFetcher: (Int) -> Single<[MyMember]>? = { [weak self] groupId in
+    lazy var membersFetcher: (Int) -> Single<[MyGroupMemberProfile]>? = { [weak self] groupId in
         guard let self else { return nil }
         return self.getTokenUseCase
             .execute()
-            .flatMap { token -> Single<[MyMember]> in
+            .flatMap { token -> Single<[MyGroupMemberProfile]> in
                 return self.fetchMyGroupMemberListUseCase
                     .execute(token: token, groupId: groupId)
             }

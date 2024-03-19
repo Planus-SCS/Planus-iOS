@@ -9,13 +9,6 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-struct GroupJoinRequest {
-    var imageURL: String
-    var group: String
-    var name: String
-    var desc: String
-}
-
 class NotificationViewController: UIViewController {
     var bag = DisposeBag()
     var nowLoading = true

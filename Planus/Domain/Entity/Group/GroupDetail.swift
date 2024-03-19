@@ -1,19 +1,20 @@
 //
-//  UnJoinedGroupSummary.swift
+//  GroupDetail.swift
 //  Planus
 //
-//  Created by Sangmin Lee on 2023/04/26.
+//  Created by Sangmin Lee on 2023/05/09.
 //
 
 import Foundation
 
-struct UnJoinedGroupSummary {
-    var groupId: Int
+struct GroupDetail {
+    var id: Int
     var name: String
+    var isJoined: Bool
+    var notice: String
     var groupImageUrl: String
     var memberCount: Int
     var limitCount: Int
-    var leaderId: Int
     var leaderName: String
     var groupTags: [GroupTag]
 }

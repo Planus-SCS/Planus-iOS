@@ -21,7 +21,7 @@ class GroupCreateViewModel {
     let tagCountValidState = PublishSubject<Bool>()
     let tagDuplicateValidState = PublishSubject<Bool>()
 
-    var showGroupCreateLoadPage = PublishSubject<(GroupCreate, ImageFile)>()
+    var showGroupCreateLoadPage = PublishSubject<(MyGroupCreationInfo, ImageFile)>()
     var nowSaving = false
     var initialTagPopedOver = true
     
@@ -44,7 +44,7 @@ class GroupCreateViewModel {
         var tagCountValidState: Observable<Bool>
         var tagDuplicateValidState: Observable<Bool>
         var isCreateButtonEnabled: Observable<Bool>
-        var showCreateLoadPage: Observable<(GroupCreate, ImageFile)>
+        var showCreateLoadPage: Observable<(MyGroupCreationInfo, ImageFile)>
         var insertTagAt: Observable<Int>
         var remvoeTagAt: Observable<Int>
     }
@@ -175,7 +175,7 @@ class GroupCreateViewModel {
               let limitCount = try? maxMember.value(),
               let image = try? titleImage.value() else { return }
         let tagMapped = tagList.map { GroupTag(name: $0) }
-        let groupCreate = GroupCreate(
+        let groupCreate = MyGroupCreationInfo(
             name: name,
             notice: notice,
             tagList: tagMapped,

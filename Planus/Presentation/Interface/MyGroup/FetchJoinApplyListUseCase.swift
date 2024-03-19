@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol FetchJoinApplyListUseCase {
-    func execute(token: Token) -> Single<[GroupJoinApplied]>
+    func execute(token: Token) -> Single<[MyGroupJoinAppliance]>
 }

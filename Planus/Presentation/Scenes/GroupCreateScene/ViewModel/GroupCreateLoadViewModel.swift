@@ -11,7 +11,7 @@ import RxSwift
 class GroupCreateLoadViewModel {
     
     var bag = DisposeBag()
-    var groupCreate: GroupCreate?
+    var groupCreate: MyGroupCreationInfo?
     var groupImage: ImageFile?
     
     var groupCreateCompleted = PublishSubject<Int>()
@@ -55,7 +55,7 @@ class GroupCreateLoadViewModel {
         )
     }
     
-    func setGroupCreate(groupCreate: GroupCreate, image: ImageFile) {
+    func setGroupCreate(groupCreate: MyGroupCreationInfo, image: ImageFile) {
         self.groupCreate = groupCreate
         self.groupImage = image
     }

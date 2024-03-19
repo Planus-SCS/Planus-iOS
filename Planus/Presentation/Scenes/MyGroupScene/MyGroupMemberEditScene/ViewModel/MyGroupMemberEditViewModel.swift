@@ -13,7 +13,7 @@ class MyGroupMemberEditViewModel {
     var bag = DisposeBag()
     
     var groupId: Int?
-    var memberList: [MyMember]?
+    var memberList: [MyGroupMemberProfile]?
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -135,7 +135,7 @@ class MyGroupMemberEditViewModel {
         let fetchMyGroupMemberListUseCase = self.fetchMyGroupMemberListUseCase
         getTokenUseCase
             .execute()
-            .flatMap { token -> Single<[MyMember]> in
+            .flatMap { token -> Single<[MyGroupMemberProfile]> in
                 return fetchMyGroupMemberListUseCase
                     .execute(token: token, groupId: groupId)
             }

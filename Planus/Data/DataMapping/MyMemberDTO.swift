@@ -17,8 +17,8 @@ struct MyMemberResponseDTO: Codable {
 }
 
 extension MyMemberResponseDTO {
-    func toDomain() -> MyMember {
-        return MyMember(
+    func toDomain() -> MyGroupMemberProfile {
+        return MyGroupMemberProfile(
             memberId: memberId,
             nickname: nickname,
             isLeader: isLeader,

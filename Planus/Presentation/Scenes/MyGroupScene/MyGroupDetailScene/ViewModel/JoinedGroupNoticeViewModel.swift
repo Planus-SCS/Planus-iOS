@@ -13,7 +13,7 @@ class JoinedGroupNoticeViewModel {
     
     var groupId: Int?
     var notice = BehaviorSubject<String?>(value: nil)
-    var memberList: [MyMember]?
+    var memberList: [MyGroupMemberProfile]?
     var memberListFetched = BehaviorSubject<Void?>(value: nil)
     var memberKickedOutAt = PublishSubject<Int>()
     var needReloadMemberAt = PublishSubject<Int>()
@@ -116,7 +116,7 @@ class JoinedGroupNoticeViewModel {
         guard let groupId else { return }
         getTokenUseCase
             .execute()
-            .flatMap { [weak self] token -> Single<[MyMember]> in
+            .flatMap { [weak self] token -> Single<[MyGroupMemberProfile]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }

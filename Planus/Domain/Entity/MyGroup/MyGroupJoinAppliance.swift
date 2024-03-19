@@ -1,5 +1,5 @@
 //
-//  GroupJoinApply.swift
+//  MyGroupJoinAppliance.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/05/09.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct GroupJoinApplied {
+struct MyGroupJoinAppliance {
     var groupJoinId: Int
     var groupId: Int
     var groupName: String

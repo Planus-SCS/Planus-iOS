@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol FetchUnJoinedGroupUseCase {
-    func execute(token: Token, id: Int) -> Single<UnJoinedGroupDetail>
+    func execute(token: Token, id: Int) -> Single<GroupDetail>
 }

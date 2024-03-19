@@ -19,8 +19,8 @@ struct UnJoinedGroupSummaryResponseDTO: Codable {
 }
 
 extension UnJoinedGroupSummaryResponseDTO {
-    func toDomain() -> UnJoinedGroupSummary {
-        return UnJoinedGroupSummary(
+    func toDomain() -> GroupSummary {
+        return GroupSummary(
             groupId: groupId,
             name: name,
             groupImageUrl: groupImageUrl,
@@ -46,8 +46,8 @@ struct UnJoinedGroupDetailResponseDTO: Codable {
 }
 
 extension UnJoinedGroupDetailResponseDTO {
-    func toDomain() -> UnJoinedGroupDetail {
-        return UnJoinedGroupDetail(
+    func toDomain() -> GroupDetail {
+        return GroupDetail(
             id: id,
             name: name,
             isJoined: isJoined,

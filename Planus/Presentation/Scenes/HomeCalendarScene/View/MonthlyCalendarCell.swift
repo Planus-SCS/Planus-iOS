@@ -161,8 +161,8 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 viewModel.blockMemo[$0] = [(Int, Bool)?](repeating: nil, count: 20)
             }
             
-            for (item, dayViewModel) in Array(viewModel.mainDays[section].enumerated())[indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7] {
-                var filteredTodoList = viewModel.todos[dayViewModel.date] ?? []
+            for (item, day) in Array(viewModel.mainDays[section].enumerated())[indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7] {
+                var filteredTodoList = viewModel.todos[day.date] ?? []
                 if let filterGroupId = try? viewModel.filteredGroupId.value() {
                     filteredTodoList = filteredTodoList.filter( { $0.groupId == filterGroupId })
                 }
@@ -171,33 +171,33 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 let singleList = filteredTodoList.filter { $0.startDate == $0.endDate }
                 
                 if item % 7 != 0 { // 만약 월요일이 아닐 경우, 오늘 시작하는것들만, 월요일이면 포함되는 전체 다!
-                    periodList = periodList.filter { $0.startDate == dayViewModel.date }
+                    periodList = periodList.filter { $0.startDate == day.date }
                         .sorted { $0.endDate < $1.endDate }
                 } else { //월요일 중에 오늘이 startDate가 아닌 놈들만 startDate로 정렬, 그 뒤에는 전부다 endDate로 정렬하고, 이걸 다시 endDate를 업댓해줘야함!
                     
                     var continuousPeriodList = periodList
-                        .filter { $0.startDate != dayViewModel.date }
+                        .filter { $0.startDate != day.date }
                         .sorted{ ($0.startDate == $1.startDate) ? $0.endDate < $1.endDate : $0.startDate < $1.startDate }
                         .map { todo in
                             var tmpTodo = todo
-                            tmpTodo.startDate = dayViewModel.date
+                            tmpTodo.startDate = day.date
                             return tmpTodo
                         }
                     
                     var initialPeriodList = periodList
-                        .filter { $0.startDate == dayViewModel.date } //이걸 바로 end로 정렬해도 되나? -> 애를 바로 end로 정렬할 경우?
+                        .filter { $0.startDate == day.date } //이걸 바로 end로 정렬해도 되나? -> 애를 바로 end로 정렬할 경우?
                         .sorted{ $0.endDate < $1.endDate }
                     
                     periodList = continuousPeriodList + initialPeriodList
                 }
                 
                 periodList = periodList.map { todo in
-                    // 날짜는 dayViewModel의 date를 사용하고, todo.endDate랑 비교를 해서 이게 같은주에 포함되는지 아닌지를 판단해야함..!
-                    let currentWeek = calendar.component(.weekOfYear, from: dayViewModel.date)
+                    // 날짜는 day의 date를 사용하고, todo.endDate랑 비교를 해서 이게 같은주에 포함되는지 아닌지를 판단해야함..!
+                    let currentWeek = calendar.component(.weekOfYear, from: day.date)
                     let endWeek = calendar.component(.weekOfYear, from: todo.endDate)
                     
                     if currentWeek != endWeek {
-                        let firstDayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: dayViewModel.date))
+                        let firstDayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: day.date))
                         let lastDayOfWeek = calendar.date(byAdding: .day, value: 6, to: firstDayOfWeek!) //이게 이번주 일요일임.
                         var tmpTodo = todo
                         tmpTodo.endDate = lastDayOfWeek!
@@ -231,7 +231,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
                 
                 
                 var holidayMock: (Int, String)?
-                if let holidayTitle = HolidayPool.shared.holidays[dayViewModel.date] {
+                if let holidayTitle = HolidayPool.shared.holidays[day.date] {
                     let holidayIndex = singleStartIndex + singleTodo.count
                     holidayMock = (holidayIndex, holidayTitle)
                 }
@@ -279,16 +279,16 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
             height = targetHeight
         }
         
-        let dayViewModel = viewModel.mainDays[section][indexPath.item]
+        let day = viewModel.mainDays[section][indexPath.item]
         let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
         
         cell.delegate = self
         cell.fill(
-            day: "\(Calendar.current.component(.day, from: dayViewModel.date))",
-            state: dayViewModel.state,
-            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: dayViewModel.date)+5)%7)!,
-            isToday: dayViewModel.date == viewModel.today,
-            isHoliday: HolidayPool.shared.holidays[dayViewModel.date] != nil,
+            day: "\(Calendar.current.component(.day, from: day.date))",
+            state: day.state,
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: day.date)+5)%7)!,
+            isToday: day.date == viewModel.today,
+            isHoliday: HolidayPool.shared.holidays[day.date] != nil,
             height: height
         )
         

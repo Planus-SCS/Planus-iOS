@@ -76,6 +76,9 @@
 		6A0B764D2BA98347008BC571 /* MyPageMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B764C2BA98347008BC571 /* MyPageMainViewController.swift */; };
 		6A0B76502BA99345008BC571 /* MonthPickerVC+CV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B764F2BA99345008BC571 /* MonthPickerVC+CV.swift */; };
 		6A0B76582BA995EA008BC571 /* CustomAlertAttr.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76572BA995EA008BC571 /* CustomAlertAttr.swift */; };
+		6A0B76622BA9A1F6008BC571 /* SocialTodoSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76612BA9A1F6008BC571 /* SocialTodoSummary.swift */; };
+		6A0B76642BA9A1FF008BC571 /* SocialTodoDaily.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76632BA9A1FF008BC571 /* SocialTodoDaily.swift */; };
+		6A0B76662BA9A216008BC571 /* SocialTodoCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76652BA9A216008BC571 /* SocialTodoCategory.swift */; };
 		6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75B29D2C25B006F2604 /* edit@2x.png */; };
 		6A0BF75F29D2C25B006F2604 /* edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75C29D2C25B006F2604 /* edit.png */; };
 		6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75D29D2C25B006F2604 /* edit@3x.png */; };
@@ -163,9 +166,6 @@
 		6A24F8FA29D1D6470000FD64 /* chevron-right.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8F429D1D6470000FD64 /* chevron-right.png */; };
 		6A24F8FB29D1D6470000FD64 /* chevron-left@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8F529D1D6470000FD64 /* chevron-left@2x.png */; };
 		6A24F8FC29D1D6470000FD64 /* chevron-right@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8F629D1D6470000FD64 /* chevron-right@2x.png */; };
-		6A24F90A29D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90929D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift */; };
-		6A24F90C29D223960000FD64 /* DetailDayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90B29D223960000FD64 /* DetailDayViewModel.swift */; };
-		6A24F90E29D223D90000FD64 /* CreateDailyCalendarUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90D29D223D90000FD64 /* CreateDailyCalendarUseCase.swift */; };
 		6A24F91929D22D080000FD64 /* DailyCalendarCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F91829D22D080000FD64 /* DailyCalendarCollectionView.swift */; };
 		6A24F91B29D22D5B0000FD64 /* DailyCalendarTodoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F91A29D22D5B0000FD64 /* DailyCalendarTodoCell.swift */; };
 		6A24F91D29D22D8B0000FD64 /* DailyCalendarSectionBackgroundDecorationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F91C29D22D8B0000FD64 /* DailyCalendarSectionBackgroundDecorationView.swift */; };
@@ -179,7 +179,7 @@
 		6A2744232A0E415A008FB4F5 /* DefaultFetchMyGroupDetailUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744222A0E415A008FB4F5 /* DefaultFetchMyGroupDetailUseCase.swift */; };
 		6A2744252A0E4500008FB4F5 /* FetchMyGroupDetailUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744242A0E4500008FB4F5 /* FetchMyGroupDetailUseCase.swift */; };
 		6A2744272A0E460C008FB4F5 /* MyMemberDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744262A0E460C008FB4F5 /* MyMemberDTO.swift */; };
-		6A2744292A0E468E008FB4F5 /* MyMember.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744282A0E468E008FB4F5 /* MyMember.swift */; };
+		6A2744292A0E468E008FB4F5 /* MyGroupMemberProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744282A0E468E008FB4F5 /* MyGroupMemberProfile.swift */; };
 		6A27442B2A0E4834008FB4F5 /* DefaultFetchMyGroupMemberListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A27442A2A0E4834008FB4F5 /* DefaultFetchMyGroupMemberListUseCase.swift */; };
 		6A27442D2A0E48E5008FB4F5 /* FetchMyGroupMemberListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A27442C2A0E48E5008FB4F5 /* FetchMyGroupMemberListUseCase.swift */; };
 		6A27442F2A0E6AAA008FB4F5 /* JoinedGroupMemberCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A27442E2A0E6AAA008FB4F5 /* JoinedGroupMemberCell.swift */; };
@@ -233,7 +233,7 @@
 		6A2C00E42A713954003D6B95 /* DefaultDeleteGroupTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00E32A713954003D6B95 /* DefaultDeleteGroupTodoUseCase.swift */; };
 		6A2C00E62A71399D003D6B95 /* DeleteGroupTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00E52A71399D003D6B95 /* DeleteGroupTodoUseCase.swift */; };
 		6A2C00E82A72ADD6003D6B95 /* FailureDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00E72A72ADD6003D6B95 /* FailureDTO.swift */; };
-		6A2C00EA2A72CF71003D6B95 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00E92A72CF71003D6B95 /* Message.swift */; };
+		6A2C00EA2A72CF71003D6B95 /* ToastMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C00E92A72CF71003D6B95 /* ToastMessage.swift */; };
 		6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */; };
 		6A483DAC29CA23D9003375BF /* RedirectionalWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */; };
 		6A483DAE29CA42F5003375BF /* AuthURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A483DAD29CA42F5003375BF /* AuthURL.swift */; };
@@ -300,7 +300,7 @@
 		6A9199E32A1E504200108BF4 /* DefaultFetchSearchHomeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199E22A1E504200108BF4 /* DefaultFetchSearchHomeUseCase.swift */; };
 		6A9199E52A1E51AD00108BF4 /* FetchSearchHomeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199E42A1E51AD00108BF4 /* FetchSearchHomeUseCase.swift */; };
 		6A9199E72A208EDE00108BF4 /* SocialDailyCalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199E62A208EDE00108BF4 /* SocialDailyCalendarCell.swift */; };
-		6A9199E92A208F3F00108BF4 /* SocialTodo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199E82A208F3F00108BF4 /* SocialTodo.swift */; };
+		6A9199E92A208F3F00108BF4 /* SocialTodoDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199E82A208F3F00108BF4 /* SocialTodoDetail.swift */; };
 		6A9199EB2A20904700108BF4 /* SocialTodoDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199EA2A20904700108BF4 /* SocialTodoDTO.swift */; };
 		6A9199ED2A20958600108BF4 /* DefaultFetchGroupMonthlyCalendarUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199EC2A20958500108BF4 /* DefaultFetchGroupMonthlyCalendarUseCase.swift */; };
 		6A9199EF2A20960300108BF4 /* FetchGroupMonthlyCalendarUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9199EE2A20960300108BF4 /* FetchGroupMonthlyCalendarUseCase.swift */; };
@@ -453,7 +453,7 @@
 		6A9AAAF529F8151A002A6DAF /* todoCheck@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAF229F8151A002A6DAF /* todoCheck@2x.png */; };
 		6A9AAAF629F8151A002A6DAF /* todoCheck@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A9AAAF329F8151A002A6DAF /* todoCheck@3x.png */; };
 		6A9AAAF829F8D324002A6DAF /* String+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAAF729F8D324002A6DAF /* String+Ext.swift */; };
-		6A9AAAFA29F8D337002A6DAF /* UnJoinedGroupSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAAF929F8D337002A6DAF /* UnJoinedGroupSummary.swift */; };
+		6A9AAAFA29F8D337002A6DAF /* GroupSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAAF929F8D337002A6DAF /* GroupSummary.swift */; };
 		6A9AAB0229F8E442002A6DAF /* DefaultCategoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB0129F8E442002A6DAF /* DefaultCategoryRepository.swift */; };
 		6A9AAB0429F8FE48002A6DAF /* CategoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB0329F8FE48002A6DAF /* CategoryRepository.swift */; };
 		6A9AAB0729F8FF99002A6DAF /* CategoryDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A9AAB0629F8FF99002A6DAF /* CategoryDTO.swift */; };
@@ -493,7 +493,6 @@
 		6AA3BADD2A24E86E00E5B8A2 /* WithdrawGroupUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BADC2A24E86E00E5B8A2 /* WithdrawGroupUseCase.swift */; };
 		6AA3BADF2A24EFAD00E5B8A2 /* DefaultDeleteGroupUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BADE2A24EFAD00E5B8A2 /* DefaultDeleteGroupUseCase.swift */; };
 		6AA3BAE12A24F03C00E5B8A2 /* DeleteGroupUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA3BAE02A24F03C00E5B8A2 /* DeleteGroupUseCase.swift */; };
-		6AC078DE2A0287FF007ACDB8 /* TodoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078DD2A0287FF007ACDB8 /* TodoViewModel.swift */; };
 		6AC078E02A0373EC007ACDB8 /* PathURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078DF2A0373EC007ACDB8 /* PathURL.swift */; };
 		6AC078E22A0373F3007ACDB8 /* BaseURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078E12A0373F3007ACDB8 /* BaseURL.swift */; };
 		6AC078E52A037A7F007ACDB8 /* URLPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078E42A037A7F007ACDB8 /* URLPool.swift */; };
@@ -535,12 +534,12 @@
 		6AC079532A0A4D1C007ACDB8 /* DefaultMyGroupRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079522A0A4D1C007ACDB8 /* DefaultMyGroupRepository.swift */; };
 		6AC079552A0A5061007ACDB8 /* MyGroupRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079542A0A5061007ACDB8 /* MyGroupRepository.swift */; };
 		6AC0795A2A0A50A6007ACDB8 /* DefaultGroupCreateUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079592A0A50A6007ACDB8 /* DefaultGroupCreateUseCase.swift */; };
-		6AC0795C2A0A510F007ACDB8 /* GroupCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0795B2A0A510F007ACDB8 /* GroupCreate.swift */; };
+		6AC0795C2A0A510F007ACDB8 /* MyGroupCreationInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0795B2A0A510F007ACDB8 /* MyGroupCreationInfo.swift */; };
 		6AC0795E2A0A51F1007ACDB8 /* GroupTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0795D2A0A51F1007ACDB8 /* GroupTag.swift */; };
 		6AC079612A0A52C5007ACDB8 /* GroupCreateUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079602A0A52C5007ACDB8 /* GroupCreateUseCase.swift */; };
 		6AC079632A0A5746007ACDB8 /* UnJoinedGroupDetailDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079622A0A5746007ACDB8 /* UnJoinedGroupDetailDTO.swift */; };
 		6AC079652A0A57BB007ACDB8 /* GroupTagDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079642A0A57BB007ACDB8 /* GroupTagDTO.swift */; };
-		6AC079672A0A5815007ACDB8 /* UnJoinedGroupDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079662A0A5815007ACDB8 /* UnJoinedGroupDetail.swift */; };
+		6AC079672A0A5815007ACDB8 /* GroupDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079662A0A5815007ACDB8 /* GroupDetail.swift */; };
 		6AC0796B2A0A5945007ACDB8 /* DefaultGroupRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0796A2A0A5945007ACDB8 /* DefaultGroupRepository.swift */; };
 		6AC0796D2A0A59FA007ACDB8 /* GroupRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0796C2A0A59FA007ACDB8 /* GroupRepository.swift */; };
 		6AC0796F2A0A7336007ACDB8 /* DefaultFetchUnJoinedGroupUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0796E2A0A7336007ACDB8 /* DefaultFetchUnJoinedGroupUseCase.swift */; };
@@ -550,7 +549,7 @@
 		6AC0797C2A0A7C5A007ACDB8 /* FetchMemberListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0797B2A0A7C5A007ACDB8 /* FetchMemberListUseCase.swift */; };
 		6AC0797E2A0A889A007ACDB8 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0797D2A0A889A007ACDB8 /* NotificationViewModel.swift */; };
 		6AC079802A0A88F2007ACDB8 /* GroupJoinAppliedDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0797F2A0A88F2007ACDB8 /* GroupJoinAppliedDTO.swift */; };
-		6AC079822A0A893B007ACDB8 /* GroupJoinApplied.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079812A0A893B007ACDB8 /* GroupJoinApplied.swift */; };
+		6AC079822A0A893B007ACDB8 /* MyGroupJoinAppliance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079812A0A893B007ACDB8 /* MyGroupJoinAppliance.swift */; };
 		6AC079842A0A8B26007ACDB8 /* DefaultFetchJoinApplyListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079832A0A8B26007ACDB8 /* DefaultFetchJoinApplyListUseCase.swift */; };
 		6AC079862A0A8B95007ACDB8 /* FetchJoinApplyListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079852A0A8B95007ACDB8 /* FetchJoinApplyListUseCase.swift */; };
 		6AC0798E2A0A94E0007ACDB8 /* EmptyResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC0798D2A0A94E0007ACDB8 /* EmptyResultView.swift */; };
@@ -709,6 +708,9 @@
 		6A0B764C2BA98347008BC571 /* MyPageMainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyPageMainViewController.swift; sourceTree = "<group>"; };
 		6A0B764F2BA99345008BC571 /* MonthPickerVC+CV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MonthPickerVC+CV.swift"; sourceTree = "<group>"; };
 		6A0B76572BA995EA008BC571 /* CustomAlertAttr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertAttr.swift; sourceTree = "<group>"; };
+		6A0B76612BA9A1F6008BC571 /* SocialTodoSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialTodoSummary.swift; sourceTree = "<group>"; };
+		6A0B76632BA9A1FF008BC571 /* SocialTodoDaily.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialTodoDaily.swift; sourceTree = "<group>"; };
+		6A0B76652BA9A216008BC571 /* SocialTodoCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialTodoCategory.swift; sourceTree = "<group>"; };
 		6A0BF75B29D2C25B006F2604 /* edit@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@2x.png"; sourceTree = "<group>"; };
 		6A0BF75C29D2C25B006F2604 /* edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit.png; sourceTree = "<group>"; };
 		6A0BF75D29D2C25B006F2604 /* edit@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@3x.png"; sourceTree = "<group>"; };
@@ -796,9 +798,6 @@
 		6A24F8F429D1D6470000FD64 /* chevron-right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chevron-right.png"; sourceTree = "<group>"; };
 		6A24F8F529D1D6470000FD64 /* chevron-left@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chevron-left@2x.png"; sourceTree = "<group>"; };
 		6A24F8F629D1D6470000FD64 /* chevron-right@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chevron-right@2x.png"; sourceTree = "<group>"; };
-		6A24F90929D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCreateDailyCalendarUseCase.swift; sourceTree = "<group>"; };
-		6A24F90B29D223960000FD64 /* DetailDayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailDayViewModel.swift; sourceTree = "<group>"; };
-		6A24F90D29D223D90000FD64 /* CreateDailyCalendarUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateDailyCalendarUseCase.swift; sourceTree = "<group>"; };
 		6A24F91829D22D080000FD64 /* DailyCalendarCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyCalendarCollectionView.swift; sourceTree = "<group>"; };
 		6A24F91A29D22D5B0000FD64 /* DailyCalendarTodoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyCalendarTodoCell.swift; sourceTree = "<group>"; };
 		6A24F91C29D22D8B0000FD64 /* DailyCalendarSectionBackgroundDecorationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyCalendarSectionBackgroundDecorationView.swift; sourceTree = "<group>"; };
@@ -812,7 +811,7 @@
 		6A2744222A0E415A008FB4F5 /* DefaultFetchMyGroupDetailUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMyGroupDetailUseCase.swift; sourceTree = "<group>"; };
 		6A2744242A0E4500008FB4F5 /* FetchMyGroupDetailUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMyGroupDetailUseCase.swift; sourceTree = "<group>"; };
 		6A2744262A0E460C008FB4F5 /* MyMemberDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyMemberDTO.swift; sourceTree = "<group>"; };
-		6A2744282A0E468E008FB4F5 /* MyMember.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyMember.swift; sourceTree = "<group>"; };
+		6A2744282A0E468E008FB4F5 /* MyGroupMemberProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupMemberProfile.swift; sourceTree = "<group>"; };
 		6A27442A2A0E4834008FB4F5 /* DefaultFetchMyGroupMemberListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMyGroupMemberListUseCase.swift; sourceTree = "<group>"; };
 		6A27442C2A0E48E5008FB4F5 /* FetchMyGroupMemberListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMyGroupMemberListUseCase.swift; sourceTree = "<group>"; };
 		6A27442E2A0E6AAA008FB4F5 /* JoinedGroupMemberCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinedGroupMemberCell.swift; sourceTree = "<group>"; };
@@ -866,7 +865,7 @@
 		6A2C00E32A713954003D6B95 /* DefaultDeleteGroupTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultDeleteGroupTodoUseCase.swift; sourceTree = "<group>"; };
 		6A2C00E52A71399D003D6B95 /* DeleteGroupTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteGroupTodoUseCase.swift; sourceTree = "<group>"; };
 		6A2C00E72A72ADD6003D6B95 /* FailureDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailureDTO.swift; sourceTree = "<group>"; };
-		6A2C00E92A72CF71003D6B95 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		6A2C00E92A72CF71003D6B95 /* ToastMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastMessage.swift; sourceTree = "<group>"; };
 		6A483DA929CA238B003375BF /* RedirectionalWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewController.swift; sourceTree = "<group>"; };
 		6A483DAB29CA23D9003375BF /* RedirectionalWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectionalWebViewModel.swift; sourceTree = "<group>"; };
 		6A483DAD29CA42F5003375BF /* AuthURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthURL.swift; sourceTree = "<group>"; };
@@ -934,7 +933,7 @@
 		6A9199E22A1E504200108BF4 /* DefaultFetchSearchHomeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchSearchHomeUseCase.swift; sourceTree = "<group>"; };
 		6A9199E42A1E51AD00108BF4 /* FetchSearchHomeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchSearchHomeUseCase.swift; sourceTree = "<group>"; };
 		6A9199E62A208EDE00108BF4 /* SocialDailyCalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialDailyCalendarCell.swift; sourceTree = "<group>"; };
-		6A9199E82A208F3F00108BF4 /* SocialTodo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialTodo.swift; sourceTree = "<group>"; };
+		6A9199E82A208F3F00108BF4 /* SocialTodoDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialTodoDetail.swift; sourceTree = "<group>"; };
 		6A9199EA2A20904700108BF4 /* SocialTodoDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialTodoDTO.swift; sourceTree = "<group>"; };
 		6A9199EC2A20958500108BF4 /* DefaultFetchGroupMonthlyCalendarUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchGroupMonthlyCalendarUseCase.swift; sourceTree = "<group>"; };
 		6A9199EE2A20960300108BF4 /* FetchGroupMonthlyCalendarUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchGroupMonthlyCalendarUseCase.swift; sourceTree = "<group>"; };
@@ -1087,7 +1086,7 @@
 		6A9AAAF229F8151A002A6DAF /* todoCheck@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "todoCheck@2x.png"; sourceTree = "<group>"; };
 		6A9AAAF329F8151A002A6DAF /* todoCheck@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "todoCheck@3x.png"; sourceTree = "<group>"; };
 		6A9AAAF729F8D324002A6DAF /* String+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Ext.swift"; sourceTree = "<group>"; };
-		6A9AAAF929F8D337002A6DAF /* UnJoinedGroupSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnJoinedGroupSummary.swift; sourceTree = "<group>"; };
+		6A9AAAF929F8D337002A6DAF /* GroupSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSummary.swift; sourceTree = "<group>"; };
 		6A9AAB0129F8E442002A6DAF /* DefaultCategoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCategoryRepository.swift; sourceTree = "<group>"; };
 		6A9AAB0329F8FE48002A6DAF /* CategoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRepository.swift; sourceTree = "<group>"; };
 		6A9AAB0629F8FF99002A6DAF /* CategoryDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDTO.swift; sourceTree = "<group>"; };
@@ -1127,7 +1126,6 @@
 		6AA3BADC2A24E86E00E5B8A2 /* WithdrawGroupUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithdrawGroupUseCase.swift; sourceTree = "<group>"; };
 		6AA3BADE2A24EFAD00E5B8A2 /* DefaultDeleteGroupUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultDeleteGroupUseCase.swift; sourceTree = "<group>"; };
 		6AA3BAE02A24F03C00E5B8A2 /* DeleteGroupUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteGroupUseCase.swift; sourceTree = "<group>"; };
-		6AC078DD2A0287FF007ACDB8 /* TodoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoViewModel.swift; sourceTree = "<group>"; };
 		6AC078DF2A0373EC007ACDB8 /* PathURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathURL.swift; sourceTree = "<group>"; };
 		6AC078E12A0373F3007ACDB8 /* BaseURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseURL.swift; sourceTree = "<group>"; };
 		6AC078E42A037A7F007ACDB8 /* URLPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLPool.swift; sourceTree = "<group>"; };
@@ -1169,12 +1167,12 @@
 		6AC079522A0A4D1C007ACDB8 /* DefaultMyGroupRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultMyGroupRepository.swift; sourceTree = "<group>"; };
 		6AC079542A0A5061007ACDB8 /* MyGroupRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupRepository.swift; sourceTree = "<group>"; };
 		6AC079592A0A50A6007ACDB8 /* DefaultGroupCreateUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultGroupCreateUseCase.swift; sourceTree = "<group>"; };
-		6AC0795B2A0A510F007ACDB8 /* GroupCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreate.swift; sourceTree = "<group>"; };
+		6AC0795B2A0A510F007ACDB8 /* MyGroupCreationInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupCreationInfo.swift; sourceTree = "<group>"; };
 		6AC0795D2A0A51F1007ACDB8 /* GroupTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTag.swift; sourceTree = "<group>"; };
 		6AC079602A0A52C5007ACDB8 /* GroupCreateUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreateUseCase.swift; sourceTree = "<group>"; };
 		6AC079622A0A5746007ACDB8 /* UnJoinedGroupDetailDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnJoinedGroupDetailDTO.swift; sourceTree = "<group>"; };
 		6AC079642A0A57BB007ACDB8 /* GroupTagDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupTagDTO.swift; sourceTree = "<group>"; };
-		6AC079662A0A5815007ACDB8 /* UnJoinedGroupDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnJoinedGroupDetail.swift; sourceTree = "<group>"; };
+		6AC079662A0A5815007ACDB8 /* GroupDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDetail.swift; sourceTree = "<group>"; };
 		6AC0796A2A0A5945007ACDB8 /* DefaultGroupRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultGroupRepository.swift; sourceTree = "<group>"; };
 		6AC0796C2A0A59FA007ACDB8 /* GroupRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupRepository.swift; sourceTree = "<group>"; };
 		6AC0796E2A0A7336007ACDB8 /* DefaultFetchUnJoinedGroupUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchUnJoinedGroupUseCase.swift; sourceTree = "<group>"; };
@@ -1184,7 +1182,7 @@
 		6AC0797B2A0A7C5A007ACDB8 /* FetchMemberListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMemberListUseCase.swift; sourceTree = "<group>"; };
 		6AC0797D2A0A889A007ACDB8 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		6AC0797F2A0A88F2007ACDB8 /* GroupJoinAppliedDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupJoinAppliedDTO.swift; sourceTree = "<group>"; };
-		6AC079812A0A893B007ACDB8 /* GroupJoinApplied.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupJoinApplied.swift; sourceTree = "<group>"; };
+		6AC079812A0A893B007ACDB8 /* MyGroupJoinAppliance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupJoinAppliance.swift; sourceTree = "<group>"; };
 		6AC079832A0A8B26007ACDB8 /* DefaultFetchJoinApplyListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchJoinApplyListUseCase.swift; sourceTree = "<group>"; };
 		6AC079852A0A8B95007ACDB8 /* FetchJoinApplyListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchJoinApplyListUseCase.swift; sourceTree = "<group>"; };
 		6AC0798D2A0A94E0007ACDB8 /* EmptyResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyResultView.swift; sourceTree = "<group>"; };
@@ -1389,6 +1387,7 @@
 			isa = PBXGroup;
 			children = (
 				6A91998D2A1276CF00108BF4 /* Enum */,
+				6A0B76682BA9A339008BC571 /* Extension */,
 				6AC079372A0A1571007ACDB8 /* View */,
 				6A24F89D29CE29F50000FD64 /* TodoCategory+Ext.swift */,
 				6A24F8BB29CE50DC0000FD64 /* ScrollDirection.swift */,
@@ -1624,22 +1623,12 @@
 			children = (
 				6AC078E62A0387F0007ACDB8 /* RxSwift */,
 				6AC078E32A037958007ACDB8 /* URL */,
-				6A08AD8F29C89761005947D2 /* UIColor+Ext.swift */,
 				6A24F84F29CB77830000FD64 /* Calendar+Ext.swift */,
-				6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */,
-				6A95DFCF29D50053009017D8 /* UIImage+Ext.swift */,
 				6A9AAAF729F8D324002A6DAF /* String+Ext.swift */,
-				6AC078FD2A0515C9007ACDB8 /* UIButton+Ext.swift */,
 				6AC079032A07DC45007ACDB8 /* Array+Ext.swift */,
-				6A9199BC2A14A3F600108BF4 /* UIView+Ext.swift */,
 				6A61C3CC2A69675500DCA088 /* HolidayPool.swift */,
-				6A2C00AF2A6F4B0B003D6B95 /* Vibrate.swift */,
 				6A21862C2A815148005CF505 /* AppleSignInNonce.swift */,
 				6A9191972A82780D006C3F80 /* Data+Ext.swift */,
-				6A9B4FAD2A86536A00A04458 /* UITextView+Ext.swift */,
-				6AF078322A9DC8A00086692B /* UICollectionView+Ext.swift */,
-				6AF078832AA09E890086692B /* UIView+Skeleton.swift */,
-				6AF078852AA09EAD0086692B /* SkeletonLayer.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1948,6 +1937,9 @@
 		6A0B765A2BA998D2008BC571 /* Calendar */ = {
 			isa = PBXGroup;
 			children = (
+				6A24F83929CB49BD0000FD64 /* Day.swift */,
+				6A24F83B29CB49F10000FD64 /* WeekDay.swift */,
+				6A24F84529CB4AED0000FD64 /* MonthStateOfDay.swift */,
 			);
 			path = Calendar;
 			sourceTree = "<group>";
@@ -1956,6 +1948,7 @@
 			isa = PBXGroup;
 			children = (
 				6A24F83D29CB4A440000FD64 /* Todo.swift */,
+				6AC079012A07D464007ACDB8 /* TodoUpdateComparator.swift */,
 			);
 			path = Todo;
 			sourceTree = "<group>";
@@ -1967,6 +1960,74 @@
 				6A24F84329CB4AAE0000FD64 /* CategoryColor.swift */,
 			);
 			path = Category;
+			sourceTree = "<group>";
+		};
+		6A0B765D2BA99E40008BC571 /* Toast */ = {
+			isa = PBXGroup;
+			children = (
+				6A9199812A12189000108BF4 /* ToastView.swift */,
+				6A2C00E92A72CF71003D6B95 /* ToastMessage.swift */,
+			);
+			path = Toast;
+			sourceTree = "<group>";
+		};
+		6A0B765E2BA9A025008BC571 /* Group */ = {
+			isa = PBXGroup;
+			children = (
+				6A9AAAF929F8D337002A6DAF /* GroupSummary.swift */,
+				6AC0795D2A0A51F1007ACDB8 /* GroupTag.swift */,
+				6AC079662A0A5815007ACDB8 /* GroupDetail.swift */,
+				6A27443C2A0E8806008FB4F5 /* GroupNotice.swift */,
+				6A9199BE2A14E5E200108BF4 /* GroupName.swift */,
+			);
+			path = Group;
+			sourceTree = "<group>";
+		};
+		6A0B765F2BA9A0F7008BC571 /* MyGroup */ = {
+			isa = PBXGroup;
+			children = (
+				6AC079A52A0B5FE7007ACDB8 /* MyGroupSummary.swift */,
+				6A2744202A0E40D3008FB4F5 /* MyGroupDetail.swift */,
+				6AC079812A0A893B007ACDB8 /* MyGroupJoinAppliance.swift */,
+				6AC0795B2A0A510F007ACDB8 /* MyGroupCreationInfo.swift */,
+				6A2744282A0E468E008FB4F5 /* MyGroupMemberProfile.swift */,
+			);
+			path = MyGroup;
+			sourceTree = "<group>";
+		};
+		6A0B76602BA9A1C7008BC571 /* SocialTodo */ = {
+			isa = PBXGroup;
+			children = (
+				6A9199E82A208F3F00108BF4 /* SocialTodoDetail.swift */,
+				6A0B76612BA9A1F6008BC571 /* SocialTodoSummary.swift */,
+				6A0B76632BA9A1FF008BC571 /* SocialTodoDaily.swift */,
+				6A0B76652BA9A216008BC571 /* SocialTodoCategory.swift */,
+			);
+			path = SocialTodo;
+			sourceTree = "<group>";
+		};
+		6A0B76672BA9A2C3008BC571 /* SkeletonView */ = {
+			isa = PBXGroup;
+			children = (
+				6AF078832AA09E890086692B /* UIView+Skeleton.swift */,
+				6AF078852AA09EAD0086692B /* SkeletonLayer.swift */,
+			);
+			path = SkeletonView;
+			sourceTree = "<group>";
+		};
+		6A0B76682BA9A339008BC571 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				6A9199BC2A14A3F600108BF4 /* UIView+Ext.swift */,
+				6A08AD8F29C89761005947D2 /* UIColor+Ext.swift */,
+				6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */,
+				6A95DFCF29D50053009017D8 /* UIImage+Ext.swift */,
+				6AC078FD2A0515C9007ACDB8 /* UIButton+Ext.swift */,
+				6A2C00AF2A6F4B0B003D6B95 /* Vibrate.swift */,
+				6A9B4FAD2A86536A00A04458 /* UITextView+Ext.swift */,
+				6AF078322A9DC8A00086692B /* UICollectionView+Ext.swift */,
+			);
+			path = Extension;
 			sourceTree = "<group>";
 		};
 		6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */ = {
@@ -2235,31 +2296,16 @@
 		6A483DA829CA22D4003375BF /* Entity */ = {
 			isa = PBXGroup;
 			children = (
+				6A0B76602BA9A1C7008BC571 /* SocialTodo */,
+				6A0B765F2BA9A0F7008BC571 /* MyGroup */,
+				6A0B765E2BA9A025008BC571 /* Group */,
 				6A0B765C2BA998FD008BC571 /* Category */,
 				6A0B765B2BA998F7008BC571 /* Todo */,
 				6A0B765A2BA998D2008BC571 /* Calendar */,
-				6A24F83929CB49BD0000FD64 /* Day.swift */,
-				6A24F83B29CB49F10000FD64 /* WeekDay.swift */,
-				6A9AAAF929F8D337002A6DAF /* UnJoinedGroupSummary.swift */,
-				6A24F84529CB4AED0000FD64 /* MonthStateOfDay.swift */,
-				6A24F90B29D223960000FD64 /* DetailDayViewModel.swift */,
 				6A9AAB1329F90A1F002A6DAF /* Token.swift */,
-				6AC078DD2A0287FF007ACDB8 /* TodoViewModel.swift */,
-				6AC079012A07D464007ACDB8 /* TodoUpdateComparator.swift */,
 				6AC0790E2A08C9C9007ACDB8 /* Profile.swift */,
 				6AC0791F2A08E381007ACDB8 /* ImageFile.swift */,
-				6AC0795B2A0A510F007ACDB8 /* GroupCreate.swift */,
-				6AC0795D2A0A51F1007ACDB8 /* GroupTag.swift */,
-				6AC079662A0A5815007ACDB8 /* UnJoinedGroupDetail.swift */,
-				6AC079812A0A893B007ACDB8 /* GroupJoinApplied.swift */,
-				6AC079A52A0B5FE7007ACDB8 /* MyGroupSummary.swift */,
-				6A2744202A0E40D3008FB4F5 /* MyGroupDetail.swift */,
-				6A2744282A0E468E008FB4F5 /* MyMember.swift */,
-				6A27443C2A0E8806008FB4F5 /* GroupNotice.swift */,
-				6A9199BE2A14E5E200108BF4 /* GroupName.swift */,
-				6A9199E82A208F3F00108BF4 /* SocialTodo.swift */,
 				6AA3BAD22A24AE5300E5B8A2 /* RecentSearchQuery.swift */,
-				6A2C00E92A72CF71003D6B95 /* Message.swift */,
 				6AD888C22A891E2D00F4B887 /* SocialAuthType.swift */,
 			);
 			path = Entity;
@@ -2813,7 +2859,6 @@
 			children = (
 				6A24F85529CB7EF90000FD64 /* DefaultCreateMonthlyCalendarUseCase.swift */,
 				6A24F86329CC83890000FD64 /* DefaultDateFormatYYYYMMUseCase.swift */,
-				6A24F90929D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift */,
 			);
 			path = Calendar;
 			sourceTree = "<group>";
@@ -2870,7 +2915,6 @@
 			children = (
 				6A24F85329CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift */,
 				6A24F86529CC84150000FD64 /* DateFormatYYYYMMUseCase.swift */,
-				6A24F90D29D223D90000FD64 /* CreateDailyCalendarUseCase.swift */,
 			);
 			path = Calendar;
 			sourceTree = "<group>";
@@ -2976,6 +3020,8 @@
 		6AC079372A0A1571007ACDB8 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				6A0B76672BA9A2C3008BC571 /* SkeletonView */,
+				6A0B765D2BA99E40008BC571 /* Toast */,
 				6A0B76562BA995CA008BC571 /* CustomAlertVC */,
 				6A9A07D529D3DC5A0051AD43 /* DayPickerVC */,
 				6A0B764E2BA9930F008BC571 /* MonthPickerVC */,
@@ -2983,7 +3029,6 @@
 				6AC079382A0A15A8007ACDB8 /* WideButtonView.swift */,
 				6AC0798D2A0A94E0007ACDB8 /* EmptyResultView.swift */,
 				6A91997F2A12111400108BF4 /* LoadableImageView.swift */,
-				6A9199812A12189000108BF4 /* ToastView.swift */,
 				6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */,
 				6AF077CD2A9615F10086692B /* PaddedLabel.swift */,
 			);
@@ -3475,7 +3520,7 @@
 				6A2BB1CB29E55EBE0053C5CA /* UpdateTodoUseCase.swift in Sources */,
 				6AC0799C2A0AAA68007ACDB8 /* DefaultAcceptGroupJoinUseCase.swift in Sources */,
 				6A987A4829DDB97A00C27D09 /* MyGroupNoticeEditCoordinator.swift in Sources */,
-				6A2C00EA2A72CF71003D6B95 /* Message.swift in Sources */,
+				6A2C00EA2A72CF71003D6B95 /* ToastMessage.swift in Sources */,
 				6A9199EB2A20904700108BF4 /* SocialTodoDTO.swift in Sources */,
 				6AD888D22A89282600F4B887 /* RevokeAppleTokenUseCase.swift in Sources */,
 				6A919A0D2A210D0B00108BF4 /* FetchSearchResultUseCase.swift in Sources */,
@@ -3496,7 +3541,7 @@
 				6A24F86029CB8A6B0000FD64 /* DefaultTodoRepository.swift in Sources */,
 				6A24F83629CB46640000FD64 /* GroupCoordinator.swift in Sources */,
 				6AA3BAD92A24E46400E5B8A2 /* GroupRemoveDTO.swift in Sources */,
-				6AC079672A0A5815007ACDB8 /* UnJoinedGroupDetail.swift in Sources */,
+				6AC079672A0A5815007ACDB8 /* GroupDetail.swift in Sources */,
 				6A2744452A0E9EE0008FB4F5 /* MemberKickOutUseCase.swift in Sources */,
 				6A9199862A1247B700108BF4 /* DefaultUpdateGroupInfoUseCase.swift in Sources */,
 				6AC079A02A0AAAD1007ACDB8 /* AcceptGroupJoinUseCase.swift in Sources */,
@@ -3520,7 +3565,7 @@
 				6AF077C62A960E370086692B /* CategoryButton.swift in Sources */,
 				6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */,
 				6A0B76212B9BA775008BC571 /* AppleSignInDTO.swift in Sources */,
-				6AC079822A0A893B007ACDB8 /* GroupJoinApplied.swift in Sources */,
+				6AC079822A0A893B007ACDB8 /* MyGroupJoinAppliance.swift in Sources */,
 				6A2744212A0E40D3008FB4F5 /* MyGroupDetail.swift in Sources */,
 				6AC079022A07D464007ACDB8 /* TodoUpdateComparator.swift in Sources */,
 				6A0B76582BA995EA008BC571 /* CustomAlertAttr.swift in Sources */,
@@ -3623,8 +3668,8 @@
 				6A2C00D12A712C76003D6B95 /* DefaultFetchGroupMemberTodoDetailUseCase.swift in Sources */,
 				6AC079062A08C28B007ACDB8 /* DefaultProfileRepository.swift in Sources */,
 				6AC079152A08D770007ACDB8 /* DefaultFetchImageUseCase.swift in Sources */,
-				6AC0795C2A0A510F007ACDB8 /* GroupCreate.swift in Sources */,
-				6A9199E92A208F3F00108BF4 /* SocialTodo.swift in Sources */,
+				6AC0795C2A0A510F007ACDB8 /* MyGroupCreationInfo.swift in Sources */,
+				6A9199E92A208F3F00108BF4 /* SocialTodoDetail.swift in Sources */,
 				6A08AD7029C889D6005947D2 /* AppCoordinator.swift in Sources */,
 				6AC079262A092C4E007ACDB8 /* ProfileButton.swift in Sources */,
 				6A24F83A29CB49BD0000FD64 /* Day.swift in Sources */,
@@ -3644,7 +3689,8 @@
 				6A919A002A20BA3900108BF4 /* DefaultFetchGroupDailyCalendarUseCase.swift in Sources */,
 				6A9199912A131E9E00108BF4 /* DefaultGroupMemberCalendarRepository.swift in Sources */,
 				6A14812E2AA9ECDF0088F86F /* DefaultFCMRepository.swift in Sources */,
-				6A9AAAFA29F8D337002A6DAF /* UnJoinedGroupSummary.swift in Sources */,
+				6A9AAAFA29F8D337002A6DAF /* GroupSummary.swift in Sources */,
+				6A0B76622BA9A1F6008BC571 /* SocialTodoSummary.swift in Sources */,
 				6AA3BADF2A24EFAD00E5B8A2 /* DefaultDeleteGroupUseCase.swift in Sources */,
 				6A24F86629CC84150000FD64 /* DateFormatYYYYMMUseCase.swift in Sources */,
 				6A9199562A11FFC000108BF4 /* GroupEditInfoView.swift in Sources */,
@@ -3694,21 +3740,19 @@
 				6A0B761A2B9A983A008BC571 /* DependencyInjector.swift in Sources */,
 				6AC0797C2A0A7C5A007ACDB8 /* FetchMemberListUseCase.swift in Sources */,
 				6A2BB1C929E55EB60053C5CA /* CreateTodoUseCase.swift in Sources */,
-				6A24F90E29D223D90000FD64 /* CreateDailyCalendarUseCase.swift in Sources */,
 				6A2C00BE2A70F58F003D6B95 /* DefaultGroupCategoryRepository.swift in Sources */,
 				6A987A7729DEF55300C27D09 /* DailyCalendarCoordinator.swift in Sources */,
-				6AC078DE2A0287FF007ACDB8 /* TodoViewModel.swift in Sources */,
 				6A61C3F82A6EB1AD00DCA088 /* RemoveTokenUseCase.swift in Sources */,
 				6A9A080829D40C7D0051AD43 /* CategorySelectCell.swift in Sources */,
 				6A9AAB4129FA98A3002A6DAF /* TokenDTO.swift in Sources */,
 				6AA3BAD52A24D75B00E5B8A2 /* CustomAlertViewController.swift in Sources */,
 				6A987A2129DCFC2500C27D09 /* JoinedGroupNoticeViewController.swift in Sources */,
+				6A0B76642BA9A1FF008BC571 /* SocialTodoDaily.swift in Sources */,
 				6A2744432A0E9E4C008FB4F5 /* DefaultMemberKickOutUseCase.swift in Sources */,
 				6A987A3E29DDA88800C27D09 /* MyGroupMemberEditCell.swift in Sources */,
 				6A27442B2A0E4834008FB4F5 /* DefaultFetchMyGroupMemberListUseCase.swift in Sources */,
 				6A9AAB4329FAC180002A6DAF /* DefaultSetTokenUseCase.swift in Sources */,
 				6A0B76312B9BCFD7008BC571 /* DomainAssembly+Group.swift in Sources */,
-				6A24F90C29D223960000FD64 /* DetailDayViewModel.swift in Sources */,
 				6A0B762D2B9BCF86008BC571 /* DomainAssembly+GroupCategory.swift in Sources */,
 				6A9199952A13211E00108BF4 /* DefaultFetchGroupMemberCalendarUseCase.swift in Sources */,
 				6AF078032A98BE0A0086692B /* TodoDetailVC+animatedMove.swift in Sources */,
@@ -3737,6 +3781,7 @@
 				6A9AAAC429F7FCF2002A6DAF /* MyPageMainSelectableCell.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
 				6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */,
+				6A0B76662BA9A216008BC571 /* SocialTodoCategory.swift in Sources */,
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,
 				6A0B76332B9BCFF3008BC571 /* DomainAssembly+MyGroup.swift in Sources */,
 				6A876DA72A94AC70001D800E /* MyGroupDetailViewController2.swift in Sources */,
@@ -3819,12 +3864,11 @@
 				6A08AD9029C89761005947D2 /* UIColor+Ext.swift in Sources */,
 				6A987A0229DBD32700C27D09 /* JoinedGroupDetailViewController.swift in Sources */,
 				6A95DFB729D4DD40009017D8 /* SearchHomeViewModel.swift in Sources */,
-				6A24F90A29D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift in Sources */,
 				6A919A092A20EAA700108BF4 /* FetchGroupMemberDailyCalendarUseCase.swift in Sources */,
 				6A27441F2A0E3FEF008FB4F5 /* MyGroupDetailDTO.swift in Sources */,
 				6A9AAB3D29FA5E07002A6DAF /* CreateCategoryUseCase.swift in Sources */,
 				6A2C00C02A70F727003D6B95 /* GroupCategoryRepository.swift in Sources */,
-				6A2744292A0E468E008FB4F5 /* MyMember.swift in Sources */,
+				6A2744292A0E468E008FB4F5 /* MyGroupMemberProfile.swift in Sources */,
 				6AC079302A0A1272007ACDB8 /* GroupCreateInfoView.swift in Sources */,
 				6A9A07F329D40B5D0051AD43 /* DayPickerView.swift in Sources */,
 				6A987A1B29DBFF3300C27D09 /* JoinedGroupDetailViewModel.swift in Sources */,
