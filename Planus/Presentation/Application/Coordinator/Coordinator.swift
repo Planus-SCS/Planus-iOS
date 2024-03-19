@@ -20,7 +20,8 @@ enum CoordinatorType {
          groupCreate,
          joinedGroup,
          noticeEdit,
-         memberEdit
+         memberEdit,
+         notification
 }
 
 protocol Coordinator: AnyObject {

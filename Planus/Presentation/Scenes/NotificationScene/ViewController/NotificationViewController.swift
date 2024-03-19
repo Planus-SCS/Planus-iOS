@@ -72,6 +72,12 @@ class NotificationViewController: UIViewController {
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        viewModel?.actions.finishScene?()
+    }
+    
     func bind() {
         guard let viewModel else { return }
         
@@ -132,7 +138,7 @@ class NotificationViewController: UIViewController {
     }
     
     @objc func backBtnAction() {
-        self.navigationController?.popViewController(animated: true)
+        viewModel?.actions.pop?()
     }
 
     func configureView() {

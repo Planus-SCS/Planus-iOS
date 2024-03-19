@@ -29,6 +29,8 @@ class PresentationAssembly: Assembly {
         assembleGroupCreateLoading(container: container)
         
         assembleGroupIntroduce(container: container)
+        
+        assembleNotification(container: container)
     }
     
 }
@@ -331,6 +333,29 @@ extension PresentationAssembly {
         
         container.register(GroupIntroduceViewController.self) { (r, injectable: GroupIntroduceViewModel.Injectable) in
             return GroupIntroduceViewController(viewModel: r.resolve(GroupIntroduceViewModel.self, argument: injectable)!)
+        }
+    }
+}
+
+extension PresentationAssembly {
+    func assembleNotification(container: Container) {
+        container.register(NotificationViewModel.self) { (r, injectable: NotificationViewModel.Injectable) in
+            return NotificationViewModel(
+                useCases: .init(
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    setTokenUseCase: r.resolve(SetTokenUseCase.self)!,
+                    fetchJoinApplyListUseCase: r.resolve(FetchJoinApplyListUseCase.self)!,
+                    fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,
+                    acceptGroupJoinUseCase: r.resolve(AcceptGroupJoinUseCase.self)!,
+                    denyGroupJoinUseCase: r.resolve(DenyGroupJoinUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
+        container.register(NotificationViewController.self) { (r, injectable: NotificationViewModel.Injectable) in
+            return NotificationViewController(viewModel: r.resolve(NotificationViewModel.self, argument: injectable)!)
         }
     }
 }
