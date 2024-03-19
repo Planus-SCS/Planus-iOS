@@ -74,6 +74,8 @@
 		6A0B76492B9D7105008BC571 /* TodoDetailCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76482B9D7105008BC571 /* TodoDetailCoordinator.swift */; };
 		6A0B764B2B9D957E008BC571 /* MyPageCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B764A2B9D957E008BC571 /* MyPageCoordinator.swift */; };
 		6A0B764D2BA98347008BC571 /* MyPageMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B764C2BA98347008BC571 /* MyPageMainViewController.swift */; };
+		6A0B76502BA99345008BC571 /* MonthPickerVC+CV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B764F2BA99345008BC571 /* MonthPickerVC+CV.swift */; };
+		6A0B76582BA995EA008BC571 /* CustomAlertAttr.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76572BA995EA008BC571 /* CustomAlertAttr.swift */; };
 		6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75B29D2C25B006F2604 /* edit@2x.png */; };
 		6A0BF75F29D2C25B006F2604 /* edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75C29D2C25B006F2604 /* edit.png */; };
 		6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75D29D2C25B006F2604 /* edit@3x.png */; };
@@ -109,12 +111,12 @@
 		6A2186042A7D11FD005CF505 /* PlaceholderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */; };
 		6A2186262A811CEA005CF505 /* DefaultAppleSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */; };
 		6A2186282A811D53005CF505 /* AppleSignInUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */; };
-		6A21862B2A814C99005CF505 /* a.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A21862A2A814C99005CF505 /* a.swift */; };
+		6A21862B2A814C99005CF505 /* DefaultConvertToSha256UseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A21862A2A814C99005CF505 /* DefaultConvertToSha256UseCase.swift */; };
 		6A21862D2A815148005CF505 /* AppleSignInNonce.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A21862C2A815148005CF505 /* AppleSignInNonce.swift */; };
 		6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */; };
 		6A24F83429CB45D90000FD64 /* SearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */; };
 		6A24F83629CB46640000FD64 /* GroupCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83529CB46640000FD64 /* GroupCoordinator.swift */; };
-		6A24F83A29CB49BD0000FD64 /* DayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83929CB49BD0000FD64 /* DayViewModel.swift */; };
+		6A24F83A29CB49BD0000FD64 /* Day.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83929CB49BD0000FD64 /* Day.swift */; };
 		6A24F83C29CB49F10000FD64 /* WeekDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83B29CB49F10000FD64 /* WeekDay.swift */; };
 		6A24F83E29CB4A440000FD64 /* Todo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F83D29CB4A440000FD64 /* Todo.swift */; };
 		6A24F84429CB4AAE0000FD64 /* CategoryColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F84329CB4AAE0000FD64 /* CategoryColor.swift */; };
@@ -161,7 +163,6 @@
 		6A24F8FA29D1D6470000FD64 /* chevron-right.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8F429D1D6470000FD64 /* chevron-right.png */; };
 		6A24F8FB29D1D6470000FD64 /* chevron-left@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8F529D1D6470000FD64 /* chevron-left@2x.png */; };
 		6A24F8FC29D1D6470000FD64 /* chevron-right@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8F629D1D6470000FD64 /* chevron-right@2x.png */; };
-		6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F8FD29D1E20E0000FD64 /* MonthPickerViewModel.swift */; };
 		6A24F90A29D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90929D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift */; };
 		6A24F90C29D223960000FD64 /* DetailDayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90B29D223960000FD64 /* DetailDayViewModel.swift */; };
 		6A24F90E29D223D90000FD64 /* CreateDailyCalendarUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F90D29D223D90000FD64 /* CreateDailyCalendarUseCase.swift */; };
@@ -706,6 +707,8 @@
 		6A0B76482B9D7105008BC571 /* TodoDetailCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailCoordinator.swift; sourceTree = "<group>"; };
 		6A0B764A2B9D957E008BC571 /* MyPageCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageCoordinator.swift; sourceTree = "<group>"; };
 		6A0B764C2BA98347008BC571 /* MyPageMainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyPageMainViewController.swift; sourceTree = "<group>"; };
+		6A0B764F2BA99345008BC571 /* MonthPickerVC+CV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MonthPickerVC+CV.swift"; sourceTree = "<group>"; };
+		6A0B76572BA995EA008BC571 /* CustomAlertAttr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertAttr.swift; sourceTree = "<group>"; };
 		6A0BF75B29D2C25B006F2604 /* edit@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@2x.png"; sourceTree = "<group>"; };
 		6A0BF75C29D2C25B006F2604 /* edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit.png; sourceTree = "<group>"; };
 		6A0BF75D29D2C25B006F2604 /* edit@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@3x.png"; sourceTree = "<group>"; };
@@ -741,12 +744,12 @@
 		6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTextView.swift; sourceTree = "<group>"; };
 		6A2186252A811CEA005CF505 /* DefaultAppleSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultAppleSignInUseCase.swift; sourceTree = "<group>"; };
 		6A2186272A811D53005CF505 /* AppleSignInUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInUseCase.swift; sourceTree = "<group>"; };
-		6A21862A2A814C99005CF505 /* a.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = a.swift; sourceTree = "<group>"; };
+		6A21862A2A814C99005CF505 /* DefaultConvertToSha256UseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultConvertToSha256UseCase.swift; sourceTree = "<group>"; };
 		6A21862C2A815148005CF505 /* AppleSignInNonce.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInNonce.swift; sourceTree = "<group>"; };
 		6A24F82229CB43FE0000FD64 /* HomeCalendarCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCalendarCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83329CB45D90000FD64 /* SearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoordinator.swift; sourceTree = "<group>"; };
 		6A24F83529CB46640000FD64 /* GroupCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCoordinator.swift; sourceTree = "<group>"; };
-		6A24F83929CB49BD0000FD64 /* DayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayViewModel.swift; sourceTree = "<group>"; };
+		6A24F83929CB49BD0000FD64 /* Day.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day.swift; sourceTree = "<group>"; };
 		6A24F83B29CB49F10000FD64 /* WeekDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekDay.swift; sourceTree = "<group>"; };
 		6A24F83D29CB4A440000FD64 /* Todo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Todo.swift; sourceTree = "<group>"; };
 		6A24F84329CB4AAE0000FD64 /* CategoryColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryColor.swift; sourceTree = "<group>"; };
@@ -793,7 +796,6 @@
 		6A24F8F429D1D6470000FD64 /* chevron-right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chevron-right.png"; sourceTree = "<group>"; };
 		6A24F8F529D1D6470000FD64 /* chevron-left@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chevron-left@2x.png"; sourceTree = "<group>"; };
 		6A24F8F629D1D6470000FD64 /* chevron-right@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chevron-right@2x.png"; sourceTree = "<group>"; };
-		6A24F8FD29D1E20E0000FD64 /* MonthPickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthPickerViewModel.swift; sourceTree = "<group>"; };
 		6A24F90929D220690000FD64 /* DefaultCreateDailyCalendarUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCreateDailyCalendarUseCase.swift; sourceTree = "<group>"; };
 		6A24F90B29D223960000FD64 /* DetailDayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailDayViewModel.swift; sourceTree = "<group>"; };
 		6A24F90D29D223D90000FD64 /* CreateDailyCalendarUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateDailyCalendarUseCase.swift; sourceTree = "<group>"; };
@@ -1319,7 +1321,6 @@
 				6A483DB129CA804C003375BF /* PlanusRelease.entitlements */,
 				6A08AD8E29C89753005947D2 /* Util */,
 				6A08AD7529C8927A005947D2 /* icons */,
-				6A08AD6B29C8864C005947D2 /* Application */,
 				6A08AD6A29C88545005947D2 /* Infrastructure */,
 				6A08AD6929C88508005947D2 /* Data */,
 				6A08AD6729C884B9005947D2 /* Domain */,
@@ -1336,17 +1337,8 @@
 			isa = PBXGroup;
 			children = (
 				6A08ADDE29C8D6B6005947D2 /* Interface */,
-				6A2BB1A129E404B20053C5CA /* MyPageScene */,
-				6A08AD9129C898A1005947D2 /* HomeCalendarScene */,
-				6A987A6F29DEECEE00C27D09 /* DailyCalendarScene */,
-				6A987A4D29DE494E00C27D09 /* MemberProfileScene */,
-				6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */,
-				6A95E00729D5BC52009017D8 /* GroupCreateScene */,
-				6A95DFD629D51BDE009017D8 /* UnJoinedGroupDetailScene */,
-				6A9A07C129D3D7B00051AD43 /* TodoDetailScene */,
-				6A24F82629CB44940000FD64 /* MyGroupScene */,
-				6A24F82529CB44850000FD64 /* SearchScene */,
-				6A08AD9629C89971005947D2 /* SignInScene */,
+				6A08AD6B29C8864C005947D2 /* Application */,
+				6A0B76592BA9966F008BC571 /* Scenes */,
 				6A08AD6C29C88939005947D2 /* Common */,
 			);
 			path = Presentation;
@@ -1376,8 +1368,8 @@
 		6A08AD6A29C88545005947D2 /* Infrastructure */ = {
 			isa = PBXGroup;
 			children = (
-				6A9AAB1029F9079E002A6DAF /* KeyChainManager */,
-				6A08ADD429C8C27A005947D2 /* API */,
+				6A9AAB1029F9079E002A6DAF /* KeyValueStorage */,
+				6A08ADD429C8C27A005947D2 /* APIProvider */,
 			);
 			path = Infrastructure;
 			sourceTree = "<group>";
@@ -1385,10 +1377,10 @@
 		6A08AD6B29C8864C005947D2 /* Application */ = {
 			isa = PBXGroup;
 			children = (
-				6A0B761B2B9A9FC9008BC571 /* TmpInjectorPool */,
-				6A08AD5029C87C61005947D2 /* AppDelegate.swift */,
-				6A08AD5229C87C61005947D2 /* SceneDelegate.swift */,
-				6A0B76192B9A983A008BC571 /* DependencyInjector.swift */,
+				6A0B76522BA994B7008BC571 /* Start */,
+				6A08AD7229C89133005947D2 /* Coordinator */,
+				6A0B76532BA994C9008BC571 /* DI */,
+				6A0B76542BA994F0008BC571 /* NetworkMonitor */,
 			);
 			path = Application;
 			sourceTree = "<group>";
@@ -1398,26 +1390,16 @@
 			children = (
 				6A91998D2A1276CF00108BF4 /* Enum */,
 				6AC079372A0A1571007ACDB8 /* View */,
-				6A08AD7229C89133005947D2 /* Coordinator */,
-				6A08AD7129C8912A005947D2 /* Interface */,
 				6A24F89D29CE29F50000FD64 /* TodoCategory+Ext.swift */,
 				6A24F8BB29CE50DC0000FD64 /* ScrollDirection.swift */,
-				6A61C3F32A6E9CC500DCA088 /* NetworkMonitor.swift */,
 			);
 			path = Common;
-			sourceTree = "<group>";
-		};
-		6A08AD7129C8912A005947D2 /* Interface */ = {
-			isa = PBXGroup;
-			children = (
-				6A08AD6D29C88969005947D2 /* Coordinator.swift */,
-			);
-			path = Interface;
 			sourceTree = "<group>";
 		};
 		6A08AD7229C89133005947D2 /* Coordinator */ = {
 			isa = PBXGroup;
 			children = (
+				6A08AD6D29C88969005947D2 /* Coordinator.swift */,
 				6A08AD6F29C889D5005947D2 /* AppCoordinator.swift */,
 				6A08AD7329C89143005947D2 /* MainTabCoordinator.swift */,
 			);
@@ -1690,7 +1672,6 @@
 			isa = PBXGroup;
 			children = (
 				6A24F85129CB7C400000FD64 /* HomeCalendarViewModel.swift */,
-				6A24F8FD29D1E20E0000FD64 /* MonthPickerViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -1699,7 +1680,6 @@
 			isa = PBXGroup;
 			children = (
 				6A24F88B29CE26540000FD64 /* HomeCalendarViewController.swift */,
-				6A24F8ED29D1D5510000FD64 /* MonthPickerViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -1760,11 +1740,12 @@
 			isa = PBXGroup;
 			children = (
 				6A08ADCE29C8C231005947D2 /* APIProvider.swift */,
+				6AD888C72A891F9100F4B887 /* KeyValueStorage.swift */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
 		};
-		6A08ADD429C8C27A005947D2 /* API */ = {
+		6A08ADD429C8C27A005947D2 /* APIProvider */ = {
 			isa = PBXGroup;
 			children = (
 				6A08ADC929C8C1F3005947D2 /* APIEndPoint.swift */,
@@ -1772,7 +1753,7 @@
 				6A08ADD029C8C256005947D2 /* NetworkManager.swift */,
 				6A08ADD229C8C26F005947D2 /* NetworkManagerError.swift */,
 			);
-			path = API;
+			path = APIProvider;
 			sourceTree = "<group>";
 		};
 		6A08ADD729C8D079005947D2 /* Repository */ = {
@@ -1893,6 +1874,101 @@
 			path = Coordinator;
 			sourceTree = "<group>";
 		};
+		6A0B764E2BA9930F008BC571 /* MonthPickerVC */ = {
+			isa = PBXGroup;
+			children = (
+				6A24F8ED29D1D5510000FD64 /* MonthPickerViewController.swift */,
+				6A0B764F2BA99345008BC571 /* MonthPickerVC+CV.swift */,
+			);
+			path = MonthPickerVC;
+			sourceTree = "<group>";
+		};
+		6A0B76522BA994B7008BC571 /* Start */ = {
+			isa = PBXGroup;
+			children = (
+				6A08AD5029C87C61005947D2 /* AppDelegate.swift */,
+				6A08AD5229C87C61005947D2 /* SceneDelegate.swift */,
+			);
+			path = Start;
+			sourceTree = "<group>";
+		};
+		6A0B76532BA994C9008BC571 /* DI */ = {
+			isa = PBXGroup;
+			children = (
+				6A0B76192B9A983A008BC571 /* DependencyInjector.swift */,
+				6A0B761B2B9A9FC9008BC571 /* TmpInjectorPool */,
+			);
+			path = DI;
+			sourceTree = "<group>";
+		};
+		6A0B76542BA994F0008BC571 /* NetworkMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				6A61C3F32A6E9CC500DCA088 /* NetworkMonitor.swift */,
+			);
+			path = NetworkMonitor;
+			sourceTree = "<group>";
+		};
+		6A0B76552BA995AE008BC571 /* Springable */ = {
+			isa = PBXGroup;
+			children = (
+				6A91997D2A120D5100108BF4 /* SpringableButton.swift */,
+				6A919A042A20E67D00108BF4 /* SpringableCollectionViewCell.swift */,
+			);
+			path = Springable;
+			sourceTree = "<group>";
+		};
+		6A0B76562BA995CA008BC571 /* CustomAlertVC */ = {
+			isa = PBXGroup;
+			children = (
+				6AA3BAD42A24D75B00E5B8A2 /* CustomAlertViewController.swift */,
+				6A0B76572BA995EA008BC571 /* CustomAlertAttr.swift */,
+			);
+			path = CustomAlertVC;
+			sourceTree = "<group>";
+		};
+		6A0B76592BA9966F008BC571 /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				6A08AD9629C89971005947D2 /* SignInScene */,
+				6A2BB1A129E404B20053C5CA /* MyPageScene */,
+				6A08AD9129C898A1005947D2 /* HomeCalendarScene */,
+				6A987A6F29DEECEE00C27D09 /* DailyCalendarScene */,
+				6A9A07C129D3D7B00051AD43 /* TodoDetailScene */,
+				6A24F82529CB44850000FD64 /* SearchScene */,
+				6A987A4D29DE494E00C27D09 /* MemberProfileScene */,
+				6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */,
+				6A95E00729D5BC52009017D8 /* GroupCreateScene */,
+				6A95DFD629D51BDE009017D8 /* UnJoinedGroupDetailScene */,
+				6A24F82629CB44940000FD64 /* MyGroupScene */,
+			);
+			path = Scenes;
+			sourceTree = "<group>";
+		};
+		6A0B765A2BA998D2008BC571 /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Calendar;
+			sourceTree = "<group>";
+		};
+		6A0B765B2BA998F7008BC571 /* Todo */ = {
+			isa = PBXGroup;
+			children = (
+				6A24F83D29CB4A440000FD64 /* Todo.swift */,
+			);
+			path = Todo;
+			sourceTree = "<group>";
+		};
+		6A0B765C2BA998FD008BC571 /* Category */ = {
+			isa = PBXGroup;
+			children = (
+				6A9AAB0829F8FFD6002A6DAF /* Category.swift */,
+				6A24F84329CB4AAE0000FD64 /* CategoryColor.swift */,
+			);
+			path = Category;
+			sourceTree = "<group>";
+		};
 		6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */ = {
 			isa = PBXGroup;
 			children = (
@@ -1938,7 +2014,7 @@
 		6A2186292A814C83005CF505 /* Encrypt */ = {
 			isa = PBXGroup;
 			children = (
-				6A21862A2A814C99005CF505 /* a.swift */,
+				6A21862A2A814C99005CF505 /* DefaultConvertToSha256UseCase.swift */,
 			);
 			path = Encrypt;
 			sourceTree = "<group>";
@@ -2159,11 +2235,11 @@
 		6A483DA829CA22D4003375BF /* Entity */ = {
 			isa = PBXGroup;
 			children = (
-				6A24F83929CB49BD0000FD64 /* DayViewModel.swift */,
+				6A0B765C2BA998FD008BC571 /* Category */,
+				6A0B765B2BA998F7008BC571 /* Todo */,
+				6A0B765A2BA998D2008BC571 /* Calendar */,
+				6A24F83929CB49BD0000FD64 /* Day.swift */,
 				6A24F83B29CB49F10000FD64 /* WeekDay.swift */,
-				6A24F83D29CB4A440000FD64 /* Todo.swift */,
-				6A9AAB0829F8FFD6002A6DAF /* Category.swift */,
-				6A24F84329CB4AAE0000FD64 /* CategoryColor.swift */,
 				6A9AAAF929F8D337002A6DAF /* UnJoinedGroupSummary.swift */,
 				6A24F84529CB4AED0000FD64 /* MonthStateOfDay.swift */,
 				6A24F90B29D223960000FD64 /* DetailDayViewModel.swift */,
@@ -2622,10 +2698,8 @@
 			children = (
 				6A0B76462B9D70CD008BC571 /* Coordinator */,
 				6A9A07FE29D40BDF0051AD43 /* ViewModel */,
-				6A9A07D529D3DC5A0051AD43 /* DayPickerViewController */,
 				6A9A07C329D3D7BE0051AD43 /* ViewController */,
 				6A9A07C229D3D7B90051AD43 /* View */,
-				6A9A07C729D3D83B0051AD43 /* TodoDetailViewControllerPageType.swift */,
 			);
 			path = TodoDetailScene;
 			sourceTree = "<group>";
@@ -2654,7 +2728,7 @@
 			path = ViewController;
 			sourceTree = "<group>";
 		};
-		6A9A07D529D3DC5A0051AD43 /* DayPickerViewController */ = {
+		6A9A07D529D3DC5A0051AD43 /* DayPickerVC */ = {
 			isa = PBXGroup;
 			children = (
 				6A9A07EE29D40B190051AD43 /* DayPickerModel.swift */,
@@ -2666,7 +2740,7 @@
 				6A9A07FA29D40BA90051AD43 /* DayPickerViewController+DataSource.swift */,
 				6A9A07FC29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift */,
 			);
-			path = DayPickerViewController;
+			path = DayPickerVC;
 			sourceTree = "<group>";
 		};
 		6A9A07FE29D40BDF0051AD43 /* ViewModel */ = {
@@ -2675,6 +2749,7 @@
 				6A2C00B62A70F22E003D6B95 /* Interface */,
 				6A9A07FF29D40BEF0051AD43 /* MemberTodoDetailViewModel.swift */,
 				6A2C00B92A70F292003D6B95 /* SocialTodoDetailViewModel.swift */,
+				6A9A07C729D3D83B0051AD43 /* TodoDetailViewControllerPageType.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -2711,14 +2786,13 @@
 			path = DataMapping;
 			sourceTree = "<group>";
 		};
-		6A9AAB1029F9079E002A6DAF /* KeyChainManager */ = {
+		6A9AAB1029F9079E002A6DAF /* KeyValueStorage */ = {
 			isa = PBXGroup;
 			children = (
-				6AD888C62A891F7C00F4B887 /* Interface */,
 				6A9AAB1129F907B0002A6DAF /* KeyChainManager.swift */,
 				6AD888C42A891ED700F4B887 /* UserDefaultsManager.swift */,
 			);
-			path = KeyChainManager;
+			path = KeyValueStorage;
 			sourceTree = "<group>";
 		};
 		6A9AAB2A29FA5CBC002A6DAF /* SignIn */ = {
@@ -2902,13 +2976,14 @@
 		6AC079372A0A1571007ACDB8 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				6A0B76562BA995CA008BC571 /* CustomAlertVC */,
+				6A9A07D529D3DC5A0051AD43 /* DayPickerVC */,
+				6A0B764E2BA9930F008BC571 /* MonthPickerVC */,
+				6A0B76552BA995AE008BC571 /* Springable */,
 				6AC079382A0A15A8007ACDB8 /* WideButtonView.swift */,
 				6AC0798D2A0A94E0007ACDB8 /* EmptyResultView.swift */,
-				6A91997D2A120D5100108BF4 /* SpringableButton.swift */,
 				6A91997F2A12111400108BF4 /* LoadableImageView.swift */,
 				6A9199812A12189000108BF4 /* ToastView.swift */,
-				6A919A042A20E67D00108BF4 /* SpringableCollectionViewCell.swift */,
-				6AA3BAD42A24D75B00E5B8A2 /* CustomAlertViewController.swift */,
 				6A2186032A7D11FD005CF505 /* PlaceholderTextView.swift */,
 				6AF077CD2A9615F10086692B /* PaddedLabel.swift */,
 			);
@@ -2981,14 +3056,6 @@
 				6AF0785C2A9EE9DB0086692B /* GenerateGroupLinkUseCase.swift */,
 			);
 			path = Group;
-			sourceTree = "<group>";
-		};
-		6AD888C62A891F7C00F4B887 /* Interface */ = {
-			isa = PBXGroup;
-			children = (
-				6AD888C72A891F9100F4B887 /* KeyValueStorage.swift */,
-			);
-			path = Interface;
 			sourceTree = "<group>";
 		};
 		6AF077FA2A98BB3C0086692B /* CategorySelect */ = {
@@ -3365,7 +3432,7 @@
 			files = (
 				6A24F84429CB4AAE0000FD64 /* CategoryColor.swift in Sources */,
 				6A2C00B02A6F4B0B003D6B95 /* Vibrate.swift in Sources */,
-				6A21862B2A814C99005CF505 /* a.swift in Sources */,
+				6A21862B2A814C99005CF505 /* DefaultConvertToSha256UseCase.swift in Sources */,
 				6A9199C32A14E6A500108BF4 /* DefaultFetchMyGroupNameListUseCase.swift in Sources */,
 				6A95DFC129D4E882009017D8 /* SearchResultCell.swift in Sources */,
 				6AF077D42A961CBB0086692B /* TodoDetailMemoView.swift in Sources */,
@@ -3456,6 +3523,7 @@
 				6AC079822A0A893B007ACDB8 /* GroupJoinApplied.swift in Sources */,
 				6A2744212A0E40D3008FB4F5 /* MyGroupDetail.swift in Sources */,
 				6AC079022A07D464007ACDB8 /* TodoUpdateComparator.swift in Sources */,
+				6A0B76582BA995EA008BC571 /* CustomAlertAttr.swift in Sources */,
 				6A987A7929DEFC6600C27D09 /* DailyCalendarViewModel.swift in Sources */,
 				6A6C7B932A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift in Sources */,
 				6AC0793F2A0A3650007ACDB8 /* ValidationCheckView.swift in Sources */,
@@ -3525,6 +3593,7 @@
 				6A9AAB0F29F9071F002A6DAF /* DefaultTokenRepository.swift in Sources */,
 				6AC079722A0A73C4007ACDB8 /* FetchUnJoinedGroupUseCase.swift in Sources */,
 				6AF078052A98BE520086692B /* TodoDetailVC+Keyboard.swift in Sources */,
+				6A0B76502BA99345008BC571 /* MonthPickerVC+CV.swift in Sources */,
 				6A08ADD129C8C256005947D2 /* NetworkManager.swift in Sources */,
 				6A24F89B29CE299A0000FD64 /* SmallTodoView.swift in Sources */,
 				6A91998F2A1276DB00108BF4 /* FetchType.swift in Sources */,
@@ -3558,7 +3627,7 @@
 				6A9199E92A208F3F00108BF4 /* SocialTodo.swift in Sources */,
 				6A08AD7029C889D6005947D2 /* AppCoordinator.swift in Sources */,
 				6AC079262A092C4E007ACDB8 /* ProfileButton.swift in Sources */,
-				6A24F83A29CB49BD0000FD64 /* DayViewModel.swift in Sources */,
+				6A24F83A29CB49BD0000FD64 /* Day.swift in Sources */,
 				6A2744392A0E829A008FB4F5 /* DefaultUpdateNoticeUseCase.swift in Sources */,
 				6A24F8F029D1D5F80000FD64 /* MonthPickerViewCell.swift in Sources */,
 				6AC079A42A0B5E0D007ACDB8 /* MyGroupSummaryDTO.swift in Sources */,
@@ -3671,7 +3740,6 @@
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,
 				6A0B76332B9BCFF3008BC571 /* DomainAssembly+MyGroup.swift in Sources */,
 				6A876DA72A94AC70001D800E /* MyGroupDetailViewController2.swift in Sources */,
-				6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */,
 				6AC079192A08D9DB007ACDB8 /* ImageRepository.swift in Sources */,
 				6AD888C82A891F9100F4B887 /* KeyValueStorage.swift in Sources */,
 				6A9199E72A208EDE00108BF4 /* SocialDailyCalendarCell.swift in Sources */,

@@ -9,7 +9,6 @@ import UIKit
 
 enum TabBarPage: Int, CaseIterable {
     case calendar = 0
-//    case todo
     case search
     case group
     
@@ -28,8 +27,6 @@ enum TabBarPage: Int, CaseIterable {
         switch self {
         case .calendar:
             return UIImage(named: "calendarTab")
-//        case .todo:
-//            return UIImage(named: "todoTab")
         case .search:
             return UIImage(named: "searchTab")
         case .group:
