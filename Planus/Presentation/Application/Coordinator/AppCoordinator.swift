@@ -36,7 +36,6 @@ final class AppCoordinator: Coordinator {
         // 우선 여기서 자동로그인이 되있는지를 봐야한다..!
         let getTokenUseCase = dependency.injector.resolve(GetTokenUseCase.self)
         let refreshTokenUseCase = dependency.injector.resolve(RefreshTokenUseCase.self)
-        let setTokenUseCase = dependency.injector.resolve(SetTokenUseCase.self)
         
         getTokenUseCase
             .execute()
@@ -68,8 +67,14 @@ final class AppCoordinator: Coordinator {
     func showSignInFlow() {
         let navigation = UINavigationController()
         dependency.window.rootViewController = navigation
-
-        let signInCoordinator = SignInCoordinator(navigationController: navigation)
+        
+        let signInCoordinator = SignInCoordinator(
+            dependency: .init(
+                navigationController: navigation,
+                injector: self.dependency.injector
+            )
+        )
+        
         signInCoordinator.finishDelegate = self
         signInCoordinator.start()
         childCoordinators.removeAll()
@@ -79,8 +84,6 @@ final class AppCoordinator: Coordinator {
     }
     
     func showMainTabFlow() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
             let navigation = UINavigationController()
             self.dependency.window.rootViewController = navigation
 
@@ -91,9 +94,6 @@ final class AppCoordinator: Coordinator {
             
             self.dependency.window.makeKeyAndVisible()
             self.viewTransitionAnimation()
-            
-//            self?.patchFCMToken()
-        }
     }
     
     func viewTransitionAnimation() {
@@ -126,12 +126,9 @@ final class AppCoordinator: Coordinator {
     }
     
     func patchFCMToken() {
-        let api = NetworkManager()
-        let keyChainManager = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChainManager)
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let fcmRepo = DefaultFCMRepository(apiProvider: NetworkManager(), keyValueStorage: UserDefaultsManager())
+        let getTokenUseCase = dependency.injector.resolve(GetTokenUseCase.self)
+        let refreshTokenUseCase = dependency.injector.resolve(RefreshTokenUseCase.self)
+        let fcmRepo = dependency.injector.resolve(FCMRepository.self)
 
         getTokenUseCase
             .execute()

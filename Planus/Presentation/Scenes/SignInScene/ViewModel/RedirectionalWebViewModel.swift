@@ -8,15 +8,29 @@
 import Foundation
 import RxSwift
 
-struct RedirectionalWebViewActions {
-    var dismissWithOutAuth: (() -> Void)?
-}
-
-class RedirectionalWebViewModel {
+class RedirectionalWebViewModel: ViewModel {
+    
+    struct UseCases {}
+    
+    struct Actions {
+        let dismissWithOutAuth: (() -> Void)?
+    }
+    
+    struct Args {
+        let type: SocialRedirectionType
+        let completion: (String) -> Void
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
     
     var bag = DisposeBag()
     
-    var actions: RedirectionalWebViewActions?
+    let useCases: UseCases
+    let actions: Actions
     
     var type: SocialRedirectionType
     var completion: ((String) -> Void)?
@@ -31,15 +45,18 @@ class RedirectionalWebViewModel {
         var needDismiss: Observable<Void>
     }
     
-    init(type: SocialRedirectionType, completion: @escaping (String) -> Void) {
-        self.type = type
-        self.completion = completion
-    }
-    
-    func setActions(actions: RedirectionalWebViewActions) {
-        self.actions = actions
-    }
+    init(
+        useCases: UseCases,
+        injectable: Injectable
+    ) {
+        self.useCases = useCases
         
+        self.type = injectable.args.type
+        self.completion = injectable.args.completion
+        
+        self.actions = injectable.actions
+    }
+
     func transform(input: Input) -> Output {
         
         input.didFetchedCode

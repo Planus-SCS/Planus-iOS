@@ -217,6 +217,7 @@ class MyPageMainViewModel: ViewModel {
                 retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.signOut()
                 self?.nowResigning = false
