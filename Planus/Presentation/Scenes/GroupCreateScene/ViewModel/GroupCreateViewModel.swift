@@ -8,9 +8,31 @@
 import Foundation
 import RxSwift
 
-class GroupCreateViewModel {
+class GroupCreateViewModel: ViewModel {
+    
+    struct UseCases {
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        let groupCreateUseCase: GroupCreateUseCase
+    }
+    
+    struct Actions {
+        let showGroupCreateLoadPage: ((MyGroupCreationInfo, ImageFile) -> Void)?
+        let finishSceneWithPop: (() -> Void)?
+        let finishScene: (() -> Void)?
+    }
+    
+    struct Args {}
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
     
     var bag = DisposeBag()
+    
+    let useCases: UseCases
+    let actions: Actions
     
     var title = BehaviorSubject<String?>(value: nil)
     var notice = BehaviorSubject<String?>(value: nil)
@@ -21,7 +43,6 @@ class GroupCreateViewModel {
     let tagCountValidState = PublishSubject<Bool>()
     let tagDuplicateValidState = PublishSubject<Bool>()
 
-    var showGroupCreateLoadPage = PublishSubject<(MyGroupCreationInfo, ImageFile)>()
     var nowSaving = false
     var initialTagPopedOver = true
     
@@ -44,30 +65,19 @@ class GroupCreateViewModel {
         var tagCountValidState: Observable<Bool>
         var tagDuplicateValidState: Observable<Bool>
         var isCreateButtonEnabled: Observable<Bool>
-        var showCreateLoadPage: Observable<(MyGroupCreationInfo, ImageFile)>
         var insertTagAt: Observable<Int>
         var remvoeTagAt: Observable<Int>
     }
     
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
-    var setTokenUseCase: SetTokenUseCase
-    var groupCreateUseCase: GroupCreateUseCase
-    
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        setTokenUseCase: SetTokenUseCase,
-        groupCreateUseCase: GroupCreateUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.setTokenUseCase = setTokenUseCase
-        self.groupCreateUseCase = groupCreateUseCase
+        self.useCases = useCases
+        self.actions = injectable.actions
     }
     
     func transform(input: Input) -> Output {
-        
         let insertAt = PublishSubject<Int>()
         let removeAt = PublishSubject<Int>()
 
@@ -155,7 +165,6 @@ class GroupCreateViewModel {
             tagCountValidState: tagCountValidState.asObservable(),
             tagDuplicateValidState: tagDuplicateValidState.asObservable(),
             isCreateButtonEnabled: isCreateButtonEnabled,
-            showCreateLoadPage: showGroupCreateLoadPage.asObservable(),
             insertTagAt: insertAt.asObservable(),
             remvoeTagAt: removeAt.asObservable()
         )
@@ -181,7 +190,6 @@ class GroupCreateViewModel {
             tagList: tagMapped,
             limitCount: limitCount
         )
-
-        showGroupCreateLoadPage.onNext((groupCreate, image))
+        actions.showGroupCreateLoadPage?(groupCreate, image)
     }
 }

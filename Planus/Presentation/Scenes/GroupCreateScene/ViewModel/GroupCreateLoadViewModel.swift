@@ -8,36 +8,52 @@
 import Foundation
 import RxSwift
 
-class GroupCreateLoadViewModel {
+class GroupCreateLoadViewModel: ViewModel {
+    
+    struct UseCases {
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        let groupCreateUseCase: GroupCreateUseCase
+    }
+    
+    struct Actions {
+        let showCreatedGroupPage: ((Int) -> Void)?
+        let backWithCreateFailure: ((String) -> Void)?
+    }
+    
+    struct Args {
+        let groupCreationInfo: MyGroupCreationInfo
+        let groupImage: ImageFile
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
     
     var bag = DisposeBag()
-    var groupCreate: MyGroupCreationInfo?
-    var groupImage: ImageFile?
     
-    var groupCreateCompleted = PublishSubject<Int>()
-    var groupCreateFailedWithMessage = PublishSubject<String>()
+    let useCases: UseCases
+    let actions: Actions
+    
+    var groupCreate: MyGroupCreationInfo
+    var groupImage: ImageFile
     
     struct Input {
         var viewDidLoad: Observable<Void>
     }
     
-    struct Output {
-        let didCreateGroup: Observable<Int>
-        let didCreateFailed: Observable<String>
-    }
-    
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
-    var groupCreateUseCase: GroupCreateUseCase
+    struct Output {}
     
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        groupCreateUseCase: GroupCreateUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.groupCreateUseCase = groupCreateUseCase
+        self.useCases = useCases
+        self.actions = injectable.actions
+        
+        self.groupCreate = injectable.args.groupCreationInfo
+        self.groupImage = injectable.args.groupImage
     }
     
     func transform(input: Input) -> Output {
@@ -49,10 +65,7 @@ class GroupCreateLoadViewModel {
             })
             .disposed(by: bag)
         
-        return Output(
-            didCreateGroup: groupCreateCompleted.asObservable(),
-            didCreateFailed: groupCreateFailedWithMessage.asObservable()
-        )
+        return Output()
     }
     
     func setGroupCreate(groupCreate: MyGroupCreationInfo, image: ImageFile) {
@@ -61,15 +74,13 @@ class GroupCreateLoadViewModel {
     }
     
     func createGroup() {
-        guard let groupCreate,
-              let groupImage else { return }
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Int> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.groupCreateUseCase
+                return self.useCases.groupCreateUseCase
                     .execute(
                         token: token,
                         groupCreate: groupCreate,
@@ -77,16 +88,17 @@ class GroupCreateLoadViewModel {
                     )
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] groupId in
-                self?.groupCreateCompleted.onNext(groupId)
+                self?.actions.showCreatedGroupPage?(groupId)
             }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,
                       case NetworkManagerError.clientError(let status, let message) = error,
                       let message = message else { return }
-                self?.groupCreateFailedWithMessage.onNext(message)
+                self?.actions.backWithCreateFailure?(message)
             })
             .disposed(by: bag)
     }

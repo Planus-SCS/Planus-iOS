@@ -107,7 +107,7 @@ final class MainTabCoordinator: NSObject, Coordinator {
             childCoordinators.append(homeCalendarCoordinator)
             homeCalendarCoordinator.start()
         case .search:
-            let searchCoordinator = SearchCoordinator(navigationController: navigation)
+            let searchCoordinator = SearchCoordinator(dependency: SearchCoordinator.Dependency(navigationController: navigation, injector: dependency.injector))
             searchCoordinator.finishDelegate = self
             childCoordinators.append(searchCoordinator)
             searchCoordinator.start()

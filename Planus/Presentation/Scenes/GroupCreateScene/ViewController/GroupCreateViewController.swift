@@ -43,7 +43,7 @@ class GroupCreateViewController: UIViewController {
     }()
     
     @objc func backBtnAction() {
-        navigationController?.popViewController(animated: true)
+        viewModel?.actions.finishSceneWithPop?()
     }
     
     convenience init(viewModel: GroupCreateViewModel) {
@@ -185,33 +185,6 @@ class GroupCreateViewController: UIViewController {
                     return
                 }
                 vc.infoView.groupImageView.image = UIImage(data: data)
-            })
-            .disposed(by: bag)
-        
-        output
-            .showCreateLoadPage
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, groupInfo in
-                let api = NetworkManager()
-                let keyChain = KeyChainManager()
-                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-                let getToken = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-                let refToken = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-                let groupCreate = DefaultGroupCreateUseCase.shared
-                let viewModel = GroupCreateLoadViewModel(getTokenUseCase: getToken, refreshTokenUseCase: refToken, groupCreateUseCase: groupCreate)
-                viewModel.setGroupCreate(groupCreate: groupInfo.0, image: groupInfo.1)
-                let viewController = GroupCreateLoadViewController(viewModel: viewModel)
-                viewController.failureHandler = { message in
-                    vc.viewModel?.nowSaving = false
-                    vc.view.endEditing(true)
-
-                    if let message {
-                        vc.showToast(message: message, type: .warning)
-                    }
-                }
-                vc.navigationController?.pushViewController(viewController, animated: true)
-                
             })
             .disposed(by: bag)
         

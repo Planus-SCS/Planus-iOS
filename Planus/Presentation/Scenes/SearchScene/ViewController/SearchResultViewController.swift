@@ -78,7 +78,7 @@ class SearchResultViewController: UIViewController {
     }()
     
     @objc func backBtnAction() {
-        viewModel?.actions?.pop?()
+        viewModel?.actions.pop?()
     }
     
     lazy var searchBarField: UITextField = {

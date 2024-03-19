@@ -24,6 +24,9 @@ class PresentationAssembly: Assembly {
         
         assembleSearchHome(container: container)
         assembleSearchResult(container: container)
+        
+        assembleGroupCreate(container: container)
+        assembleGroupCreateLoading(container: container)
     }
     
 }
@@ -266,6 +269,42 @@ extension PresentationAssembly {
         
         container.register(SearchHomeViewController.self) { (r, injectable: SearchHomeViewModel.Injectable) in
             return SearchHomeViewController(viewModel: r.resolve(SearchHomeViewModel.self, argument: injectable)!)
+        }
+    }
+}
+
+extension PresentationAssembly {
+    func assembleGroupCreate(container: Container) {
+        container.register(GroupCreateViewModel.self) { (r, injectable: GroupCreateViewModel.Injectable) in
+            return GroupCreateViewModel(
+                useCases: .init(
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    groupCreateUseCase: r.resolve(GroupCreateUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
+        container.register(GroupCreateViewController.self) { (r, injectable: GroupCreateViewModel.Injectable) in
+            return GroupCreateViewController(viewModel: r.resolve(GroupCreateViewModel.self, argument: injectable)!)
+        }
+    }
+    
+    func assembleGroupCreateLoading(container: Container) {
+        container.register(GroupCreateLoadViewModel.self) { (r, injectable: GroupCreateLoadViewModel.Injectable) in
+            return GroupCreateLoadViewModel(
+                useCases: .init(
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    groupCreateUseCase: r.resolve(GroupCreateUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
+        container.register(GroupCreateLoadViewController.self) { (r, injectable: GroupCreateLoadViewModel.Injectable) in
+            return GroupCreateLoadViewController(viewModel: r.resolve(GroupCreateLoadViewModel.self, argument: injectable)!)
         }
     }
 }

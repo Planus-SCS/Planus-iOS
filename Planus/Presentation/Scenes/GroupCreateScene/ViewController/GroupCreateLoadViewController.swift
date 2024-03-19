@@ -17,9 +17,7 @@ class GroupCreateLoadViewController: UIViewController {
         "그룹을 생성 중이에요",
         "조금만 기다려 주세요"
     ]
-    
-    var failureHandler: ((String?) -> Void)?
-    
+        
     var logoImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "EmptyResultLogo"))
         return imageView
@@ -61,69 +59,7 @@ class GroupCreateLoadViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
-        let output = viewModel.transform(input: GroupCreateLoadViewModel.Input(viewDidLoad: Observable.just(())))
-        
-        output
-            .didCreateGroup
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, groupId in
-                vc.stop()
-                guard let navi = vc.navigationController else { return }
-
-                let api = NetworkManager()
-                let keyChain = KeyChainManager()
-                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-                let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
-                let imageRepo = DefaultImageRepository(apiProvider: api)
-                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-                let fetchMyGroupDetailUseCase = DefaultFetchMyGroupDetailUseCase(myGroupRepository: myGroupRepo)
-                let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-                let setOnlineStateUseCase = DefaultSetOnlineUseCase.shared
-                let myGroupDetailVM = JoinedGroupDetailViewModel(
-                    getTokenUseCase: getTokenUseCase,
-                    refreshTokenUseCase: refreshTokenUseCase,
-                    fetchMyGroupDetailUseCase: fetchMyGroupDetailUseCase,
-                    fetchImageUseCase: fetchImageUseCase,
-                    setOnlineUseCase: setOnlineStateUseCase,
-                    updateNoticeUseCase: DefaultUpdateNoticeUseCase.shared,
-                    updateInfoUseCase: DefaultUpdateGroupInfoUseCase.shared,
-                    withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared
-                )
-                myGroupDetailVM.setGroupId(id: groupId)
-                myGroupDetailVM.setActions(actions: JoinedGroupDetailViewModelActions(pop: {
-                    navi.popViewController(animated: true)
-                }))
-                let myGroupDetailVC = JoinedGroupDetailViewController(viewModel: myGroupDetailVM)
-                
-                var children = navi.viewControllers
-                children.removeAll(where: { childVC in
-                    switch childVC {
-                    case is GroupCreateViewController:
-                        return true
-                    case is GroupCreateLoadViewController:
-                        return true
-                    default:
-                        return false
-                    }
-                })
-                children.append(myGroupDetailVC)
-                
-                navi.setViewControllers(children, animated: true)
-
-            })
-            .disposed(by: bag)
-        
-        output
-            .didCreateFailed
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, message in
-                vc.navigationController?.popViewController(animated: true)
-                vc.failureHandler?(message)
-            })
-            .disposed(by: bag)
+        let _ = viewModel.transform(input: GroupCreateLoadViewModel.Input(viewDidLoad: Observable.just(())))
     }
     
     func configureView() {

@@ -1925,9 +1925,9 @@
 				6A987A6F29DEECEE00C27D09 /* DailyCalendarScene */,
 				6A9A07C129D3D7B00051AD43 /* TodoDetailScene */,
 				6A24F82529CB44850000FD64 /* SearchScene */,
+				6A95E00729D5BC52009017D8 /* GroupCreateScene */,
 				6A987A4D29DE494E00C27D09 /* MemberProfileScene */,
 				6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */,
-				6A95E00729D5BC52009017D8 /* GroupCreateScene */,
 				6A95DFD629D51BDE009017D8 /* UnJoinedGroupDetailScene */,
 				6A24F82629CB44940000FD64 /* MyGroupScene */,
 			);
