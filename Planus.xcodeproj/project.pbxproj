@@ -73,6 +73,7 @@
 		6A0B76432B9BD1B7008BC571 /* PresentationAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76422B9BD1B7008BC571 /* PresentationAssembly.swift */; };
 		6A0B76492B9D7105008BC571 /* TodoDetailCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76482B9D7105008BC571 /* TodoDetailCoordinator.swift */; };
 		6A0B764B2B9D957E008BC571 /* MyPageCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B764A2B9D957E008BC571 /* MyPageCoordinator.swift */; };
+		6A0B764D2BA98347008BC571 /* MyPageMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B764C2BA98347008BC571 /* MyPageMainViewController.swift */; };
 		6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75B29D2C25B006F2604 /* edit@2x.png */; };
 		6A0BF75F29D2C25B006F2604 /* edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75C29D2C25B006F2604 /* edit.png */; };
 		6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75D29D2C25B006F2604 /* edit@3x.png */; };
@@ -195,7 +196,6 @@
 		6A27443F2A0E9DA7008FB4F5 /* MyMemberKickOutDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A27443E2A0E9DA7008FB4F5 /* MyMemberKickOutDTO.swift */; };
 		6A2744432A0E9E4C008FB4F5 /* DefaultMemberKickOutUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744422A0E9E4C008FB4F5 /* DefaultMemberKickOutUseCase.swift */; };
 		6A2744452A0E9EE0008FB4F5 /* MemberKickOutUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2744442A0E9EE0008FB4F5 /* MemberKickOutUseCase.swift */; };
-		6A2BB1A729E404DA0053C5CA /* MyPageMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */; };
 		6A2BB1AC29E406A70053C5CA /* smallArrow@2.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */; };
 		6A2BB1AD29E406A70053C5CA /* smallArrow@3.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */; };
 		6A2BB1AF29E407F30053C5CA /* MyPageMainSwitchableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1AE29E407F30053C5CA /* MyPageMainSwitchableCell.swift */; };
@@ -715,6 +715,7 @@
 		6A0B76422B9BD1B7008BC571 /* PresentationAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentationAssembly.swift; sourceTree = "<group>"; };
 		6A0B76482B9D7105008BC571 /* TodoDetailCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailCoordinator.swift; sourceTree = "<group>"; };
 		6A0B764A2B9D957E008BC571 /* MyPageCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageCoordinator.swift; sourceTree = "<group>"; };
+		6A0B764C2BA98347008BC571 /* MyPageMainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyPageMainViewController.swift; sourceTree = "<group>"; };
 		6A0BF75B29D2C25B006F2604 /* edit@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@2x.png"; sourceTree = "<group>"; };
 		6A0BF75C29D2C25B006F2604 /* edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit.png; sourceTree = "<group>"; };
 		6A0BF75D29D2C25B006F2604 /* edit@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@3x.png"; sourceTree = "<group>"; };
@@ -837,7 +838,6 @@
 		6A27443E2A0E9DA7008FB4F5 /* MyMemberKickOutDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyMemberKickOutDTO.swift; sourceTree = "<group>"; };
 		6A2744422A0E9E4C008FB4F5 /* DefaultMemberKickOutUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultMemberKickOutUseCase.swift; sourceTree = "<group>"; };
 		6A2744442A0E9EE0008FB4F5 /* MemberKickOutUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberKickOutUseCase.swift; sourceTree = "<group>"; };
-		6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MyPageMainViewController.swift; path = ../../../../../../Documents/MyPageMainViewController.swift; sourceTree = "<group>"; };
 		6A2BB1AA29E406A70053C5CA /* smallArrow@2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "smallArrow@2.png"; sourceTree = "<group>"; };
 		6A2BB1AB29E406A70053C5CA /* smallArrow@3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "smallArrow@3.png"; sourceTree = "<group>"; };
 		6A2BB1AE29E407F30053C5CA /* MyPageMainSwitchableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageMainSwitchableCell.swift; sourceTree = "<group>"; };
@@ -2145,7 +2145,7 @@
 		6A2BB1A329E404BE0053C5CA /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
-				6A2BB1A629E404DA0053C5CA /* MyPageMainViewController.swift */,
+				6A0B764C2BA98347008BC571 /* MyPageMainViewController.swift */,
 				6A2BB1B829E426CD0053C5CA /* MyPageReadableViewController.swift */,
 				6A2BB1BC29E431740053C5CA /* MyPageEnquireViewController.swift */,
 				6A2BB1C029E437960053C5CA /* MyPageEditViewController.swift */,
@@ -3493,7 +3493,6 @@
 				6A987A5029DE4A1400C27D09 /* MemberProfileViewController.swift in Sources */,
 				6A919A0B2A210C7100108BF4 /* DefaultFetchSearchResultUseCase.swift in Sources */,
 				6A9A07F129D40B3C0051AD43 /* DayPickerViewController.swift in Sources */,
-				6A2BB1A729E404DA0053C5CA /* MyPageMainViewController.swift in Sources */,
 				6A2186262A811CEA005CF505 /* DefaultAppleSignInUseCase.swift in Sources */,
 				6AC079222A08EB7F007ACDB8 /* DefaultUpdateProfileUseCase.swift in Sources */,
 				6A919A072A20E9C000108BF4 /* DefaultFetchGroupMemberDailyCalendarUseCase.swift in Sources */,
@@ -3720,6 +3719,7 @@
 				6AF078032A98BE0A0086692B /* TodoDetailVC+animatedMove.swift in Sources */,
 				6A9A07FD29D40BBA0051AD43 /* DayPickerViewController+Delegate.swift in Sources */,
 				6A2C00CE2A70FEC8003D6B95 /* DeleteGroupCategoryUseCase.swift in Sources */,
+				6A0B764D2BA98347008BC571 /* MyPageMainViewController.swift in Sources */,
 				6A9AAB3929FA5DB8002A6DAF /* UpdateCategoryUseCase.swift in Sources */,
 				6A9AAB1F29FA5390002A6DAF /* DefaultRefreshTokenUseCase.swift in Sources */,
 				6A987A4A29DDBB4200C27D09 /* MyGroupNoticeEditViewModel.swift in Sources */,
