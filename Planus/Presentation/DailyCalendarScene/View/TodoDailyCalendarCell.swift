@@ -14,7 +14,7 @@ class TodoDailyCalendarCell: UICollectionViewCell {
     weak var delegate: TodoDailyCalendarCellDelegate?
     
     var index: Int?
-    var collectionView = TodoDailyCollectionView(frame: .zero)
+    var collectionView = DailyCalendarCollectionView(frame: .zero)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -68,7 +68,7 @@ extension TodoDailyCalendarCell: UICollectionViewDataSource, UICollectionViewDel
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let index,
               let dayItem = delegate?.todoDailyCalendarCell(self, itemAt: index),
-              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else { return UICollectionViewCell() }
+              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarTodoCell.reuseIdentifier, for: indexPath) as? DailyCalendarTodoCell else { return UICollectionViewCell() }
         
         var todoItem: Todo
         switch indexPath.section {
@@ -89,7 +89,7 @@ extension TodoDailyCalendarCell: UICollectionViewDataSource, UICollectionViewDel
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 
-        guard let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: TodoDailyCollectionView.headerKind, withReuseIdentifier: TodoSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? TodoSectionHeaderSupplementaryView else { return UICollectionReusableView() }
+        guard let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: DailyCalendarCollectionView.headerKind, withReuseIdentifier: DailyCalendarSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? DailyCalendarSectionHeaderSupplementaryView else { return UICollectionReusableView() }
         
         var title: String
         switch indexPath.section {

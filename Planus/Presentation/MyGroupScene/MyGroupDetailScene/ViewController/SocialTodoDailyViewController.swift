@@ -32,8 +32,8 @@ class SocialTodoDailyViewController: UIViewController {
         return item
     }()
     
-    lazy var collectionView: TodoDailyCollectionView = {
-        let cv = TodoDailyCollectionView(frame: .zero)
+    lazy var collectionView: DailyCalendarCollectionView = {
+        let cv = DailyCalendarCollectionView(frame: .zero)
         cv.dataSource = self
         cv.delegate = self
         return cv
@@ -199,20 +199,20 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
                !scheduledList.isEmpty {
                 todoItem = scheduledList[indexPath.item]
             } else {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+                return collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarEmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
         case 1:
             if let unscheduledList = viewModel?.unscheduledTodoList,
                !unscheduledList.isEmpty {
                 todoItem = unscheduledList[indexPath.item]
             } else {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+                return collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarEmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
         default: return UICollectionViewCell()
         }
         guard let todoItem else { return UICollectionViewCell() }
 
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarTodoCell.reuseIdentifier, for: indexPath) as? DailyCalendarTodoCell else {
             return UICollectionViewCell()
         }
         cell.fill(
@@ -237,7 +237,7 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 
-        guard let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: TodoDailyCollectionView.headerKind, withReuseIdentifier: TodoSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? TodoSectionHeaderSupplementaryView else { return UICollectionReusableView() }
+        guard let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: DailyCalendarCollectionView.headerKind, withReuseIdentifier: DailyCalendarSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? DailyCalendarSectionHeaderSupplementaryView else { return UICollectionReusableView() }
         
         var title: String
         switch indexPath.section {

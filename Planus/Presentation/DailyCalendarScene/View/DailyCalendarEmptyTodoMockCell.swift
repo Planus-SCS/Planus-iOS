@@ -7,7 +7,7 @@
 
 import UIKit
 
-class EmptyTodoMockCell: UICollectionViewCell {
+class DailyCalendarEmptyTodoMockCell: UICollectionViewCell {
     static let reuseIdentifier = "empty-todo-mock-cell"
     
     let leftimageView: UIImageView = {

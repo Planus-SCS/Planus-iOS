@@ -159,7 +159,7 @@ class HomeCalendarViewController: UIViewController {
         output.showDailyTodoPage
             .withUnretained(self)
             .subscribe(onNext: { vc, dayViewModel in
-                viewModel.actions.showDailyCalendarPage?(TodoDailyViewModel.Args(
+                viewModel.actions.showDailyCalendarPage?(DailyCalendarViewModel.Args(
                     currentDate: dayViewModel.date,
                     todoList: viewModel.todos[dayViewModel.date] ?? [],
                     categoryDict: viewModel.memberCategories ,

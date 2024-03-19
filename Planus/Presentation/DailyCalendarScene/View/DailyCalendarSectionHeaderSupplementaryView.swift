@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TodoSectionHeaderSupplementaryView: UICollectionReusableView {
+class DailyCalendarSectionHeaderSupplementaryView: UICollectionReusableView {
     static let reuseIdentifier = "todo-section-header-supplementary-view"
     
     let titleLabel: UILabel = {

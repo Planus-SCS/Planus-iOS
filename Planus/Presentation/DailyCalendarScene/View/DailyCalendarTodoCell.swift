@@ -7,7 +7,7 @@
 
 import UIKit
 
-class BigTodoCell: SpringableCollectionViewCell {
+class DailyCalendarTodoCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "big-todo-cell"
     
     var buttonClosure: (() -> Void)?
@@ -24,8 +24,8 @@ class BigTodoCell: SpringableCollectionViewCell {
         return label
     }()
 
-    lazy var checkButton: TodoCheckButton = {
-        let button = TodoCheckButton(frame: .zero)
+    lazy var checkButton: DailyCalendarTodoCheckButton = {
+        let button = DailyCalendarTodoCheckButton(frame: .zero)
         button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         return button
     }()

@@ -1,5 +1,5 @@
 //
-//  TodoDailyCoordinator.swift
+//  DailyCalendarCoordinator.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/04/06.
@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-class TodoDailyCoordinator: Coordinator {
+class DailyCalendarCoordinator: Coordinator {
     
     struct Dependency {
         let navigationController: UINavigationController
@@ -28,15 +28,15 @@ class TodoDailyCoordinator: Coordinator {
         self.dependency = dependency
     }
     
-    func start(args: TodoDailyViewModel.Args) {
+    func start(args: DailyCalendarViewModel.Args) {
         showDailyCalendarPage(args)
     }
     
-    lazy var showDailyCalendarPage: (TodoDailyViewModel.Args) -> Void = { [weak self] args in
+    lazy var showDailyCalendarPage: (DailyCalendarViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
         let viewController = self.dependency.injector.resolve(
-            TodoDailyViewController.self,
-            argument: TodoDailyViewModel.Injectable(
+            DailyCalendarViewController.self,
+            argument: DailyCalendarViewModel.Injectable(
                 actions: .init(showTodoDetailPage: showTodoDetailPage),
                 args: args
             )
@@ -70,7 +70,7 @@ class TodoDailyCoordinator: Coordinator {
 
 }
 
-extension TodoDailyCoordinator: CoordinatorFinishDelegate {
+extension DailyCalendarCoordinator: CoordinatorFinishDelegate {
     func coordinatorDidFinish(childCoordinator: Coordinator) {
         childCoordinators = childCoordinators.filter {
             $0.type != childCoordinator.type

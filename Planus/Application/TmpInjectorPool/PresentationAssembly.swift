@@ -133,8 +133,8 @@ extension PresentationAssembly {
 
 extension PresentationAssembly {
     func assembleDailyCalendar(container: Container) {
-        container.register(TodoDailyViewModel.self) { (r, injectable: TodoDailyViewModel.Injectable) in
-            return TodoDailyViewModel(
+        container.register(DailyCalendarViewModel.self) { (r, injectable: DailyCalendarViewModel.Injectable) in
+            return DailyCalendarViewModel(
                 useCases: .init(
                     getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
                     refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
@@ -151,8 +151,8 @@ extension PresentationAssembly {
             )
         }
         
-        container.register(TodoDailyViewController.self) { (r, injectable: TodoDailyViewModel.Injectable) in
-            return TodoDailyViewController(viewModel: r.resolve(TodoDailyViewModel.self, argument: injectable)!)
+        container.register(DailyCalendarViewController.self) { (r, injectable: DailyCalendarViewModel.Injectable) in
+            return DailyCalendarViewController(viewModel: r.resolve(DailyCalendarViewModel.self, argument: injectable)!)
         }
     }
 }

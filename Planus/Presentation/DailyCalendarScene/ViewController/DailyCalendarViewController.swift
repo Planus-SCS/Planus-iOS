@@ -8,10 +8,10 @@
 import UIKit
 import RxSwift
 
-class TodoDailyViewController: UIViewController {
+class DailyCalendarViewController: UIViewController {
     
     var bag = DisposeBag()
-    var viewModel: TodoDailyViewModel?
+    var viewModel: DailyCalendarViewModel?
     
     var didTappedCompletionBtnAt = PublishSubject<IndexPath>()
     var didDeleteTodoAt = PublishSubject<IndexPath>()
@@ -31,14 +31,14 @@ class TodoDailyViewController: UIViewController {
         return item
     }()
     
-    lazy var collectionView: TodoDailyCollectionView = {
-        let cv = TodoDailyCollectionView(frame: .zero)
+    lazy var collectionView: DailyCalendarCollectionView = {
+        let cv = DailyCalendarCollectionView(frame: .zero)
         cv.dataSource = self
         cv.delegate = self
         return cv
     }()
     
-    convenience init(viewModel: TodoDailyViewModel) {
+    convenience init(viewModel: DailyCalendarViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
@@ -71,7 +71,7 @@ class TodoDailyViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
-        let input = TodoDailyViewModel.Input(
+        let input = DailyCalendarViewModel.Input(
             deleteTodoAt: didDeleteTodoAt.asObservable(),
             completeTodoAt: didTappedCompletionBtnAt.asObservable()
         )
@@ -212,7 +212,7 @@ class TodoDailyViewController: UIViewController {
 
 }
 
-extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension DailyCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch section {
         case 0:
@@ -235,14 +235,14 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
                !scheduledList.isEmpty {
                 todoItem = scheduledList[indexPath.item]
             } else {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+                return collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarEmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
         case 1:
             if let unscheduledList = viewModel?.unscheduledTodoList,
                !unscheduledList.isEmpty {
                 todoItem = unscheduledList[indexPath.item]
             } else {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: EmptyTodoMockCell.reuseIdentifier, for: indexPath)
+                return collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarEmptyTodoMockCell.reuseIdentifier, for: indexPath)
             }
         default:
             return UICollectionViewCell()
@@ -256,7 +256,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
         
         guard let category else { return UICollectionViewCell() }
         
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BigTodoCell.reuseIdentifier, for: indexPath) as? BigTodoCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarTodoCell.reuseIdentifier, for: indexPath) as? DailyCalendarTodoCell else {
             return UICollectionViewCell()
         }
                 
@@ -285,7 +285,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 
-        guard let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: TodoDailyCollectionView.headerKind, withReuseIdentifier: TodoSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? TodoSectionHeaderSupplementaryView else { return UICollectionReusableView() }
+        guard let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: DailyCalendarCollectionView.headerKind, withReuseIdentifier: DailyCalendarSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? DailyCalendarSectionHeaderSupplementaryView else { return UICollectionReusableView() }
         
         var title: String
         switch indexPath.section {
@@ -359,7 +359,7 @@ extension TodoDailyViewController: UICollectionViewDataSource, UICollectionViewD
 
 }
 
-extension TodoDailyViewController: UIPopoverPresentationControllerDelegate {
+extension DailyCalendarViewController: UIPopoverPresentationControllerDelegate {
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
     }

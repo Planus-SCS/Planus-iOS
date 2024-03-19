@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TodoCheckButton: SpringableButton {
+class DailyCalendarTodoCheckButton: SpringableButton {
     
     var onImage: UIImage? = {
         let image = UIImage(named: "checkedBox")

@@ -1,5 +1,5 @@
 //
-//  TodoDailyCollectionView.swift
+//  DailyCalendarCollectionView.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/28.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TodoDailyCollectionView: UICollectionView {
+class DailyCalendarCollectionView: UICollectionView {
     
     static let backgroundKind = "todo-background-element-kind"
     static let headerKind = "todo-header-element-kind"
@@ -30,9 +30,9 @@ class TodoDailyCollectionView: UICollectionView {
     private func configureView() {
         self.backgroundColor = UIColor(hex: 0xF5F5FB)
         
-        self.register(BigTodoCell.self, forCellWithReuseIdentifier: BigTodoCell.reuseIdentifier)
-        self.register(EmptyTodoMockCell.self, forCellWithReuseIdentifier: EmptyTodoMockCell.reuseIdentifier)
-        self.register(TodoSectionHeaderSupplementaryView.self, forSupplementaryViewOfKind: Self.headerKind, withReuseIdentifier: TodoSectionHeaderSupplementaryView.reuseIdentifier)
+        self.register(DailyCalendarTodoCell.self, forCellWithReuseIdentifier: DailyCalendarTodoCell.reuseIdentifier)
+        self.register(DailyCalendarEmptyTodoMockCell.self, forCellWithReuseIdentifier: DailyCalendarEmptyTodoMockCell.reuseIdentifier)
+        self.register(DailyCalendarSectionHeaderSupplementaryView.self, forSupplementaryViewOfKind: Self.headerKind, withReuseIdentifier: DailyCalendarSectionHeaderSupplementaryView.reuseIdentifier)
     }
     
     private func createLayout() -> UICollectionViewLayout {
@@ -71,7 +71,7 @@ class TodoDailyCollectionView: UICollectionView {
         section.boundarySupplementaryItems = [sectionHeader]
         
         let layout = UICollectionViewCompositionalLayout(section: section)
-        layout.register(TodoSectionBackgroundDecorationView.self, forDecorationViewOfKind: Self.backgroundKind)
+        layout.register(DailyCalendarSectionBackgroundDecorationView.self, forDecorationViewOfKind: Self.backgroundKind)
         
         return layout
     }

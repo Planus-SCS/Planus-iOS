@@ -48,11 +48,11 @@ class HomeCalendarCoordinator: Coordinator {
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }
     
-    lazy var showDailyCalendarPage: (TodoDailyViewModel.Args) -> Void = { [weak self] args in
+    lazy var showDailyCalendarPage: (DailyCalendarViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
         
-        let coordinator = TodoDailyCoordinator(
-            dependency:TodoDailyCoordinator.Dependency(
+        let coordinator = DailyCalendarCoordinator(
+            dependency: DailyCalendarCoordinator.Dependency(
                 navigationController: self.dependency.navigationController,
                 injector: self.dependency.injector
             )

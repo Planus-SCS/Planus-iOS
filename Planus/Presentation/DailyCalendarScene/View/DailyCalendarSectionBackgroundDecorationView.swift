@@ -1,5 +1,5 @@
 //
-//  TodoSectionBackgroundDecorationView.swift
+//  DailyCalendarSectionBackgroundDecorationView.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/28.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TodoSectionBackgroundDecorationView: UICollectionReusableView {
+class DailyCalendarSectionBackgroundDecorationView: UICollectionReusableView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .white
