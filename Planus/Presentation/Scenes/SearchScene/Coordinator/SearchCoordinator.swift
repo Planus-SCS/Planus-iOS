@@ -65,7 +65,12 @@ class SearchCoordinator: Coordinator {
     
     lazy var showGroupIntroducePage: (Int) -> Void = { [weak self] groupId in
         guard let self else { return }
-        let groupIntroduceCoordinator = GroupIntroduceCoordinator(navigationController: self.dependency.navigationController)
+        let groupIntroduceCoordinator = GroupIntroduceCoordinator(
+            dependency: GroupIntroduceCoordinator.Dependency(
+                navigationController: self.dependency.navigationController,
+                injector: self.dependency.injector
+            )
+        )
         groupIntroduceCoordinator.finishDelegate = self
         self.childCoordinators.append(groupIntroduceCoordinator)
         groupIntroduceCoordinator.start(id: groupId)
@@ -73,7 +78,12 @@ class SearchCoordinator: Coordinator {
     
     lazy var showGroupCreatePage: () -> Void = { [weak self] in
         guard let self else { return }
-        let groupCreateCoordinator = GroupCreateCoordinator(dependency: GroupCreateCoordinator.Dependency(navigationController: dependency.navigationController, injector: dependency.injector))
+        let groupCreateCoordinator = GroupCreateCoordinator(
+            dependency: GroupCreateCoordinator.Dependency(
+                navigationController: dependency.navigationController,
+                injector: dependency.injector
+            )
+        )
         groupCreateCoordinator.finishDelegate = self
         self.childCoordinators.append(groupCreateCoordinator)
         groupCreateCoordinator.start()

@@ -127,7 +127,7 @@ extension TodoDetailViewController {
             self.view.layoutIfNeeded()
         }) { _ in
             if self.presentingViewController != nil {
-                self.dismiss(animated: false, completion: nil)
+                self.viewModel?.actions.close?()
             }
         }
     }

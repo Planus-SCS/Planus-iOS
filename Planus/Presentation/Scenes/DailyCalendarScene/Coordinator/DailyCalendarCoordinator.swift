@@ -37,7 +37,10 @@ class DailyCalendarCoordinator: Coordinator {
         let viewController = self.dependency.injector.resolve(
             DailyCalendarViewController.self,
             argument: DailyCalendarViewModel.Injectable(
-                actions: .init(showTodoDetailPage: showTodoDetailPage),
+                actions: .init(
+                    showTodoDetailPage: showTodoDetailPage,
+                    finishScene: finishScene
+                ),
                 args: args
             )
         )
@@ -66,6 +69,10 @@ class DailyCalendarCoordinator: Coordinator {
         coordinator.finishDelegate = self
         self.childCoordinators.append(coordinator)
         coordinator.start(type: .memberTodo, args: args)
+    }
+    
+    lazy var finishScene: (() -> Void)? = { [weak self] in
+        self?.finish()
     }
 
 }

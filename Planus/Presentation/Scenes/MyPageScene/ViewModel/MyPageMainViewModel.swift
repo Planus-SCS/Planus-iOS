@@ -47,6 +47,7 @@ class MyPageMainViewModel: ViewModel {
         var showTermsOfUse: (() -> Void)?
         var showPrivacyPolicy: (() -> Void)?
         var backToSignIn: (() -> Void)?
+        var pop: (() -> Void)?
         var finish: (() -> Void)?
     }
     

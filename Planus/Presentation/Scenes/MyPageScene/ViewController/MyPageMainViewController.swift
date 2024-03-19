@@ -75,11 +75,11 @@ class MyPageMainViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        
+        viewModel?.actions.finish?()
     }
     
     @objc func backBtnAction() {
-        self.navigationController?.popViewController(animated: true)
+        viewModel?.actions.pop?()
     }
     
     @objc func editBtnTapped() {

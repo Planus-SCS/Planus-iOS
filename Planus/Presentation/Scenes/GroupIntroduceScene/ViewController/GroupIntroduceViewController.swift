@@ -8,7 +8,6 @@
 import UIKit
 import RxSwift
 import RxCocoa
-// 컴포지셔널 레이아웃 써서 어엄청 크게 만들자, 디퍼블을 쓸까? 고민되네
 
 enum GroupIntroduceSectionKind: Int, CaseIterable {
     case info = 0
@@ -160,8 +159,12 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
         self.navigationController?.navigationBar.scrollEdgeAppearance = initialAppearance
     }
     
-    var co: JoinedGroupDetailCoordinator?
-    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        viewModel?.actions.finishScene?()
+    }
+        
     func bind() {
         guard let viewModel else { return }
         
@@ -187,18 +190,6 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
         .disposed(by: bag)
         
         output
-            .didGroupInfoFetched
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onError: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.navigationController?.popViewController(animated: true)
-                self?.navigationController?.topViewController?.showToast(message: message, type: .warning)
-            })
-            .disposed(by: bag)
-        
-        output
             .isJoinableGroup
             .compactMap { $0 }
             .withUnretained(self)
@@ -213,16 +204,6 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
                     vc.joinButton.setTitle("빈 자리가 없어요 😭", for: .normal)
                     vc.joinButton.isEnabled = false
                 }
-            })
-            .disposed(by: bag)
-        
-        output
-            .showGroupDetailPage
-            .withUnretained(self)
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { vc, id in
-                vc.co = JoinedGroupDetailCoordinator(navigationController: vc.navigationController!)
-                vc.co?.start(id: id)
             })
             .disposed(by: bag)
         
@@ -281,7 +262,7 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
     }
     
     @objc func backBtnAction() {
-        navigationController?.popViewController(animated: true)
+        viewModel?.actions.pop?()
     }
     
     @objc func shareBtnAction() {
@@ -360,7 +341,7 @@ extension GroupIntroduceViewController: UICollectionViewDataSource {
                 return view
             }
             view.stopSkeletonAnimation()
-            // 이부분 아무래도 셀로 만들어야할거같다.. 네트워크 받아오면 업댓해야되서 그전까지 비워놔야한다,,, 그냥 빈화면으로 보여줄까? 것도 낫베드긴한디
+            
             view.fill(
                 title: viewModel?.groupTitle ?? "",
                 tag: viewModel?.tag ?? "",

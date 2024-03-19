@@ -42,6 +42,7 @@ class MyPageCoordinator: Coordinator {
                     showTermsOfUse: self.showTermsOfUse,
                     showPrivacyPolicy: self.showPrivacyPolicy,
                     backToSignIn: self.backToSignIn,
+                    pop: self.goBack,
                     finish: self.finish
                 ),
                 args: .init(profile: profile)

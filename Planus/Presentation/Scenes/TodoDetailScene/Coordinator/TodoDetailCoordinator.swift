@@ -18,11 +18,9 @@ class TodoDetailCoordinator: Coordinator {
     
     let dependency: Dependency
     weak var finishDelegate: CoordinatorFinishDelegate?
-    
-        
     var childCoordinators: [Coordinator] = []
+    var type: CoordinatorType = .todoDetail
     
-    var type: CoordinatorType = .homeCalendar
     var viewController: TodoDetailViewController?
         
     init(dependency: Dependency) {
@@ -62,6 +60,7 @@ class TodoDetailCoordinator: Coordinator {
     lazy var close: () -> Void = { [weak self] in
         guard let self else { return }
         self.viewController?.dismiss(animated: true)
+        self.finish()
     }
 }
 

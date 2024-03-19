@@ -36,7 +36,7 @@ class GroupCreateCoordinator: Coordinator {
             argument: GroupCreateViewModel.Injectable(
                 actions: .init(
                     showGroupCreateLoadPage: self.showGroupCreateLoadPage,
-                    finishSceneWithPop: finishSceneWithPop,
+                    pop: pop,
                     finishScene: finishScene
                 ),
                 args: .init()
@@ -113,18 +113,17 @@ class GroupCreateCoordinator: Coordinator {
     
     lazy var backWithCreateFailure: (String) -> Void = { [weak self] message in
         guard let self else { return }
-        self.dependency.navigationController.popViewController(animated: true)
+        self.pop()
         
         guard let exVC = self.dependency.navigationController.viewControllers.first(where: { $0 is GroupCreateViewController }) as? GroupCreateViewController else { return }
         exVC.viewModel?.nowSaving = false
         exVC.view.endEditing(true)
 
-        exVC.showToast(message: message, type: .warning)
+        self.dependency.navigationController.topViewController?.showToast(message: message, type: .warning)
     }
 
-    lazy var finishSceneWithPop: () -> Void = { [weak self] in
+    lazy var pop: () -> Void = { [weak self] in
         self?.dependency.navigationController.popViewController(animated: true)
-        self?.finishScene()
     }
     
     lazy var finishScene: () -> Void = { [weak self] in

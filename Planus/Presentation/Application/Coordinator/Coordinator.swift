@@ -13,7 +13,7 @@ enum CoordinatorType {
          signIn,
          homeCalendar,
          dailyCalendar,
-         todo,
+         todoDetail,
          search,
          group,
          groupIntroduce,

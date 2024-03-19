@@ -68,6 +68,12 @@ class DailyCalendarViewController: UIViewController {
         navigationItem.setRightBarButton(addTodoButton, animated: false)
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        viewModel?.actions.finishScene?()
+    }
+    
     func bind() {
         guard let viewModel else { return }
         

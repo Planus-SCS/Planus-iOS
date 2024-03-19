@@ -18,7 +18,7 @@ class GroupCreateViewModel: ViewModel {
     
     struct Actions {
         let showGroupCreateLoadPage: ((MyGroupCreationInfo, ImageFile) -> Void)?
-        let finishSceneWithPop: (() -> Void)?
+        let pop: (() -> Void)?
         let finishScene: (() -> Void)?
     }
     

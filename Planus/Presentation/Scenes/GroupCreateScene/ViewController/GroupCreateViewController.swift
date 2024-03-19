@@ -43,7 +43,7 @@ class GroupCreateViewController: UIViewController {
     }()
     
     @objc func backBtnAction() {
-        viewModel?.actions.finishSceneWithPop?()
+        viewModel?.actions.pop?()
     }
     
     convenience init(viewModel: GroupCreateViewModel) {
@@ -85,6 +85,12 @@ class GroupCreateViewController: UIViewController {
         super.viewWillDisappear(animated)
         
         self.removeKeyboardNotifications()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        viewModel?.actions.finishScene?()
     }
     
     func bind() {

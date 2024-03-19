@@ -54,7 +54,7 @@ class NetworkManager: APIProvider {
 //                        print(String(data: body, encoding: .utf8))
 //                    }
 //
-                    print(String(data: data, encoding: .utf8))
+//                    print(String(data: data, encoding: .utf8))
 //                }
 
                 guard let httpResponse = response as? HTTPURLResponse else { return }

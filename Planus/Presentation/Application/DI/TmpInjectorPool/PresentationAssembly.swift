@@ -27,6 +27,8 @@ class PresentationAssembly: Assembly {
         
         assembleGroupCreate(container: container)
         assembleGroupCreateLoading(container: container)
+        
+        assembleGroupIntroduce(container: container)
     }
     
 }
@@ -305,6 +307,30 @@ extension PresentationAssembly {
         
         container.register(GroupCreateLoadViewController.self) { (r, injectable: GroupCreateLoadViewModel.Injectable) in
             return GroupCreateLoadViewController(viewModel: r.resolve(GroupCreateLoadViewModel.self, argument: injectable)!)
+        }
+    }
+}
+
+extension PresentationAssembly {
+    func assembleGroupIntroduce(container: Container) {
+        container.register(GroupIntroduceViewModel.self) { (r, injectable: GroupIntroduceViewModel.Injectable) in
+            return GroupIntroduceViewModel(
+                useCases: .init(
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    setTokenUseCase: r.resolve(SetTokenUseCase.self)!,
+                    fetchUnJoinedGroupUseCase: r.resolve(FetchUnJoinedGroupUseCase.self)!,
+                    fetchMemberListUseCase: r.resolve(FetchMemberListUseCase.self)!,
+                    fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,
+                    applyGroupJoinUseCase: r.resolve(ApplyGroupJoinUseCase.self)!,
+                    generateGroupLinkUseCase: r.resolve(GenerateGroupLinkUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
+        container.register(GroupIntroduceViewController.self) { (r, injectable: GroupIntroduceViewModel.Injectable) in
+            return GroupIntroduceViewController(viewModel: r.resolve(GroupIntroduceViewModel.self, argument: injectable)!)
         }
     }
 }
