@@ -8,16 +8,33 @@
 import Foundation
 import RxSwift
 
-struct SearchResultViewModelActions {
-    var pop: (() -> Void)?
-    var showGroupIntroducePage: ((Int) -> Void)?
-    var showGroupCreatePage: (() -> Void)?
-}
-
-class SearchResultViewModel {
+class SearchResultViewModel: ViewModel {
+    
+    struct UseCases {
+        let recentQueryRepository: RecentQueryRepository
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        let fetchSearchResultUseCase: FetchSearchResultUseCase
+        let fetchImageUseCase: FetchImageUseCase
+    }
+    
+    struct Actions {
+        var pop: (() -> Void)?
+        var showGroupIntroducePage: ((Int) -> Void)?
+        var showGroupCreatePage: (() -> Void)?
+    }
+    
+    struct Args {}
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
+    let useCases: UseCases
+    let actions: Actions
     
     var bag = DisposeBag()
-    var actions: SearchResultViewModelActions?
         
     var history: [String] = []
     var result: [GroupSummary] = []
@@ -60,31 +77,14 @@ class SearchResultViewModel {
         var didFetchHistory: Observable<Void?>
     }
     
-    let recentQueryRepository: RecentQueryRepository
-    
-    let getTokenUseCase: GetTokenUseCase
-    let refreshTokenUseCase: RefreshTokenUseCase
-    let fetchSearchResultUseCase: FetchSearchResultUseCase
-    let fetchImageUseCase: FetchImageUseCase
-    
     init(
-        recentQueryRepository: RecentQueryRepository,
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        fetchSearchResultUseCase: FetchSearchResultUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.recentQueryRepository = recentQueryRepository
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.fetchSearchResultUseCase = fetchSearchResultUseCase
-        self.fetchImageUseCase = fetchImageUseCase
+        self.useCases = useCases
+        self.actions = injectable.actions
     }
-    
-    func setActions(actions: SearchResultViewModelActions) {
-        self.actions = actions
-    }
-    
+
     func transform(input: Input) -> Output {
         input
             .viewDidLoad
@@ -100,7 +100,7 @@ class SearchResultViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 let groupId = vm.result[index].groupId
-                vm.actions?.showGroupIntroducePage?(groupId)
+                vm.actions.showGroupIntroducePage?(groupId)
             })
             .disposed(by: bag)
         
@@ -150,10 +150,10 @@ class SearchResultViewModel {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.actions?.showGroupCreatePage?()
+                vm.actions.showGroupCreatePage?()
             })
             .disposed(by: bag)
-//
+
         input.needLoadNextData
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
@@ -206,7 +206,7 @@ class SearchResultViewModel {
     func fetchRecentQueries() {
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            let queryList = try? self.recentQueryRepository
+            let queryList = try? self.useCases.recentQueryRepository
                 .fetchRecentsQueries()
                 .map { $0.keyword }
                 .compactMap { $0 }
@@ -219,21 +219,21 @@ class SearchResultViewModel {
     func saveRecentQuery(keyword: String) {
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            try? self.recentQueryRepository.saveRecentsQuery(query: RecentSearchQuery(date: Date(), keyword: keyword))
+            try? self.useCases.recentQueryRepository.saveRecentsQuery(query: RecentSearchQuery(date: Date(), keyword: keyword))
         }
     }
     
     func removeRecentQuery(keyword: String) {
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            try? self.recentQueryRepository.removeQuery(keyword: keyword)
+            try? self.useCases.recentQueryRepository.removeQuery(keyword: keyword)
         }
     }
     
     func removeAllQueries() {
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            try? self.recentQueryRepository.removeAllQueries()
+            try? self.useCases.recentQueryRepository.removeAllQueries()
         }
     }
     
@@ -247,17 +247,17 @@ class SearchResultViewModel {
     }
     
     func fetchResult(keyword: String, isInitial: Bool) {
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[GroupSummary]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.fetchSearchResultUseCase
+                return self.useCases.fetchSearchResultUseCase
                     .execute(token: token, keyWord: keyword, page: self.page, size: self.size)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
@@ -279,7 +279,8 @@ class SearchResultViewModel {
     }
     
     func fetchImage(key: String) -> Single<Data> {
-        fetchImageUseCase
+        useCases
+            .fetchImageUseCase
             .execute(key: key)
     }
 }

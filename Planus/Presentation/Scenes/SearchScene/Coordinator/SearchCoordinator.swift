@@ -46,20 +46,21 @@ class SearchCoordinator: Coordinator {
     }
 
     lazy var showSearchResultPage: () -> Void = { [weak self] in
-        let vm = SearchResultViewModel(
-            recentQueryRepository: DefaultRecentQueryRepository(),
-            getTokenUseCase: DefaultGetTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyValueStorage: KeyChainManager())), refreshTokenUseCase: DefaultRefreshTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyValueStorage: KeyChainManager())),
-            fetchSearchResultUseCase: DefaultFetchSearchResultUseCase(groupRepository: DefaultGroupRepository(apiProvider: NetworkManager())), fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
+        guard let self else { return }
+        
+        let vc = dependency.injector.resolve(
+            SearchResultViewController.self,
+            argument: SearchResultViewModel.Injectable(
+                actions: .init(
+                    pop: self.popCurrentPage,
+                    showGroupIntroducePage: self.showGroupIntroducePage,
+                    showGroupCreatePage: self.showGroupCreatePage
+                ),
+                args: .init()
+            )
         )
 
-        vm.setActions(actions: SearchResultViewModelActions(
-            pop: self?.popCurrentPage,
-            showGroupIntroducePage: self?.showGroupIntroducePage,
-            showGroupCreatePage: self?.showGroupCreatePage
-        ))
-        
-        let vc = SearchResultViewController(viewModel: vm)
-        self?.dependency.navigationController.pushViewController(vc, animated: false)
+        self.dependency.navigationController.pushViewController(vc, animated: false)
     }
     
     lazy var showGroupIntroducePage: (Int) -> Void = { [weak self] groupId in
