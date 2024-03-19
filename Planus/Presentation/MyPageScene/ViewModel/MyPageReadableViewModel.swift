@@ -302,7 +302,9 @@ enum MyPageReadableType: String {
 class MyPageReadableViewModel: ViewModel {
     struct UseCases {}
     
-    struct Actions {}
+    struct Actions {
+        var goBack: (() -> Void)?
+    }
     
     struct Args {
         let type: MyPageReadableType

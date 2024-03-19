@@ -38,14 +38,31 @@ class MyPageCoordinator: Coordinator {
             MyPageMainViewController.self,
             argument: MyPageMainViewModel.Injectable(
                 actions: .init(
+                    editProfile: self.editProfile,
                     showTermsOfUse: self.showTermsOfUse,
                     showPrivacyPolicy: self.showPrivacyPolicy,
-                    signOut: self.signOut,
-                    withdraw: self.withdraw
+                    backToSignIn: self.backToSignIn,
+                    finish: self.finish
                 ),
                 args: .init(profile: profile)
             )
         )
+        vc.hidesBottomBarWhenPushed = true
+        dependency.navigationController.pushViewController(vc, animated: true)
+    }
+    
+    lazy var editProfile: () -> Void = { [weak self] in
+        guard let self else { return }
+        let vc = self.dependency.injector.resolve(
+            MyPageEditViewController.self,
+            argument: MyPageEditViewModel.Injectable(
+                actions: .init(
+                    goBack: self.goBack
+                ),
+                args: .init()
+            )
+        )
+        dependency.navigationController.pushViewController(vc, animated: true)
     }
     
     lazy var showTermsOfUse: (() -> Void)? = { [weak self] in
@@ -54,7 +71,7 @@ class MyPageCoordinator: Coordinator {
         let vc = dependency.injector.resolve(
             MyPageReadableViewController.self,
             argument: MyPageReadableViewModel.Injectable(
-                actions: .init(),
+                actions: .init(goBack: self.goBack),
                 args: .init(type: .serviceTerms)
             )
         )
@@ -68,7 +85,7 @@ class MyPageCoordinator: Coordinator {
         let vc = dependency.injector.resolve(
             MyPageReadableViewController.self,
             argument: MyPageReadableViewModel.Injectable(
-                actions: .init(),
+                actions: .init(goBack: self.goBack),
                 args: .init(type: .privacyPolicy)
             )
         )
@@ -76,14 +93,19 @@ class MyPageCoordinator: Coordinator {
         dependency.navigationController.pushViewController(vc, animated: true)
     }
     
-    lazy var signOut: (() -> Void)? = { [weak self] in
-        
+    lazy var goBack: (() -> Void)? = { [weak self] in
+        guard let self else { return }
+        self.dependency.navigationController.popViewController(animated: true)
     }
     
-    lazy var withdraw: (() -> Void)? = { [weak self] in
+    lazy var backToSignIn: (() -> Void)? = { [weak self] in
+        guard let self else { return }
+        guard let sceneDelegate = self.dependency.navigationController.view.window?.windowScene?.delegate as? SceneDelegate,
+              let appCoordinator = sceneDelegate.appCoordinator else { return }
         
+        appCoordinator.childCoordinators.first(where: { $0 is MainTabCoordinator })?.finish()
+        appCoordinator.showSignInFlow()
     }
-
 }
 
 extension MyPageCoordinator: CoordinatorFinishDelegate {

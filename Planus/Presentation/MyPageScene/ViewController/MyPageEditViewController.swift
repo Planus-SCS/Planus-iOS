@@ -13,6 +13,7 @@ class MyPageEditViewController: UIViewController {
     
     var bag = DisposeBag()
     var viewModel: MyPageEditViewModel?
+    
     var didChangedImage = PublishSubject<ImageFile?>()
     var descEditing = false
     
@@ -129,21 +130,19 @@ class MyPageEditViewController: UIViewController {
     }
     
     @objc func backBtnAction() {
-        self.navigationController?.popViewController(animated: true)
+        viewModel?.actions.goBack?()
     }
     
-    @objc func saveBtnAction() {
-        
-    }
+    @objc func saveBtnAction() {}
     
     @objc func editBtnTapped() {
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        //블로그 방문하기 버튼 - 스타일(default)
+        
         actionSheet.addAction(UIAlertAction(title: "변경하기", style: .default, handler: {(ACTION:UIAlertAction) in
             self.presentPhotoPicker()
         }))
         
-        //이웃 끊기 버튼 - 스타일(destructive)
+        
         actionSheet.addAction(UIAlertAction(title: "제거", style: .destructive, handler: {(ACTION:UIAlertAction) in
             self.didChangedImage.onNext(nil)
         }))
@@ -202,21 +201,15 @@ class MyPageEditViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .didUpdateProfile
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.navigationController?.popViewController(animated: true)
-            })
-            .disposed(by: bag)
-        
-        output
             .showMessage
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
                 vc.view.endEditing(true)
-                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+                vc.showToast(
+                    message: message.text,
+                    type: Message.toToastType(state: message.state)
+                )
             })
             .disposed(by: bag)
     }

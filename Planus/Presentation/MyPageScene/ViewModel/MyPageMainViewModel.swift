@@ -9,6 +9,26 @@ import Foundation
 import RxSwift
 import AuthenticationServices
 
+enum MyPageMenuType: Int, CaseIterable {
+    case serviceTerms = 0
+    case privacyPolicy
+    case signOut
+    case withDraw
+    
+    var title: String {
+        switch self {
+        case .serviceTerms:
+            "이용 약관"
+        case .privacyPolicy:
+            "개인 정보 처리 방침"
+        case .signOut:
+            "로그아웃"
+        case .withDraw:
+            "회원 탈퇴"
+        }
+    }
+}
+
 class MyPageMainViewModel: ViewModel {
     struct UseCases {
         let updateProfileUseCase: UpdateProfileUseCase
@@ -23,10 +43,11 @@ class MyPageMainViewModel: ViewModel {
     }
     
     struct Actions {
+        var editProfile: (() -> Void)?
         var showTermsOfUse: (() -> Void)?
         var showPrivacyPolicy: (() -> Void)?
-        var signOut: (() -> Void)?
-        var withdraw: (() -> Void)?
+        var backToSignIn: (() -> Void)?
+        var finish: (() -> Void)?
     }
     
     struct Args {
@@ -39,44 +60,32 @@ class MyPageMainViewModel: ViewModel {
     }
     
     let useCases: UseCases
-    let actions: Actions
+    var actions: Actions
     
     var bag = DisposeBag()
     
     var imageURL: String?
     var name: String?
     var introduce: String?
-    lazy var isPushOn: BehaviorSubject<Bool> = {
-        // 원래는 유즈케이스에서 바로 가져오자
-        return BehaviorSubject<Bool>(value: false)
-    }()
+
+    
     
     var didRefreshUserProfile = BehaviorSubject<Void?>(value: nil)
-    var didResigned = PublishSubject<Void>()
+    var showPopUp = PublishSubject<(title: String, message: String, alertAttrs: [CustomAlertAttr])>()
     var didRequireAppleSignInWithRequest = PublishSubject<ASAuthorizationAppleIDRequest>()
     var nowResigning: Bool = false
     
-    lazy var titleList: [MyPageMainTitleViewModel] = [ //이 리스트까지 이넘으로 해서 caseIterable쓸까?
-//        MyPageMainTitleViewModel(title: "푸시 알림 ~ 🚧 개발중 👷‍♂️", type: .toggle(self.isPushOn)),
-//        MyPageMainTitleViewModel(title: "공지 사항", type: .normal),
-//        MyPageMainTitleViewModel(title: "문의하기", type: .normal),
-        MyPageMainTitleViewModel(title: "이용 약관", type: .normal),
-        MyPageMainTitleViewModel(title: "개인 정보 처리 방침", type: .normal),
-        MyPageMainTitleViewModel(title: "로그아웃", type: .normal),
-        MyPageMainTitleViewModel(title: "회원 탈퇴", type: .normal)
-    ]
+    let titleList = MyPageMenuType.allCases
     
     struct Input {
         var viewDidLoad: Observable<Void>
         var didSelectedAt: Observable<Int>
-        var signOut: Observable<Void>
-        var resign: Observable<Void>
         var didReceiveAppleAuthCode: Observable<Data>
     }
     
     struct Output {
         var didRefreshUserProfile: Observable<Void?>
-        var didResigned: Observable<Void>
+        var showPopUp: Observable<(title: String, message: String, alertAttrs: [CustomAlertAttr])>
         var didRequireAppleSignInWithRequest: Observable<ASAuthorizationAppleIDRequest>
     }
     
@@ -103,25 +112,48 @@ class MyPageMainViewModel: ViewModel {
         
         input
             .didSelectedAt
-            .subscribe(onNext: { index in
+            .withUnretained(self)
+            .subscribe(onNext: { vm, item in
+                guard let type = MyPageMenuType(rawValue: item) else { return }
 
-            })
-            .disposed(by: bag)
-        
-        input
-            .signOut
-            .withUnretained(self)
-            .subscribe(onNext: { vm, _ in
-                vm.signOut()
-                vm.didResigned.onNext(())
-            })
-            .disposed(by: bag)
-        
-        input
-            .resign
-            .withUnretained(self)
-            .subscribe(onNext: { vm, _ in
-                vm.resignTapped()
+                switch type {
+                case .serviceTerms:
+                    vm.actions.showTermsOfUse?()
+                case .privacyPolicy:
+                    vm.actions.showPrivacyPolicy?()
+                case .signOut:
+                    vm.showPopUp.onNext((
+                        title: "로그아웃",
+                        message: "로그아웃 합니다.",
+                        alertAttrs: [
+                            CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
+                            CustomAlertAttr(title: "로그아웃", actionHandler: {
+                                vm.signOut()
+                                vm.actions.backToSignIn?()
+                            }, type: .warning)
+                        ]
+                    ))
+                case .withDraw:
+                    vm.showPopUp.onNext((
+                        title: "회원 탈퇴",
+                        message: "플래너스를 탈퇴 합니다",
+                        alertAttrs: [
+                            CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
+                            CustomAlertAttr(title: "탈퇴", actionHandler: {
+                                vm.showPopUp.onNext((
+                                    title: "회원 탈퇴",
+                                    message: "회원 탈퇴를 진행하게 되면 모든 정보가 손실되요 😥",
+                                    alertAttrs: [
+                                        CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
+                                        CustomAlertAttr(title: "탈퇴", actionHandler: {
+                                            vm.resignTapped()
+                                        }, type: .warning)
+                                    ]
+                                ))
+                            }, type: .warning)
+                        ]
+                    ))
+                }
             })
             .disposed(by: bag)
         
@@ -136,7 +168,7 @@ class MyPageMainViewModel: ViewModel {
         
         return Output(
             didRefreshUserProfile: didRefreshUserProfile.asObservable(),
-            didResigned: didResigned.asObservable(),
+            showPopUp: showPopUp.asObservable(),
             didRequireAppleSignInWithRequest: didRequireAppleSignInWithRequest.asObservable()
         )
     }
@@ -188,7 +220,7 @@ class MyPageMainViewModel: ViewModel {
             .subscribe(onSuccess: { [weak self] _ in
                 self?.signOut()
                 self?.nowResigning = false
-                self?.didResigned.onNext(())
+                self?.actions.backToSignIn?()
             }, onFailure: { [weak self] error in
                 self?.nowResigning = false
             })

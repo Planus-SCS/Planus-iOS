@@ -11,6 +11,10 @@ import Swinject
 class PresentationAssembly: Assembly {
     func assemble(container: Swinject.Container) {
         assembleMyPageMain(container: container)
+        assembleMyPageReadableViewModel(container: container)
+        assembleMyPageEnquire(container: container)
+        assembleMyPageEdit(container: container)
+        
         assembleHomeCalendar(container: container)
         assembleDailyCalendar(container: container)
         assembleTodoDetail(container: container)
@@ -69,18 +73,21 @@ extension PresentationAssembly {
     }
     
     func assembleMyPageEdit(container: Container) {
-        container.register(MyPageEditViewModel.self) { r in
+        container.register(MyPageEditViewModel.self) { (r, injectable: MyPageEditViewModel.Injectable) in
             return MyPageEditViewModel(
-                getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
-                readProfileUseCase: r.resolve(ReadProfileUseCase.self)!,
-                updateProfileUseCase: r.resolve(UpdateProfileUseCase.self)!,
-                fetchImageUseCase: r.resolve(FetchImageUseCase.self)!
+                useCases: .init(
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    readProfileUseCase: r.resolve(ReadProfileUseCase.self)!,
+                    updateProfileUseCase: r.resolve(UpdateProfileUseCase.self)!,
+                    fetchImageUseCase: r.resolve(FetchImageUseCase.self)!
+                ),
+                injectable: injectable
             )
         }
         
-        container.register(MyPageEditViewController.self) { r in
-            return MyPageEditViewController(viewModel: r.resolve(MyPageEditViewModel.self)!)
+        container.register(MyPageEditViewController.self) { (r, injectable: MyPageEditViewModel.Injectable) in
+            return MyPageEditViewController(viewModel: r.resolve(MyPageEditViewModel.self, argument: injectable)!)
         }
     }
     

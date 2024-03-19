@@ -18,7 +18,7 @@ class MyPageEditViewModel: ViewModel {
     }
     
     struct Actions {
-        
+        var goBack: (() -> Void)?
     }
     
     struct Args {}
@@ -40,7 +40,6 @@ class MyPageEditViewModel: ViewModel {
     var imageChangeChecker: Bool = false
     var isInitialValueNil: Bool = false
     
-    var didUpdateProfile = PublishSubject<Void>()
     var showMessage = PublishSubject<Message>()
     
     struct Input {
@@ -56,7 +55,6 @@ class MyPageEditViewModel: ViewModel {
         var didFetchIntroduce: Observable<String?>
         var didFetchImage: Observable<Data?>
         var saveBtnEnabled: Observable<Bool>
-        var didUpdateProfile: Observable<Void>
         var showMessage: Observable<Message>
     }
     
@@ -124,7 +122,6 @@ class MyPageEditViewModel: ViewModel {
             didFetchIntroduce: introduce.asObservable(),
             didFetchImage: profileImage.map { $0?.data }.asObservable(),
             saveBtnEnabled: saveBtnEnabled,
-            didUpdateProfile: didUpdateProfile.asObservable(),
             showMessage: showMessage.asObservable()
         )
     }
@@ -193,8 +190,9 @@ class MyPageEditViewModel: ViewModel {
                 retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
-                self?.didUpdateProfile.onNext(())
+                self?.actions.goBack?()
             }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,
                       case NetworkManagerError.clientError(let status, let message) = error,

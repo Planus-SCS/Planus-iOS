@@ -81,7 +81,7 @@ class MyPageReadableViewController: UIViewController {
     }
     
     @objc func backBtnAction(_ sender: UIBarButtonItem) {
-        self.navigationController?.popViewController(animated: true)
+        viewModel?.actions.goBack?()
     }
 }
 

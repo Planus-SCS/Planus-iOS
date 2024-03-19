@@ -79,16 +79,16 @@ class HomeCalendarCoordinator: Coordinator {
     
     lazy var showMyPage: (Profile) -> Void = { [weak self] profile in
         guard let self else { return }
-        
-        let vc = self.dependency.injector.resolve(
-            MyPageMainViewController.self,
-            argument: MyPageMainViewModel.Injectable(
-                actions: .init(),
-                args: .init(profile: profile)
+
+        let coordinator = MyPageCoordinator(
+            dependency: MyPageCoordinator.Dependency(
+                navigationController: self.dependency.navigationController,
+                injector: self.dependency.injector
             )
         )
-        vc.hidesBottomBarWhenPushed = true
-        self.dependency.navigationController.pushViewController(vc, animated: true)
+        coordinator.finishDelegate = self
+        self.childCoordinators.append(coordinator)
+        coordinator.start(profile: profile)
     }
 }
 
