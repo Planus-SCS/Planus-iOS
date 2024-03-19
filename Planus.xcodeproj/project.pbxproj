@@ -405,12 +405,6 @@
 		6A987A7429DEED1600C27D09 /* TodoDailyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */; };
 		6A987A7729DEF55300C27D09 /* TodoDailyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7629DEF55300C27D09 /* TodoDailyCoordinator.swift */; };
 		6A987A7929DEFC6600C27D09 /* TodoDailyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */; };
-		6A987A7B29DF0E7600C27D09 /* SmallCalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A7A29DF0E7600C27D09 /* SmallCalendarViewController.swift */; };
-		6A987A8829DF118000C27D09 /* SmallCalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A8729DF118000C27D09 /* SmallCalendarViewModel.swift */; };
-		6A987A8A29DF118800C27D09 /* SmallCalendarDayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A8929DF118800C27D09 /* SmallCalendarDayViewModel.swift */; };
-		6A987A8E29DF119300C27D09 /* SmallCalendarCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A8B29DF119300C27D09 /* SmallCalendarCollectionView.swift */; };
-		6A987A8F29DF119300C27D09 /* SmallCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A8C29DF119300C27D09 /* SmallCalendarView.swift */; };
-		6A987A9029DF119300C27D09 /* SmallCalendarDayCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A8D29DF119300C27D09 /* SmallCalendarDayCell.swift */; };
 		6A987A9429DF1A7A00C27D09 /* plusBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A9129DF1A7A00C27D09 /* plusBtn.png */; };
 		6A987A9529DF1A7A00C27D09 /* plusBtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A9229DF1A7A00C27D09 /* plusBtn@2x.png */; };
 		6A987A9629DF1A7A00C27D09 /* plusBtn@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A987A9329DF1A7A00C27D09 /* plusBtn@3x.png */; };
@@ -1045,12 +1039,6 @@
 		6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyViewController.swift; sourceTree = "<group>"; };
 		6A987A7629DEF55300C27D09 /* TodoDailyCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyCoordinator.swift; sourceTree = "<group>"; };
 		6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDailyViewModel.swift; sourceTree = "<group>"; };
-		6A987A7A29DF0E7600C27D09 /* SmallCalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallCalendarViewController.swift; sourceTree = "<group>"; };
-		6A987A8729DF118000C27D09 /* SmallCalendarViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallCalendarViewModel.swift; sourceTree = "<group>"; };
-		6A987A8929DF118800C27D09 /* SmallCalendarDayViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallCalendarDayViewModel.swift; sourceTree = "<group>"; };
-		6A987A8B29DF119300C27D09 /* SmallCalendarCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallCalendarCollectionView.swift; sourceTree = "<group>"; };
-		6A987A8C29DF119300C27D09 /* SmallCalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallCalendarView.swift; sourceTree = "<group>"; };
-		6A987A8D29DF119300C27D09 /* SmallCalendarDayCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallCalendarDayCell.swift; sourceTree = "<group>"; };
 		6A987A9129DF1A7A00C27D09 /* plusBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = plusBtn.png; sourceTree = "<group>"; };
 		6A987A9229DF1A7A00C27D09 /* plusBtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "plusBtn@2x.png"; sourceTree = "<group>"; };
 		6A987A9329DF1A7A00C27D09 /* plusBtn@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "plusBtn@3x.png"; sourceTree = "<group>"; };
@@ -2598,7 +2586,6 @@
 			isa = PBXGroup;
 			children = (
 				6A987A7329DEED1600C27D09 /* TodoDailyViewController.swift */,
-				6A987A7A29DF0E7600C27D09 /* SmallCalendarViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -2607,8 +2594,6 @@
 			isa = PBXGroup;
 			children = (
 				6A987A7829DEFC6600C27D09 /* TodoDailyViewModel.swift */,
-				6A987A8729DF118000C27D09 /* SmallCalendarViewModel.swift */,
-				6A987A8929DF118800C27D09 /* SmallCalendarDayViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -2629,9 +2614,6 @@
 				6A24F91E29D22DAD0000FD64 /* TodoSectionHeaderSupplementaryView.swift */,
 				6A24F92029D22EC10000FD64 /* TodoDailyCalendarCell.swift */,
 				6A9AAAC529F808FB002A6DAF /* TodoCheckButton.swift */,
-				6A987A8B29DF119300C27D09 /* SmallCalendarCollectionView.swift */,
-				6A987A8D29DF119300C27D09 /* SmallCalendarDayCell.swift */,
-				6A987A8C29DF119300C27D09 /* SmallCalendarView.swift */,
 				6A24F91A29D22D5B0000FD64 /* BigTodoCell.swift */,
 				6AC078FF2A053677007ACDB8 /* EmptyTodoMockCell.swift */,
 			);
@@ -3472,7 +3454,6 @@
 				6A2BB1BD29E431740053C5CA /* MyPageEnquireViewController.swift in Sources */,
 				6A95DFE229D53BA1009017D8 /* GroupIntroduceDefaultHeaderView.swift in Sources */,
 				6AC079742A0A77DC007ACDB8 /* MemberDTO.swift in Sources */,
-				6A987A8F29DF119300C27D09 /* SmallCalendarView.swift in Sources */,
 				6AF077C62A960E370086692B /* CategoryButton.swift in Sources */,
 				6A24F82329CB43FE0000FD64 /* HomeCalendarCoordinator.swift in Sources */,
 				6A0B76212B9BA775008BC571 /* AppleSignInDTO.swift in Sources */,
@@ -3503,7 +3484,6 @@
 				6A08AD7429C89143005947D2 /* MainTabCoordinator.swift in Sources */,
 				6A24F88C29CE26540000FD64 /* HomeCalendarViewController.swift in Sources */,
 				6A0B764B2B9D957E008BC571 /* MyPageCoordinator.swift in Sources */,
-				6A987A9029DF119300C27D09 /* SmallCalendarDayCell.swift in Sources */,
 				6AC0795A2A0A50A6007ACDB8 /* DefaultGroupCreateUseCase.swift in Sources */,
 				6A2C00E02A7138B9003D6B95 /* DefaultUpdateGroupTodoUseCase.swift in Sources */,
 				6AA3BACB2A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataProperties copy.swift in Sources */,
@@ -3692,14 +3672,11 @@
 				6A9AAAC429F7FCF2002A6DAF /* MyPageMainSelectableCell.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
 				6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */,
-				6A987A7B29DF0E7600C27D09 /* SmallCalendarViewController.swift in Sources */,
 				6A1B3F0429D717F400BFB3A6 /* JoinedGroupCell.swift in Sources */,
 				6A0B76332B9BCFF3008BC571 /* DomainAssembly+MyGroup.swift in Sources */,
 				6A876DA72A94AC70001D800E /* MyGroupDetailViewController2.swift in Sources */,
-				6A987A8E29DF119300C27D09 /* SmallCalendarCollectionView.swift in Sources */,
 				6A24F8FE29D1E20E0000FD64 /* MonthPickerViewModel.swift in Sources */,
 				6AC079192A08D9DB007ACDB8 /* ImageRepository.swift in Sources */,
-				6A987A8829DF118000C27D09 /* SmallCalendarViewModel.swift in Sources */,
 				6AD888C82A891F9100F4B887 /* KeyValueStorage.swift in Sources */,
 				6A9199E72A208EDE00108BF4 /* SocialDailyCalendarCell.swift in Sources */,
 				6A9A07F929D40B970051AD43 /* DayPickerViewControllerDelegate.swift in Sources */,
@@ -3714,7 +3691,6 @@
 				6A6C7B952A275273005BAEEC /* DefaultTodoCompleteUseCase.swift in Sources */,
 				6A2BB1B529E4164E0053C5CA /* MyPageMainHeaderView.swift in Sources */,
 				6AF078012A98BDE70086692B /* TodoDetailVC+CollectionView.swift in Sources */,
-				6A987A8A29DF118800C27D09 /* SmallCalendarDayViewModel.swift in Sources */,
 				6A2744252A0E4500008FB4F5 /* FetchMyGroupDetailUseCase.swift in Sources */,
 				6A95DFEB29D5A132009017D8 /* GroupIntroduceViewModel.swift in Sources */,
 				6AF078332A9DC8A00086692B /* UICollectionView+Ext.swift in Sources */,
