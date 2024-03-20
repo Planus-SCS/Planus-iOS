@@ -66,12 +66,7 @@ class DailyCalendarViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationItem.titleView = dateTitleButton
         navigationItem.setRightBarButton(addTodoButton, animated: false)
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        viewModel?.actions.finishScene?()
+        navigationController?.presentationController?.delegate = self
     }
     
     func bind() {
@@ -216,6 +211,12 @@ class DailyCalendarViewController: UIViewController {
         )
     }
 
+}
+
+extension DailyCalendarViewController: UIAdaptivePresentationControllerDelegate {
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        viewModel?.actions.finishScene?()
+    }
 }
 
 extension DailyCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {

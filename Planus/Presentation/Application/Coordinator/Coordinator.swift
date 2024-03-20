@@ -18,9 +18,7 @@ enum CoordinatorType {
          myGroupList,
          groupIntroduce,
          groupCreate,
-         joinedGroup,
-         noticeEdit,
-         memberEdit,
+         myGroupDetail,
          notification
 }
 

@@ -69,31 +69,15 @@ class GroupCreateCoordinator: Coordinator {
     
     lazy var showCreatedGroupPage: (Int) -> Void = { [weak self] groupId in
         guard let self else { return }
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
-        let imageRepo = DefaultImageRepository(apiProvider: api)
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let fetchMyGroupDetailUseCase = DefaultFetchMyGroupDetailUseCase(myGroupRepository: myGroupRepo)
-        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        let setOnlineStateUseCase = DefaultSetOnlineUseCase.shared
-        let myGroupDetailVM = JoinedGroupDetailViewModel(
-            getTokenUseCase: getTokenUseCase,
-            refreshTokenUseCase: refreshTokenUseCase,
-            fetchMyGroupDetailUseCase: fetchMyGroupDetailUseCase,
-            fetchImageUseCase: fetchImageUseCase,
-            setOnlineUseCase: setOnlineStateUseCase,
-            updateNoticeUseCase: DefaultUpdateNoticeUseCase.shared,
-            updateInfoUseCase: DefaultUpdateGroupInfoUseCase.shared,
-            withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared
+        let coordinator = MyGroupDetailCoordinator(
+            dependency: MyGroupDetailCoordinator.Dependency(
+                navigationController: self.dependency.navigationController,
+                injector: self.dependency.injector
+            )
         )
-        myGroupDetailVM.setGroupId(id: groupId)
-        myGroupDetailVM.setActions(actions: JoinedGroupDetailViewModelActions(pop: {
-            self.dependency.navigationController.popViewController(animated: true)
-        }))
-        let myGroupDetailVC = JoinedGroupDetailViewController(viewModel: myGroupDetailVM)
+        coordinator.finishDelegate = self
+        self.childCoordinators.append(coordinator)
+        coordinator.start(groupId: groupId)
         
         var children = dependency.navigationController.viewControllers
         children.removeAll(where: { childVC in
@@ -106,7 +90,6 @@ class GroupCreateCoordinator: Coordinator {
                 return false
             }
         })
-        children.append(myGroupDetailVC)
         
         dependency.navigationController.setViewControllers(children, animated: true)
     }
@@ -119,7 +102,7 @@ class GroupCreateCoordinator: Coordinator {
         exVC.viewModel?.nowSaving = false
         exVC.view.endEditing(true)
 
-        self.dependency.navigationController.topViewController?.showToast(message: message, type: .warning)
+        dependency.navigationController.showToast(message: message, type: .warning)
     }
 
     lazy var pop: () -> Void = { [weak self] in

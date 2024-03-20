@@ -38,8 +38,8 @@ class MyGroupNoticeEditViewModel: ViewModel {
     var groupId: Int
     var notice: BehaviorSubject<String?>
     
-    var didEditComplete = PublishSubject<Void>()
     var isSaveBtnEnabled = BehaviorSubject<Bool?>(value: nil)
+    var showMessage = PublishSubject<Message>()
     
     struct Input {
         var didTapSaveButton: Observable<Void>
@@ -49,7 +49,7 @@ class MyGroupNoticeEditViewModel: ViewModel {
     
     struct Output {
         var isSaveBtnEnabled: Observable<Bool?>
-        var didEditCompleted: Observable<Void>
+        var showMessage: Observable<Message>
     }
     
     init(
@@ -99,7 +99,7 @@ class MyGroupNoticeEditViewModel: ViewModel {
         
         return Output(
             isSaveBtnEnabled: isSaveBtnEnabled.asObservable(),
-            didEditCompleted: didEditComplete.asObservable()
+            showMessage: showMessage.asObservable()
         )
     }
     
@@ -120,10 +120,14 @@ class MyGroupNoticeEditViewModel: ViewModel {
                 retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
-                self?.didEditComplete.onNext(())
-            }, onError: {
-                print($0)
+                self?.actions.pop?()
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }

@@ -103,17 +103,7 @@ class MyGroupNoticeEditViewController: UIViewController {
                     vc.saveButton.tintColor = UIColor(hex: 0x6495F4).withAlphaComponent(0.5)
                 }
             })
-            .disposed(by: bag)
-        
-        output
-            .didEditCompleted
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.navigationController?.popViewController(animated: true)
-            })
-            .disposed(by: bag)
-        
+            .disposed(by: bag)        
     }
     
     func configureView() {

@@ -48,7 +48,16 @@ class GroupIntroduceCoordinator: Coordinator {
     }
     
     lazy var showMyGroupDetailPage: (Int) -> Void = { [weak self] groupId in
-        
+        guard let self else { return }
+        let coordinator = MyGroupDetailCoordinator(
+            dependency: MyGroupDetailCoordinator.Dependency(
+                navigationController: self.dependency.navigationController,
+                injector: self.dependency.injector
+            )
+        )
+        coordinator.finishDelegate = self
+        self.childCoordinators.append(coordinator)
+        coordinator.start(groupId: groupId)
     }
     
     lazy var fetchFailed: (String) -> Void = { [weak self] message in

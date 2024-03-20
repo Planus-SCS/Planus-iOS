@@ -106,14 +106,14 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
     
     lazy var shareButton: UIBarButtonItem = {
         let image = UIImage(named: "share")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: nil)
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
@@ -159,10 +159,11 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
         self.navigationController?.navigationBar.scrollEdgeAppearance = initialAppearance
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        viewModel?.actions.finishScene?()
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent {
+            viewModel?.actions.finishScene?()
+        }
     }
         
     func bind() {
@@ -171,8 +172,8 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
         let input = GroupIntroduceViewModel.Input(
             viewDidLoad: Observable.just(()),
             didTappedJoinBtn: joinButton.rx.tap.asObservable(),
-            didTappedBackBtn: backButtonTapped.asObservable(),
-            shareBtnTapped: shareButton.rx.tap.asObservable()
+            shareBtnTapped: shareButton.rx.tap.asObservable(),
+            didTappedBackBtn: backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -261,12 +262,6 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
         }
     }
     
-    @objc func backBtnAction() {
-        viewModel?.actions.pop?()
-    }
-    
-    @objc func shareBtnAction() {
-    }
 }
 
 extension GroupIntroduceViewController: UICollectionViewDataSource {

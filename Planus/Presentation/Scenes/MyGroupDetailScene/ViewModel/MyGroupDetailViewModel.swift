@@ -54,9 +54,9 @@ class MyGroupDetailViewModel: ViewModel {
     struct Actions {
         let showDailyCalendar: (() -> Void)?
         let showMemberProfile: (() -> Void)?
-        let editInfo: (() -> Void)?
-        let editMember: (() -> Void)?
-        let editNotice: (() -> Void)?
+        let editInfo: ((MyGroupInfoEditViewModel.Args) -> Void)?
+        let editMember: ((MyGroupMemberEditViewModel.Args) -> Void)?
+        let editNotice: ((MyGroupNoticeEditViewModel.Args) -> Void)?
         let pop: (() -> Void)?
         let finishScene: (() -> Void)?
     }
@@ -83,7 +83,11 @@ class MyGroupDetailViewModel: ViewModel {
         var didSelectedDayAt: Observable<Int>
         var didSelectedMemberAt: Observable<Int>
         var didTappedOnlineButton: Observable<Void>
-        var shareBtnTapped: Observable<Void>
+        var didTappedShareBtn: Observable<Void>
+        var didTappedInfoEditBtn: Observable<Void>
+        var didTappedMemberEditBtn: Observable<Void>
+        var didTappedNoticeEditBtn: Observable<Void>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -287,11 +291,56 @@ class MyGroupDetailViewModel: ViewModel {
             .disposed(by: bag)
         
         input
-            .shareBtnTapped
+            .didTappedShareBtn
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 let urlString = vm.generateShareLink()
                 vm.showShareMenu.onNext(urlString)
+            })
+            .disposed(by: bag)
+        
+        input
+            .didTappedInfoEditBtn
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.editInfo?(
+                    MyGroupInfoEditViewModel.Args(
+                        id: vm.groupId,
+                        title: vm.groupTitle ?? String(),
+                        imageUrl: vm.groupImageUrl ?? String(),
+                        tagList: vm.tag ?? [String](),
+                        maxMember: vm.limitCount ?? Int()
+                    )
+                )
+            })
+            .disposed(by: bag)
+        
+        input
+            .didTappedNoticeEditBtn
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.editNotice?(
+                    MyGroupNoticeEditViewModel.Args(
+                        groupId: vm.groupId,
+                        notice: vm.notice ?? String()
+                    )
+                )
+            })
+            .disposed(by: bag)
+        
+        input
+            .didTappedMemberEditBtn
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.editMember?(MyGroupMemberEditViewModel.Args(groupId: vm.groupId))
+            })
+            .disposed(by: bag)
+        
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         

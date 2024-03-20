@@ -85,12 +85,9 @@ class GroupCreateViewController: UIViewController {
         super.viewWillDisappear(animated)
         
         self.removeKeyboardNotifications()
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        viewModel?.actions.finishScene?()
+        if isMovingFromParent {
+            viewModel?.actions.finishScene?()
+        }
     }
     
     func bind() {

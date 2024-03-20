@@ -220,6 +220,7 @@ class MyGroupInfoEditViewModel: ViewModel {
                 retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
                 self?.actions.pop?()
@@ -249,6 +250,7 @@ class MyGroupInfoEditViewModel: ViewModel {
                 retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 // 아에 앞에 있던 네비게이션을 싹다 없애고 첫 씬으로 돌아가야함..!
                 self?.actions.popDetailScene?()

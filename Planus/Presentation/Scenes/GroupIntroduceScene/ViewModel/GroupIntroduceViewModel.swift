@@ -68,8 +68,8 @@ class GroupIntroduceViewModel: ViewModel {
     struct Input {
         var viewDidLoad: Observable<Void>
         var didTappedJoinBtn: Observable<Void>
-        var didTappedBackBtn: Observable<Void>
         var shareBtnTapped: Observable<Void>
+        var didTappedBackBtn: Observable<Void>
     }
     
     struct Output {
@@ -126,6 +126,14 @@ class GroupIntroduceViewModel: ViewModel {
             .subscribe(onNext: { vm, _ in
                 let urlString = vm.generateShareLink()
                 vm.showShareMenu.onNext(urlString)
+            })
+            .disposed(by: bag)
+        
+        input
+            .didTappedBackBtn
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         

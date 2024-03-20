@@ -72,10 +72,11 @@ class NotificationViewController: UIViewController {
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        viewModel?.actions.finishScene?()
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent {
+            viewModel?.actions.finishScene?()
+        }
     }
     
     func bind() {

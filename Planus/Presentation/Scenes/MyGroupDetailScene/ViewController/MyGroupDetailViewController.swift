@@ -84,8 +84,12 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
     var didSelectedDayAt = PublishSubject<Int>()
     var didSelectedMemberAt = PublishSubject<Int>()
     var didTappedOnlineButton = PublishSubject<Void>()
+    
     var didTappedShareBtn = PublishSubject<Void>()
-        
+    var didTappedInfoEditBtn = PublishSubject<Void>()
+    var didTappedMemberEditBtn = PublishSubject<Void>()
+    var didTappedNoticeEditBtn = PublishSubject<Void>()
+    
     var nowLoading: Bool = false
     
     var didTappedButtonAt = PublishSubject<Int>()
@@ -149,7 +153,7 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
@@ -193,6 +197,13 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
         self.navigationController?.navigationBar.standardAppearance = scrollingAppearance
         self.navigationController?.navigationBar.scrollEdgeAppearance = initialAppearance
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent {
+            viewModel?.actions.finishScene?()
+        }
+    }
         
     func bind() {
         guard let viewModel else { return }
@@ -204,7 +215,11 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             didSelectedDayAt: didSelectedDayAt.asObservable(),
             didSelectedMemberAt: didSelectedMemberAt.asObservable(),
             didTappedOnlineButton: didTappedOnlineButton.asObservable(),
-            shareBtnTapped: didTappedShareBtn.asObservable()
+            didTappedShareBtn: didTappedShareBtn.asObservable(),
+            didTappedInfoEditBtn: didTappedInfoEditBtn.asObservable(),
+            didTappedMemberEditBtn: didTappedMemberEditBtn.asObservable(),
+            didTappedNoticeEditBtn: didTappedNoticeEditBtn.asObservable(),
+            backBtnTapped: backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -606,10 +621,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             didTappedButtonAt.onNext(sender.tag)
         }
     }
-    
-    @objc func backBtnAction() {
-        navigationController?.popViewController(animated: true)
-    }
 }
 
 extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -814,24 +825,41 @@ extension MyGroupDetailViewController {
         menuChild.append(share)
 
         if isLeader ?? false {
-            let editInfo = UIAction(title: "그룹 정보 수정", image: UIImage(systemName: "pencil"), handler: { [weak self] _ in
-                self?.viewModel?.actions.editInfo?()
-            })
-            
-            let editNotice = UIAction(title: "공지사항 수정", image: UIImage(systemName: "speaker.badge.exclamationmark.fill"), handler: { [weak self] _ in
-                self?.viewModel?.actions.editNotice?()
-            })
-            let editMember = UIAction(title: "멤버 수정", image: UIImage(systemName: "person"), handler: { [weak self] _ in
-                self?.viewModel?.actions.editMember?()
-            })
-            
-            menuChild.append(editInfo)
-            menuChild.append(editNotice)
-            menuChild.append(editMember)
+            [
+                UIAction(
+                    title: "그룹 정보 수정",
+                    image: UIImage(systemName: "pencil"),
+                    handler: { [weak self] _ in
+                        self?.didTappedInfoEditBtn.onNext(())
+                    }
+                ),
+                
+                UIAction(
+                    title: "공지사항 수정",
+                    image: UIImage(systemName: "speaker.badge.exclamationmark.fill"),
+                    handler: { [weak self] _ in
+                        self?.didTappedNoticeEditBtn.onNext(())
+                    }
+                ),
+                UIAction(
+                    title: "멤버 수정",
+                    image: UIImage(systemName: "person"),
+                    handler: { [weak self] _ in
+                        self?.didTappedMemberEditBtn.onNext(())
+                    }
+                )
+            ]
+                .forEach {
+                    menuChild.append($0)
+                }
         } else {
-            let withdraw = UIAction(title: "그룹 탈퇴하기", image: UIImage(systemName: "rectangle.portrait.and.arrow.forward"), attributes: .destructive, handler: { [weak self] _ in
-                self?.withdrawGroup()
-            })
+            let withdraw = UIAction(
+                title: "그룹 탈퇴하기",
+                image: UIImage(systemName: "rectangle.portrait.and.arrow.forward"),
+                attributes: .destructive,
+                handler: { [weak self] _ in
+                    self?.withdrawGroup()
+                })
             
             menuChild.append(withdraw)
         }
