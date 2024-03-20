@@ -1,5 +1,5 @@
 //
-//  GroupListViewController.swift
+//  MyGroupListViewController.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/31.
@@ -8,11 +8,11 @@
 import UIKit
 import RxSwift
 
-class GroupListViewController: UIViewController {
+class MyGroupListViewController: UIViewController {
     
     static let headerElementKind = "group-list-view-controller-header-kind"
     
-    var viewModel: GroupListViewModel?
+    var viewModel: MyGroupListViewModel?
 
     var bag = DisposeBag()
         
@@ -31,8 +31,8 @@ class GroupListViewController: UIViewController {
     
     lazy var resultCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        collectionView.register(JoinedGroupCell.self, forCellWithReuseIdentifier: JoinedGroupCell.reuseIdentifier)
-        collectionView.register(JoinedGroupSectionHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: JoinedGroupSectionHeaderView.reuseIdentifier)
+        collectionView.register(MyGroupCell.self, forCellWithReuseIdentifier: MyGroupCell.reuseIdentifier)
+        collectionView.register(MyGroupListSectionHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: MyGroupListSectionHeaderView.reuseIdentifier)
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.backgroundColor = .clear
@@ -72,7 +72,7 @@ class GroupListViewController: UIViewController {
 //        navigationController?.pushViewController(vc, animated: true)
     }
     
-    convenience init(viewModel: GroupListViewModel) {
+    convenience init(viewModel: MyGroupListViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
@@ -102,7 +102,7 @@ class GroupListViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
-        let input = GroupListViewModel.Input(
+        let input = MyGroupListViewModel.Input(
             viewDidLoad: Observable.just(()),
             tappedAt: tappedItemAt.asObservable(),
             becameOnlineStateAt: becameOnlineStateAt.asObservable(),
@@ -173,7 +173,7 @@ class GroupListViewController: UIViewController {
             .subscribe(onNext: { [weak self] (index, isSuccess) in
                 guard let self,
                       var group = viewModel.groupList?[index],
-                      let cell = self.resultCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? JoinedGroupCell else { return }
+                      let cell = self.resultCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? MyGroupCell else { return }
                 
                 let outerSwitchBag = DisposeBag()
                 cell.outerSwitchBag = outerSwitchBag
@@ -222,7 +222,7 @@ class GroupListViewController: UIViewController {
     }
 }
 
-extension GroupListViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension MyGroupListViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
@@ -235,7 +235,7 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupCell.reuseIdentifier, for: indexPath) as? JoinedGroupCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MyGroupCell.reuseIdentifier, for: indexPath) as? MyGroupCell else { return UICollectionViewCell() }
         if isInitLoading {
             cell.startSkeletonAnimation()
             return cell
@@ -291,7 +291,7 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
-        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: JoinedGroupSectionHeaderView.reuseIdentifier, for: indexPath) as? JoinedGroupSectionHeaderView else { return UICollectionReusableView() }
+        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: MyGroupListSectionHeaderView.reuseIdentifier, for: indexPath) as? MyGroupListSectionHeaderView else { return UICollectionReusableView() }
         if isInitLoading {
             view.startSkeletonAnimation()
             return view
@@ -302,7 +302,7 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
     }
 }
 
-extension GroupListViewController {
+extension MyGroupListViewController {
     private func createLayout() -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/2), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)

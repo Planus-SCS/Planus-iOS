@@ -1,5 +1,5 @@
 //
-//  JoinedGroupCell.swift
+//  MyGroupCell.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/31.
@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-class JoinedGroupCell: SearchResultCell {
+class MyGroupCell: SearchResultCell {
     
     var outerSwitchBag: DisposeBag?
     var indexPath: IndexPath?

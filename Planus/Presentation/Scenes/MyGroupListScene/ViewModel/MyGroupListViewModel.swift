@@ -1,5 +1,5 @@
 //
-//  GroupListViewModel.swift
+//  MyGroupListViewModel.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/04/04.
@@ -12,7 +12,7 @@ struct GroupListViewModelActions {
     var showJoinedGroupDetail: ((Int) -> Void)?
 }
 
-class GroupListViewModel {
+class MyGroupListViewModel {
     
     var bag = DisposeBag()
     var actions: GroupListViewModelActions?

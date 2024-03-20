@@ -1,5 +1,5 @@
 //
-//  GroupCoordinator.swift
+//  MyGroupListCoordinator.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/22.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class GroupCoordinator: Coordinator {
+class MyGroupListCoordinator: Coordinator {
     
     weak var finishDelegate: CoordinatorFinishDelegate?
     
@@ -39,7 +39,7 @@ class GroupCoordinator: Coordinator {
         let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
         let groupCreateUseCase = DefaultGroupCreateUseCase.shared
         let setOnlineUseCase = DefaultSetOnlineUseCase.shared
-        let vm = GroupListViewModel(
+        let vm = MyGroupListViewModel(
             getTokenUseCase: getTokenUseCase,
             refreshTokenUsecase: refreshTokenUseCase,
             setTokenUseCase: setTokenUseCase,
@@ -53,7 +53,7 @@ class GroupCoordinator: Coordinator {
         )
         
         vm.setActions(actions: GroupListViewModelActions(showJoinedGroupDetail: self?.showGroupDetailPage))
-        let vc = GroupListViewController(viewModel: vm)
+        let vc = MyGroupListViewController(viewModel: vm)
         self?.navigationController.pushViewController(vc, animated: true)
     }
 
@@ -66,7 +66,7 @@ class GroupCoordinator: Coordinator {
     }
 }
 
-extension GroupCoordinator: CoordinatorFinishDelegate {
+extension MyGroupListCoordinator: CoordinatorFinishDelegate {
     func coordinatorDidFinish(childCoordinator: Coordinator) {
         childCoordinators = childCoordinators.filter {
             $0.type != childCoordinator.type

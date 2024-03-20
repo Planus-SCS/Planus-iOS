@@ -112,7 +112,7 @@ final class MainTabCoordinator: NSObject, Coordinator {
             childCoordinators.append(searchCoordinator)
             searchCoordinator.start()
         case .group:
-            let groupCoordinator = GroupCoordinator(navigationController: navigation)
+            let groupCoordinator = MyGroupListCoordinator(navigationController: navigation)
             groupCoordinator.finishDelegate = self
             childCoordinators.append(groupCoordinator)
             groupCoordinator.start()

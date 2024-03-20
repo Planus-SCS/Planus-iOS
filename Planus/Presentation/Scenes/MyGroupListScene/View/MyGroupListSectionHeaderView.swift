@@ -1,5 +1,5 @@
 //
-//  JoinedGroupSectionHeaderView.swift
+//  MyGroupListSectionHeaderView.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/31.
@@ -7,8 +7,8 @@
 
 import UIKit
 
-class JoinedGroupSectionHeaderView: UICollectionReusableView {
-    static let reuseIdentifier = "joined-group-section-header-view"
+class MyGroupListSectionHeaderView: UICollectionReusableView {
+    static let reuseIdentifier = "my-group-list-section-header-view"
     
     var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
