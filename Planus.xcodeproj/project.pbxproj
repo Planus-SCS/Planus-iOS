@@ -2356,10 +2356,10 @@
 		6A91994F2A11FEB000108BF4 /* MyGroupListScene */ = {
 			isa = PBXGroup;
 			children = (
+				6A24F82B29CB44C40000FD64 /* Coordinator */,
 				6A24F82E29CB44DA0000FD64 /* ViewModel */,
 				6A24F82D29CB44D40000FD64 /* View */,
 				6A24F82C29CB44CD0000FD64 /* ViewController */,
-				6A24F82B29CB44C40000FD64 /* Coordinator */,
 			);
 			path = MyGroupListScene;
 			sourceTree = "<group>";

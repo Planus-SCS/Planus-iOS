@@ -45,7 +45,7 @@ class NotificationViewController: UIViewController {
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
@@ -72,7 +72,7 @@ class NotificationViewController: UIViewController {
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
         viewModel?.actions.finishScene?()
@@ -85,7 +85,8 @@ class NotificationViewController: UIViewController {
             viewDidLoad: Observable.just(()),
             didTapAllowBtnAt: didAllowBtnTappedAt.asObservable(),
             didTapDenyBtnAt: didDenyBtnTappedAt.asObservable(),
-            refreshRequired: refreshRequired.asObservable()
+            refreshRequired: refreshRequired.asObservable(),
+            backBtnTapped: backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)

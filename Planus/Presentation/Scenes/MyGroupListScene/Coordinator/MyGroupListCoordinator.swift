@@ -9,16 +9,19 @@ import UIKit
 
 class MyGroupListCoordinator: Coordinator {
     
+    struct Dependency {
+        let navigationController: UINavigationController
+        let injector: Injector
+    }
+    
+    let dependency: Dependency
+    
     weak var finishDelegate: CoordinatorFinishDelegate?
-    
-    var navigationController: UINavigationController
-        
     var childCoordinators: [Coordinator] = []
-    
-    var type: CoordinatorType = .group
+    var type: CoordinatorType = .myGroupList
 
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
+    init(dependency: Dependency) {
+        self.dependency = dependency
     }
     
     func start() {
@@ -26,43 +29,37 @@ class MyGroupListCoordinator: Coordinator {
     }
     
     lazy var showGroupListPage: () -> Void = { [weak self] in
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
+        guard let self else { return }
         
-        let tokenRepository = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
-        let imageRepo = DefaultImageRepository(apiProvider: api)
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepository)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepository)
-        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepository)
-        let fetchMyGroupUseCase = DefaultFetchMyGroupListUseCase(myGroupRepository: myGroupRepo)
-        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        let groupCreateUseCase = DefaultGroupCreateUseCase.shared
-        let setOnlineUseCase = DefaultSetOnlineUseCase.shared
-        let vm = MyGroupListViewModel(
-            getTokenUseCase: getTokenUseCase,
-            refreshTokenUsecase: refreshTokenUseCase,
-            setTokenUseCase: setTokenUseCase,
-            fetchMyGroupListUseCase: fetchMyGroupUseCase,
-            fetchImageUseCase: fetchImageUseCase,
-            groupCreateUseCase: groupCreateUseCase,
-            setOnlineUseCase: setOnlineUseCase,
-            updateGroupInfoUseCase: DefaultUpdateGroupInfoUseCase.shared,
-            withdrawGroupUseCase: DefaultWithdrawGroupUseCase.shared,
-            deleteGroupUseCase: DefaultDeleteGroupUseCase.shared
+        let vc = self.dependency.injector.resolve(
+            MyGroupListViewController.self,
+            argument: MyGroupListViewModel.Injectable(
+                actions: .init(
+                    showGroupDetailPage: self.showGroupDetailPage,
+                    showNotificationPage: self.showNotificationPage
+                ),
+                args: .init()
+            )
         )
         
-        vm.setActions(actions: GroupListViewModelActions(showJoinedGroupDetail: self?.showGroupDetailPage))
-        let vc = MyGroupListViewController(viewModel: vm)
-        self?.navigationController.pushViewController(vc, animated: true)
+        self.dependency.navigationController.pushViewController(vc, animated: true)
     }
 
     lazy var showGroupDetailPage: (Int) -> Void = { [weak self] id in
+
+    }
+    
+    lazy var showNotificationPage: () -> Void = { [weak self] in
         guard let self else { return }
-        let coordinator = JoinedGroupDetailCoordinator(navigationController: self.navigationController)
+        let coordinator = NotificationCoordinator(
+            dependency: NotificationCoordinator.Dependency(
+                navigationController: self.dependency.navigationController,
+                injector: self.dependency.injector
+            )
+        )
         coordinator.finishDelegate = self
         self.childCoordinators.append(coordinator)
-        coordinator.start(id: id)
+        coordinator.start()
     }
 }
 

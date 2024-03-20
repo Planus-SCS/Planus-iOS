@@ -15,7 +15,7 @@ enum CoordinatorType {
          dailyCalendar,
          todoDetail,
          search,
-         group,
+         myGroupList,
          groupIntroduce,
          groupCreate,
          joinedGroup,

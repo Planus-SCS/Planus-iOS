@@ -102,17 +102,32 @@ final class MainTabCoordinator: NSObject, Coordinator {
         // 각 코디네이터 생성 후 추가 예정
         switch page {
         case .calendar:
-            let homeCalendarCoordinator = HomeCalendarCoordinator(dependency: HomeCalendarCoordinator.Dependency(navigationController: navigation, injector: dependency.injector))
+            let homeCalendarCoordinator = HomeCalendarCoordinator(
+                dependency: HomeCalendarCoordinator.Dependency(
+                    navigationController: navigation,
+                    injector: dependency.injector
+                )
+            )
             homeCalendarCoordinator.finishDelegate = self
             childCoordinators.append(homeCalendarCoordinator)
             homeCalendarCoordinator.start()
         case .search:
-            let searchCoordinator = SearchCoordinator(dependency: SearchCoordinator.Dependency(navigationController: navigation, injector: dependency.injector))
+            let searchCoordinator = SearchCoordinator(
+                dependency: SearchCoordinator.Dependency(
+                    navigationController: navigation,
+                    injector: dependency.injector
+                )
+            )
             searchCoordinator.finishDelegate = self
             childCoordinators.append(searchCoordinator)
             searchCoordinator.start()
         case .group:
-            let groupCoordinator = MyGroupListCoordinator(navigationController: navigation)
+            let groupCoordinator = MyGroupListCoordinator(
+                dependency: MyGroupListCoordinator.Dependency(
+                    navigationController: navigation,
+                    injector: dependency.injector
+                )
+            )
             groupCoordinator.finishDelegate = self
             childCoordinators.append(groupCoordinator)
             groupCoordinator.start()

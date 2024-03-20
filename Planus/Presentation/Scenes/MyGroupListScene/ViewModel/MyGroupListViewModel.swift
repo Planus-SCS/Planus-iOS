@@ -8,14 +8,37 @@
 import Foundation
 import RxSwift
 
-struct GroupListViewModelActions {
-    var showJoinedGroupDetail: ((Int) -> Void)?
-}
-
-class MyGroupListViewModel {
+class MyGroupListViewModel: ViewModel {
+    
+    struct UseCases {
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUsecase: RefreshTokenUseCase
+        let setTokenUseCase: SetTokenUseCase
+        let fetchMyGroupListUseCase: FetchMyGroupListUseCase
+        let fetchImageUseCase: FetchImageUseCase
+        let groupCreateUseCase: GroupCreateUseCase
+        let setOnlineUseCase: SetOnlineUseCase
+        let updateGroupInfoUseCase: UpdateGroupInfoUseCase
+        let withdrawGroupUseCase: WithdrawGroupUseCase
+        let deleteGroupUseCase: DeleteGroupUseCase
+    }
+    
+    struct Actions {
+        let showGroupDetailPage: ((Int) -> Void)?
+        let showNotificationPage: (() -> Void)?
+    }
+    
+    struct Args {}
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
     
     var bag = DisposeBag()
-    var actions: GroupListViewModelActions?
+    
+    let useCases: UseCases
+    let actions: Actions
     
     var groupList: [MyGroupSummary]?
     
@@ -31,6 +54,7 @@ class MyGroupListViewModel {
         var becameOnlineStateAt: Observable<Int>
         var becameOfflineStateAt: Observable<Int>
         var refreshRequired: Observable<Void>
+        var notificationBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -41,45 +65,14 @@ class MyGroupListViewModel {
         var didSuccessOnlineStateChange: Observable<(Int, Bool)>
     }
     
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUsecase: RefreshTokenUseCase
-    var setTokenUseCase: SetTokenUseCase
-    var fetchMyGroupListUseCase: FetchMyGroupListUseCase
-    var fetchImageUseCase: FetchImageUseCase
-    var groupCreateUseCase: GroupCreateUseCase
-    var setOnlineUseCase: SetOnlineUseCase
-    var updateGroupInfoUseCase: UpdateGroupInfoUseCase
-    var withdrawGroupUseCase: WithdrawGroupUseCase
-    var deleteGroupUseCase: DeleteGroupUseCase
-    
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUsecase: RefreshTokenUseCase,
-        setTokenUseCase: SetTokenUseCase,
-        fetchMyGroupListUseCase: FetchMyGroupListUseCase,
-        fetchImageUseCase: FetchImageUseCase,
-        groupCreateUseCase: GroupCreateUseCase,
-        setOnlineUseCase: SetOnlineUseCase,
-        updateGroupInfoUseCase: UpdateGroupInfoUseCase,
-        withdrawGroupUseCase: WithdrawGroupUseCase,
-        deleteGroupUseCase: DeleteGroupUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUsecase = refreshTokenUsecase
-        self.setTokenUseCase = setTokenUseCase
-        self.fetchMyGroupListUseCase = fetchMyGroupListUseCase
-        self.fetchImageUseCase = fetchImageUseCase
-        self.groupCreateUseCase = groupCreateUseCase
-        self.setOnlineUseCase = setOnlineUseCase
-        self.updateGroupInfoUseCase = updateGroupInfoUseCase
-        self.withdrawGroupUseCase = withdrawGroupUseCase
-        self.deleteGroupUseCase = deleteGroupUseCase
+        self.useCases = useCases
+        self.actions = injectable.actions
     }
-    
-    func setActions(actions: GroupListViewModelActions) {
-        self.actions = actions
-    }
-    
+
     func transform(input: Input) -> Output {
         bindUseCase()
         
@@ -121,7 +114,15 @@ class MyGroupListViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 guard let id = vm.groupList?[index].groupId else { return }
-                vm.actions?.showJoinedGroupDetail?(id)
+                vm.actions.showGroupDetailPage?(id)
+            })
+            .disposed(by: bag)
+        
+        input
+            .notificationBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.showNotificationPage?()
             })
             .disposed(by: bag)
         
@@ -135,7 +136,8 @@ class MyGroupListViewModel {
     }
     
     func bindUseCase() {
-        groupCreateUseCase
+        useCases
+            .groupCreateUseCase
             .didCreateGroup
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
@@ -143,7 +145,8 @@ class MyGroupListViewModel {
             })
             .disposed(by: bag)
         
-        setOnlineUseCase
+        useCases
+            .setOnlineUseCase
             .didChangeOnlineState
             .withUnretained(self)
             .subscribe(onNext: { vm, arg in
@@ -159,7 +162,8 @@ class MyGroupListViewModel {
             })
             .disposed(by: bag)
         
-        updateGroupInfoUseCase
+        useCases
+            .updateGroupInfoUseCase
             .didUpdateInfoWithId
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
@@ -167,7 +171,8 @@ class MyGroupListViewModel {
             })
             .disposed(by: bag)
         
-        withdrawGroupUseCase
+        useCases
+            .withdrawGroupUseCase
             .didWithdrawGroup
             .withUnretained(self)
             .subscribe(onNext: { vm, id in
@@ -177,7 +182,8 @@ class MyGroupListViewModel {
             })
             .disposed(by: bag)
         
-        deleteGroupUseCase
+        useCases
+            .deleteGroupUseCase
             .didDeleteGroupWithId
             .withUnretained(self)
             .subscribe(onNext: { vm, id in
@@ -191,17 +197,18 @@ class MyGroupListViewModel {
     func setOnline(index: Int) {
         guard var group = self.groupList?[index] else { return }
         
-        getTokenUseCase
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.setOnlineUseCase
+                return self.useCases.setOnlineUseCase
                     .execute(token: token, groupId: group.groupId)
             }
             .handleRetry(
-                retryObservable: refreshTokenUsecase.execute(),
+                retryObservable: useCases.refreshTokenUsecase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onFailure: { [weak self] _ in //이경우 다시 바꿔주고 바꾸기
@@ -216,32 +223,32 @@ class MyGroupListViewModel {
         
         DispatchQueue.main.asyncAfter(deadline: .now()+0.3, execute: { [weak self] in
             guard let self else { return }
-            self.getTokenUseCase
+            self.useCases.getTokenUseCase
                 .execute()
                 .flatMap { [weak self] token -> Single<[MyGroupSummary]> in
                     guard let self else {
                         throw DefaultError.noCapturedSelf
                     }
-                    return self.fetchMyGroupListUseCase
+                    return self.useCases.fetchMyGroupListUseCase
                         .execute(token: token)
                 }
                 .handleRetry(
-                    retryObservable: self.refreshTokenUsecase.execute(),
+                    retryObservable: self.useCases.refreshTokenUsecase.execute(),
                     errorType: NetworkManagerError.tokenExpired
                 )
                 .subscribe(onSuccess: { [weak self] list in
-                    print("here!")
                     self?.groupList = list
                     self?.didFetchGroupList.onNext((fetchType))
-                }, onFailure: {
-                    print($0)
+                }, onFailure: { [weak self] _ in
+                    self?.showMessage.onNext("얘기치 못한 이유로 로딩을 실패했어요 😭")
                 })
                 .disposed(by: self.bag)
         })
     }
     
     func fetchImage(key: String) -> Single<Data> {
-        fetchImageUseCase
+        useCases
+            .fetchImageUseCase
             .execute(key: key)
     }
 }

@@ -42,6 +42,7 @@ class NotificationViewModel: ViewModel {
         var didTapAllowBtnAt: Observable<Int?>
         var didTapDenyBtnAt: Observable<Int?>
         var refreshRequired: Observable<Void>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -101,6 +102,14 @@ class NotificationViewModel: ViewModel {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
                     vm.fetchJoinApplyList(fetchType: .refresh)
                 })
+            })
+            .disposed(by: bag)
+        
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         

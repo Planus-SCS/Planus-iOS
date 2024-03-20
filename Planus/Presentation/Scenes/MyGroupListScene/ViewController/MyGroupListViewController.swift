@@ -48,29 +48,10 @@ class MyGroupListViewController: UIViewController {
     
     lazy var notificationButton: UIBarButtonItem = {
         let image = UIImage(named: "notificationIcon")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(notificationBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
-    
-    @objc func notificationBtnAction() {
-        //FIXME: NotificationCoordinator 호출하는 액션 추가
-//        let api = NetworkManager()
-//        let keyChain = KeyChainManager()
-//        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-//        let imageRepo = DefaultImageRepository(apiProvider: api)
-//        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
-//        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-//        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-//        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
-//        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-//        let fetchJoinApplyUseCase = DefaultFetchJoinApplyListUseCase(myGroupRepository: myGroupRepo)
-//        let acceptGroupJoinUseCase = DefaultAcceptGroupJoinUseCase(myGroupRepository: myGroupRepo)
-//        let denyGroupJoinUseCase = DefaultDenyGroupJoinUseCase(myGroupRepository: myGroupRepo)
-//        let vm = NotificationViewModel(getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, setTokenUseCase: setTokenUseCase, fetchJoinApplyListUseCase: fetchJoinApplyUseCase, fetchImageUseCase: fetchImageUseCase, acceptGroupJoinUseCase: acceptGroupJoinUseCase, denyGroupJoinUseCase: denyGroupJoinUseCase)
-//        let vc = NotificationViewController(viewModel: vm)
-//        navigationController?.pushViewController(vc, animated: true)
-    }
     
     convenience init(viewModel: MyGroupListViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -107,7 +88,8 @@ class MyGroupListViewController: UIViewController {
             tappedAt: tappedItemAt.asObservable(),
             becameOnlineStateAt: becameOnlineStateAt.asObservable(),
             becameOfflineStateAt: becameOfflineStateAt.asObservable(),
-            refreshRequired: refreshRequired.asObservable()
+            refreshRequired: refreshRequired.asObservable(),
+            notificationBtnTapped: notificationButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -148,7 +130,7 @@ class MyGroupListViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .needReloadItemAt //이걸 리로드로 하면 약간의 flicker가 발생함. without animation으로 할까?
+            .needReloadItemAt
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
