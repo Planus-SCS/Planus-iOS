@@ -25,7 +25,7 @@ class MyGroupMemberEditViewController: UIViewController {
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
@@ -67,7 +67,8 @@ class MyGroupMemberEditViewController: UIViewController {
         
         let input = MyGroupMemberEditViewModel.Input(
             viewDidLoad: Observable.just(()),
-            didTappedResignButton: didTappedResignButton
+            didTappedResignButton: didTappedResignButton,
+            backBtnTapped: backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -110,10 +111,6 @@ class MyGroupMemberEditViewController: UIViewController {
         memberCollectionView.snp.makeConstraints {
             $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
-    }
-    
-    @objc func backBtnAction(_ sender: UIBarButtonItem) {
-        self.navigationController?.popViewController(animated: true)
     }
     
     private func createMemberSection() -> UICollectionViewLayout {

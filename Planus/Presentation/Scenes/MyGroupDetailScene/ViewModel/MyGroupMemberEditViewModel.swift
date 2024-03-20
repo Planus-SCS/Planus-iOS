@@ -8,16 +8,41 @@
 import Foundation
 import RxSwift
 
-class MyGroupMemberEditViewModel {
+class MyGroupMemberEditViewModel: ViewModel {
+    
+    struct UseCases {
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        let fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase
+        let fetchImageUseCase: FetchImageUseCase
+        let memberKickOutUseCase: MemberKickOutUseCase
+    }
+    
+    struct Actions {
+        let pop: (() -> Void)?
+    }
+    
+    struct Args {
+        let groupId: Int
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
     
     var bag = DisposeBag()
+    let useCases: UseCases
+    let actions: Actions
     
-    var groupId: Int?
+    let groupId: Int
     var memberList: [MyGroupMemberProfile]?
     
     struct Input {
         var viewDidLoad: Observable<Void>
         var didTappedResignButton: Observable<Int>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -32,28 +57,14 @@ class MyGroupMemberEditViewModel {
     var didFetchMemberList = BehaviorSubject<Void?>(value: nil)
     var showMessage = PublishSubject<Message>()
     
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
-    var fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase
-    var fetchImageUseCase: FetchImageUseCase
-    var memberKickOutUseCase: MemberKickOutUseCase
-    
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase,
-        fetchImageUseCase: FetchImageUseCase,
-        memberKickOutUseCase: MemberKickOutUseCase
+        useCase: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.fetchMyGroupMemberListUseCase = fetchMyGroupMemberListUseCase
-        self.fetchImageUseCase = fetchImageUseCase
-        self.memberKickOutUseCase = memberKickOutUseCase
-    }
-    
-    func setGroupId(id: Int) {
-        self.groupId = id
+        self.useCases = useCase
+        self.actions = injectable.actions
+        
+        self.groupId = injectable.args.groupId
     }
     
     func transform(input: Input) -> Output {
@@ -75,6 +86,14 @@ class MyGroupMemberEditViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
+            })
+            .disposed(by: bag)
+        
         return Output(
             didResignedAt: resignedAt.asObservable(),
             didFetchMemberList: didFetchMemberList.asObservable(),
@@ -83,7 +102,8 @@ class MyGroupMemberEditViewModel {
     }
     
     func bindUseCase() {
-        memberKickOutUseCase
+        useCases
+            .memberKickOutUseCase
             .didKickOutMemberAt
             .subscribe(onNext: { [weak self] (groupId, memberId) in
                 guard let currentGroupId = self?.groupId,
@@ -96,20 +116,20 @@ class MyGroupMemberEditViewModel {
     }
     
     func resignMember(index: Int) {
-        guard let groupId,
-              let memberId = memberList?[index].memberId,
+        guard let memberId = memberList?[index].memberId,
               nowProcessingMemberId.filter({ $0 == memberId }).isEmpty else { return }
         nowProcessingMemberId.append(memberId)
-        let memberKickOutUseCase = self.memberKickOutUseCase
+        let memberKickOutUseCase = self.useCases.memberKickOutUseCase
         
-        getTokenUseCase
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { token -> Single<Void> in
                 return memberKickOutUseCase
-                    .execute(token: token, groupId: groupId, memberId: memberId)
+                    .execute(token: token, groupId: self.groupId, memberId: memberId)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
@@ -131,16 +151,16 @@ class MyGroupMemberEditViewModel {
     }
     
     func fetchMemberList() {
-        guard let groupId else { return }
-        let fetchMyGroupMemberListUseCase = self.fetchMyGroupMemberListUseCase
-        getTokenUseCase
+        let fetchMyGroupMemberListUseCase = self.useCases.fetchMyGroupMemberListUseCase
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { token -> Single<[MyGroupMemberProfile]> in
                 return fetchMyGroupMemberListUseCase
-                    .execute(token: token, groupId: groupId)
+                    .execute(token: token, groupId: self.groupId)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
@@ -151,7 +171,8 @@ class MyGroupMemberEditViewModel {
     }
     
     func fetchImage(key: String) -> Single<Data> {
-        fetchImageUseCase
+        useCases
+            .fetchImageUseCase
             .execute(key: key)
     }
 }
