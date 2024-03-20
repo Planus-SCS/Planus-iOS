@@ -389,7 +389,6 @@
 		6A987A3B29DDA61F00C27D09 /* MyGroupMemberEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A3A29DDA61F00C27D09 /* MyGroupMemberEditViewController.swift */; };
 		6A987A3E29DDA88800C27D09 /* MyGroupMemberEditCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A3D29DDA88800C27D09 /* MyGroupMemberEditCell.swift */; };
 		6A987A4329DDAE1000C27D09 /* MyGroupMemberEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A4229DDAE1000C27D09 /* MyGroupMemberEditViewModel.swift */; };
-		6A987A4829DDB97A00C27D09 /* MyGroupNoticeEditCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A4729DDB97A00C27D09 /* MyGroupNoticeEditCoordinator.swift */; };
 		6A987A4A29DDBB4200C27D09 /* MyGroupNoticeEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A4929DDBB4200C27D09 /* MyGroupNoticeEditViewModel.swift */; };
 		6A987A5029DE4A1400C27D09 /* MemberProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A4F29DE4A1400C27D09 /* MemberProfileViewController.swift */; };
 		6A987A5329DEAC2400C27D09 /* NestedScrollableMonthlyCalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A987A5229DEAC2400C27D09 /* NestedScrollableMonthlyCalendarCell.swift */; };
@@ -1023,7 +1022,6 @@
 		6A987A3A29DDA61F00C27D09 /* MyGroupMemberEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupMemberEditViewController.swift; sourceTree = "<group>"; };
 		6A987A3D29DDA88800C27D09 /* MyGroupMemberEditCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupMemberEditCell.swift; sourceTree = "<group>"; };
 		6A987A4229DDAE1000C27D09 /* MyGroupMemberEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupMemberEditViewModel.swift; sourceTree = "<group>"; };
-		6A987A4729DDB97A00C27D09 /* MyGroupNoticeEditCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupNoticeEditCoordinator.swift; sourceTree = "<group>"; };
 		6A987A4929DDBB4200C27D09 /* MyGroupNoticeEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupNoticeEditViewModel.swift; sourceTree = "<group>"; };
 		6A987A4F29DE4A1400C27D09 /* MemberProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberProfileViewController.swift; sourceTree = "<group>"; };
 		6A987A5229DEAC2400C27D09 /* NestedScrollableMonthlyCalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedScrollableMonthlyCalendarCell.swift; sourceTree = "<group>"; };
@@ -1931,7 +1929,8 @@
 				6A95DFD629D51BDE009017D8 /* GroupIntroduceScene */,
 				6A987A4D29DE494E00C27D09 /* MemberProfileScene */,
 				6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */,
-				6A24F82629CB44940000FD64 /* MyGroupScene */,
+				6A91994F2A11FEB000108BF4 /* MyGroupListScene */,
+				6A24F82629CB44940000FD64 /* MyGroupDetailScene */,
 			);
 			path = Scenes;
 			sourceTree = "<group>";
@@ -2032,6 +2031,47 @@
 			path = Extension;
 			sourceTree = "<group>";
 		};
+		6A0B766B2BAB16B7008BC571 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		6A0B766C2BAB1722008BC571 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */,
+				6A9199582A12004100108BF4 /* MyGroupInfoEditViewModel.swift */,
+				6A987A4229DDAE1000C27D09 /* MyGroupMemberEditViewModel.swift */,
+				6A987A4929DDBB4200C27D09 /* MyGroupNoticeEditViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		6A0B766D2BAB1729008BC571 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6A876DA62A94AC70001D800E /* MyGroupDetailViewController2.swift */,
+				6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */,
+				6A987A3A29DDA61F00C27D09 /* MyGroupMemberEditViewController.swift */,
+				6A987A3629DD9F3400C27D09 /* MyGroupNoticeEditViewController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		6A0B766E2BAB1730008BC571 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */,
+				6A876DAC2A94F5D5001D800E /* AnimatedStrechButtonListView.swift */,
+				6AF078242A9CE2110086692B /* MyGroupInfoHeaderView.swift */,
+				6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */,
+				6A987A3D29DDA88800C27D09 /* MyGroupMemberEditCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */ = {
 			isa = PBXGroup;
 			children = (
@@ -2094,17 +2134,16 @@
 			path = SearchScene;
 			sourceTree = "<group>";
 		};
-		6A24F82629CB44940000FD64 /* MyGroupScene */ = {
+		6A24F82629CB44940000FD64 /* MyGroupDetailScene */ = {
 			isa = PBXGroup;
 			children = (
-				6A876DA22A94AC15001D800E /* NewMyGroupDetailScene */,
-				6A9199502A11FF0800108BF4 /* MyGroupInfoEditScene */,
-				6A987A3829DDA60000C27D09 /* MyGroupMemberEditScene */,
-				6A987A3429DD9F0500C27D09 /* MyGroupNoticeEditScene */,
-				6A9879FA29DBD0CF00C27D09 /* MyGroupDetailScene */,
-				6A91994F2A11FEB000108BF4 /* MyGroupListScene */,
+				6A0B766B2BAB16B7008BC571 /* Coordinator */,
+				6A0B766C2BAB1722008BC571 /* ViewModel */,
+				6A0B766D2BAB1729008BC571 /* ViewController */,
+				6A0B766E2BAB1730008BC571 /* View */,
+				6A9879FA29DBD0CF00C27D09 /* Legacy_MyGroupDetailScene */,
 			);
-			path = MyGroupScene;
+			path = MyGroupDetailScene;
 			sourceTree = "<group>";
 		};
 		6A24F82729CB44A90000FD64 /* View */ = {
@@ -2314,42 +2353,6 @@
 			path = Entity;
 			sourceTree = "<group>";
 		};
-		6A876DA22A94AC15001D800E /* NewMyGroupDetailScene */ = {
-			isa = PBXGroup;
-			children = (
-				6A876DA52A94AC35001D800E /* ViewModel */,
-				6A876DA42A94AC2C001D800E /* ViewController */,
-				6A876DA32A94AC27001D800E /* View */,
-			);
-			path = NewMyGroupDetailScene;
-			sourceTree = "<group>";
-		};
-		6A876DA32A94AC27001D800E /* View */ = {
-			isa = PBXGroup;
-			children = (
-				6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */,
-				6A876DAC2A94F5D5001D800E /* AnimatedStrechButtonListView.swift */,
-				6AF078242A9CE2110086692B /* MyGroupInfoHeaderView.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		6A876DA42A94AC2C001D800E /* ViewController */ = {
-			isa = PBXGroup;
-			children = (
-				6A876DA62A94AC70001D800E /* MyGroupDetailViewController2.swift */,
-			);
-			path = ViewController;
-			sourceTree = "<group>";
-		};
-		6A876DA52A94AC35001D800E /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
 		6A91994F2A11FEB000108BF4 /* MyGroupListScene */ = {
 			isa = PBXGroup;
 			children = (
@@ -2359,40 +2362,6 @@
 				6A24F82B29CB44C40000FD64 /* Coordinator */,
 			);
 			path = MyGroupListScene;
-			sourceTree = "<group>";
-		};
-		6A9199502A11FF0800108BF4 /* MyGroupInfoEditScene */ = {
-			isa = PBXGroup;
-			children = (
-				6A9199572A12003300108BF4 /* ViewModel */,
-				6A9199542A11FFA400108BF4 /* View */,
-				6A9199512A11FF1A00108BF4 /* ViewController */,
-			);
-			path = MyGroupInfoEditScene;
-			sourceTree = "<group>";
-		};
-		6A9199512A11FF1A00108BF4 /* ViewController */ = {
-			isa = PBXGroup;
-			children = (
-				6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */,
-			);
-			path = ViewController;
-			sourceTree = "<group>";
-		};
-		6A9199542A11FFA400108BF4 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				6A9199552A11FFC000108BF4 /* GroupEditInfoView.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		6A9199572A12003300108BF4 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				6A9199582A12004100108BF4 /* MyGroupInfoEditViewModel.swift */,
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		6A91998D2A1276CF00108BF4 /* Enum */ = {
@@ -2525,7 +2494,7 @@
 			path = Coordinator;
 			sourceTree = "<group>";
 		};
-		6A9879FA29DBD0CF00C27D09 /* MyGroupDetailScene */ = {
+		6A9879FA29DBD0CF00C27D09 /* Legacy_MyGroupDetailScene */ = {
 			isa = PBXGroup;
 			children = (
 				6A9879FE29DBD0F300C27D09 /* Coordinator */,
@@ -2533,7 +2502,7 @@
 				6A9879FC29DBD0E400C27D09 /* ViewController */,
 				6A9879FB29DBD0DE00C27D09 /* View */,
 			);
-			path = MyGroupDetailScene;
+			path = Legacy_MyGroupDetailScene;
 			sourceTree = "<group>";
 		};
 		6A9879FB29DBD0DE00C27D09 /* View */ = {
@@ -2577,82 +2546,6 @@
 			isa = PBXGroup;
 			children = (
 				6A9879FF29DBD10500C27D09 /* JoinedGroupDetailCoordinator.swift */,
-			);
-			path = Coordinator;
-			sourceTree = "<group>";
-		};
-		6A987A3429DD9F0500C27D09 /* MyGroupNoticeEditScene */ = {
-			isa = PBXGroup;
-			children = (
-				6A987A4529DDB94200C27D09 /* Coordinator */,
-				6A987A4429DDB93400C27D09 /* ViewModel */,
-				6A987A3529DD9F1900C27D09 /* ViewController */,
-			);
-			path = MyGroupNoticeEditScene;
-			sourceTree = "<group>";
-		};
-		6A987A3529DD9F1900C27D09 /* ViewController */ = {
-			isa = PBXGroup;
-			children = (
-				6A987A3629DD9F3400C27D09 /* MyGroupNoticeEditViewController.swift */,
-			);
-			path = ViewController;
-			sourceTree = "<group>";
-		};
-		6A987A3829DDA60000C27D09 /* MyGroupMemberEditScene */ = {
-			isa = PBXGroup;
-			children = (
-				6A987A4629DDB94A00C27D09 /* Coordinator */,
-				6A987A3F29DDABDD00C27D09 /* ViewModel */,
-				6A987A3C29DDA87000C27D09 /* View */,
-				6A987A3929DDA60E00C27D09 /* ViewController */,
-			);
-			path = MyGroupMemberEditScene;
-			sourceTree = "<group>";
-		};
-		6A987A3929DDA60E00C27D09 /* ViewController */ = {
-			isa = PBXGroup;
-			children = (
-				6A987A3A29DDA61F00C27D09 /* MyGroupMemberEditViewController.swift */,
-			);
-			path = ViewController;
-			sourceTree = "<group>";
-		};
-		6A987A3C29DDA87000C27D09 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				6A987A3D29DDA88800C27D09 /* MyGroupMemberEditCell.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		6A987A3F29DDABDD00C27D09 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				6A987A4229DDAE1000C27D09 /* MyGroupMemberEditViewModel.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
-		6A987A4429DDB93400C27D09 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				6A987A4929DDBB4200C27D09 /* MyGroupNoticeEditViewModel.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
-		6A987A4529DDB94200C27D09 /* Coordinator */ = {
-			isa = PBXGroup;
-			children = (
-				6A987A4729DDB97A00C27D09 /* MyGroupNoticeEditCoordinator.swift */,
-			);
-			path = Coordinator;
-			sourceTree = "<group>";
-		};
-		6A987A4629DDB94A00C27D09 /* Coordinator */ = {
-			isa = PBXGroup;
-			children = (
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -3522,7 +3415,6 @@
 				6A9AAAC629F808FB002A6DAF /* DailyCalendarTodoCheckButton.swift in Sources */,
 				6A2BB1CB29E55EBE0053C5CA /* UpdateTodoUseCase.swift in Sources */,
 				6AC0799C2A0AAA68007ACDB8 /* DefaultAcceptGroupJoinUseCase.swift in Sources */,
-				6A987A4829DDB97A00C27D09 /* MyGroupNoticeEditCoordinator.swift in Sources */,
 				6A2C00EA2A72CF71003D6B95 /* ToastMessage.swift in Sources */,
 				6A9199EB2A20904700108BF4 /* SocialTodoDTO.swift in Sources */,
 				6AD888D22A89282600F4B887 /* RevokeAppleTokenUseCase.swift in Sources */,

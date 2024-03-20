@@ -54,21 +54,22 @@ class GroupListViewController: UIViewController {
     }()
     
     @objc func notificationBtnAction() {
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-        let imageRepo = DefaultImageRepository(apiProvider: api)
-        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
-        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        let fetchJoinApplyUseCase = DefaultFetchJoinApplyListUseCase(myGroupRepository: myGroupRepo)
-        let acceptGroupJoinUseCase = DefaultAcceptGroupJoinUseCase(myGroupRepository: myGroupRepo)
-        let denyGroupJoinUseCase = DefaultDenyGroupJoinUseCase(myGroupRepository: myGroupRepo)
-        let vm = NotificationViewModel(getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, setTokenUseCase: setTokenUseCase, fetchJoinApplyListUseCase: fetchJoinApplyUseCase, fetchImageUseCase: fetchImageUseCase, acceptGroupJoinUseCase: acceptGroupJoinUseCase, denyGroupJoinUseCase: denyGroupJoinUseCase)
-        let vc = NotificationViewController(viewModel: vm)
-        navigationController?.pushViewController(vc, animated: true)
+        //FIXME: NotificationCoordinator 호출하는 액션 추가
+//        let api = NetworkManager()
+//        let keyChain = KeyChainManager()
+//        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
+//        let imageRepo = DefaultImageRepository(apiProvider: api)
+//        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
+//        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+//        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+//        let setTokenUseCase = DefaultSetTokenUseCase(tokenRepository: tokenRepo)
+//        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
+//        let fetchJoinApplyUseCase = DefaultFetchJoinApplyListUseCase(myGroupRepository: myGroupRepo)
+//        let acceptGroupJoinUseCase = DefaultAcceptGroupJoinUseCase(myGroupRepository: myGroupRepo)
+//        let denyGroupJoinUseCase = DefaultDenyGroupJoinUseCase(myGroupRepository: myGroupRepo)
+//        let vm = NotificationViewModel(getTokenUseCase: getTokenUseCase, refreshTokenUseCase: refreshTokenUseCase, setTokenUseCase: setTokenUseCase, fetchJoinApplyListUseCase: fetchJoinApplyUseCase, fetchImageUseCase: fetchImageUseCase, acceptGroupJoinUseCase: acceptGroupJoinUseCase, denyGroupJoinUseCase: denyGroupJoinUseCase)
+//        let vc = NotificationViewController(viewModel: vm)
+//        navigationController?.pushViewController(vc, animated: true)
     }
     
     convenience init(viewModel: GroupListViewModel) {
