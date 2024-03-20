@@ -8,17 +8,43 @@
 import Foundation
 import RxSwift
 
-class MyGroupNoticeEditViewModel {
+class MyGroupNoticeEditViewModel: ViewModel {
+    
+    struct UseCases {
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        let updateNoticeUseCase: UpdateNoticeUseCase
+    }
+    
+    struct Actions {
+        let pop: (() -> Void)?
+    }
+    
+    struct Args {
+        let groupId: Int
+        let notice: String
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
     var bag = DisposeBag()
     
-    var groupId: Int?
-    var notice = BehaviorSubject<String?>(value: nil)
+    let useCases: UseCases
+    let actions: Actions
+    
+    var groupId: Int
+    var notice: BehaviorSubject<String?>
+    
     var didEditComplete = PublishSubject<Void>()
     var isSaveBtnEnabled = BehaviorSubject<Bool?>(value: nil)
     
     struct Input {
         var didTapSaveButton: Observable<Void>
         var didChangeNoticeValue: Observable<String?>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -26,23 +52,15 @@ class MyGroupNoticeEditViewModel {
         var didEditCompleted: Observable<Void>
     }
     
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
-    var updateNoticeUseCase: UpdateNoticeUseCase
-    
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        updateNoticeUseCase: UpdateNoticeUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.updateNoticeUseCase = updateNoticeUseCase
-    }
-    
-    func setNotice(groupId: Int, notice: String) {
-        self.groupId = groupId
-        self.notice.onNext(notice)
+        self.useCases = useCases
+        self.actions = injectable.actions
+        
+        self.groupId = injectable.args.groupId
+        self.notice = BehaviorSubject<String?>(value: injectable.args.notice)
     }
     
     func transform(input: Input) -> Output {
@@ -58,6 +76,14 @@ class MyGroupNoticeEditViewModel {
             .didChangeNoticeValue
             .distinctUntilChanged()
             .bind(to: notice)
+            .disposed(by: bag)
+        
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
+            })
             .disposed(by: bag)
         
         notice
@@ -78,20 +104,20 @@ class MyGroupNoticeEditViewModel {
     }
     
     func updateNotice() {
-        guard let groupId,
-              let notice = try? notice.value() else { return }
+        guard let notice = try? notice.value() else { return }
         
-        getTokenUseCase
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.updateNoticeUseCase
-                    .execute(token: token, groupNotice: GroupNotice(groupId: groupId, notice: notice))
+                return self.useCases.updateNoticeUseCase
+                    .execute(token: token, groupNotice: GroupNotice(groupId: self.groupId, notice: notice))
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in

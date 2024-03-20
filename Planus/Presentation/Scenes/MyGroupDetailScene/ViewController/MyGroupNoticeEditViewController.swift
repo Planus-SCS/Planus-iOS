@@ -34,13 +34,13 @@ class MyGroupNoticeEditViewController: UIViewController {
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
     
     lazy var saveButton: UIBarButtonItem = {
-        let item = UIBarButtonItem(image: UIImage(named: "saveBarBtn"), style: .plain, target: self, action: #selector(saveBtnAction))
+        let item = UIBarButtonItem(image: UIImage(named: "saveBarBtn"), style: .plain, target: nil, action: nil)
         item.tintColor = UIColor(hex: 0x6495F4)
         return item
     }()
@@ -85,7 +85,8 @@ class MyGroupNoticeEditViewController: UIViewController {
 
         let input = MyGroupNoticeEditViewModel.Input(
             didTapSaveButton: saveButton.rx.tap.asObservable(),
-            didChangeNoticeValue: noticeTextView.rx.text.skip(1).asObservable()
+            didChangeNoticeValue: noticeTextView.rx.text.skip(1).asObservable(),
+            backBtnTapped: backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -126,14 +127,6 @@ class MyGroupNoticeEditViewController: UIViewController {
             $0.top.equalTo(self.view.safeAreaLayoutGuide).offset(26)
             $0.bottom.equalTo(self.view.safeAreaLayoutGuide).offset(-300)
         }
-    }
-    
-    @objc func backBtnAction(_ sender: UIBarButtonItem) {
-        self.navigationController?.popViewController(animated: true)
-    }
-    
-    @objc func saveBtnAction(_ sender: UIBarButtonItem) {
-        
     }
 }
 
