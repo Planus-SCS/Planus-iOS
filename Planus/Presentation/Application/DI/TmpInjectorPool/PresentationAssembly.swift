@@ -35,6 +35,7 @@ class PresentationAssembly: Assembly {
         assembleMyGroupList(container: container)
         
         assembleMyGroupDetail(container: container)
+        assembleMyGroupInfoEdit(container: container)
     }
     
 }
@@ -419,6 +420,25 @@ extension PresentationAssembly {
         
         container.register(MyGroupDetailViewController.self) { (r, injectable: MyGroupDetailViewModel.Injectable) in
             return MyGroupDetailViewController(viewModel: r.resolve(MyGroupDetailViewModel.self, argument: injectable)!)
+        }
+    }
+    
+    func assembleMyGroupInfoEdit(container: Container) {
+        container.register(MyGroupInfoEditViewModel.self) { (r, injectable: MyGroupInfoEditViewModel.Injectable) in
+            return MyGroupInfoEditViewModel(
+                useCases: .init(
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,
+                    updateGroupInfoUseCase: r.resolve(UpdateGroupInfoUseCase.self)!,
+                    deleteGroupUseCase: r.resolve(DeleteGroupUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
+        container.register(MyGroupInfoEditViewController.self) { (r, injectable: MyGroupInfoEditViewModel.Injectable) in
+            return MyGroupInfoEditViewController(viewModel: r.resolve(MyGroupInfoEditViewModel.self, argument: injectable)!)
         }
     }
 }

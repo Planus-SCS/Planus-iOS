@@ -8,20 +8,48 @@
 import Foundation
 import RxSwift
 
-class MyGroupInfoEditViewModel {
-    var bag = DisposeBag()
-    var groupId: Int?
+class MyGroupInfoEditViewModel: ViewModel {
     
-    var title: String?
+    struct UseCases {
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        let fetchImageUseCase: FetchImageUseCase
+        let updateGroupInfoUseCase: UpdateGroupInfoUseCase
+        let deleteGroupUseCase: DeleteGroupUseCase
+    }
+    
+    struct Actions {
+        let popDetailScene: (() -> Void)?
+        let pop: (() -> Void)?
+    }
+    
+    struct Args {
+        let id: Int
+        let title: String
+        let imageUrl: String
+        let tagList: [String]
+        let maxMember: Int
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
+    var bag = DisposeBag()
+    
+    let useCases: UseCases
+    let actions: Actions
+    
+    var groupId: Int
+    var title: String
+    var tagList: [String]
+    var maxMember: BehaviorSubject<Int?>
     var titleImage = BehaviorSubject<ImageFile?>(value: nil)
-    var tagList = [String]()
-    var maxMember = BehaviorSubject<Int?>(value: nil)
     
     let tagCountValidState = BehaviorSubject<Bool?>(value: nil)
     let tagDuplicateValidState = BehaviorSubject<Bool?>(value: nil)
-    
-    var infoUpdateCompleted = PublishSubject<Void>()
-    var groupDeleted = PublishSubject<Void>()
+
     var nowSaving = false
     
     var showMessage = PublishSubject<Message>()
@@ -33,6 +61,7 @@ class MyGroupInfoEditViewModel {
         var maxMemberChanged: Observable<String?>
         var saveBtnTapped: Observable<Void>
         var removeBtnTapped: Observable<Void>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -42,47 +71,26 @@ class MyGroupInfoEditViewModel {
         var tagCountValidState: Observable<Bool>
         var tagDuplicateValidState: Observable<Bool>
         var isUpdateButtonEnabled: Observable<Bool>
-        var infoUpdateCompleted: Observable<Void>
         var insertTagAt: Observable<Int>
         var removeTagAt: Observable<Int>
-        var groupDeleted: Observable<Void>
         var showMessage: Observable<Message>
     }
     
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
-    var fetchImageUseCase: FetchImageUseCase
-    var updateGroupInfoUseCase: UpdateGroupInfoUseCase
-    var deleteGroupUseCase: DeleteGroupUseCase
-    
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        fetchImageUseCase: FetchImageUseCase,
-        updateGroupInfoUseCase: UpdateGroupInfoUseCase,
-        deleteGroupUseCase: DeleteGroupUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.fetchImageUseCase = fetchImageUseCase
-        self.updateGroupInfoUseCase = updateGroupInfoUseCase
-        self.deleteGroupUseCase = deleteGroupUseCase
-    }
-    
-    public func setGroup(
-        id: Int,
-        title: String,
-        imageUrl: String,
-        tagList: [String],
-        maxMember: Int
-    ) {
-        self.groupId = id
-        self.title = title
-        self.tagList = tagList
-        self.maxMember.onNext(maxMember)
+        self.useCases = useCases
+        self.actions = injectable.actions
         
-        fetchImageUseCase
-            .execute(key: imageUrl)
+        self.groupId = injectable.args.id
+        self.title = injectable.args.title
+        self.tagList = injectable.args.tagList
+        self.maxMember = BehaviorSubject<Int?>(value: injectable.args.maxMember)
+        
+        useCases
+            .fetchImageUseCase
+            .execute(key: injectable.args.imageUrl)
             .subscribe(onSuccess: { [weak self] data in
                 self?.titleImage.onNext(ImageFile(filename: "original", data: data, type: "jpeg"))
             })
@@ -149,6 +157,14 @@ class MyGroupInfoEditViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
+            })
+            .disposed(by: bag)
+        
         let imageFilled = titleImage.map { $0 != nil }.asObservable()
         let maxMemberFilled = maxMember.map {
             guard let max = $0,
@@ -173,10 +189,8 @@ class MyGroupInfoEditViewModel {
             tagCountValidState: tagCountValidState.compactMap { $0 }.asObservable(),
             tagDuplicateValidState: tagDuplicateValidState.compactMap { $0 }.asObservable(),
             isUpdateButtonEnabled: isCreateButtonEnabled,
-            infoUpdateCompleted: infoUpdateCompleted.asObservable(),
             insertTagAt: insertAt.asObservable(),
             removeTagAt: removeAt.asObservable(),
-            groupDeleted: groupDeleted.asObservable(),
             showMessage: showMessage.asObservable()
         )
     }
@@ -190,25 +204,25 @@ class MyGroupInfoEditViewModel {
     }
     
     func requestUpdateInfo() {
-        guard let groupId,
-              let limit = try? maxMember.value(),
+        guard let limit = try? maxMember.value(),
               let image = try? titleImage.value() else { return }
-        getTokenUseCase
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.updateGroupInfoUseCase
-                    .execute(token: token, groupId: groupId, tagList: self.tagList, limit: limit, image: image)
+                return self.useCases.updateGroupInfoUseCase
+                    .execute(token: token, groupId: self.groupId, tagList: self.tagList, limit: limit, image: image)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
-                self?.infoUpdateCompleted.onNext(())
+                self?.actions.pop?()
             }, onFailure: { [weak self] error in
                 self?.nowSaving = false
                 guard let error = error as? NetworkManagerError,
@@ -221,24 +235,23 @@ class MyGroupInfoEditViewModel {
     }
     
     func deleteGroup() {
-        guard let groupId else { return }
-        
-        getTokenUseCase
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.deleteGroupUseCase
-                    .execute(token: token, groupId: groupId)
+                return self.useCases.deleteGroupUseCase
+                    .execute(token: token, groupId: self.groupId)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] _ in
                 // 아에 앞에 있던 네비게이션을 싹다 없애고 첫 씬으로 돌아가야함..!
-                self?.groupDeleted.onNext(())
+                self?.actions.popDetailScene?()
                 self?.nowSaving = false
             }, onFailure: { [weak self] error in
                 self?.nowSaving = false

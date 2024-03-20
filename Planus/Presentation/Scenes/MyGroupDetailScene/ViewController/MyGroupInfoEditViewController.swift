@@ -35,7 +35,7 @@ class MyGroupInfoEditViewController: UIViewController {
     var infoView: GroupEditInfoView = .init(frame: .zero)
     var tagView: GroupCreateTagView = .init(frame: .zero)
     var limitView: GroupCreateLimitView = .init(frame: .zero)
-    var createButtonView: WideButtonView = {
+    var removeButtonView: WideButtonView = {
         let view = WideButtonView.init(frame: .zero)
         view.wideButton.backgroundColor = .systemPink
         view.wideButton.setTitle("그룹 삭제하기", for: .normal)
@@ -44,22 +44,16 @@ class MyGroupInfoEditViewController: UIViewController {
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
     
     lazy var saveButton: UIBarButtonItem = {
-        let item = UIBarButtonItem(image: UIImage(named: "saveBarBtn"), style: .plain, target: self, action: #selector(saveBtnTapped))
+        let item = UIBarButtonItem(image: UIImage(named: "saveBarBtn"), style: .plain, target: nil, action: nil)
         item.tintColor = UIColor(hex: 0x6495F4)
         return item
     }()
-    
-    @objc func saveBtnTapped(_ sender: UIBarButtonItem) {}
-    
-    @objc func backBtnAction() {
-        navigationController?.popViewController(animated: true)
-    }
     
     convenience init(viewModel: MyGroupInfoEditViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -109,7 +103,7 @@ class MyGroupInfoEditViewController: UIViewController {
         infoView.groupNameField.text = viewModel.title
         limitView.limitField.text = "\((try? viewModel.maxMember.value()) ?? 0)"
         
-        createButtonView
+        removeButtonView
             .wideButton.rx.tap
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
@@ -126,7 +120,8 @@ class MyGroupInfoEditViewController: UIViewController {
             tagRemovedAt: tagRemovedAt.asObservable(),
             maxMemberChanged: limitView.didChangedLimitValue.asObservable(),
             saveBtnTapped: saveButton.rx.tap.asObservable(),
-            removeBtnTapped: removeBtnTapped.asObservable()
+            removeBtnTapped: removeBtnTapped.asObservable(),
+            backBtnTapped: backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -144,11 +139,7 @@ class MyGroupInfoEditViewController: UIViewController {
         output
             .isUpdateButtonEnabled
             .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, enabled in
-                vc.createButtonView.wideButton.isEnabled = enabled
-                vc.createButtonView.wideButton.alpha = enabled ? 1.0 : 0.4
-            })
+            .bind(to: saveButton.rx.isEnabled)
             .disposed(by: bag)
         
         output
@@ -179,15 +170,6 @@ class MyGroupInfoEditViewController: UIViewController {
                     return
                 }
                 vc.infoView.groupImageView.image = UIImage(data: data)
-            })
-            .disposed(by: bag)
-        
-        output
-            .infoUpdateCompleted
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.navigationController?.popViewController(animated: true)
             })
             .disposed(by: bag)
         
@@ -242,15 +224,6 @@ class MyGroupInfoEditViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .groupDeleted
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.navigationController?.popToRootViewController(animated: true)
-            })
-            .disposed(by: bag)
-        
-        output
             .showMessage
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
@@ -272,7 +245,7 @@ class MyGroupInfoEditViewController: UIViewController {
         contentStackView.addArrangedSubview(infoView)
         contentStackView.addArrangedSubview(tagView)
         contentStackView.addArrangedSubview(limitView)
-        contentStackView.addArrangedSubview(createButtonView)
+        contentStackView.addArrangedSubview(removeButtonView)
         
         infoView.groupImageButton.addTarget(self, action: #selector(imageBtnTapped), for: .touchUpInside)
     }
