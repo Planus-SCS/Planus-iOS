@@ -33,6 +33,8 @@ class PresentationAssembly: Assembly {
         assembleNotification(container: container)
         
         assembleMyGroupList(container: container)
+        
+        assembleMyGroupDetail(container: container)
     }
     
 }
@@ -384,6 +386,39 @@ extension PresentationAssembly {
         
         container.register(MyGroupListViewController.self) { (r, injectable: MyGroupListViewModel.Injectable) in
             return MyGroupListViewController(viewModel: r.resolve(MyGroupListViewModel.self, argument: injectable)!)
+        }
+    }
+}
+
+extension PresentationAssembly {
+    func assembleMyGroupDetail(container: Container) {
+        container.register(MyGroupDetailViewModel.self) { (r, injectable: MyGroupDetailViewModel.Injectable) in
+            return MyGroupDetailViewModel(
+                useCases: .init(
+                    fetchMyGroupDetailUseCase: r.resolve(FetchMyGroupDetailUseCase.self)!,
+                    updateNoticeUseCase: r.resolve(UpdateNoticeUseCase.self)!,
+                    updateInfoUseCase: r.resolve(UpdateGroupInfoUseCase.self)!,
+                    withdrawGroupUseCase: r.resolve(WithdrawGroupUseCase.self)!,
+                    fetchMyGroupMemberListUseCase: r.resolve(FetchMyGroupMemberListUseCase.self)!,
+                    fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,
+                    memberKickOutUseCase: r.resolve(MemberKickOutUseCase.self)!,
+                    setOnlineUseCase: r.resolve(SetOnlineUseCase.self)!,
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    createMonthlyCalendarUseCase: r.resolve(CreateMonthlyCalendarUseCase.self)!,
+                    fetchMyGroupCalendarUseCase: r.resolve(FetchGroupMonthlyCalendarUseCase.self)!,
+                    createGroupTodoUseCase: r.resolve(CreateGroupTodoUseCase.self)!,
+                    updateGroupTodoUseCase: r.resolve(UpdateGroupTodoUseCase.self)!,
+                    deleteGroupTodoUseCase: r.resolve(DeleteGroupTodoUseCase.self)!,
+                    updateGroupCategoryUseCase: r.resolve(UpdateGroupCategoryUseCase.self)!,
+                    generateGroupLinkUseCase: r.resolve(GenerateGroupLinkUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
+        container.register(MyGroupDetailViewController.self) { (r, injectable: MyGroupDetailViewModel.Injectable) in
+            return MyGroupDetailViewController(viewModel: r.resolve(MyGroupDetailViewModel.self, argument: injectable)!)
         }
     }
 }

@@ -77,7 +77,7 @@ enum MyGroupDetailPageAttribute {
     }
 }
 
-class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegate {
+class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate {
     var bag = DisposeBag()
     
     let didChangedMonth = PublishSubject<Date>()
@@ -118,7 +118,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         return stretchButtonView
     }()
     
-    var viewModel: MyGroupDetailViewModel2?
+    var viewModel: MyGroupDetailViewModel?
     
     lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
@@ -154,7 +154,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
         return item
     }()
     
-    convenience init(viewModel: MyGroupDetailViewModel2) {
+    convenience init(viewModel: MyGroupDetailViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
@@ -197,7 +197,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     func bind() {
         guard let viewModel else { return }
         
-        let input = MyGroupDetailViewModel2.Input(
+        let input = MyGroupDetailViewModel.Input(
             viewDidLoad: Observable.just(()),
             didTappedModeBtnAt: didTappedButtonAt.asObservable(),
             didChangedMonth: didChangedMonth.asObservable(),
@@ -397,36 +397,37 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, date in
-                guard let groupId = viewModel.groupId,
-                      let groupName = viewModel.groupTitle,
-                      let isOwner = viewModel.isLeader else { return }
-                let nm = NetworkManager()
-                let kc = KeyChainManager()
-                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyValueStorage: kc)
-                let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
-                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-                let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyCalendarUseCase(groupCalendarRepository: gcr)
-                let fetchMemberDailyCalendarUseCase = DefaultFetchGroupMemberDailyCalendarUseCase(memberCalendarRepository: DefaultGroupMemberCalendarRepository(apiProvider: nm))
-                let viewModel = SocialTodoDailyViewModel(
-                    getTokenUseCase: getTokenUseCase,
-                    refreshTokenUseCase: refTokenUseCase,
-                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
-                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase,
-                    createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
-                    updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
-                    deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
-                    updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
-                )
-                viewModel.setGroup(group: GroupName(groupId: groupId, groupName: groupName), type: .group(isLeader: isOwner), date: date)
-                let viewController = SocialTodoDailyViewController(viewModel: viewModel)
                 
-                let nav = UINavigationController(rootViewController: viewController)
-                nav.modalPresentationStyle = .pageSheet
-                if let sheet = nav.sheetPresentationController {
-                    sheet.detents = [.medium(), .large()]
-                }
-                vc.present(nav, animated: true)
+//                guard let groupId = viewModel.groupId,
+//                      let groupName = viewModel.groupTitle,
+//                      let isOwner = viewModel.isLeader else { return }
+//                let nm = NetworkManager()
+//                let kc = KeyChainManager()
+//                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyValueStorage: kc)
+//                let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
+//                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+//                let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+//                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyCalendarUseCase(groupCalendarRepository: gcr)
+//                let fetchMemberDailyCalendarUseCase = DefaultFetchGroupMemberDailyCalendarUseCase(memberCalendarRepository: DefaultGroupMemberCalendarRepository(apiProvider: nm))
+//                let viewModel = SocialTodoDailyViewModel(
+//                    getTokenUseCase: getTokenUseCase,
+//                    refreshTokenUseCase: refTokenUseCase,
+//                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
+//                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase,
+//                    createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
+//                    updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
+//                    deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
+//                    updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
+//                )
+//                viewModel.setGroup(group: GroupName(groupId: groupId, groupName: groupName), type: .group(isLeader: isOwner), date: date)
+//                let viewController = SocialTodoDailyViewController(viewModel: viewModel)
+//                
+//                let nav = UINavigationController(rootViewController: viewController)
+//                nav.modalPresentationStyle = .pageSheet
+//                if let sheet = nav.sheetPresentationController {
+//                    sheet.detents = [.medium(), .large()]
+//                }
+//                vc.present(nav, animated: true)
             })
             .disposed(by: bag)
         
@@ -435,35 +436,35 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                guard let groupId = viewModel.groupId,
-                      let groupTitle = viewModel.groupTitle,
-                      let member = viewModel.memberList?[index] else { return }
-                let groupName = GroupName(groupId: groupId, groupName: groupTitle)
-                
-                let api = NetworkManager()
-                let memberCalendarRepo = DefaultGroupMemberCalendarRepository(apiProvider: api)
-                let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-                let fetchMemberTodoUseCase = DefaultFetchGroupMemberCalendarUseCase(memberCalendarRepository: memberCalendarRepo)
-                let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
-                let keyChainManager = KeyChainManager()
-                
-                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChainManager)
-                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-                
-                let vm = MemberProfileViewModel(
-                    createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
-                    dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
-                    getTokenUseCase: getTokenUseCase,
-                    refreshTokenUseCase: refreshTokenUseCase,
-                    fetchMemberCalendarUseCase: fetchMemberTodoUseCase,
-                    fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
-                )
-
-                vm.setMember(group: groupName, member: member)
-
-                let viewController = MemberProfileViewController(viewModel: vm)
-                vc.navigationController?.pushViewController(viewController, animated: true)
+//                guard let groupId = viewModel.groupId,
+//                      let groupTitle = viewModel.groupTitle,
+//                      let member = viewModel.memberList?[index] else { return }
+//                let groupName = GroupName(groupId: groupId, groupName: groupTitle)
+//                
+//                let api = NetworkManager()
+//                let memberCalendarRepo = DefaultGroupMemberCalendarRepository(apiProvider: api)
+//                let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
+//                let fetchMemberTodoUseCase = DefaultFetchGroupMemberCalendarUseCase(memberCalendarRepository: memberCalendarRepo)
+//                let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
+//                let keyChainManager = KeyChainManager()
+//                
+//                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChainManager)
+//                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+//                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+//                
+//                let vm = MemberProfileViewModel(
+//                    createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
+//                    dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
+//                    getTokenUseCase: getTokenUseCase,
+//                    refreshTokenUseCase: refreshTokenUseCase,
+//                    fetchMemberCalendarUseCase: fetchMemberTodoUseCase,
+//                    fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
+//                )
+//
+//                vm.setMember(group: groupName, member: member)
+//
+//                let viewController = MemberProfileViewController(viewModel: vm)
+//                vc.navigationController?.pushViewController(viewController, animated: true)
             })
             .disposed(by: bag)
         
@@ -611,7 +612,7 @@ class MyGroupDetailViewController2: UIViewController, UIGestureRecognizerDelegat
     }
 }
 
-extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollectionViewDelegate {
+extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         guard let mode = viewModel?.mode else { return false }
         
@@ -801,7 +802,7 @@ extension MyGroupDetailViewController2: UICollectionViewDataSource, UICollection
 }
 
 
-extension MyGroupDetailViewController2 {
+extension MyGroupDetailViewController {
     func setMenuButton(isLeader: Bool?) {
         let image = UIImage(named: "dotBtn")
         var item: UIBarButtonItem
@@ -814,14 +815,14 @@ extension MyGroupDetailViewController2 {
 
         if isLeader ?? false {
             let editInfo = UIAction(title: "그룹 정보 수정", image: UIImage(systemName: "pencil"), handler: { [weak self] _ in
-                self?.editInfo()
+                self?.viewModel?.actions.editInfo?()
             })
             
             let editNotice = UIAction(title: "공지사항 수정", image: UIImage(systemName: "speaker.badge.exclamationmark.fill"), handler: { [weak self] _ in
-                self?.editNotice()
+                self?.viewModel?.actions.editNotice?()
             })
             let editMember = UIAction(title: "멤버 수정", image: UIImage(systemName: "person"), handler: { [weak self] _ in
-                self?.editMember()
+                self?.viewModel?.actions.editMember?()
             })
             
             menuChild.append(editInfo)
@@ -847,83 +848,9 @@ extension MyGroupDetailViewController2 {
             CustomAlertAttr(title: "탈퇴", actionHandler: { [weak self] in self?.viewModel?.withdrawGroup()}, type: .warning)]
         )
     }
-    
-    func editNotice() {
-        guard let groupId = viewModel?.groupId,
-              let notice = viewModel?.notice else { return }
-        
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let updateNoticeUseCase = DefaultUpdateNoticeUseCase.shared
-    
-        let vm = MyGroupNoticeEditViewModel(
-            getTokenUseCase: getTokenUseCase,
-            refreshTokenUseCase: refreshTokenUseCase,
-            updateNoticeUseCase: updateNoticeUseCase
-        )
-        vm.setNotice(groupId: groupId, notice: notice)
-        let vc = MyGroupNoticeEditViewController(viewModel: vm)
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    
-    func editMember() {
-        guard let groupId = viewModel?.groupId else { return }
-        
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
-        let imageRepo = DefaultImageRepository(apiProvider: api)
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let fetchMyGroupMemberListUseCase = DefaultFetchMyGroupMemberListUseCase(myGroupRepository: myGroupRepo)
-        let fetchImageUseCase = DefaultFetchImageUseCase(imageRepository: imageRepo)
-        
-        let vm = MyGroupMemberEditViewModel(
-            getTokenUseCase: getTokenUseCase,
-            refreshTokenUseCase: refreshTokenUseCase,
-            fetchMyGroupMemberListUseCase: fetchMyGroupMemberListUseCase,
-            fetchImageUseCase: fetchImageUseCase,
-            memberKickOutUseCase: DefaultMemberKickOutUseCase.shared
-        )
-        vm.setGroupId(id: groupId)
-        let vc = MyGroupMemberEditViewController(viewModel: vm)
-        self.navigationController?.pushViewController(vc, animated: true)
-    }
-    
-    func editInfo() {
-        let api = NetworkManager()
-        let keyChain = KeyChainManager()
-        let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChain)
-        let myGroupRepo = DefaultMyGroupRepository(apiProvider: api)
-        let imageRepo = DefaultImageRepository(apiProvider: api)
-        let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-        let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-        let updateGroupInfoUseCase = DefaultUpdateGroupInfoUseCase.shared
-        let vm = MyGroupInfoEditViewModel(
-            getTokenUseCase: getTokenUseCase,
-            refreshTokenUseCase: refreshTokenUseCase,
-            fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: imageRepo),
-            updateGroupInfoUseCase: updateGroupInfoUseCase,
-            deleteGroupUseCase: DefaultDeleteGroupUseCase.shared
-        )
-        guard let id = self.viewModel?.groupId,
-              let title = self.viewModel?.groupTitle,
-              let url = self.viewModel?.groupImageUrl,
-              let tagList = self.viewModel?.tag,
-              let max = self.viewModel?.limitCount else { return }
-        vm.setGroup(id: id, title: title, imageUrl: url, tagList: tagList, maxMember: max)
-        
-        let vc = MyGroupInfoEditViewController(viewModel: vm)
-        self.navigationController?.pushViewController(vc, animated: true)
-    }
 }
 
-extension MyGroupDetailViewController2 {
+extension MyGroupDetailViewController {
     private func createInfoSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(1), heightDimension: .absolute(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -1064,13 +991,13 @@ extension MyGroupDetailViewController2 {
     }
 }
 
-extension MyGroupDetailViewController2: UIPopoverPresentationControllerDelegate {
+extension MyGroupDetailViewController: UIPopoverPresentationControllerDelegate {
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
     }
 }
 
-extension MyGroupDetailViewController2 {
+extension MyGroupDetailViewController {
     func calendarCell(cell: DailyCalendarCell, indexPath: IndexPath) -> UICollectionViewCell {
         guard let viewModel else { return UICollectionViewCell() }
         let screenWidth = UIScreen.main.bounds.width

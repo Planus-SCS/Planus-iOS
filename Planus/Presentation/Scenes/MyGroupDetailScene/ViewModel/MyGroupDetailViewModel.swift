@@ -1,5 +1,5 @@
 //
-//  MyGroupDetailViewModel2.swift
+//  MyGroupDetailViewModel.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/08/22.
@@ -24,10 +24,58 @@ enum MyGroupSecionType {
     case chat
 }
 
-class MyGroupDetailViewModel2 {
+class MyGroupDetailViewModel: ViewModel {
+    
+    struct UseCases {
+        let fetchMyGroupDetailUseCase: FetchMyGroupDetailUseCase
+        let updateNoticeUseCase: UpdateNoticeUseCase
+        let updateInfoUseCase: UpdateGroupInfoUseCase
+        let withdrawGroupUseCase: WithdrawGroupUseCase
+        
+        let fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase
+        let fetchImageUseCase: FetchImageUseCase
+        let memberKickOutUseCase: MemberKickOutUseCase
+        let setOnlineUseCase: SetOnlineUseCase
+        
+        
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
+        let fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase
+        
+        let createGroupTodoUseCase: CreateGroupTodoUseCase
+        let updateGroupTodoUseCase: UpdateGroupTodoUseCase
+        let deleteGroupTodoUseCase: DeleteGroupTodoUseCase
+        let updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
+        
+        let generateGroupLinkUseCase: GenerateGroupLinkUseCase
+    }
+    
+    struct Actions {
+        let showDailyCalendar: (() -> Void)?
+        let showMemberProfile: (() -> Void)?
+        let editInfo: (() -> Void)?
+        let editMember: (() -> Void)?
+        let editNotice: (() -> Void)?
+        let pop: (() -> Void)?
+        let finishScene: (() -> Void)?
+    }
+    
+    struct Args {
+        let groupId: Int
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
+    
     let bag = DisposeBag()
-    var actions: JoinedGroupDetailViewModelActions?
-
+    
+    let useCases: UseCases
+    let actions: Actions
+    
     struct Input {
         var viewDidLoad: Observable<Void>
         var didTappedModeBtnAt: Observable<Int>
@@ -65,7 +113,8 @@ class MyGroupDetailViewModel2 {
     var didFetchCalendar = BehaviorSubject<Void?>(value: nil)
     var showShareMenu = PublishSubject<String?>()
     
-    var groupId: Int?
+    let groupId: Int
+    
     var groupTitle: String?
     var groupImageUrl: String?
     var tag: [String]?
@@ -115,87 +164,35 @@ class MyGroupDetailViewModel2 {
     let modeChanged = PublishSubject<Void>()
     
     
-    
-    var fetchMyGroupDetailUseCase: FetchMyGroupDetailUseCase
-    var updateNoticeUseCase: UpdateNoticeUseCase
-    var updateInfoUseCase: UpdateGroupInfoUseCase
-    var withdrawGroupUseCase: WithdrawGroupUseCase
-    
-    var fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase
-    var fetchImageUseCase: FetchImageUseCase
-    var memberKickOutUseCase: MemberKickOutUseCase
-    var setOnlineUseCase: SetOnlineUseCase
-    
-    
-    let getTokenUseCase: GetTokenUseCase
-    let refreshTokenUseCase: RefreshTokenUseCase
-    let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
-    let fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase
-    
-    let createGroupTodoUseCase: CreateGroupTodoUseCase
-    let updateGroupTodoUseCase: UpdateGroupTodoUseCase
-    let deleteGroupTodoUseCase: DeleteGroupTodoUseCase
-    let updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
-    
-    let generateGroupLinkUseCase: GenerateGroupLinkUseCase
-    
     lazy var membersFetcher: (Int) -> Single<[MyGroupMemberProfile]>? = { [weak self] groupId in
         guard let self else { return nil }
-        return self.getTokenUseCase
+        return self.useCases.getTokenUseCase
             .execute()
             .flatMap { token -> Single<[MyGroupMemberProfile]> in
-                return self.fetchMyGroupMemberListUseCase
+                return self.useCases.fetchMyGroupMemberListUseCase
                     .execute(token: token, groupId: groupId)
             }
     }
     
     lazy var groupDetailFetcher: (Int) -> Single<MyGroupDetail>? = { [weak self] groupId in
         guard let self else { return nil }
-        return self.getTokenUseCase
+        return self.useCases.getTokenUseCase
             .execute()
             .flatMap { token -> Single<MyGroupDetail> in
-                return self.fetchMyGroupDetailUseCase
+                return self.useCases.fetchMyGroupDetailUseCase
                     .execute(token: token, groupId: groupId)
             }
     }
     
     
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        fetchMyGroupDetailUseCase: FetchMyGroupDetailUseCase,
-        fetchImageUseCase: FetchImageUseCase,
-        setOnlineUseCase: SetOnlineUseCase,
-        updateNoticeUseCase: UpdateNoticeUseCase,
-        updateInfoUseCase: UpdateGroupInfoUseCase,
-        withdrawGroupUseCase: WithdrawGroupUseCase,
-        fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase,
-        memberKickOutUseCase: MemberKickOutUseCase,
-        createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase,
-        createGroupTodoUseCase: CreateGroupTodoUseCase,
-        updateGroupTodoUseCase: UpdateGroupTodoUseCase,
-        deleteGroupTodoUseCase: DeleteGroupTodoUseCase,
-        updateGroupCategoryUseCase: UpdateGroupCategoryUseCase,
-        generateGroupLinkUseCase: GenerateGroupLinkUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.fetchMyGroupDetailUseCase = fetchMyGroupDetailUseCase
-        self.fetchImageUseCase = fetchImageUseCase
-        self.setOnlineUseCase = setOnlineUseCase
-        self.updateInfoUseCase = updateInfoUseCase
-        self.updateNoticeUseCase = updateNoticeUseCase
-        self.withdrawGroupUseCase = withdrawGroupUseCase
-        self.fetchMyGroupMemberListUseCase = fetchMyGroupMemberListUseCase
-        self.memberKickOutUseCase = memberKickOutUseCase
-        self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
-        self.fetchMyGroupCalendarUseCase = fetchMyGroupCalendarUseCase
-        self.createGroupTodoUseCase = createGroupTodoUseCase
-        self.updateGroupTodoUseCase = updateGroupTodoUseCase
-        self.deleteGroupTodoUseCase = deleteGroupTodoUseCase
-        self.updateGroupCategoryUseCase = updateGroupCategoryUseCase
-        self.generateGroupLinkUseCase = generateGroupLinkUseCase
+        self.useCases = useCases
+        self.actions = injectable.actions
+        
+        self.groupId = injectable.args.groupId
     }
     
     func transform(input: Input) -> Output {
@@ -206,12 +203,11 @@ class MyGroupDetailViewModel2 {
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                guard let groupId = vm.groupId else { return }
                 vm.mode = .notice
                 vm.nowInitLoading.onNext(())
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
-                    vm.initFetchDetails(groupId: groupId, fetchType: .initail)
+                    vm.initFetchDetails(groupId: vm.groupId, fetchType: .initail)
                 })
             })
             .disposed(by: bag)
@@ -299,13 +295,11 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-        let initFetched = Observable.zip( //만약 먼저 방출하면? 어케되는거지????? 으으으음,,,, 상관없나??? 일단 해보자..!
+        let initFetched = Observable.zip(
             didFetchInfo.compactMap { $0 },
             didFetchNotice.compactMap { $0 },
             didFetchMember.compactMap { $0 }
-        )
-            .map { _ in () }
-        //그대로 하고 메인스레드에서 구독을 좀 늦춰서 실험 ㄱㄱ
+        ).map { _ in () }
         
         return Output(
             showMessage: showMessage.asObservable(),
@@ -327,44 +321,44 @@ class MyGroupDetailViewModel2 {
     }
     
     func generateShareLink() -> String? {
-        guard let groupId = groupId else { return nil }
-        return generateGroupLinkUseCase.execute(groupId: groupId)
+        return useCases.generateGroupLinkUseCase.execute(groupId: groupId)
     }
     
     func bindUseCase() {
-        setOnlineUseCase
+        useCases
+            .setOnlineUseCase
             .didChangeOnlineState
             .withUnretained(self)
             .subscribe(onNext: { vm, arg in
                 let (groupId, memberId) = arg
-                if groupId == vm.groupId {
-                    guard let exValue = try? vm.isOnline.value(),
-                          let onlineCount = vm.onlineCount else { return }
-                    let newValue = !exValue
-                    
-                    vm.onlineCount = newValue ? (onlineCount + 1) : (onlineCount - 1)
-                    vm.isOnline.onNext(newValue)
-                    
-                    vm.showMessage.onNext(Message(text: "\(vm.groupTitle ?? "") 그룹을 \(newValue ? "온" : "오프")라인으로 전환하였습니다.", state: .normal))
-                    guard let index = vm.memberList?.firstIndex(where: { $0.memberId == memberId }),
-                          var member = vm.memberList?[index] else { return }
-                    
-                    member.isOnline = !member.isOnline
-                    vm.memberList?[index] = member
-                    
-                    if vm.mode == .notice {
-                        vm.needReloadMemberAt.onNext(index)
-                    }
+                guard groupId == vm.groupId,
+                      let exValue = try? vm.isOnline.value(),
+                      let onlineCount = vm.onlineCount else { return }
+                let newValue = !exValue
+                
+                vm.onlineCount = newValue ? (onlineCount + 1) : (onlineCount - 1)
+                vm.isOnline.onNext(newValue)
+                
+                vm.showMessage.onNext(Message(text: "\(vm.groupTitle ?? "") 그룹을 \(newValue ? "온" : "오프")라인으로 전환하였습니다.", state: .normal))
+                guard let index = vm.memberList?.firstIndex(where: { $0.memberId == memberId }),
+                      var member = vm.memberList?[index] else { return }
+                
+                member.isOnline = !member.isOnline
+                vm.memberList?[index] = member
+                
+                if vm.mode == .notice {
+                    vm.needReloadMemberAt.onNext(index)
                 }
+                
             })
             .disposed(by: bag)
         
-        updateNoticeUseCase
+        useCases
+            .updateNoticeUseCase
             .didUpdateNotice
             .withUnretained(self)
             .subscribe(onNext: { vm, groupNotice in
-                guard let id = vm.groupId,
-                      id == groupNotice.groupId else { return }
+                guard vm.groupId == groupNotice.groupId else { return }
                 vm.notice = groupNotice.notice
                 if vm.mode == .notice {
                     vm.didFetchNotice.onNext(())
@@ -373,7 +367,8 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-        updateInfoUseCase
+        useCases
+            .updateInfoUseCase
             .didUpdateInfoWithId
             .withUnretained(self)
             .subscribe(onNext: { vm, id in
@@ -382,7 +377,8 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-        createGroupTodoUseCase
+        useCases
+            .createGroupTodoUseCase
             .didCreateGroupTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
@@ -393,7 +389,8 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-        updateGroupTodoUseCase // 삭제하고 다시넣기,,, 걍 다시받는게 편하겠지 아무래도?
+        useCases
+            .updateGroupTodoUseCase // 삭제하고 다시넣기,,, 걍 다시받는게 편하겠지 아무래도?
             .didUpdateGroupTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
@@ -404,7 +401,8 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-        deleteGroupTodoUseCase
+        useCases
+            .deleteGroupTodoUseCase
             .didDeleteGroupTodoWithIds
             .withUnretained(self)
             .subscribe(onNext: { vm, ids in
@@ -415,7 +413,8 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-        updateGroupCategoryUseCase
+        useCases
+            .updateGroupCategoryUseCase
             .didUpdateCategoryWithGroupId
             .withUnretained(self)
             .subscribe(onNext: { vm, categoryWithGroupId in
@@ -426,13 +425,13 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-        memberKickOutUseCase
+        useCases
+            .memberKickOutUseCase
             .didKickOutMemberAt
             .withUnretained(self)
             .subscribe(onNext: { vm, args in
                 let (groupId, memberId) = args
-                guard let currentGroupId = vm.groupId,
-                      groupId == currentGroupId,
+                guard groupId == vm.groupId,
                       let index = vm.memberList?.firstIndex(where: { $0.memberId == memberId }) else { return }
                 vm.memberList?.remove(at: index)
                 if vm.mode == .notice {
@@ -441,10 +440,6 @@ class MyGroupDetailViewModel2 {
             })
             .disposed(by: bag)
         
-    }
-    
-    func setActions(actions: JoinedGroupDetailViewModelActions) {
-        self.actions = actions
     }
     
     func setGroupDetail(detail: MyGroupDetail) {
@@ -468,7 +463,7 @@ class MyGroupDetailViewModel2 {
             membersFetcher
         )
         .handleRetry(
-            retryObservable: refreshTokenUseCase.execute(),
+            retryObservable: useCases.refreshTokenUseCase.execute(),
             errorType: NetworkManagerError.tokenExpired
         )
         .subscribe(onSuccess: { [weak self] (detail, members) in
@@ -486,7 +481,7 @@ class MyGroupDetailViewModel2 {
     func fetchGroupDetail(groupId: Int, fetchType: FetchType) {
         groupDetailFetcher(groupId)?
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] detail in
@@ -500,7 +495,6 @@ class MyGroupDetailViewModel2 {
     }
     
     func fetchMemberList() {
-        guard let groupId else { return }
         membersFetcher(groupId)?
             .subscribe(onSuccess: { [weak self] list in
                 self?.memberList = list
@@ -516,7 +510,7 @@ class MyGroupDetailViewModel2 {
     
     func createCalendar(date: Date) {
         updateCurrentDate(date: date)
-        mainDayList = createMonthlyCalendarUseCase.execute(date: date)
+        mainDayList = useCases.createMonthlyCalendarUseCase.execute(date: date)
 
         let startDate = mainDayList.first?.date ?? Date()
         let endDate = mainDayList.last?.date ?? Date()
@@ -531,18 +525,17 @@ class MyGroupDetailViewModel2 {
     }
     
     func fetchTodo(from: Date, to: Date) {
-        guard let groupId else { return }
-        getTokenUseCase
+        useCases.getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[Date: [SocialTodoSummary]]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.fetchMyGroupCalendarUseCase
+                return self.useCases.fetchMyGroupCalendarUseCase
                     .execute(token: token, groupId: groupId, from: from, to: to)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] todoDict in
@@ -558,24 +551,24 @@ class MyGroupDetailViewModel2 {
     }
     
     func fetchImage(key: String) -> Single<Data> {
-        fetchImageUseCase
+        useCases
+            .fetchImageUseCase
             .execute(key: key)
     }
     
     func flipOnlineState() {
-        guard let groupId else { return }
-        
-        getTokenUseCase
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.setOnlineUseCase
+                return self.useCases.setOnlineUseCase
                     .execute(token: token, groupId: groupId)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onFailure: { [weak self] _ in
@@ -585,24 +578,23 @@ class MyGroupDetailViewModel2 {
     }
     
     func withdrawGroup() {
-        guard let groupId else { return }
-        
-        getTokenUseCase
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<Void> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.withdrawGroupUseCase
+                return self.useCases.withdrawGroupUseCase
                     .execute(token: token, groupId: groupId)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
-                self?.actions?.pop?()
+                self?.actions.pop?()
             }, onError: {
                 print($0)
             })

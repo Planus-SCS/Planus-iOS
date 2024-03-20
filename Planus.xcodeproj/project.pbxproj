@@ -248,8 +248,8 @@
 		6A6C7B932A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B922A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift */; };
 		6A6C7B952A275273005BAEEC /* DefaultTodoCompleteUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B942A275273005BAEEC /* DefaultTodoCompleteUseCase.swift */; };
 		6A6C7B972A275389005BAEEC /* TodoCompleteUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6C7B962A275389005BAEEC /* TodoCompleteUseCase.swift */; };
-		6A876DA72A94AC70001D800E /* MyGroupDetailViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DA62A94AC70001D800E /* MyGroupDetailViewController2.swift */; };
-		6A876DA92A94AE3A001D800E /* MyGroupDetailViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */; };
+		6A876DA72A94AC70001D800E /* MyGroupDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DA62A94AC70001D800E /* MyGroupDetailViewController.swift */; };
+		6A876DA92A94AE3A001D800E /* MyGroupDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel.swift */; };
 		6A876DAB2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */; };
 		6A876DAD2A94F5D5001D800E /* AnimatedStrechButtonListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A876DAC2A94F5D5001D800E /* AnimatedStrechButtonListView.swift */; };
 		6A876DD42A951784001D800E /* NoticeCircleBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A876DD12A951783001D800E /* NoticeCircleBtn.png */; };
@@ -881,8 +881,8 @@
 		6A6C7B922A25B639005BAEEC /* FetchAllGroupCategoryListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchAllGroupCategoryListUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B942A275273005BAEEC /* DefaultTodoCompleteUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTodoCompleteUseCase.swift; sourceTree = "<group>"; };
 		6A6C7B962A275389005BAEEC /* TodoCompleteUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCompleteUseCase.swift; sourceTree = "<group>"; };
-		6A876DA62A94AC70001D800E /* MyGroupDetailViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailViewController2.swift; sourceTree = "<group>"; };
-		6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailViewModel2.swift; sourceTree = "<group>"; };
+		6A876DA62A94AC70001D800E /* MyGroupDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailViewController.swift; sourceTree = "<group>"; };
+		6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailViewModel.swift; sourceTree = "<group>"; };
 		6A876DAA2A94D7C9001D800E /* MyGroupDetailLoadingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailLoadingCell.swift; sourceTree = "<group>"; };
 		6A876DAC2A94F5D5001D800E /* AnimatedStrechButtonListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedStrechButtonListView.swift; sourceTree = "<group>"; };
 		6A876DD12A951783001D800E /* NoticeCircleBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NoticeCircleBtn.png; sourceTree = "<group>"; };
@@ -2041,7 +2041,7 @@
 		6A0B766C2BAB1722008BC571 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel2.swift */,
+				6A876DA82A94AE3A001D800E /* MyGroupDetailViewModel.swift */,
 				6A9199582A12004100108BF4 /* MyGroupInfoEditViewModel.swift */,
 				6A987A4229DDAE1000C27D09 /* MyGroupMemberEditViewModel.swift */,
 				6A987A4929DDBB4200C27D09 /* MyGroupNoticeEditViewModel.swift */,
@@ -2052,7 +2052,7 @@
 		6A0B766D2BAB1729008BC571 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
-				6A876DA62A94AC70001D800E /* MyGroupDetailViewController2.swift */,
+				6A876DA62A94AC70001D800E /* MyGroupDetailViewController.swift */,
 				6A9199522A11FF2900108BF4 /* MyGroupInfoEditViewController.swift */,
 				6A987A3A29DDA61F00C27D09 /* MyGroupMemberEditViewController.swift */,
 				6A987A3629DD9F3400C27D09 /* MyGroupNoticeEditViewController.swift */,
@@ -3401,7 +3401,7 @@
 				6AC0796B2A0A5945007ACDB8 /* DefaultGroupRepository.swift in Sources */,
 				6A2C00E82A72ADD6003D6B95 /* FailureDTO.swift in Sources */,
 				6A9AAB0429F8FE48002A6DAF /* CategoryRepository.swift in Sources */,
-				6A876DA92A94AE3A001D800E /* MyGroupDetailViewModel2.swift in Sources */,
+				6A876DA92A94AE3A001D800E /* MyGroupDetailViewModel.swift in Sources */,
 				6A9AAB2729FA595B002A6DAF /* DefaultReadCategoryListUseCase.swift in Sources */,
 				6A0B761F2B9BA5BD008BC571 /* InfraAssembly.swift in Sources */,
 				6A9199DB2A16A0E000108BF4 /* GroupCreateTagAddCell.swift in Sources */,
@@ -3681,7 +3681,7 @@
 				6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */,
 				6A0B76662BA9A216008BC571 /* SocialTodoCategory.swift in Sources */,
 				6A0B76332B9BCFF3008BC571 /* DomainAssembly+MyGroup.swift in Sources */,
-				6A876DA72A94AC70001D800E /* MyGroupDetailViewController2.swift in Sources */,
+				6A876DA72A94AC70001D800E /* MyGroupDetailViewController.swift in Sources */,
 				6AC079192A08D9DB007ACDB8 /* ImageRepository.swift in Sources */,
 				6AD888C82A891F9100F4B887 /* KeyValueStorage.swift in Sources */,
 				6A9199E72A208EDE00108BF4 /* SocialDailyCalendarCell.swift in Sources */,
