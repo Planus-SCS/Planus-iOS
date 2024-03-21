@@ -53,7 +53,18 @@ class MyGroupDetailCoordinator: Coordinator {
     
     lazy var showDailyCalendar: () -> Void = {}
     
-    lazy var showMemberProfile: () -> Void = {}
+    lazy var showMemberProfile: (MemberProfileViewModel.Args) -> Void = { [weak self] args in
+        guard let self else { return }
+        let coordinator = MemberProfileCoordinator(
+            dependency: MemberProfileCoordinator.Dependency(
+                navigationController: self.dependency.navigationController,
+                injector: self.dependency.injector
+            )
+        )
+        coordinator.finishDelegate = self
+        self.childCoordinators.append(coordinator)
+        coordinator.start(args: args)
+    }
     
     lazy var showEditInfo: (MyGroupInfoEditViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }

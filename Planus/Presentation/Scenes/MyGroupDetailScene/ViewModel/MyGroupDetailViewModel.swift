@@ -53,7 +53,7 @@ class MyGroupDetailViewModel: ViewModel {
     
     struct Actions {
         let showDailyCalendar: (() -> Void)?
-        let showMemberProfile: (() -> Void)?
+        let showMemberProfile: ((MemberProfileViewModel.Args) -> Void)?
         let editInfo: ((MyGroupInfoEditViewModel.Args) -> Void)?
         let editMember: ((MyGroupMemberEditViewModel.Args) -> Void)?
         let editNotice: ((MyGroupNoticeEditViewModel.Args) -> Void)?
@@ -98,8 +98,6 @@ class MyGroupDetailViewModel: ViewModel {
         var didFetchMember: Observable<Void?>
         var didFetchCalendar: Observable<Void?>
         var nowLoadingWithBefore: Observable<MyGroupDetailPageType?>
-        var showDailyPage: Observable<Date>
-        var showMemberProfileAt: Observable<Int>
         var memberKickedOutAt: Observable<Int>
         var needReloadMemberAt: Observable<Int>
         var onlineStateChanged: Observable<Bool?>
@@ -136,8 +134,6 @@ class MyGroupDetailViewModel: ViewModel {
     var memberList: [MyGroupMemberProfile]?
     var memberKickedOutAt = PublishSubject<Int>()
     var needReloadMemberAt = PublishSubject<Int>()
-    var showDailyPage = PublishSubject<Date>()
-    var showMemberProfileAt = PublishSubject<Int>()
         
     // MARK: mode1, calendar section
     var today: Date = {
@@ -269,7 +265,15 @@ class MyGroupDetailViewModel: ViewModel {
             .didSelectedMemberAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                vm.showMemberProfileAt.onNext(index)
+                guard let groupTitle = vm.groupTitle,
+                      let member = vm.memberList?[index] else { return }
+
+                vm.actions.showMemberProfile?(
+                    MemberProfileViewModel.Args(
+                        group: GroupName(groupId: vm.groupId, groupName: groupTitle),
+                        member: member
+                    )
+                )
             })
             .disposed(by: bag)
         
@@ -278,7 +282,7 @@ class MyGroupDetailViewModel: ViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 let date = vm.mainDayList[index].date
-                vm.showDailyPage.onNext(date)
+//                vm.showDailyPage.onNext(date)
             })
             .disposed(by: bag)
         
@@ -358,8 +362,6 @@ class MyGroupDetailViewModel: ViewModel {
             didFetchMember: didFetchMember.asObservable(),
             didFetchCalendar: didFetchCalendar.asObservable(),
             nowLoadingWithBefore: nowLoadingWithBefore.asObservable(),
-            showDailyPage: showDailyPage.asObservable(),
-            showMemberProfileAt: showMemberProfileAt.asObservable(),
             memberKickedOutAt: memberKickedOutAt.asObservable(),
             needReloadMemberAt: needReloadMemberAt.asObservable(),
             onlineStateChanged: isOnline.asObservable(),

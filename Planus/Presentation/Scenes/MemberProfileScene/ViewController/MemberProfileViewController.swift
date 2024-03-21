@@ -39,7 +39,7 @@ class MemberProfileViewController: UIViewController {
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
@@ -80,6 +80,14 @@ class MemberProfileViewController: UIViewController {
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        if isMovingFromParent {
+            viewModel?.actions.finishScene?()
+        }
+    }
+    
     func bind() {
         guard let viewModel else { return }
         
@@ -88,7 +96,8 @@ class MemberProfileViewController: UIViewController {
             viewDidLoaded: Observable.just(()),
             didSelectItem: isSingleSelected.asObservable(),
             didTappedTitleButton: calendarHeaderView.yearMonthButton.rx.tap.asObservable(),
-            didSelectMonth: isMonthChanged.asObservable()
+            didSelectMonth: isMonthChanged.asObservable(),
+            backBtnTapped: backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -130,35 +139,35 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, day in
-                guard let group = vc.viewModel?.group,
-                      let memberId = vc.viewModel?.member?.memberId else { return }
-                let nm = NetworkManager()
-                let kc = KeyChainManager()
-                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyValueStorage: kc)
-                let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
-                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-                let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyCalendarUseCase(groupCalendarRepository: gcr)
-                let fetchMemberDailyCalendarUseCase = DefaultFetchGroupMemberDailyCalendarUseCase(memberCalendarRepository: DefaultGroupMemberCalendarRepository(apiProvider: nm))
-                let viewModel = SocialTodoDailyViewModel(
-                    getTokenUseCase: getTokenUseCase,
-                    refreshTokenUseCase: refTokenUseCase,
-                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
-                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase,
-                    createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
-                    updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
-                    deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
-                    updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
-                )
-                viewModel.setGroup(group: group, type: .member(id: memberId), date: day.date)
-                let viewController = SocialTodoDailyViewController(viewModel: viewModel)
-                
-                let nav = UINavigationController(rootViewController: viewController)
-                nav.modalPresentationStyle = .pageSheet
-                if let sheet = nav.sheetPresentationController {
-                    sheet.detents = [.medium(), .large()]
-                }
-                vc.present(nav, animated: true)
+//                guard let group = vc.viewModel?.group,
+//                      let memberId = vc.viewModel?.member?.memberId else { return }
+//                let nm = NetworkManager()
+//                let kc = KeyChainManager()
+//                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyValueStorage: kc)
+//                let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
+//                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
+//                let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
+//                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyCalendarUseCase(groupCalendarRepository: gcr)
+//                let fetchMemberDailyCalendarUseCase = DefaultFetchGroupMemberDailyCalendarUseCase(memberCalendarRepository: DefaultGroupMemberCalendarRepository(apiProvider: nm))
+//                let viewModel = SocialTodoDailyViewModel(
+//                    getTokenUseCase: getTokenUseCase,
+//                    refreshTokenUseCase: refTokenUseCase,
+//                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
+//                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase,
+//                    createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
+//                    updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
+//                    deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
+//                    updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
+//                )
+//                viewModel.setGroup(group: group, type: .member(id: memberId), date: day.date)
+//                let viewController = SocialTodoDailyViewController(viewModel: viewModel)
+//                
+//                let nav = UINavigationController(rootViewController: viewController)
+//                nav.modalPresentationStyle = .pageSheet
+//                if let sheet = nav.sheetPresentationController {
+//                    sheet.detents = [.medium(), .large()]
+//                }
+//                vc.present(nav, animated: true)
             })
             .disposed(by: bag)
         
@@ -191,19 +200,16 @@ class MemberProfileViewController: UIViewController {
             })
             .disposed(by: bag)
         
+        output
+            .memberImage
+            .compactMap { $0 }
+            .map { UIImage(data: $0) }
+            .observe(on: MainScheduler.asyncInstance)
+            .bind(to: headerView.profileImageView.rx.image)
+            .disposed(by: bag)
+        
         headerView.nameLabel.text = output.memberName
         headerView.introduceLabel.text = output.memberDesc
-        
-        if let url = output.memberImageUrl {
-            viewModel
-                .fetchImage(key: url)
-                .subscribe(onSuccess: { [weak self] data in
-                    self?.headerView.profileImageView.image = UIImage(data: data)
-                })
-                .disposed(by: bag)
-        } else {
-            headerView.profileImageView.image = UIImage(named: "DefaultProfileMedium")
-        }
                 
         configureHeaderViewLayout(
             memberName: output.memberName,

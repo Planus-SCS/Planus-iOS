@@ -47,8 +47,8 @@ class MemberProfileViewModel: ViewModel {
     
     let calendar = Calendar.current
     
-    var group: GroupName?
-    var member: MyGroupMemberProfile?
+    let group: GroupName
+    let member: MyGroupMemberProfile
     
     // for todoList caching
     let cachingIndexDiff = 8
@@ -84,6 +84,7 @@ class MemberProfileViewModel: ViewModel {
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var categoryFetched = BehaviorSubject<Void?>(value: nil)
     var needReloadSection = BehaviorSubject<IndexSet?>(value: nil)
+    var profileImage = BehaviorSubject<Data?>(value: nil)
     
     var showDailyTodoPage = PublishSubject<Day>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
@@ -97,6 +98,7 @@ class MemberProfileViewModel: ViewModel {
         var didSelectItem: Observable<IndexPath>
         var didTappedTitleButton: Observable<Void>
         var didSelectMonth: Observable<Date>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -108,7 +110,7 @@ class MemberProfileViewModel: ViewModel {
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var memberName: String?
         var memberDesc: String?
-        var memberImageUrl: String?
+        var memberImage: Observable<Data?>
     }
     
     init(
@@ -197,6 +199,22 @@ class MemberProfileViewModel: ViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
+            })
+            .disposed(by: bag)
+        
+        if let url = member.profileImageUrl {
+            fetchImage(key: url)
+                .subscribe(onSuccess: { [weak self] data in
+                    self?.profileImage.onNext(data)
+                })
+                .disposed(by: bag)
+        }
+        
         return Output(
             didLoadYYYYMM: currentYYYYMM.asObservable(),
             initialDayListFetchedInCenterIndex: initialDayListFetchedInCenterIndex.asObservable(),
@@ -204,9 +222,9 @@ class MemberProfileViewModel: ViewModel {
             showDailyTodoPage: showDailyTodoPage.asObservable(),
             showMonthPicker: showMonthPicker.asObservable(),
             monthChangedByPicker: didSelectMonth.asObservable(),
-            memberName: member?.nickname,
-            memberDesc: member?.description,
-            memberImageUrl: member?.profileImageUrl
+            memberName: member.nickname,
+            memberDesc: member.description,
+            memberImage: profileImage.asObservable()
         )
     }
     
@@ -284,9 +302,7 @@ class MemberProfileViewModel: ViewModel {
     
     func fetchTodoList(from fromIndex: Int, to toIndex: Int) {
 
-        guard let currentDate = try? self.currentDate.value(),
-              let groupId = group?.groupId,
-              let memberId = member?.memberId else { return }
+        guard let currentDate = try? self.currentDate.value() else { return }
         
         let fromMonth = calendar.date(byAdding: DateComponents(month: fromIndex - currentIndex), to: currentDate) ?? Date()
         let toMonth = calendar.date(byAdding: DateComponents(month: toIndex - currentIndex), to: currentDate) ?? Date()
@@ -305,8 +321,8 @@ class MemberProfileViewModel: ViewModel {
                 return self.useCases.fetchMemberCalendarUseCase
                     .execute(
                         token: token,
-                        groupId: groupId,
-                        memberId: memberId,
+                        groupId: self.group.groupId,
+                        memberId: self.member.memberId,
                         from: fromMonthStart,
                         to: toMonthStart
                     )

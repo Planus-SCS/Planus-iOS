@@ -407,11 +407,11 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             })
             .disposed(by: bag)
         
-        output
-            .showDailyPage
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, date in
+//        output
+//            .showDailyPage
+//            .observe(on: MainScheduler.asyncInstance)
+//            .withUnretained(self)
+//            .subscribe(onNext: { vc, date in
                 
 //                guard let groupId = viewModel.groupId,
 //                      let groupName = viewModel.groupTitle,
@@ -442,46 +442,9 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
 //                if let sheet = nav.sheetPresentationController {
 //                    sheet.detents = [.medium(), .large()]
 //                }
-//                vc.present(nav, animated: true)
-            })
-            .disposed(by: bag)
-        
-        output
-            .showMemberProfileAt
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, index in
-//                guard let groupId = viewModel.groupId,
-//                      let groupTitle = viewModel.groupTitle,
-//                      let member = viewModel.memberList?[index] else { return }
-//                let groupName = GroupName(groupId: groupId, groupName: groupTitle)
-//                
-//                let api = NetworkManager()
-//                let memberCalendarRepo = DefaultGroupMemberCalendarRepository(apiProvider: api)
-//                let createMonthlyCalendarUseCase = DefaultCreateMonthlyCalendarUseCase()
-//                let fetchMemberTodoUseCase = DefaultFetchGroupMemberCalendarUseCase(memberCalendarRepository: memberCalendarRepo)
-//                let dateFormatYYYYMMUseCase = DefaultDateFormatYYYYMMUseCase()
-//                let keyChainManager = KeyChainManager()
-//                
-//                let tokenRepo = DefaultTokenRepository(apiProvider: api, keyValueStorage: keyChainManager)
-//                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-//                let refreshTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-//                
-//                let vm = MemberProfileViewModel(
-//                    createMonthlyCalendarUseCase: createMonthlyCalendarUseCase,
-//                    dateFormatYYYYMMUseCase: dateFormatYYYYMMUseCase,
-//                    getTokenUseCase: getTokenUseCase,
-//                    refreshTokenUseCase: refreshTokenUseCase,
-//                    fetchMemberCalendarUseCase: fetchMemberTodoUseCase,
-//                    fetchImageUseCase: DefaultFetchImageUseCase(imageRepository: DefaultImageRepository.shared)
-//                )
-//
-//                vm.setMember(group: groupName, member: member)
-//
-//                let viewController = MemberProfileViewController(viewModel: vm)
-//                vc.navigationController?.pushViewController(viewController, animated: true)
-            })
-            .disposed(by: bag)
+////                vc.present(nav, animated: true)
+//            })
+//            .disposed(by: bag)
         
         output
             .showShareMenu

@@ -33,7 +33,7 @@ class MemberProfileHeaderView: UIView {
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 35
         imageView.layer.cornerCurve = .continuous
-
+        imageView.image = UIImage(named: "DefaultProfileMedium")
         return imageView
     }()
     
