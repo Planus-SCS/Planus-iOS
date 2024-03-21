@@ -52,7 +52,7 @@ class MyGroupDetailViewModel: ViewModel {
     }
     
     struct Actions {
-        let showDailyCalendar: (() -> Void)?
+        let showDailyCalendar: ((SocialDailyCalendarViewModel.Args) -> Void)?
         let showMemberProfile: ((MemberProfileViewModel.Args) -> Void)?
         let editInfo: ((MyGroupInfoEditViewModel.Args) -> Void)?
         let editMember: ((MyGroupMemberEditViewModel.Args) -> Void)?
