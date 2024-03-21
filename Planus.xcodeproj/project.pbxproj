@@ -83,6 +83,7 @@
 		6A0B76712BAB1981008BC571 /* MyGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B766F2BAB1981008BC571 /* MyGroupCell.swift */; };
 		6A0B76722BAB1981008BC571 /* MyGroupListSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76702BAB1981008BC571 /* MyGroupListSectionHeaderView.swift */; };
 		6A0B76742BAB5F10008BC571 /* MyGroupDetailCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76732BAB5F10008BC571 /* MyGroupDetailCoordinator.swift */; };
+		6A0B76772BABDD5C008BC571 /* MemberProfileCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76762BABDD5C008BC571 /* MemberProfileCoordinator.swift */; };
 		6A0BF75E29D2C25B006F2604 /* edit@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75B29D2C25B006F2604 /* edit@2x.png */; };
 		6A0BF75F29D2C25B006F2604 /* edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75C29D2C25B006F2604 /* edit.png */; };
 		6A0BF76029D2C25B006F2604 /* edit@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A0BF75D29D2C25B006F2604 /* edit@3x.png */; };
@@ -716,6 +717,7 @@
 		6A0B766F2BAB1981008BC571 /* MyGroupCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyGroupCell.swift; sourceTree = "<group>"; };
 		6A0B76702BAB1981008BC571 /* MyGroupListSectionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyGroupListSectionHeaderView.swift; sourceTree = "<group>"; };
 		6A0B76732BAB5F10008BC571 /* MyGroupDetailCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupDetailCoordinator.swift; sourceTree = "<group>"; };
+		6A0B76762BABDD5C008BC571 /* MemberProfileCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberProfileCoordinator.swift; sourceTree = "<group>"; };
 		6A0BF75B29D2C25B006F2604 /* edit@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@2x.png"; sourceTree = "<group>"; };
 		6A0BF75C29D2C25B006F2604 /* edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = edit.png; sourceTree = "<group>"; };
 		6A0BF75D29D2C25B006F2604 /* edit@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit@3x.png"; sourceTree = "<group>"; };
@@ -2078,6 +2080,7 @@
 		6A0B76752BABDA5B008BC571 /* Coordinator */ = {
 			isa = PBXGroup;
 			children = (
+				6A0B76762BABDD5C008BC571 /* MemberProfileCoordinator.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -3408,6 +3411,7 @@
 				6A9199E32A1E504200108BF4 /* DefaultFetchSearchHomeUseCase.swift in Sources */,
 				6A987A2D29DCFDEF00C27D09 /* NestedScrollableViewController.swift in Sources */,
 				6A0B761D2B9AA00A008BC571 /* DataAssembly.swift in Sources */,
+				6A0B76772BABDD5C008BC571 /* MemberProfileCoordinator.swift in Sources */,
 				6AC0790F2A08C9C9007ACDB8 /* Profile.swift in Sources */,
 				6AC0796B2A0A5945007ACDB8 /* DefaultGroupRepository.swift in Sources */,
 				6A2C00E82A72ADD6003D6B95 /* FailureDTO.swift in Sources */,
