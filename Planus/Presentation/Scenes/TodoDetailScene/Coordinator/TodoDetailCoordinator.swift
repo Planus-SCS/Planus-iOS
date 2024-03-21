@@ -26,21 +26,32 @@ class TodoDetailCoordinator: Coordinator {
     init(dependency: Dependency) {
         self.dependency = dependency
     }
-    
-    func start(type: TodoDetailSceneType, args: TodoDetailViewModelArgs) {
-        switch type {
-        case .memberTodo:
-            showMemberTodoDetail(args)
-        case .socialTodo:
-            showSocialTodoDetail()
-        }
+
+    func startMember(args: MemberTodoDetailViewModel.Args) {
+        showMemberTodoDetail(args)
+    }
+    func startSocial(args: SocialTodoDetailViewModel.Args) {
+        showSocialTodoDetail(args)
     }
     
-    lazy var showSocialTodoDetail: () -> Void = { [weak self] in
+    lazy var showSocialTodoDetail: (SocialTodoDetailViewModel.Args) -> Void = { [weak self] args in
+        guard let self else { return }
+        let vc = self.dependency.injector.resolve(
+            TodoDetailViewController.self,
+            name: PresentationAssembly.TodoDetailPageType.socialTodo.rawValue,
+            argument: SocialTodoDetailViewModel.Injectable(
+                actions: TodoDetailViewModelActions(close: close),
+                args: args
+            )
+        )
         
+        vc.pageDismissCompletionHandler = dependency.closeHandler
+        self.viewController = vc
+        vc.modalPresentationStyle = .overFullScreen
+        dependency.navigationController.present(vc, animated: false, completion: nil)
     }
     
-    lazy var showMemberTodoDetail: (TodoDetailViewModelArgs) -> Void = { [weak self] args in
+    lazy var showMemberTodoDetail: (MemberTodoDetailViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
         let vc = self.dependency.injector.resolve(
             TodoDetailViewController.self,

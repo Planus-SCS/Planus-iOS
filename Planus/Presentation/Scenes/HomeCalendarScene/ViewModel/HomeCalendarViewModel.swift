@@ -60,7 +60,7 @@ class HomeCalendarViewModel: ViewModel {
     
     struct Actions {
         var showDailyCalendarPage: ((DailyCalendarViewModel.Args) -> Void)?
-        var showCreatePeriodTodoPage: ((TodoDetailViewModelArgs, (() -> Void)?) -> Void)?
+        var showCreatePeriodTodoPage: ((MemberTodoDetailViewModel.Args, (() -> Void)?) -> Void)?
         var showMyPage: ((Profile) -> Void)?
     }
     
@@ -118,7 +118,6 @@ class HomeCalendarViewModel: ViewModel {
     var didFinishRefreshing = PublishSubject<Void>()
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
-    var showCreateMultipleTodo = PublishSubject<(Date, Date)>()
     var showDailyTodoPage = PublishSubject<Day>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
@@ -126,6 +125,8 @@ class HomeCalendarViewModel: ViewModel {
     var needReloadData = PublishSubject<Void>()
     var needWelcome = BehaviorSubject<String?>(value: nil)
     var homeTabReselected: PublishSubject<Void>?
+    
+    var todoCompletionHandler: ((IndexPath) -> Void)?
     
     lazy var categoryFetcher: () -> Single<[Category]>? = { [weak self] in
         guard let self else { return nil }
@@ -178,7 +179,6 @@ class HomeCalendarViewModel: ViewModel {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var todoListFetchedInIndexRange: Observable<(Int, Int)?> // a부터 b까지 리로드 해라!
-        var showCreateMultipleTodo: Observable<(Date, Date)>
         var showDailyTodoPage: Observable<Day>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
@@ -270,10 +270,35 @@ class HomeCalendarViewModel: ViewModel {
             .didMultipleSelectItemsInRange
             .withUnretained(self)
             .subscribe { vm, indexRange in
-                vm.showCreateMultipleTodo.onNext((
-                    vm.mainDays[indexRange.0][indexRange.1.0].date,
-                    vm.mainDays[indexRange.0][indexRange.1.1].date
-                ))
+                var startDate = vm.mainDays[indexRange.0][indexRange.1.0].date
+                var endDate = vm.mainDays[indexRange.0][indexRange.1.1].date
+                
+                if startDate > endDate {
+                    swap(&startDate, &endDate)
+                }
+
+                let groupList = Array(vm.groups.values).sorted(by: { $0.groupId < $1.groupId })
+                
+                var groupName: GroupName?
+                if let filteredGroupId = try? vm.filteredGroupId.value(),
+                   let filteredGroupName = vm.groups[filteredGroupId] {
+                    groupName = filteredGroupName
+                }
+                
+                vm.actions.showCreatePeriodTodoPage?(
+                    MemberTodoDetailViewModel.Args(
+                        groupList: groupList,
+                        mode: .new,
+                        todo: nil,
+                        category: nil,
+                        groupName: groupName,
+                        start: startDate,
+                        end: endDate
+                    )
+                ) { [weak self] in
+                    self?.todoCompletionHandler?(IndexPath(item: 0, section: indexRange.0))
+                }
+                
             }
             .disposed(by: bag)
         
@@ -330,7 +355,6 @@ class HomeCalendarViewModel: ViewModel {
             didLoadYYYYMM: currentYYYYMM.asObservable(),
             initialDayListFetchedInCenterIndex: initialDayListFetchedInCenterIndex.asObservable(),
             todoListFetchedInIndexRange: todoListFetchedInIndexRange.asObservable(),
-            showCreateMultipleTodo: showCreateMultipleTodo.asObservable(),
             showDailyTodoPage: showDailyTodoPage.asObservable(),
             showMonthPicker: showMonthPicker.asObservable(),
             monthChangedByPicker: didSelectMonth.asObservable(),

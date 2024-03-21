@@ -10,9 +10,19 @@ import RxSwift
 
 final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     
+    struct Args {
+        let groupList: [GroupName]
+        let mode: TodoDetailSceneMode
+        let todo: Todo?
+        let category: Category?
+        let groupName: GroupName?
+        let start: Date?
+        let end: Date?
+    }
+    
     struct Injectable {
         let actions: TodoDetailViewModelActions
-        let args: TodoDetailViewModelArgs
+        let args: Args
     }
     
     let actions: TodoDetailViewModelActions

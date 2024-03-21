@@ -28,10 +28,6 @@ class SocialDailyCalendarCoordinator: Coordinator {
         self.dependency = dependency
     }
     
-    deinit {
-        print("소셜 데일리 디이닛!")
-    }
-    
     func start(args: SocialDailyCalendarViewModel.Args) {
         showDailyCalendarPage(args)
     }
@@ -59,20 +55,20 @@ class SocialDailyCalendarCoordinator: Coordinator {
         self.modalNavigationVC = nav
     }
     
-    lazy var showSocialTodoDetail: () -> Void = { [weak self] in
-//        guard let self,
-//              let modalNavigationVC else { return }
-//
-//        let coordinator = TodoDetailCoordinator(
-//            dependency: TodoDetailCoordinator.Dependency(
-//                navigationController: modalNavigationVC,
-//                injector: self.dependency.injector,
-//                closeHandler: closeHandler
-//            )
-//        )
-//        coordinator.finishDelegate = self
-//        self.childCoordinators.append(coordinator)
-//        coordinator.start(type: .memberTodo, args: args)
+    lazy var showSocialTodoDetail: (SocialTodoDetailViewModel.Args) -> Void = { [weak self] args in
+        guard let self,
+              let modalNavigationVC else { return }
+
+        let coordinator = TodoDetailCoordinator(
+            dependency: TodoDetailCoordinator.Dependency(
+                navigationController: modalNavigationVC,
+                injector: self.dependency.injector,
+                closeHandler: nil
+            )
+        )
+        coordinator.finishDelegate = self
+        self.childCoordinators.append(coordinator)
+        coordinator.startSocial(args: args)
     }
     
     lazy var finishScene: (() -> Void)? = { [weak self] in

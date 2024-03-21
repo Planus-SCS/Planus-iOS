@@ -205,12 +205,32 @@ extension PresentationAssembly {
             )
         }
         
+        container.register(SocialTodoDetailViewModel.self) { (r, injectable: SocialTodoDetailViewModel.Injectable) in
+            return SocialTodoDetailViewModel(
+                getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                fetchGroupMemberTodoDetailUseCase: r.resolve(FetchGroupMemberTodoDetailUseCase.self)!,
+                fetchGroupTodoDetailUseCase: r.resolve(FetchGroupTodoDetailUseCase.self)!,
+                createGroupTodoUseCase: r.resolve(CreateGroupTodoUseCase.self)!,
+                updateGroupTodoUseCase: r.resolve(UpdateGroupTodoUseCase.self)!,
+                deleteGroupTodoUseCase: r.resolve(DeleteGroupTodoUseCase.self)!,
+                createGroupCategoryUseCase: r.resolve(CreateGroupCategoryUseCase.self)!,
+                updateGroupCategoryUseCase: r.resolve(UpdateGroupCategoryUseCase.self)!,
+                deleteGroupCategoryUseCase: r.resolve(DeleteGroupCategoryUseCase.self)!,
+                fetchGroupCategorysUseCase: r.resolve(FetchGroupCategorysUseCase.self)!,
+                injectable: injectable
+            )
+        }
+        
         container.register(
             TodoDetailViewController.self,
             name: TodoDetailPageType.memberTodo.rawValue
         ) { (r, injectable: MemberTodoDetailViewModel.Injectable) in
-            let vm = r.resolve(MemberTodoDetailViewModel.self, argument: injectable)!
-            return TodoDetailViewController(viewModel: vm)
+            return TodoDetailViewController(viewModel: r.resolve(MemberTodoDetailViewModel.self, argument: injectable)!)
+        }
+        
+        container.register(TodoDetailViewController.self, name: TodoDetailPageType.socialTodo.rawValue) { (r, injectable: SocialTodoDetailViewModel.Injectable) in
+            return TodoDetailViewController(viewModel: r.resolve(SocialTodoDetailViewModel.self, argument: injectable)!)
         }
     }
 }

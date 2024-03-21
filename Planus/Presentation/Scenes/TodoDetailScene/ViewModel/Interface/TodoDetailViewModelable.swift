@@ -33,16 +33,6 @@ enum TodoDetailSceneType {
     case socialTodo
 }
 
-struct TodoDetailViewModelArgs {
-    let groupList: [GroupName]
-    let mode: TodoDetailSceneMode
-    let todo: Todo?
-    let category: Category?
-    let groupName: GroupName?
-    let start: Date?
-    let end: Date?
-}
-
 struct TodoDetailViewModelActions {
     var close: (() -> Void)?
 }

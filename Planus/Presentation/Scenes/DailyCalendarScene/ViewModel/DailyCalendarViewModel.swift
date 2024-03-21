@@ -27,7 +27,7 @@ class DailyCalendarViewModel: ViewModel {
     }
     
     struct Actions {
-        var showTodoDetailPage: ((TodoDetailViewModelArgs, (() -> Void)?) -> Void)?
+        var showTodoDetailPage: ((MemberTodoDetailViewModel.Args, (() -> Void)?) -> Void)?
         var finishScene: (() -> Void)?
     }
     

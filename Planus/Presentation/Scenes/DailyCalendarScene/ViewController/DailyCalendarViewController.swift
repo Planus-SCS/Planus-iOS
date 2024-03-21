@@ -199,7 +199,7 @@ class DailyCalendarViewController: UIViewController {
 
         
         viewModel?.actions.showTodoDetailPage?(
-            TodoDetailViewModelArgs(
+            MemberTodoDetailViewModel.Args(
                 groupList: groupList,
                 mode: .new,
                 todo: nil,
@@ -350,7 +350,7 @@ extension DailyCalendarViewController: UICollectionViewDataSource, UICollectionV
         }
 
         viewModel?.actions.showTodoDetailPage?(
-            TodoDetailViewModelArgs(
+            MemberTodoDetailViewModel.Args(
                 groupList: groupList,
                 mode: mode,
                 todo: item,

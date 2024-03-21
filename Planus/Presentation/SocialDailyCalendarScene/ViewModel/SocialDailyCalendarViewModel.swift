@@ -29,7 +29,7 @@ class SocialDailyCalendarViewModel: ViewModel {
     }
     
     struct Actions {
-        let showSocialTodoDetail: (() -> Void)?
+        let showSocialTodoDetail: ((SocialTodoDetailViewModel.Args) -> Void)?
         let finishScene: (() -> Void)?
     }
     
@@ -66,6 +66,8 @@ class SocialDailyCalendarViewModel: ViewModel {
     
     struct Input {
         var viewDidLoad: Observable<Void>
+        var addTodoTapped: Observable<Void>
+        var didSelectTodoAt: Observable<IndexPath>
     }
     
     struct Output {
@@ -104,6 +106,60 @@ class SocialDailyCalendarViewModel: ViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.fetchTodoList()
+            })
+            .disposed(by: bag)
+        
+        input
+            .addTodoTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.showSocialTodoDetail?(
+                    SocialTodoDetailViewModel.Args(
+                        mode: .new,
+                        info: SocialTodoInfo(group: vm.group),
+                        date: vm.currentDate
+                    )
+                )
+            })
+            .disposed(by: bag)
+        
+        input
+            .didSelectTodoAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, indexPath in
+                print("fuck")
+                var todoId: Int?
+                switch indexPath.section {
+                case 0:
+                    if vm.scheduledTodoList?.count != 0 {
+                        todoId = vm.scheduledTodoList?[indexPath.item].todoId
+                    }
+                case 1:
+                    if vm.unscheduledTodoList?.count != 0 {
+                        todoId = vm.unscheduledTodoList?[indexPath.item].todoId
+                    }
+                default:
+                    return
+                }
+                guard let todoId else { return }
+                
+                var args: SocialTodoDetailViewModel.Args
+                switch vm.type {
+                case .member(let id): //애는 무적권 조회만
+                    args = SocialTodoDetailViewModel.Args(
+                        mode: .view,
+                        info: SocialTodoInfo(group: vm.group, memberId: id, todoId: todoId),
+                        date: nil
+                    )
+                case .group(let isLeader): //애는 edit
+                    args = SocialTodoDetailViewModel.Args(
+                        mode: isLeader ? .edit : .view,
+                        info: SocialTodoInfo(group: vm.group, todoId: todoId),
+                        date: nil
+                    )
+                }
+                
+                vm.actions.showSocialTodoDetail?(args)
             })
             .disposed(by: bag)
         

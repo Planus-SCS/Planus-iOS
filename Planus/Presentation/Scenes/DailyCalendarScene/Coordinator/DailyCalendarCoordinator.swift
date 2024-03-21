@@ -55,7 +55,7 @@ class DailyCalendarCoordinator: Coordinator {
         self.modalNavigationVC = nav
     }
     
-    lazy var showTodoDetailPage: (TodoDetailViewModelArgs, (() -> Void)?) -> Void = { [weak self] args, closeHandler in
+    lazy var showTodoDetailPage: (MemberTodoDetailViewModel.Args, (() -> Void)?) -> Void = { [weak self] args, closeHandler in
         guard let self,
               let modalNavigationVC else { return }
 
@@ -68,7 +68,7 @@ class DailyCalendarCoordinator: Coordinator {
         )
         coordinator.finishDelegate = self
         self.childCoordinators.append(coordinator)
-        coordinator.start(type: .memberTodo, args: args)
+        coordinator.startMember(args: args)
     }
     
     lazy var finishScene: (() -> Void)? = { [weak self] in

@@ -111,6 +111,13 @@ class HomeCalendarViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
+        viewModel.todoCompletionHandler = { [weak self] indexPath in
+            guard let cell = self?.collectionView.cellForItem(
+                at: indexPath
+            ) as? MonthlyCalendarCell else { return }
+            cell.deselectItems()
+        }
+        
         let input = HomeCalendarViewModel.Input(
             didScrollToIndex: indexChanged.distinctUntilChanged().asObservable(),
             viewDidLoaded: Observable.just(()),
@@ -167,42 +174,6 @@ class HomeCalendarViewController: UIViewController {
                     groupCategoryDict: viewModel.groupCategories ,
                     filteringGroupId: try? vc.viewModel?.filteredGroupId.value()
                 ))
-            })
-            .disposed(by: bag)
-        
-        isMultipleSelected
-            .subscribe(onNext: { indexRange in
-                var startDate = viewModel.mainDays[indexRange.0][indexRange.1.0].date
-                var endDate = viewModel.mainDays[indexRange.0][indexRange.1.1].date
-                
-                if startDate > endDate {
-                    swap(&startDate, &endDate)
-                }
-
-                let groupList = Array(viewModel.groups.values).sorted(by: { $0.groupId < $1.groupId })
-                
-                var groupName: GroupName?
-                if let filteredGroupId = try? viewModel.filteredGroupId.value(),
-                   let filteredGroupName = viewModel.groups[filteredGroupId] {
-                    groupName = filteredGroupName
-                }
-                
-                viewModel.actions.showCreatePeriodTodoPage?(
-                    TodoDetailViewModelArgs(
-                        groupList: groupList,
-                        mode: .new,
-                        todo: nil,
-                        category: nil,
-                        groupName: groupName,
-                        start: startDate,
-                        end: endDate
-                    )
-                ) { [weak self] in
-                    guard let cell = self?.collectionView.cellForItem(
-                        at: IndexPath(item: 0, section: indexRange.0)
-                    ) as? MonthlyCalendarCell else { return }
-                    cell.deselectItems()
-                }
             })
             .disposed(by: bag)
         

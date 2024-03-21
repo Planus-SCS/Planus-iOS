@@ -62,7 +62,7 @@ class HomeCalendarCoordinator: Coordinator {
         coordinator.start(args: args)
     }
     
-    lazy var showTodoDetailPage: (TodoDetailViewModelArgs, (() -> Void)?) -> Void = { [weak self] args, closeHandler in
+    lazy var showTodoDetailPage: (MemberTodoDetailViewModel.Args, (() -> Void)?) -> Void = { [weak self] args, closeHandler in
         guard let self else { return }
 
         let coordinator = TodoDetailCoordinator(
@@ -74,7 +74,7 @@ class HomeCalendarCoordinator: Coordinator {
         )
         coordinator.finishDelegate = self
         self.childCoordinators.append(coordinator)
-        coordinator.start(type: .memberTodo, args: args)
+        coordinator.startMember(args: args)
     }
     
     lazy var showMyPage: (Profile) -> Void = { [weak self] profile in

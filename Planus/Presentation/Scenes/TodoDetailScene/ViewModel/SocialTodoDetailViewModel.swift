@@ -15,14 +15,19 @@ struct SocialTodoInfo { //그룹투두 또한 조회만 되기도 하고 주인�
 }
 
 final class SocialTodoDetailViewModel: TodoDetailViewModelable {
+
+    struct Args {
+        let mode: TodoDetailSceneMode
+        let info: SocialTodoInfo
+        let date: Date?
+    }
     
     struct Injectable {
         let actions: TodoDetailViewModelActions
-        let args: TodoDetailViewModelArgs
+        let args: Args
     }
     
-    var actions: TodoDetailViewModelActions
-    
+    let actions: TodoDetailViewModelActions
 
     var info: SocialTodoInfo?
     
@@ -91,7 +96,8 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         createGroupCategoryUseCase: CreateGroupCategoryUseCase,
         updateGroupCategoryUseCase: UpdateGroupCategoryUseCase,
         deleteGroupCategoryUseCase: DeleteGroupCategoryUseCase,
-        fetchGroupCategorysUseCase: FetchGroupCategorysUseCase
+        fetchGroupCategorysUseCase: FetchGroupCategorysUseCase,
+        injectable: Injectable
     ) {
         self.getTokenUseCase = getTokenUseCase
         self.refreshTokenUseCase = refreshTokenUseCase
@@ -104,7 +110,8 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         self.updateGroupCategoryUseCase = updateGroupCategoryUseCase
         self.deleteGroupCategoryUseCase = deleteGroupCategoryUseCase
         self.fetchGroupCategorysUseCase = fetchGroupCategorysUseCase
-        self.actions = .init()
+        self.actions = injectable.actions
+        self.initMode(mode: injectable.args.mode, info: injectable.args.info, date: injectable.args.date)
     }
     
     func initMode(mode: TodoDetailSceneMode, info: SocialTodoInfo, date: Date? = nil) {
