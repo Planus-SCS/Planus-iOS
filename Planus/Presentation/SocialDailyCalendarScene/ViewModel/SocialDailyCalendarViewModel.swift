@@ -8,12 +8,12 @@
 import Foundation
 import RxSwift
 
-enum SocialTodoViewModelType {
+enum SocialDailyCalendarViewModelType {
     case member(id: Int)
     case group(isLeader: Bool)
 }
 
-class SocialTodoDailyViewModel: ViewModel {
+class SocialDailyCalendarViewModel: ViewModel {
     
     struct UseCases {
         var getTokenUseCase: GetTokenUseCase
@@ -35,7 +35,7 @@ class SocialTodoDailyViewModel: ViewModel {
     
     struct Args {
         let group: GroupName
-        let type: SocialTodoViewModelType
+        let type: SocialDailyCalendarViewModelType
         let date: Date
     }
     
@@ -50,7 +50,7 @@ class SocialTodoDailyViewModel: ViewModel {
     let actions: Actions
 
     let group: GroupName
-    let type: SocialTodoViewModelType
+    let type: SocialDailyCalendarViewModelType
     let currentDate: Date
     
     var scheduledTodoList: [SocialTodoDaily]?
@@ -70,7 +70,7 @@ class SocialTodoDailyViewModel: ViewModel {
     
     struct Output {
         var currentDateText: String?
-        var socialType: SocialTodoViewModelType?
+        var socialType: SocialDailyCalendarViewModelType?
         var nowFetchLoading: Observable<Void?>
         var didFetchTodoList: Observable<Void?>
     }
@@ -114,13 +114,10 @@ class SocialTodoDailyViewModel: ViewModel {
             didFetchTodoList: didFetchTodoList.asObservable()
         )
     }
-    
-    // 여기선 굳이 카테고리 생성,수정,삭제에 따라서 패치하지말고 그냥 다시 받아오자!
-    // 투두도 생성, 수정, 삭제에 따라서 그냥 다시 받아올까? 아님 어카지?(카테고리를 생성하고 그걸로 투두 생성할 경우에... 가 아니라 가능하구나 애는..! ㅇㅋ!
-    
-    func bindUseCase() { //이건 그냥 바인딩 하면 안됨
+ 
+    func bindUseCase() {
         useCases
-            .createGroupTodoUseCase //삽입하고 리로드 or 다시 받기.. 뭐가 좋을랑가 -> 걍 다시받자!
+            .createGroupTodoUseCase
             .didCreateGroupTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
@@ -130,7 +127,7 @@ class SocialTodoDailyViewModel: ViewModel {
             .disposed(by: bag)
         
         useCases
-            .updateGroupTodoUseCase // 삭제하고 다시넣기,,, 걍 다시받는게 편하겠지 아무래도?
+            .updateGroupTodoUseCase
             .didUpdateGroupTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in

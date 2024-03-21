@@ -1,5 +1,5 @@
 //
-//  SocialTodoDailyViewController.swift
+//  SocialDailyCalendarViewController.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/05/26.
@@ -8,10 +8,10 @@
 import UIKit
 import RxSwift
 
-class SocialTodoDailyViewController: UIViewController {
+class SocialDailyCalendarViewController: UIViewController {
     
     var bag = DisposeBag()
-    var viewModel: SocialTodoDailyViewModel?
+    var viewModel: SocialDailyCalendarViewModel?
     
     var didDeleteTodoAt = PublishSubject<IndexPath>()
     
@@ -39,7 +39,7 @@ class SocialTodoDailyViewController: UIViewController {
         return cv
     }()
     
-    convenience init(viewModel: SocialTodoDailyViewModel) {
+    convenience init(viewModel: SocialDailyCalendarViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
@@ -70,7 +70,7 @@ class SocialTodoDailyViewController: UIViewController {
     func bind() {
         guard let viewModel else { return }
         
-        let input = SocialTodoDailyViewModel.Input(
+        let input = SocialDailyCalendarViewModel.Input(
             viewDidLoad: Observable.just(())
         )
         
@@ -176,7 +176,7 @@ class SocialTodoDailyViewController: UIViewController {
     
 }
 
-extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension SocialDailyCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch section {
         case 0:
@@ -325,7 +325,7 @@ extension SocialTodoDailyViewController: UICollectionViewDataSource, UICollectio
 
 }
 
-extension SocialTodoDailyViewController: UIPopoverPresentationControllerDelegate {
+extension SocialDailyCalendarViewController: UIPopoverPresentationControllerDelegate {
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
     }
