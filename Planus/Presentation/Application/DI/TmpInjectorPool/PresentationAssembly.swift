@@ -40,6 +40,8 @@ class PresentationAssembly: Assembly {
         assembleMyGroupNoticeEdit(container: container)
         
         assembleMemberProfile(container: container)
+        
+        assembleSocialDailyCalendar(container: container)
     }
     
 }
@@ -501,6 +503,30 @@ extension PresentationAssembly {
         
         container.register(MemberProfileViewController.self) { (r, injectable: MemberProfileViewModel.Injectable) in
             return MemberProfileViewController(viewModel: r.resolve(MemberProfileViewModel.self, argument: injectable)!)
+        }
+    }
+}
+
+extension PresentationAssembly {
+    func assembleSocialDailyCalendar(container: Container) {
+        container.register(SocialDailyCalendarViewModel.self) { (r, injectable: SocialDailyCalendarViewModel.Injectable) in
+            return SocialDailyCalendarViewModel(
+                useCases: .init(
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    fetchGroupDailyTodoListUseCase: r.resolve(FetchGroupDailyCalendarUseCase.self)!,
+                    fetchMemberDailyCalendarUseCase: r.resolve(FetchGroupMemberDailyCalendarUseCase.self)!,
+                    createGroupTodoUseCase: r.resolve(CreateGroupTodoUseCase.self)!,
+                    updateGroupTodoUseCase: r.resolve(UpdateGroupTodoUseCase.self)!,
+                    deleteGroupTodoUseCase: r.resolve(DeleteGroupTodoUseCase.self)!,
+                    updateGroupCategoryUseCase: r.resolve(UpdateGroupCategoryUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
+        container.register(SocialDailyCalendarViewController.self) { (r, injectable: SocialDailyCalendarViewModel.Injectable) in
+            return SocialDailyCalendarViewController(viewModel: r.resolve(SocialDailyCalendarViewModel.self, argument: injectable)!)
         }
     }
 }
