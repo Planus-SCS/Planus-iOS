@@ -8,9 +8,9 @@
 import Foundation
 import Swinject
 
-extension DomainAssembly {
+class CalendarDomainAssembly: Assembly {
     
-    func assembleCalendar(container: Container) {
+    func assemble(container: Container) {
         container.register(CreateMonthlyCalendarUseCase.self) { _ in
             return DefaultCreateMonthlyCalendarUseCase()
         }

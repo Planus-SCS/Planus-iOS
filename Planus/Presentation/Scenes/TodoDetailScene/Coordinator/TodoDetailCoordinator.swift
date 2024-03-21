@@ -38,7 +38,7 @@ class TodoDetailCoordinator: Coordinator {
         guard let self else { return }
         let vc = self.dependency.injector.resolve(
             TodoDetailViewController.self,
-            name: PresentationAssembly.TodoDetailPageType.socialTodo.rawValue,
+            name: TodoDetailPresentationAssembly.TodoDetailPageType.socialTodo.rawValue,
             argument: SocialTodoDetailViewModel.Injectable(
                 actions: TodoDetailViewModelActions(close: close),
                 args: args
@@ -55,7 +55,7 @@ class TodoDetailCoordinator: Coordinator {
         guard let self else { return }
         let vc = self.dependency.injector.resolve(
             TodoDetailViewController.self,
-            name: PresentationAssembly.TodoDetailPageType.memberTodo.rawValue,
+            name: TodoDetailPresentationAssembly.TodoDetailPageType.memberTodo.rawValue,
             argument: MemberTodoDetailViewModel.Injectable(
                 actions: TodoDetailViewModelActions(close: close),
                 args: args

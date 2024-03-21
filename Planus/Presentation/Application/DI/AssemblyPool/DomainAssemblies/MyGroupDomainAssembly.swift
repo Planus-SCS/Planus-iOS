@@ -8,9 +8,9 @@
 import Foundation
 import Swinject
 
-extension DomainAssembly {
+class MyGroupDomainAssembly: Assembly {
     
-    func assembleMyGroup(container: Container) {
+    func assemble(container: Container) {
         container.register(AcceptGroupJoinUseCase.self) { r in
             let myGroupRepository = r.resolve(MyGroupRepository.self)!
             return DefaultAcceptGroupJoinUseCase(myGroupRepository: myGroupRepository)

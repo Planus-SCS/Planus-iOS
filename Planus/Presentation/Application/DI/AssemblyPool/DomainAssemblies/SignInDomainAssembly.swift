@@ -8,9 +8,9 @@
 import Foundation
 import Swinject
 
-extension DomainAssembly {
+class SignInDomainAssembly: Assembly {
     
-    func assembleSignIn(container: Container) {
+    func assemble(container: Container) {
         container.register(KakaoSignInUseCase.self) { r in
             let socialAuthRepository = r.resolve(SocialAuthRepository.self)!
             return DefaultKakaoSignInUseCase(socialAuthRepository: socialAuthRepository)

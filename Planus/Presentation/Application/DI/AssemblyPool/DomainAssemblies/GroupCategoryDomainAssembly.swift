@@ -8,9 +8,9 @@
 import Foundation
 import Swinject
 
-extension DomainAssembly {
+class GroupCategoryDomainAssembly: Assembly {
     
-    func assembleGroupCategory(container: Container) {
+    func assemble(container: Container) {
         container.register(FetchAllGroupCategoryListUseCase.self) { r in
             let groupCateogoryRepository = r.resolve(GroupCategoryRepository.self)!
             return DefaultFetchAllGroupCategoryListUseCase(categoryRepository: groupCateogoryRepository)

@@ -8,9 +8,9 @@
 import Foundation
 import Swinject
 
-extension DomainAssembly {
+class TokenDomainAssembly: Assembly {
 
-    func assembleToken(container: Container) {
+    func assemble(container: Container) {
         container.register(GetTokenUseCase.self) { r in
             let tokenRepository = r.resolve(TokenRepository.self)!
             return DefaultGetTokenUseCase(tokenRepository: tokenRepository)

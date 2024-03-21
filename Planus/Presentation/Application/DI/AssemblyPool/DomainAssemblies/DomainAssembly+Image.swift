@@ -8,9 +8,9 @@
 import Foundation
 import Swinject
 
-extension DomainAssembly {
+class ImageDomainAssembly: Assembly {
     
-    func assembleImage(container: Container) {
+    func assemble(container: Container) {
         container.register(FetchImageUseCase.self) { r in
             let imageRepo = r.resolve(ImageRepository.self)!
             return DefaultFetchImageUseCase(imageRepository: imageRepo)

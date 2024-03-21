@@ -30,6 +30,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             DomainAssembly(),
             PresentationAssembly()
         ])
+    
         
         self.appCoordinator = AppCoordinator(dependency: AppCoordinator.Dependency(window: window, injector: injector))
      

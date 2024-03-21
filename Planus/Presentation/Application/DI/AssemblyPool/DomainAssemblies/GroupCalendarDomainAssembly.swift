@@ -8,9 +8,9 @@
 import Foundation
 import Swinject
 
-extension DomainAssembly {
+class GroupCalendarDomainAssembly: Assembly {
     
-    func assembleGroupCalendar(container: Container) {
+    func assemble(container: Container) {
         container.register(FetchGroupDailyCalendarUseCase.self) { r in
             let groupCalendarRepository = r.resolve(GroupCalendarRepository.self)!
             return DefaultFetchGroupDailyCalendarUseCase(groupCalendarRepository: groupCalendarRepository)

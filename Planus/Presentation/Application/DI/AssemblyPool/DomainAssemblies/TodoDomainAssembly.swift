@@ -8,9 +8,9 @@
 import Foundation
 import Swinject
 
-extension DomainAssembly {
+class TodoDomainAssembly: Assembly {
     
-    func assembleTodo(container: Container) {
+    func assemble(container: Container) {
         container.register(ReadTodoListUseCase.self) { r in
             let todoRepository = r.resolve(TodoRepository.self)!
             return DefaultReadTodoListUseCase(todoRepository: todoRepository)

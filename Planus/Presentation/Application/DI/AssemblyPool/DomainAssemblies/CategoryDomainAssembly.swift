@@ -8,9 +8,9 @@
 import Foundation
 import Swinject
 
-extension DomainAssembly {
+class CategoryDomainAssembly: Assembly {
     
-    func assembleCategory(container: Container) {
+    func assemble(container: Container) {
         container.register(CreateCategoryUseCase.self) { r in
             let categoryRepository = r.resolve(CategoryRepository.self)!
             return DefaultCreateCategoryUseCase(categoryRepository: categoryRepository)

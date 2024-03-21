@@ -8,9 +8,9 @@
 import Foundation
 import Swinject
 
-extension DomainAssembly {
+class ProfileDomainAssembly: Assembly {
     
-    func assembleProfile(container: Container) {
+    func assemble(container: Container) {
         container.register(ReadProfileUseCase.self) { r in
             let profileRepo = r.resolve(ProfileRepository.self)!
             return DefaultReadProfileUseCase(profileRepository: profileRepo)
