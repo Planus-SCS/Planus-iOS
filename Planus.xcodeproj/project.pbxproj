@@ -1929,9 +1929,9 @@
 				6A24F82529CB44850000FD64 /* SearchScene */,
 				6A95E00729D5BC52009017D8 /* GroupCreateScene */,
 				6A95DFD629D51BDE009017D8 /* GroupIntroduceScene */,
-				6A987A4D29DE494E00C27D09 /* MemberProfileScene */,
 				6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */,
 				6A91994F2A11FEB000108BF4 /* MyGroupListScene */,
+				6A987A4D29DE494E00C27D09 /* MemberProfileScene */,
 				6A24F82629CB44940000FD64 /* MyGroupDetailScene */,
 			);
 			path = Scenes;
@@ -2073,6 +2073,13 @@
 				6A987A3D29DDA88800C27D09 /* MyGroupMemberEditCell.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		6A0B76752BABDA5B008BC571 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Coordinator;
 			sourceTree = "<group>";
 		};
 		6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */ = {
@@ -2556,6 +2563,7 @@
 		6A987A4D29DE494E00C27D09 /* MemberProfileScene */ = {
 			isa = PBXGroup;
 			children = (
+				6A0B76752BABDA5B008BC571 /* Coordinator */,
 				6A987A5A29DECAF700C27D09 /* ViewModel */,
 				6A987A5129DEAC0E00C27D09 /* View */,
 				6A987A4E29DE4A0400C27D09 /* ViewController */,

@@ -14,9 +14,37 @@ struct FilteredSocialTodoViewModel {
     var holiday: (Int, String)?
 }
 
-class MemberProfileViewModel {
+class MemberProfileViewModel: ViewModel {
+    
+    struct UseCases {
+        let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
+        let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
+        let getTokenUseCase: GetTokenUseCase
+        let refreshTokenUseCase: RefreshTokenUseCase
+        let fetchMemberCalendarUseCase: FetchGroupMemberCalendarUseCase
+        let fetchImageUseCase: FetchImageUseCase
+    }
+    
+    struct Actions {
+        let showSocialDailyCalendar: (() -> Void)?
+        let pop: (() -> Void)?
+        let finishScene: (() -> Void)?
+    }
+    
+    struct Args {
+        let group: GroupName
+        let member: MyGroupMemberProfile
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
     var bag = DisposeBag()
-        
+    let useCases: UseCases
+    let actions: Actions
+    
     let calendar = Calendar.current
     
     var group: GroupName?
@@ -83,32 +111,15 @@ class MemberProfileViewModel {
         var memberImageUrl: String?
     }
     
-    let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
-    let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
-    let getTokenUseCase: GetTokenUseCase
-    let refreshTokenUseCase: RefreshTokenUseCase
-    let fetchMemberCalendarUseCase: FetchGroupMemberCalendarUseCase
-    let fetchImageUseCase: FetchImageUseCase
-    
     init(
-        createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase,
-        dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase,
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        fetchMemberCalendarUseCase: FetchGroupMemberCalendarUseCase,
-        fetchImageUseCase: FetchImageUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.createMonthlyCalendarUseCase = createMonthlyCalendarUseCase
-        self.dateFormatYYYYMMUseCase = dateFormatYYYYMMUseCase
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.fetchMemberCalendarUseCase = fetchMemberCalendarUseCase
-        self.fetchImageUseCase = fetchImageUseCase
-    }
-    
-    func setMember(group: GroupName, member: MyGroupMemberProfile) {
-        self.group = group
-        self.member = member
+        self.useCases = useCases
+        self.actions = injectable.actions
+        
+        self.group = injectable.args.group
+        self.member = injectable.args.member
     }
     
     func bind() {
@@ -200,13 +211,13 @@ class MemberProfileViewModel {
     }
     
     func updateTitle(date: Date) {
-        currentYYYYMM.onNext(dateFormatYYYYMMUseCase.execute(date: date))
+        currentYYYYMM.onNext(useCases.dateFormatYYYYMMUseCase.execute(date: date))
     }
     
     func initCalendar(date: Date) {
         mainDayList = (endOfFirstIndex...endOfLastIndex).map { difference -> [Day] in
             let calendarDate = self.calendar.date(byAdding: DateComponents(month: difference), to: date) ?? Date()
-            return createMonthlyCalendarUseCase.execute(date: calendarDate)
+            return useCases.createMonthlyCalendarUseCase.execute(date: calendarDate)
         }
         currentIndex = -endOfFirstIndex
         latestPrevCacheRequestedIndex = currentIndex
@@ -284,13 +295,14 @@ class MemberProfileViewModel {
         let toMonthStart = calendar.date(byAdding: DateComponents(day: 7), to: calendar.startOfDay(for: toMonth)) ?? Date()
 
         
-        getTokenUseCase
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[Date: [SocialTodoSummary]]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.fetchMemberCalendarUseCase
+                return self.useCases.fetchMemberCalendarUseCase
                     .execute(
                         token: token,
                         groupId: groupId,
@@ -300,7 +312,7 @@ class MemberProfileViewModel {
                     )
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] todoDict in
@@ -312,7 +324,8 @@ class MemberProfileViewModel {
     }
     
     func fetchImage(key: String) -> Single<Data> {
-        fetchImageUseCase
+        useCases
+            .fetchImageUseCase
             .execute(key: key)
     }
 }
