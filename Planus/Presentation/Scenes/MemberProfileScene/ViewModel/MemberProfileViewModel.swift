@@ -26,7 +26,7 @@ class MemberProfileViewModel: ViewModel {
     }
     
     struct Actions {
-        let showSocialDailyCalendar: (() -> Void)?
+        let showSocialDailyCalendar: ((SocialDailyCalendarViewModel.Args) -> Void)?
         let pop: (() -> Void)?
         let finishScene: (() -> Void)?
     }
@@ -86,7 +86,6 @@ class MemberProfileViewModel: ViewModel {
     var needReloadSection = BehaviorSubject<IndexSet?>(value: nil)
     var profileImage = BehaviorSubject<Data?>(value: nil)
     
-    var showDailyTodoPage = PublishSubject<Day>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
     
@@ -105,7 +104,6 @@ class MemberProfileViewModel: ViewModel {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var needReloadSectionInRange: Observable<IndexSet?> // a부터 b까지 리로드 해라!
-        var showDailyTodoPage: Observable<Day>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var memberName: String?
@@ -171,7 +169,13 @@ class MemberProfileViewModel: ViewModel {
             .didSelectItem
             .withUnretained(self)
             .subscribe { vm, indexPath in
-                vm.showDailyTodoPage.onNext(vm.mainDayList[indexPath.section][indexPath.item])
+                vm.actions.showSocialDailyCalendar?(
+                    SocialDailyCalendarViewModel.Args(
+                        group: vm.group,
+                        type: .member(id: vm.member.memberId),
+                        date: vm.mainDayList[indexPath.section][indexPath.item].date
+                    )
+                )
             }
             .disposed(by: bag)
         
@@ -219,7 +223,6 @@ class MemberProfileViewModel: ViewModel {
             didLoadYYYYMM: currentYYYYMM.asObservable(),
             initialDayListFetchedInCenterIndex: initialDayListFetchedInCenterIndex.asObservable(),
             needReloadSectionInRange: needReloadSection.asObservable(),
-            showDailyTodoPage: showDailyTodoPage.asObservable(),
             showMonthPicker: showMonthPicker.asObservable(),
             monthChangedByPicker: didSelectMonth.asObservable(),
             memberName: member.nickname,

@@ -135,42 +135,6 @@ class MemberProfileViewController: UIViewController {
             })
             .disposed(by: bag)
         
-        output.showDailyTodoPage
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, day in
-//                guard let group = vc.viewModel?.group,
-//                      let memberId = vc.viewModel?.member?.memberId else { return }
-//                let nm = NetworkManager()
-//                let kc = KeyChainManager()
-//                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyValueStorage: kc)
-//                let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
-//                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-//                let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-//                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyCalendarUseCase(groupCalendarRepository: gcr)
-//                let fetchMemberDailyCalendarUseCase = DefaultFetchGroupMemberDailyCalendarUseCase(memberCalendarRepository: DefaultGroupMemberCalendarRepository(apiProvider: nm))
-//                let viewModel = SocialTodoDailyViewModel(
-//                    getTokenUseCase: getTokenUseCase,
-//                    refreshTokenUseCase: refTokenUseCase,
-//                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
-//                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase,
-//                    createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
-//                    updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
-//                    deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
-//                    updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
-//                )
-//                viewModel.setGroup(group: group, type: .member(id: memberId), date: day.date)
-//                let viewController = SocialTodoDailyViewController(viewModel: viewModel)
-//                
-//                let nav = UINavigationController(rootViewController: viewController)
-//                nav.modalPresentationStyle = .pageSheet
-//                if let sheet = nav.sheetPresentationController {
-//                    sheet.detents = [.medium(), .large()]
-//                }
-//                vc.present(nav, animated: true)
-            })
-            .disposed(by: bag)
-        
         output.showMonthPicker
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { first, current, last in

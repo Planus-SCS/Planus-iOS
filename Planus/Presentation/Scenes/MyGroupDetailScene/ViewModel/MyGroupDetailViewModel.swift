@@ -281,8 +281,13 @@ class MyGroupDetailViewModel: ViewModel {
             .didSelectedDayAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                let date = vm.mainDayList[index].date
-//                vm.showDailyPage.onNext(date)
+                vm.actions.showDailyCalendar?(
+                    SocialDailyCalendarViewModel.Args(
+                        group: GroupName(groupId: vm.groupId, groupName: vm.groupTitle ?? String()),
+                        type: .group(isLeader: vm.isLeader ?? Bool()),
+                        date: vm.mainDayList[index].date
+                    )
+                )
             })
             .disposed(by: bag)
         

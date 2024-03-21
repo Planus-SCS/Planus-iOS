@@ -407,45 +407,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             })
             .disposed(by: bag)
         
-//        output
-//            .showDailyPage
-//            .observe(on: MainScheduler.asyncInstance)
-//            .withUnretained(self)
-//            .subscribe(onNext: { vc, date in
-                
-//                guard let groupId = viewModel.groupId,
-//                      let groupName = viewModel.groupTitle,
-//                      let isOwner = viewModel.isLeader else { return }
-//                let nm = NetworkManager()
-//                let kc = KeyChainManager()
-//                let tokenRepo = DefaultTokenRepository(apiProvider: nm, keyValueStorage: kc)
-//                let gcr = DefaultGroupCalendarRepository(apiProvider: nm)
-//                let getTokenUseCase = DefaultGetTokenUseCase(tokenRepository: tokenRepo)
-//                let refTokenUseCase = DefaultRefreshTokenUseCase(tokenRepository: tokenRepo)
-//                let fetchGroupDailyTodoListUseCase = DefaultFetchGroupDailyCalendarUseCase(groupCalendarRepository: gcr)
-//                let fetchMemberDailyCalendarUseCase = DefaultFetchGroupMemberDailyCalendarUseCase(memberCalendarRepository: DefaultGroupMemberCalendarRepository(apiProvider: nm))
-//                let viewModel = SocialTodoDailyViewModel(
-//                    getTokenUseCase: getTokenUseCase,
-//                    refreshTokenUseCase: refTokenUseCase,
-//                    fetchGroupDailyTodoListUseCase: fetchGroupDailyTodoListUseCase,
-//                    fetchMemberDailyCalendarUseCase: fetchMemberDailyCalendarUseCase,
-//                    createGroupTodoUseCase: DefaultCreateGroupTodoUseCase.shared,
-//                    updateGroupTodoUseCase: DefaultUpdateGroupTodoUseCase.shared,
-//                    deleteGroupTodoUseCase: DefaultDeleteGroupTodoUseCase.shared,
-//                    updateGroupCategoryUseCase: DefaultUpdateGroupCategoryUseCase.shared
-//                )
-//                viewModel.setGroup(group: GroupName(groupId: groupId, groupName: groupName), type: .group(isLeader: isOwner), date: date)
-//                let viewController = SocialTodoDailyViewController(viewModel: viewModel)
-//                
-//                let nav = UINavigationController(rootViewController: viewController)
-//                nav.modalPresentationStyle = .pageSheet
-//                if let sheet = nav.sheetPresentationController {
-//                    sheet.detents = [.medium(), .large()]
-//                }
-////                vc.present(nav, animated: true)
-//            })
-//            .disposed(by: bag)
-        
         output
             .showShareMenu
             .compactMap { $0 }

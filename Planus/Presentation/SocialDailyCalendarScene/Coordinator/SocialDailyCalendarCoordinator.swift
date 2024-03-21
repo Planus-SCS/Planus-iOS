@@ -28,6 +28,10 @@ class SocialDailyCalendarCoordinator: Coordinator {
         self.dependency = dependency
     }
     
+    deinit {
+        print("소셜 데일리 디이닛!")
+    }
+    
     func start(args: SocialDailyCalendarViewModel.Args) {
         showDailyCalendarPage(args)
     }

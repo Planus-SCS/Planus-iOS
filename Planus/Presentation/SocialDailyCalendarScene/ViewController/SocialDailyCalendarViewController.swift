@@ -65,6 +65,8 @@ class SocialDailyCalendarViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationItem.titleView = dateTitleButton
+        
+        navigationController?.presentationController?.delegate = self
     }
     
     func bind() {
@@ -328,5 +330,11 @@ extension SocialDailyCalendarViewController: UICollectionViewDataSource, UIColle
 extension SocialDailyCalendarViewController: UIPopoverPresentationControllerDelegate {
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
+    }
+}
+
+extension SocialDailyCalendarViewController: UIAdaptivePresentationControllerDelegate {
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        viewModel?.actions.finishScene?()
     }
 }
