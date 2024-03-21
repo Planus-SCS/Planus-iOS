@@ -1341,6 +1341,7 @@
 				6A08ADDE29C8D6B6005947D2 /* Interface */,
 				6A08AD6B29C8864C005947D2 /* Application */,
 				6A0B76592BA9966F008BC571 /* Scenes */,
+				6A0B76782BABE692008BC571 /* SocialDailyCalendarScene */,
 				6A08AD6C29C88939005947D2 /* Common */,
 			);
 			path = Presentation;
@@ -2085,6 +2086,47 @@
 			path = Coordinator;
 			sourceTree = "<group>";
 		};
+		6A0B76782BABE692008BC571 /* SocialDailyCalendarScene */ = {
+			isa = PBXGroup;
+			children = (
+				6A0B767C2BABE6C7008BC571 /* Coordinator */,
+				6A0B767B2BABE6C2008BC571 /* ViewModel */,
+				6A0B767A2BABE6BD008BC571 /* ViewController */,
+				6A0B76792BABE6B8008BC571 /* View */,
+			);
+			path = SocialDailyCalendarScene;
+			sourceTree = "<group>";
+		};
+		6A0B76792BABE6B8008BC571 /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		6A0B767A2BABE6BD008BC571 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6A9199F42A20AC1400108BF4 /* SocialTodoDailyViewController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		6A0B767B2BABE6C2008BC571 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				6A9199F62A20AC2700108BF4 /* SocialTodoDailyViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		6A0B767C2BABE6C7008BC571 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
 		6A1B3EF029D70F0B00BFB3A6 /* NotificationScene */ = {
 			isa = PBXGroup;
 			children = (
@@ -2538,7 +2580,6 @@
 				6A987A2229DCFC3100C27D09 /* JoinedGroupCalendarViewController.swift */,
 				6A987A2429DCFC4500C27D09 /* JoinedGroupChattingViewController.swift */,
 				6A987A2C29DCFDEF00C27D09 /* NestedScrollableViewController.swift */,
-				6A9199F42A20AC1400108BF4 /* SocialTodoDailyViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -2550,7 +2591,6 @@
 				6A987A2629DCFC5E00C27D09 /* JoinedGroupNoticeViewModel.swift */,
 				6A987A2829DCFC6D00C27D09 /* JoinedGroupCalendarViewModel.swift */,
 				6A987A2A29DCFC7700C27D09 /* JoinedGroupChattingViewModel.swift */,
-				6A9199F62A20AC2700108BF4 /* SocialTodoDailyViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -2568,8 +2608,8 @@
 			children = (
 				6A0B76752BABDA5B008BC571 /* Coordinator */,
 				6A987A5A29DECAF700C27D09 /* ViewModel */,
-				6A987A5129DEAC0E00C27D09 /* View */,
 				6A987A4E29DE4A0400C27D09 /* ViewController */,
+				6A987A5129DEAC0E00C27D09 /* View */,
 			);
 			path = MemberProfileScene;
 			sourceTree = "<group>";

@@ -13,18 +13,50 @@ enum SocialTodoViewModelType {
     case group(isLeader: Bool)
 }
 
-class SocialTodoDailyViewModel {
+class SocialTodoDailyViewModel: ViewModel {
+    
+    struct UseCases {
+        var getTokenUseCase: GetTokenUseCase
+        var refreshTokenUseCase: RefreshTokenUseCase
+        
+        var fetchGroupDailyTodoListUseCase: FetchGroupDailyCalendarUseCase
+        var fetchMemberDailyCalendarUseCase: FetchGroupMemberDailyCalendarUseCase
+        
+        let createGroupTodoUseCase: CreateGroupTodoUseCase
+        let updateGroupTodoUseCase: UpdateGroupTodoUseCase
+        let deleteGroupTodoUseCase: DeleteGroupTodoUseCase
+        let updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
+    }
+    
+    struct Actions {
+        let showSocialTodoDetail: (() -> Void)?
+        let finishScene: (() -> Void)?
+    }
+    
+    struct Args {
+        let group: GroupName
+        let type: SocialTodoViewModelType
+        let date: Date
+    }
+    
+    struct Injectable {
+        let actions: Actions
+        let args: Args
+    }
+    
     var bag = DisposeBag()
+    
+    let useCases: UseCases
+    let actions: Actions
 
-    var group: GroupName?
+    let group: GroupName
+    let type: SocialTodoViewModelType
+    let currentDate: Date
     
     var scheduledTodoList: [SocialTodoDaily]?
     var unscheduledTodoList: [SocialTodoDaily]?
         
-    var currentDate: Date?
     var currentDateText: String?
-    
-    var type: SocialTodoViewModelType?
     
     lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -45,44 +77,19 @@ class SocialTodoDailyViewModel {
     
     var nowFetchLoading = BehaviorSubject<Void?>(value: nil)
     var didFetchTodoList = BehaviorSubject<Void?>(value: nil)
-
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
-    
-    var fetchGroupDailyTodoListUseCase: FetchGroupDailyCalendarUseCase
-    var fetchMemberDailyCalendarUseCase: FetchGroupMemberDailyCalendarUseCase
-    
-    let createGroupTodoUseCase: CreateGroupTodoUseCase
-    let updateGroupTodoUseCase: UpdateGroupTodoUseCase
-    let deleteGroupTodoUseCase: DeleteGroupTodoUseCase
-    let updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
     
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
-        fetchGroupDailyTodoListUseCase: FetchGroupDailyCalendarUseCase,
-        fetchMemberDailyCalendarUseCase: FetchGroupMemberDailyCalendarUseCase,
-        createGroupTodoUseCase: CreateGroupTodoUseCase,
-        updateGroupTodoUseCase: UpdateGroupTodoUseCase,
-        deleteGroupTodoUseCase: DeleteGroupTodoUseCase,
-        updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
+        useCases: UseCases,
+        injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
-        self.fetchGroupDailyTodoListUseCase = fetchGroupDailyTodoListUseCase
-        self.fetchMemberDailyCalendarUseCase = fetchMemberDailyCalendarUseCase
+        self.useCases = useCases
+        self.actions = injectable.actions
         
-        self.createGroupTodoUseCase = createGroupTodoUseCase
-        self.updateGroupTodoUseCase = updateGroupTodoUseCase
-        self.deleteGroupTodoUseCase = deleteGroupTodoUseCase
-        self.updateGroupCategoryUseCase = updateGroupCategoryUseCase
-    }
-    
-    func setGroup(group: GroupName, type: SocialTodoViewModelType, date: Date) {
-        self.group = group
-        self.type = type
-        self.currentDate = date
-        self.currentDateText = dateFormatter.string(from: date)
+        self.group = injectable.args.group
+        self.type = injectable.args.type
+        self.currentDate = injectable.args.date
+        
+        self.currentDateText = dateFormatter.string(from: currentDate)
     }
     
     func transform(input: Input) -> Output {
@@ -112,38 +119,42 @@ class SocialTodoDailyViewModel {
     // 투두도 생성, 수정, 삭제에 따라서 그냥 다시 받아올까? 아님 어카지?(카테고리를 생성하고 그걸로 투두 생성할 경우에... 가 아니라 가능하구나 애는..! ㅇㅋ!
     
     func bindUseCase() { //이건 그냥 바인딩 하면 안됨
-        createGroupTodoUseCase //삽입하고 리로드 or 다시 받기.. 뭐가 좋을랑가 -> 걍 다시받자!
+        useCases
+            .createGroupTodoUseCase //삽입하고 리로드 or 다시 받기.. 뭐가 좋을랑가 -> 걍 다시받자!
             .didCreateGroupTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
-                guard vm.group?.groupId == todo.groupId else { return }
+                guard vm.group.groupId == todo.groupId else { return }
                 vm.fetchTodoList()
             })
             .disposed(by: bag)
         
-        updateGroupTodoUseCase // 삭제하고 다시넣기,,, 걍 다시받는게 편하겠지 아무래도?
+        useCases
+            .updateGroupTodoUseCase // 삭제하고 다시넣기,,, 걍 다시받는게 편하겠지 아무래도?
             .didUpdateGroupTodo
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
-                guard vm.group?.groupId == todo.groupId else { return }
+                guard vm.group.groupId == todo.groupId else { return }
                 vm.fetchTodoList()
             })
             .disposed(by: bag)
         
-        deleteGroupTodoUseCase
+        useCases
+            .deleteGroupTodoUseCase
             .didDeleteGroupTodoWithIds
             .withUnretained(self)
             .subscribe(onNext: { vm, ids in
-                guard vm.group?.groupId == ids.groupId else { return }
+                guard vm.group.groupId == ids.groupId else { return }
                 vm.fetchTodoList()
             })
             .disposed(by: bag)
         
-        updateGroupCategoryUseCase
+        useCases
+            .updateGroupCategoryUseCase
             .didUpdateCategoryWithGroupId
             .withUnretained(self)
             .subscribe(onNext: { vm, categoryWithGroupId in
-                guard vm.group?.groupId == categoryWithGroupId.groupId else { return }
+                guard vm.group.groupId == categoryWithGroupId.groupId else { return }
                 vm.fetchTodoList()
             })
             .disposed(by: bag)
@@ -152,8 +163,6 @@ class SocialTodoDailyViewModel {
     
     func fetchTodoList() {
         switch type {
-        case .none:
-            return
         case .group(let _):
             fetchGroupTodoList()
             return
@@ -166,21 +175,19 @@ class SocialTodoDailyViewModel {
     
     func fetchMemberTodoList(memberId: Int) {
         nowFetchLoading.onNext(())
-        
-        guard let groupId = group?.groupId,
-              let currentDate else { return }
-        
-        getTokenUseCase
+
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[[SocialTodoDaily]]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.fetchMemberDailyCalendarUseCase
-                    .execute(token: token, groupId: groupId, memberId: memberId, date: currentDate)
+                return self.useCases.fetchMemberDailyCalendarUseCase
+                    .execute(token: token, groupId: group.groupId, memberId: memberId, date: currentDate)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
@@ -193,21 +200,19 @@ class SocialTodoDailyViewModel {
     
     func fetchGroupTodoList() {
         nowFetchLoading.onNext(())
-        
-        guard let groupId = group?.groupId,
-              let currentDate else { return }
-        
-        getTokenUseCase
+
+        useCases
+            .getTokenUseCase
             .execute()
             .flatMap { [weak self] token -> Single<[[SocialTodoDaily]]> in
                 guard let self else {
                     throw DefaultError.noCapturedSelf
                 }
-                return self.fetchGroupDailyTodoListUseCase
-                    .execute(token: token, groupId: groupId, date: currentDate)
+                return self.useCases.fetchGroupDailyTodoListUseCase
+                    .execute(token: token, groupId: group.groupId, date: currentDate)
             }
             .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
+                retryObservable: useCases.refreshTokenUseCase.execute(),
                 errorType: NetworkManagerError.tokenExpired
             )
             .subscribe(onSuccess: { [weak self] list in
