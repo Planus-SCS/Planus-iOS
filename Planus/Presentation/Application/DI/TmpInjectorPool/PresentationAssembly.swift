@@ -38,6 +38,8 @@ class PresentationAssembly: Assembly {
         assembleMyGroupInfoEdit(container: container)
         assembleMyGroupMemberEdit(container: container)
         assembleMyGroupNoticeEdit(container: container)
+        
+        assembleMemberProfile(container: container)
     }
     
 }
@@ -477,6 +479,28 @@ extension PresentationAssembly {
         
         container.register(MyGroupNoticeEditViewController.self) { (r, injectable: MyGroupNoticeEditViewModel.Injectable) in
             return MyGroupNoticeEditViewController(viewModel: r.resolve(MyGroupNoticeEditViewModel.self, argument: injectable)!)
+        }
+    }
+}
+
+extension PresentationAssembly {
+    func assembleMemberProfile(container: Container) {
+        container.register(MemberProfileViewModel.self) { (r, injectable: MemberProfileViewModel.Injectable) in
+            return MemberProfileViewModel(
+                useCases: .init(
+                    createMonthlyCalendarUseCase: r.resolve(CreateMonthlyCalendarUseCase.self)!,
+                    dateFormatYYYYMMUseCase: r.resolve(DateFormatYYYYMMUseCase.self)!,
+                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
+                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    fetchMemberCalendarUseCase: r.resolve(FetchGroupMemberCalendarUseCase.self)!,
+                    fetchImageUseCase: r.resolve(FetchImageUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
+        container.register(MemberProfileViewController.self) { (r, injectable: MemberProfileViewModel.Injectable) in
+            return MemberProfileViewController(viewModel: r.resolve(MemberProfileViewModel.self, argument: injectable)!)
         }
     }
 }

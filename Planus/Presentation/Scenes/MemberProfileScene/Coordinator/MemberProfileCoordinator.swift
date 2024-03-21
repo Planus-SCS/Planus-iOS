@@ -31,6 +31,7 @@ class MemberProfileCoordinator: Coordinator {
     lazy var showMemberProfilePage: (MemberProfileViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
 
+        
     }
 
 }
