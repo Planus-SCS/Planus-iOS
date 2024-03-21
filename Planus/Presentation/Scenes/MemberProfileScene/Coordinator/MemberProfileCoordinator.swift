@@ -30,10 +30,31 @@ class MemberProfileCoordinator: Coordinator {
     
     lazy var showMemberProfilePage: (MemberProfileViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
-
+        
+        let vc = dependency.injector.resolve(
+            MemberProfileViewController.self,
+            argument: MemberProfileViewModel.Injectable(
+                actions: .init(
+                    showSocialDailyCalendar: self.showSocialDailyCalendar,
+                    pop: self.pop,
+                    finishScene: self.finishScene
+                ),
+                args: args
+            )
+        )
+        vc.hidesBottomBarWhenPushed = true
+        dependency.navigationController.pushViewController(vc, animated: true)
         
     }
-
+    
+    lazy var showSocialDailyCalendar: (() -> Void) = {}
+    lazy var pop: (() -> Void) = { [weak self] in
+        self?.dependency.navigationController.popViewController(animated: true)
+    }
+    
+    lazy var finishScene: (() -> Void) = { [weak self] in
+        self?.finish()
+    }
 }
 
 extension MemberProfileCoordinator: CoordinatorFinishDelegate {
