@@ -21,8 +21,7 @@ class MyPagePresentationAssembly: Assembly {
             return MyPageMainViewModel(
                 useCases: .init(
                     updateProfileUseCase: r.resolve(UpdateProfileUseCase.self)!,
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     removeTokenUseCase: r.resolve(RemoveTokenUseCase.self)!,
                     removeProfileUseCase: r.resolve(RemoveProfileUseCase.self)!,
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,
@@ -67,8 +66,7 @@ class MyPagePresentationAssembly: Assembly {
         container.register(MyPageEditViewModel.self) { (r, injectable: MyPageEditViewModel.Injectable) in
             return MyPageEditViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     readProfileUseCase: r.resolve(ReadProfileUseCase.self)!,
                     updateProfileUseCase: r.resolve(UpdateProfileUseCase.self)!,
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!

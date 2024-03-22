@@ -70,7 +70,7 @@ final class NotificationViewModel: ViewModel {
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
                     vm.fetchJoinApplyList(fetchType: .initail)
                 })
             })
@@ -98,7 +98,7 @@ final class NotificationViewModel: ViewModel {
             .refreshRequired
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
                     vm.fetchJoinApplyList(fetchType: .refresh)
                 })
             })

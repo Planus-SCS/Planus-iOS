@@ -177,9 +177,9 @@ class HomeCalendarViewModel: ViewModel {
                 vm.initCalendar(date: date)
                 
                 Observable.zip(
-                    initialReadGroup.compactMap { $0 },
-                    initialReadGroupCategory.compactMap { $0 },
-                    initialReadCategory.compactMap { $0 }
+                    vm.initialReadGroup.compactMap { $0 },
+                    vm.initialReadGroupCategory.compactMap { $0 },
+                    vm.initialReadCategory.compactMap { $0 }
                 )
                     .take(1)
                     .subscribe(onNext: { _ in
@@ -384,7 +384,7 @@ class HomeCalendarViewModel: ViewModel {
         Single.zip(
             groupFetcher,
             categoryFetcher,
-            groupCategoryFetcher }
+            groupCategoryFetcher
         )
         .subscribe(onSuccess: { [weak self] (groups, categories, groupCategories) in
             self?.setGroups(groups: groups)

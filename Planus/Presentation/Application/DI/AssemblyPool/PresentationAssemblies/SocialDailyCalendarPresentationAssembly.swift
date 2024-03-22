@@ -13,8 +13,7 @@ class SocialDailyCalendarPresentationAssembly: Assembly {
         container.register(SocialDailyCalendarViewModel.self) { (r, injectable: SocialDailyCalendarViewModel.Injectable) in
             return SocialDailyCalendarViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     fetchGroupDailyTodoListUseCase: r.resolve(FetchGroupDailyCalendarUseCase.self)!,
                     fetchMemberDailyCalendarUseCase: r.resolve(FetchGroupMemberDailyCalendarUseCase.self)!,
                     createGroupTodoUseCase: r.resolve(CreateGroupTodoUseCase.self)!,

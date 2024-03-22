@@ -90,7 +90,7 @@ final class GroupIntroduceViewModel: ViewModel {
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
                     vm.fetchGroupInfo(id: vm.groupId)
                 })
             })
@@ -185,19 +185,13 @@ final class GroupIntroduceViewModel: ViewModel {
     
     func requestJoinGroup() {
         
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<Void>? in
+                guard let self else { return nil }
                 return self.useCases.applyGroupJoinUseCase
-                    .execute(token: token, groupId: groupId)
+                    .execute(token: token, groupId: self.groupId)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.showMessage.onNext(Message(text: "가입을 요청하였습니다.", state: .normal))

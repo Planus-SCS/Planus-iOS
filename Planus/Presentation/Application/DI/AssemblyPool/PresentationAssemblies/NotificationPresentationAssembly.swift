@@ -13,8 +13,7 @@ class NotificationPresentationAssembly: Assembly {
         container.register(NotificationViewModel.self) { (r, injectable: NotificationViewModel.Injectable) in
             return NotificationViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     setTokenUseCase: r.resolve(SetTokenUseCase.self)!,
                     fetchJoinApplyListUseCase: r.resolve(FetchJoinApplyListUseCase.self)!,
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,

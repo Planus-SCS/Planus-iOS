@@ -51,15 +51,13 @@ final class AppCoordinator: Coordinator {
                 }
             }, onFailure: { [weak self] error in
                 if let ne = error as? NetworkManagerError,
-                   case NetworkManagerError.clientError(let int, let string) = ne {
+                   case NetworkManagerError.clientError(let _, let string) = ne {
                     print(string)
                 }
                 self?.showSignInFlow()
             })
             .disposed(by: bag)
-        
-        // 마지막으로 리프레시 된놈을 얻어와야한다..!
-            
+                    
     }
     
     func showSignInFlow() {
@@ -82,16 +80,16 @@ final class AppCoordinator: Coordinator {
     }
     
     func showMainTabFlow() {
-            let navigation = UINavigationController()
-            self.dependency.window.rootViewController = navigation
-
-            let tabCoordinator = MainTabCoordinator(dependency: MainTabCoordinator.Dependency(navigationController: navigation, injector: self.dependency.injector))
-            tabCoordinator.finishDelegate = self
-            tabCoordinator.start()
-            self.childCoordinators.append(tabCoordinator)
-            
-            self.dependency.window.makeKeyAndVisible()
-            self.viewTransitionAnimation()
+        let navigation = UINavigationController()
+        self.dependency.window.rootViewController = navigation
+        
+        let tabCoordinator = MainTabCoordinator(dependency: MainTabCoordinator.Dependency(navigationController: navigation, injector: self.dependency.injector))
+        tabCoordinator.finishDelegate = self
+        tabCoordinator.start()
+        self.childCoordinators.append(tabCoordinator)
+        
+        self.dependency.window.makeKeyAndVisible()
+        self.viewTransitionAnimation()
     }
     
     func viewTransitionAnimation() {
@@ -124,19 +122,13 @@ final class AppCoordinator: Coordinator {
     }
     
     func patchFCMToken() {
-        let getTokenUseCase = dependency.injector.resolve(GetTokenUseCase.self)
-        let refreshTokenUseCase = dependency.injector.resolve(RefreshTokenUseCase.self)
+        let executeWithTokenUseCase = dependency.injector.resolve(ExecuteWithTokenUseCase.self)
         let fcmRepo = dependency.injector.resolve(FCMRepository.self)
 
-        getTokenUseCase
-            .execute()
-            .flatMap { token -> Single<Void> in
+        executeWithTokenUseCase
+            .execute() { token -> Single<Void>? in
                 fcmRepo.patchFCMToken(token: token.accessToken).map { _ in () }
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { _ in
                 print("fcm patch success")
             }, onFailure: { error in

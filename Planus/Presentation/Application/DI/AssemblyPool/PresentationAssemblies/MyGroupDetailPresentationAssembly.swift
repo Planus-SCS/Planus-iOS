@@ -29,8 +29,7 @@ class MyGroupDetailPresentationAssembly: Assembly {
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,
                     memberKickOutUseCase: r.resolve(MemberKickOutUseCase.self)!,
                     setOnlineUseCase: r.resolve(SetOnlineUseCase.self)!,
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     createMonthlyCalendarUseCase: r.resolve(CreateMonthlyCalendarUseCase.self)!,
                     fetchMyGroupCalendarUseCase: r.resolve(FetchGroupMonthlyCalendarUseCase.self)!,
                     createGroupTodoUseCase: r.resolve(CreateGroupTodoUseCase.self)!,
@@ -52,8 +51,7 @@ class MyGroupDetailPresentationAssembly: Assembly {
         container.register(MyGroupInfoEditViewModel.self) { (r, injectable: MyGroupInfoEditViewModel.Injectable) in
             return MyGroupInfoEditViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,
                     updateGroupInfoUseCase: r.resolve(UpdateGroupInfoUseCase.self)!,
                     deleteGroupUseCase: r.resolve(DeleteGroupUseCase.self)!
@@ -71,8 +69,7 @@ class MyGroupDetailPresentationAssembly: Assembly {
         container.register(MyGroupMemberEditViewModel.self) { (r, injectable: MyGroupMemberEditViewModel.Injectable) in
             return MyGroupMemberEditViewModel(
                 useCase: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     fetchMyGroupMemberListUseCase: r.resolve(FetchMyGroupMemberListUseCase.self)!,
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,
                     memberKickOutUseCase: r.resolve(MemberKickOutUseCase.self)!
@@ -90,8 +87,7 @@ class MyGroupDetailPresentationAssembly: Assembly {
         container.register(MyGroupNoticeEditViewModel.self) { (r, injectable: MyGroupNoticeEditViewModel.Injectable) in
             return MyGroupNoticeEditViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     updateNoticeUseCase: r.resolve(UpdateNoticeUseCase.self)!
                 ),
                 injectable: injectable

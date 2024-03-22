@@ -19,8 +19,6 @@ class GroupCreatePresentationAssembly: Assembly {
         container.register(GroupCreateViewModel.self) { (r, injectable: GroupCreateViewModel.Injectable) in
             return GroupCreateViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
                     groupCreateUseCase: r.resolve(GroupCreateUseCase.self)!
                 ),
                 injectable: injectable
@@ -36,8 +34,7 @@ class GroupCreatePresentationAssembly: Assembly {
         container.register(GroupCreateLoadViewModel.self) { (r, injectable: GroupCreateLoadViewModel.Injectable) in
             return GroupCreateLoadViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     groupCreateUseCase: r.resolve(GroupCreateUseCase.self)!
                 ),
                 injectable: injectable
