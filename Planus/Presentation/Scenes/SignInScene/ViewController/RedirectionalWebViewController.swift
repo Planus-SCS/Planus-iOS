@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 import WebKit
 
 final class RedirectionalWebViewController: UIViewController {
@@ -15,9 +16,9 @@ final class RedirectionalWebViewController: UIViewController {
     
     var didSent = false
     
-    var nowForeground = BehaviorSubject<Bool>(value: true)
-    var code = BehaviorSubject<String?>(value: nil)
-    var didFetchedCode = PublishSubject<String>()
+    var nowForeground = BehaviorRelay<Bool>(value: true)
+    var code = BehaviorRelay<String?>(value: nil)
+    var didFetchedCode = PublishRelay<String>()
     
     var viewModel: RedirectionalWebViewModel?
     
@@ -43,14 +44,14 @@ private extension RedirectionalWebViewController {
         NotificationCenter.default.rx.notification(UIApplication.willEnterForegroundNotification)
             .asDriver(onErrorRecover: { _ in .never() })
             .drive(onNext: { [weak self] _ in
-                self?.nowForeground.onNext(true)
+                self?.nowForeground.accept(true)
             })
             .disposed(by: bag)
         
         NotificationCenter.default.rx.notification(UIApplication.didEnterBackgroundNotification)
             .asDriver(onErrorRecover: { _ in .never() })
             .drive(onNext: { [weak self] _ in
-                self?.nowForeground.onNext(false)
+                self?.nowForeground.accept(false)
             })
             .disposed(by: bag)
     }
@@ -76,12 +77,15 @@ private extension RedirectionalWebViewController {
             .disposed(by: bag)
         
         Observable
-            .combineLatest(nowForeground.asObservable(), code.compactMap { $0 })
+            .combineLatest(
+                nowForeground,
+                code.compactMap { $0 }
+            )
             .withUnretained(self)
             .subscribe(onNext: { vc, args in
                 let (nowForeground, code) = args
                 if nowForeground {
-                    vc.didFetchedCode.onNext(code)
+                    vc.didFetchedCode.accept(code)
                 }
             })
             .disposed(by: bag)
@@ -142,7 +146,7 @@ extension RedirectionalWebViewController: WKNavigationDelegate {
             
             guard let url = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return }
             if let code = url.queryItems?.filter({ $0.name == "code" }).first?.value {
-                self.code.onNext(code)
+                self.code.accept(code)
             }
             decisionHandler(.cancel)
             

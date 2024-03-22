@@ -129,7 +129,7 @@ private extension SignInView {
 
 final class SignInViewController: UIViewController {
     let bag = DisposeBag()
-    let didReceiveAppleIdentityToken = PublishSubject<(String, PersonNameComponents?)>()
+    let didReceiveAppleIdentityToken = PublishRelay<(String, PersonNameComponents?)>()
     
     var viewModel: SignInViewModel?
     var signInView: SignInView?
@@ -223,8 +223,7 @@ extension SignInViewController: ASAuthorizationControllerDelegate {
                let familyName = userFullName.familyName {
                 fullName = PersonNameComponents(givenName: givenName, familyName: familyName)
             }
-
-            didReceiveAppleIdentityToken.onNext((identityToken, fullName))
+            didReceiveAppleIdentityToken.accept((identityToken, fullName))
         }
     }
 
