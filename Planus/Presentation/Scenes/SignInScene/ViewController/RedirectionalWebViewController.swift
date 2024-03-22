@@ -9,7 +9,7 @@ import UIKit
 import RxSwift
 import WebKit
 
-class RedirectionalWebViewController: UIViewController {
+final class RedirectionalWebViewController: UIViewController {
     
     var bag = DisposeBag()
     
@@ -17,24 +17,15 @@ class RedirectionalWebViewController: UIViewController {
     
     var nowForeground = BehaviorSubject<Bool>(value: true)
     var code = BehaviorSubject<String?>(value: nil)
+    var didFetchedCode = PublishSubject<String>()
     
     var viewModel: RedirectionalWebViewModel?
-    
-    var didFetchedCode = PublishSubject<String>()
     
     var webView: WKWebView?
     
     convenience init(viewModel: RedirectionalWebViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
@@ -44,7 +35,10 @@ class RedirectionalWebViewController: UIViewController {
         
         bindAppStateObservable()
     }
-    
+}
+
+// MARK: View Generator
+private extension RedirectionalWebViewController {
     func bindAppStateObservable() {
         NotificationCenter.default.rx.notification(UIApplication.willEnterForegroundNotification)
             .asDriver(onErrorRecover: { _ in .never() })
@@ -92,7 +86,10 @@ class RedirectionalWebViewController: UIViewController {
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: Actions
+private extension RedirectionalWebViewController {
     func startWebView() {
         let webView = WKWebView(frame: self.view.frame)
         webView.navigationDelegate = self
@@ -107,23 +104,20 @@ class RedirectionalWebViewController: UIViewController {
             DispatchQueue.main.async {
                 webView.load(request)
             }
-            
         }
     }
     
     func terminateWebView() {
         webView?.removeFromSuperview()
         webView = nil
-        
     }
-
 }
 
 extension RedirectionalWebViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let viewModel,
               let redirectURL = URL(string: viewModel.type.redirectionURI) else { return }
-        print("navigate: ", navigationAction.request.url)
+
         if let url = navigationAction.request.url,
            let scheme = url.scheme,
            viewModel.type.URLSchemes.contains(scheme) {
@@ -159,6 +153,5 @@ extension RedirectionalWebViewController: WKNavigationDelegate {
         
     }
     
-    func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
-    }
+    func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {}
 }
