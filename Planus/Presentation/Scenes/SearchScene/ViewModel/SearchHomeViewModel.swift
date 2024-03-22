@@ -139,19 +139,14 @@ class SearchHomeViewModel: ViewModel {
     }
     
     func fetchResult(isInitial: Bool) {
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[GroupSummary]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.fetchSearchHomeUseCase
+        let executeWithTokenUseCase = DefaultExecuteWithTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyValueStorage: KeyChainManager()))
+        
+        executeWithTokenUseCase
+            .execute { token in
+                self.useCases
+                    .fetchSearchHomeUseCase
                     .execute(token: token, page: self.page, size: self.size)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] list in
                 guard let self else { return }
 
