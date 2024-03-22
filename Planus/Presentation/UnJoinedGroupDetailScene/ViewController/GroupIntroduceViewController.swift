@@ -187,6 +187,18 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
         .disposed(by: bag)
         
         output
+            .didGroupInfoFetched
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onError: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.navigationController?.popViewController(animated: true)
+                self?.navigationController?.topViewController?.showToast(message: message, type: .warning)
+            })
+            .disposed(by: bag)
+        
+        output
             .isJoinableGroup
             .compactMap { $0 }
             .withUnretained(self)
@@ -239,8 +251,9 @@ class GroupIntroduceViewController: UIViewController, UIGestureRecognizerDelegat
         let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = self.view
         activityVC.excludedActivityTypes = [.addToReadingList, .assignToContact, .markupAsPDF, .openInIBooks, .saveToCameraRoll]
-        
-        self.present(activityVC, animated: true, completion: nil)
+        DispatchQueue.main.async { [weak self] in
+            self?.present(activityVC, animated: true)
+        }
     }
     
     func configureView() {

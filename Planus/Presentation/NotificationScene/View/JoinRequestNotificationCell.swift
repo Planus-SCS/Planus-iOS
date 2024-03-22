@@ -116,14 +116,16 @@ class GroupJoinNotificationCell: UICollectionViewCell {
         groupTitleLabel.snp.makeConstraints {
             $0.top.equalTo(profileImageView)
             $0.leading.equalTo(profileImageView.snp.trailing).offset(9)
-            $0.trailing.equalToSuperview().inset(9)
+            $0.trailing.lessThanOrEqualToSuperview().inset(9)
+            $0.width.greaterThanOrEqualTo(90).priority(999)
             $0.height.equalTo(14)
         }
         
         nameLabel.snp.makeConstraints {
             $0.top.equalTo(groupTitleLabel.snp.bottom).offset(2)
             $0.leading.equalTo(profileImageView.snp.trailing).offset(9)
-            $0.trailing.equalToSuperview().inset(9)
+            $0.trailing.lessThanOrEqualToSuperview().inset(9)
+            $0.width.greaterThanOrEqualTo(50).priority(999)
             $0.height.equalTo(19)
         }
         

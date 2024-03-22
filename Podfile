@@ -11,4 +11,7 @@ target 'Planus' do
     pod 'RxCocoa', '6.5.0'
     pod 'SnapKit', '~> 5.6.0'
 
+  # Pods for Firebase
+    pod 'FirebaseMessaging'
+
 end

@@ -131,7 +131,7 @@ class SearchHomeViewModel {
         page = 0
         didStartFetching.onNext(())
         print("remove!")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: { [weak self] in
             self?.fetchResult(isInitial: true)
         })
         

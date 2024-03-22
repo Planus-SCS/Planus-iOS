@@ -241,7 +241,7 @@ class SearchResultViewModel {
         saveRecentQuery(keyword: keyword)
         didStartFetching.onNext(())
         page = 0
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: { [weak self] in
             self?.fetchResult(keyword: keyword, isInitial: true)
         })
     }

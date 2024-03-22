@@ -202,7 +202,7 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if isInitLoading {
-            return Int(collectionView.frame.height/250)*2
+            return Int(UIScreen.main.bounds.height/250)*2
         }
         return viewModel?.result.count ?? Int()
     }

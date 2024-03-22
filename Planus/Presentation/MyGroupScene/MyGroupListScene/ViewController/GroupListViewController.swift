@@ -118,9 +118,11 @@ class GroupListViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, type in
                 vc.isInitLoading = false
-                vc.resultCollectionView.reloadData()
+                vc.resultCollectionView.performBatchUpdates({
+                    vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
+                })
                 vc.emptyResultView.isHidden = !((viewModel.groupList?.count == 0) ?? true)
-
+                print("fetched!")
                 switch type {
                 case .refresh:
                     vc.showToast(message: "새로고침을 성공하였습니다.", type: .normal)
@@ -226,7 +228,7 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if isInitLoading {
-            return Int(collectionView.frame.height/250)*2
+            return Int(UIScreen.main.bounds.height/250)*2
         }
         return viewModel?.groupList?.count ?? 0
     }
@@ -239,6 +241,7 @@ extension GroupListViewController: UICollectionViewDataSource, UICollectionViewD
         }
         guard let item = viewModel?.groupList?[indexPath.item] else { return UICollectionViewCell() }
         cell.stopSkeletonAnimation()
+        print("fetch cel")
         // 이전에 바인딩되있던게 있다면 전부 버림
         cell.bag = nil
         cell.fill(
