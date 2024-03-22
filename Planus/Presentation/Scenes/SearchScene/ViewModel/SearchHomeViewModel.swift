@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class SearchHomeViewModel: ViewModel {
+final class SearchHomeViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let fetchSearchHomeUseCase: FetchSearchHomeUseCase
         let fetchImageUseCase: FetchImageUseCase
     }
@@ -132,20 +131,24 @@ class SearchHomeViewModel: ViewModel {
         page = 0
         didStartFetching.onNext(())
         print("remove!")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [weak self] in
             self?.fetchResult(isInitial: true)
         })
         
     }
     
     func fetchResult(isInitial: Bool) {
-        let executeWithTokenUseCase = DefaultExecuteWithTokenUseCase(tokenRepository: DefaultTokenRepository(apiProvider: NetworkManager(), keyValueStorage: KeyChainManager()))
-        
-        executeWithTokenUseCase
-            .execute { token in
-                self.useCases
+
+        useCases
+            .executeWithTokenUseCase
+            .execute { [weak self] token in
+                self?.useCases
                     .fetchSearchHomeUseCase
-                    .execute(token: token, page: self.page, size: self.size)
+                    .execute(
+                        token: token,
+                        page: self?.page ?? Int(),
+                        size: self?.size ?? Int()
+                    )
             }
             .subscribe(onSuccess: { [weak self] list in
                 guard let self else { return }

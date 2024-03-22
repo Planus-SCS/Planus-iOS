@@ -33,7 +33,6 @@ final class AppCoordinator: Coordinator {
     }
     
     private func checkAutoSignIn() {
-        // 우선 여기서 자동로그인이 되있는지를 봐야한다..!
         let getTokenUseCase = dependency.injector.resolve(GetTokenUseCase.self)
         let refreshTokenUseCase = dependency.injector.resolve(RefreshTokenUseCase.self)
         
@@ -55,7 +54,6 @@ final class AppCoordinator: Coordinator {
                    case NetworkManagerError.clientError(let int, let string) = ne {
                     print(string)
                 }
-                print("signIn!!")
                 self?.showSignInFlow()
             })
             .disposed(by: bag)

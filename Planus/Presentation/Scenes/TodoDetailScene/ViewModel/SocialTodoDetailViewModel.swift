@@ -70,24 +70,22 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     var nowSaving: Bool = false
     var isSaveEnabled: Bool?
     
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
+    let executeWithTokenUseCase: ExecuteWithTokenUseCase
     
-    var fetchGroupMemberTodoDetailUseCase: FetchGroupMemberTodoDetailUseCase
+    let fetchGroupMemberTodoDetailUseCase: FetchGroupMemberTodoDetailUseCase
     
-    var fetchGroupTodoDetailUseCase: FetchGroupTodoDetailUseCase
-    var createGroupTodoUseCase: CreateGroupTodoUseCase // 업댓 필요!
-    var updateGroupTodoUseCase: UpdateGroupTodoUseCase  // 업댓 필요!
-    var deleteGroupTodoUseCase: DeleteGroupTodoUseCase   // 업댓 필요!
+    let fetchGroupTodoDetailUseCase: FetchGroupTodoDetailUseCase
+    let createGroupTodoUseCase: CreateGroupTodoUseCase
+    let updateGroupTodoUseCase: UpdateGroupTodoUseCase
+    let deleteGroupTodoUseCase: DeleteGroupTodoUseCase
     
-    var createGroupCategoryUseCase: CreateGroupCategoryUseCase
-    var updateGroupCategoryUseCase: UpdateGroupCategoryUseCase  // 업댓 필요!!
-    var deleteGroupCategoryUseCase: DeleteGroupCategoryUseCase
-    var fetchGroupCategorysUseCase: FetchGroupCategorysUseCase
+    let createGroupCategoryUseCase: CreateGroupCategoryUseCase
+    let updateGroupCategoryUseCase: UpdateGroupCategoryUseCase
+    let deleteGroupCategoryUseCase: DeleteGroupCategoryUseCase
+    let fetchGroupCategorysUseCase: FetchGroupCategorysUseCase
     
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
+        executeWithTokenUseCase: ExecuteWithTokenUseCase,
         fetchGroupMemberTodoDetailUseCase: FetchGroupMemberTodoDetailUseCase,
         fetchGroupTodoDetailUseCase: FetchGroupTodoDetailUseCase,
         createGroupTodoUseCase: CreateGroupTodoUseCase,
@@ -99,8 +97,7 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         fetchGroupCategorysUseCase: FetchGroupCategorysUseCase,
         injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
+        self.executeWithTokenUseCase = executeWithTokenUseCase
         self.fetchGroupMemberTodoDetailUseCase = fetchGroupMemberTodoDetailUseCase
         self.fetchGroupTodoDetailUseCase = fetchGroupTodoDetailUseCase
         self.createGroupTodoUseCase = createGroupTodoUseCase
@@ -147,19 +144,11 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func fetchGroupTodoDetail(groupId: Int, todoId: Int) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<SocialTodoDetail> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.fetchGroupTodoDetailUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.fetchGroupTodoDetailUseCase
                     .execute(token: token, groupId: groupId, todoId: todoId)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] todo in
                 self?.todoTitle.onNext(todo.title)
                 self?.todoCategory.onNext(Category(id: todo.todoCategory.id, title: todo.todoCategory.name, color: todo.todoCategory.color))
@@ -177,19 +166,11 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func fetchGroupMemberTodoDetail(groupId: Int, memberId: Int, todoId: Int) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<SocialTodoDetail> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.fetchGroupMemberTodoDetailUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.fetchGroupMemberTodoDetailUseCase
                     .execute(token: token, groupId: groupId, memberId: memberId, todoId: todoId)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] todo in
                 self?.todoTitle.onNext(todo.title)
                 self?.todoCategory.onNext(Category(id: todo.todoCategory.id, title: todo.todoCategory.name, color: todo.todoCategory.color))
@@ -206,19 +187,11 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func fetchCategoryList(groupId: Int) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[Category]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.fetchGroupCategorysUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.fetchGroupCategorysUseCase
                     .execute(token: token, groupId: groupId)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] list in
                 self?.categorys = list.filter { $0.status == .active }
                 self?.needReloadCategoryList.onNext(())
@@ -283,19 +256,11 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func createTodo(groupId: Int, todo: Todo) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Int> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.createGroupTodoUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.createGroupTodoUseCase
                     .execute(token: token, groupId: groupId, todo: todo)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] id in
                 var todoWithId = todo
                 todoWithId.id = id
@@ -312,19 +277,11 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func updateTodo(groupId: Int, todoId: Int, todo: Todo) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Int> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.updateGroupTodoUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.updateGroupTodoUseCase
                     .execute(token: token, groupId: groupId, todoId: todoId, todo: todo)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
                 self?.needDismiss.onNext(())
@@ -339,19 +296,11 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func deleteTodo(groupId: Int, todoId: Int) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.deleteGroupTodoUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.deleteGroupTodoUseCase
                     .execute(token: token, groupId: groupId, todoId: todoId)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
                 self?.needDismiss.onNext(())
@@ -374,19 +323,11 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         default: return
         }
         
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Int> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.createGroupCategoryUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.createGroupCategoryUseCase
                     .execute(token: token, groupId: groupId, category: category)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] id in
                 var categoryWithId = category
                 categoryWithId.id = id
@@ -416,20 +357,11 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         default: return
         }
         
-        
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Int> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.updateGroupCategoryUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.updateGroupCategoryUseCase
                     .execute(token: token, groupId: groupId, categoryId: id, category: category)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] id in
                 guard let index = self?.categorys.firstIndex(where: { $0.id == id }) else { return }
                 self?.categorys[index] = category
@@ -455,20 +387,11 @@ final class SocialTodoDetailViewModel: TodoDetailViewModelable {
         default: return
         }
         
-        
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Int> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.deleteGroupCategoryUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.deleteGroupCategoryUseCase
                     .execute(token: token, groupId: groupId, categoryId: id)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] _ in
             }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,

@@ -8,30 +8,10 @@
 import Foundation
 import RxSwift
 
-struct FilteredTodoViewModel {
-    var periodTodo: [(Int,Todo)] //offset, Todo
-    var singleTodo: [(Int,Todo)] //offset, Todo
-    var holiday: (Int, String)?
-}
-
-protocol ViewModel {
-    associatedtype UseCases
-    associatedtype Actions
-    associatedtype Args
-    associatedtype Injectable
-    
-    var useCases: UseCases { get }
-    var actions: Actions { get }
-    
-    associatedtype Input
-    associatedtype Output
-}
-
 class HomeCalendarViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         
         let createTodoUseCase: CreateTodoUseCase
         let readTodoListUseCase: ReadTodoListUseCase
@@ -105,12 +85,12 @@ class HomeCalendarViewModel: ViewModel {
     var mainDays = [[Day]]()
     var todos = [Date: [Todo]]()
     
-    var blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 20), count: 42) //todoId, groupTodo인가?
+    var blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 20), count: 42) //todoId, groupTodo여부
     var filteredWeeksOfYear = [Int](repeating: -1, count: 6)
-    var filteredTodoCache = [FilteredTodoViewModel](repeating: FilteredTodoViewModel(periodTodo: [], singleTodo: []), count: 42) //월-일 어디든 상관없이 해당 주차에 첫 진입하면 주차를 전부 캐시로 만들어서 넣어둬야함
+    var filteredTodoCache = [FilteredTodoViewModel](repeating: FilteredTodoViewModel(periodTodo: [], singleTodo: []), count: 42) //UI 표시용
     var cachedCellHeightForTodoCount = [Int: Double]()
     
-    var groups = [Int: GroupName]() //그룹 패치, 카테고리 패치, 달력 생성 완료되면? -> 달력안에 투두 뷰모델을 넣어두기..??? 이게 맞나???
+    var groups = [Int: GroupName]()
     var memberCategories = [Int: Category]()
     var groupCategories = [Int: Category]()
 
@@ -127,34 +107,7 @@ class HomeCalendarViewModel: ViewModel {
     var homeTabReselected: PublishSubject<Void>?
     
     var todoCompletionHandler: ((IndexPath) -> Void)?
-    
-    lazy var categoryFetcher: () -> Single<[Category]>? = { [weak self] in
-        guard let self else { return nil }
-        return self.useCases.getTokenUseCase
-            .execute()
-            .flatMap { token in self.useCases.readCategoryListUseCase.execute(token: token) }
-    }
-    
-    lazy var groupCategoryFetcher: () -> Single<[Category]>? = { [weak self] in
-        guard let self else { return nil }
-        return self.useCases.getTokenUseCase
-            .execute()
-            .flatMap { token in self.useCases.fetchGroupCategoryListUseCase.execute(token: token) }
-    }
-    
-    lazy var groupFetcher: () -> Single<[GroupName]>? = { [weak self] in
-        guard let self else { return nil }
-        return self.useCases.getTokenUseCase
-            .execute()
-            .flatMap { token in self.useCases.fetchMyGroupNameListUseCase.execute(token: token) }
-    }
-    
-    lazy var categoryAndGroupZip = Observable.zip(
-        initialReadGroup.compactMap { $0 },
-        initialReadGroupCategory.compactMap { $0 },
-        initialReadCategory.compactMap { $0 }
-    )
-    
+
     var profile: Profile?
     var fetchedProfileImage = BehaviorSubject<Data?>(value: nil)
     
@@ -223,7 +176,11 @@ class HomeCalendarViewModel: ViewModel {
                 vm.bindGroupUseCase()
                 vm.initCalendar(date: date)
                 
-                vm.categoryAndGroupZip
+                Observable.zip(
+                    initialReadGroup.compactMap { $0 },
+                    initialReadGroupCategory.compactMap { $0 },
+                    initialReadCategory.compactMap { $0 }
+                )
                     .take(1)
                     .subscribe(onNext: { _ in
                         vm.initTodoList()
@@ -392,7 +349,11 @@ class HomeCalendarViewModel: ViewModel {
         
         fetchGroupAndCategory()
         
-        categoryAndGroupZip
+        Observable.zip(
+            initialReadGroup.compactMap { $0 },
+            initialReadGroupCategory.compactMap { $0 },
+            initialReadCategory.compactMap { $0 }
+        )
             .withUnretained(self)
             .take(1)
             .subscribe(onNext: { vm, _ in
@@ -402,18 +363,28 @@ class HomeCalendarViewModel: ViewModel {
     }
     
     func fetchGroupAndCategory() {
-        guard let groupFetcher = groupFetcher(),
-              let categoryFetcher = categoryFetcher(),
-              let groupCategoryFetcher = groupCategoryFetcher() else { return }
+        let groupFetcher = useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                self?.useCases.fetchMyGroupNameListUseCase.execute(token: token)
+            }
+        
+        let categoryFetcher = useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in 
+                self?.useCases.readCategoryListUseCase.execute(token: token)
+            }
+        
+        let groupCategoryFetcher = useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                self?.useCases.fetchGroupCategoryListUseCase.execute(token: token)
+            }
         
         Single.zip(
             groupFetcher,
             categoryFetcher,
-            groupCategoryFetcher
-        )
-        .handleRetry(
-            retryObservable: useCases.refreshTokenUseCase.execute(),
-            errorType: NetworkManagerError.tokenExpired
+            groupCategoryFetcher }
         )
         .subscribe(onSuccess: { [weak self] (groups, categories, groupCategories) in
             self?.setGroups(groups: groups)
@@ -588,19 +559,12 @@ class HomeCalendarViewModel: ViewModel {
         
         print(fromMonthStart, toMonthStart)
 
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[Date: [Todo]]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.readTodoListUseCase
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.readTodoListUseCase
                     .execute(token: token, from: fromMonthStart, to: toMonthStart)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return } //만약 위로 스크롤해서 업데이트한거면 애를 초기화시켜버려야한다..!!!!
                 self.todos.merge(todoDict) { (_, new) in new }
@@ -639,19 +603,12 @@ class HomeCalendarViewModel: ViewModel {
     
     func fetchProfile() {
         
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Profile> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.readProfileUseCase
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.readProfileUseCase
                     .execute(token: token)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] profile in
                 guard let self else { return }
                 
@@ -714,7 +671,7 @@ class HomeCalendarViewModel: ViewModel {
     }
 
     func updateTodo(firstDate: Date, todoUpdate: TodoUpdateComparator) {
-        // 지금 방식 너무 복잡함..! 그냥 무조건 삭제하고 다시 추가하는 방식으로 가자..!
+        
         let todoBeforeUpdate = todoUpdate.before
         let todoAfterUpdate = todoUpdate.after
         var sectionSet = IndexSet()

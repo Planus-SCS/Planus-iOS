@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DailyCalendarViewModel: ViewModel {
+final class DailyCalendarViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         
         let createTodoUseCase: CreateTodoUseCase
         let updateTodoUseCase: UpdateTodoUseCase
@@ -383,21 +382,14 @@ class DailyCalendarViewModel: ViewModel {
     }
     
     func updateCompletionState(todo: Todo) {
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.todoCompleteUseCase
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.todoCompleteUseCase
                     .execute(token: token, todo: todo)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onFailure: { _ in
-                // 처리 실패하면 버튼을 다시 원래대로 돌리면서 토스트 띄워야함..!
+                // FIXME: 처리 실패 시 원복 할 수 있어야함
                 
             })
             .disposed(by: bag)

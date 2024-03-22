@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class NotificationViewModel: ViewModel {
+final class NotificationViewModel: ViewModel {
     
     struct UseCases {
-        var getTokenUseCase: GetTokenUseCase
-        var refreshTokenUseCase: RefreshTokenUseCase
+        var executeWithTokenUseCase: ExecuteWithTokenUseCase
         var setTokenUseCase: SetTokenUseCase
         var fetchJoinApplyListUseCase: FetchJoinApplyListUseCase
         var fetchImageUseCase: FetchImageUseCase
@@ -124,19 +123,12 @@ class NotificationViewModel: ViewModel {
         guard let id = joinAppliedList?[index].groupJoinId,
               nowProcessingJoinId.filter({ $0 == id }).isEmpty else { return }
         nowProcessingJoinId.append(id)
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.acceptGroupJoinUseCase
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.acceptGroupJoinUseCase
                     .execute(token: token, applyId: id)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowProcessingJoinId.removeAll(where: { $0 == id })
                 self?.joinAppliedList?.remove(at: index)
@@ -155,19 +147,12 @@ class NotificationViewModel: ViewModel {
         guard let id = joinAppliedList?[index].groupJoinId,
               nowProcessingJoinId.filter({ $0 == id }).isEmpty else { return }
         nowProcessingJoinId.append(id)
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.denyGroupJoinUseCase
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.denyGroupJoinUseCase
                     .execute(token: token, applyId: id)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowProcessingJoinId.removeAll(where: { $0 == id })
                 self?.joinAppliedList?.remove(at: index)
@@ -183,19 +168,12 @@ class NotificationViewModel: ViewModel {
     }
     
     func fetchJoinApplyList(fetchType: FetchType) {
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[MyGroupJoinAppliance]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.fetchJoinApplyListUseCase
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchJoinApplyListUseCase
                     .execute(token: token)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] list in
                 self?.joinAppliedList = list
                 self?.didFetchJoinApplyList.onNext((fetchType))

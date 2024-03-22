@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class MyPageEnquireViewModel {
+final class MyPageEnquireViewModel {
     var bag = DisposeBag()
     
     var inquireText = BehaviorSubject<String?>(value: nil)

@@ -8,17 +8,10 @@
 import Foundation
 import RxSwift
 
-enum GroupJoinableState {
-    case isJoined
-    case notJoined
-    case full
-}
-
-class GroupIntroduceViewModel: ViewModel {
+final class GroupIntroduceViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let setTokenUseCase: SetTokenUseCase
         let fetchUnJoinedGroupUseCase: FetchUnJoinedGroupUseCase
         let fetchMemberListUseCase: FetchMemberListUseCase
@@ -153,33 +146,23 @@ class GroupIntroduceViewModel: ViewModel {
     
     func fetchGroupInfo(id: Int) {
         
-        let fetchGroupDetail = useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<GroupDetail> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.fetchUnJoinedGroupUseCase
+        let fetchGroupDetail = useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchUnJoinedGroupUseCase
                     .execute(token: token, id: id)
             }
         
-        let fetchGroupMember = useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[Member]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.fetchMemberListUseCase
+        let fetchGroupMember = useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchMemberListUseCase
                     .execute(token: token, groupId: id)
             }
         
         Single.zip(
             fetchGroupDetail,
             fetchGroupMember
-        )
-        .handleRetry(
-            retryObservable: useCases.refreshTokenUseCase.execute(),
-            errorType: NetworkManagerError.tokenExpired
         )
         .subscribe(onSuccess: { [weak self] (groupDetail, memberList) in
             self?.groupTitle = groupDetail.name

@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class MyGroupInfoEditViewModel: ViewModel {
+final class MyGroupInfoEditViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let fetchImageUseCase: FetchImageUseCase
         let updateGroupInfoUseCase: UpdateGroupInfoUseCase
         let deleteGroupUseCase: DeleteGroupUseCase
@@ -207,19 +206,12 @@ class MyGroupInfoEditViewModel: ViewModel {
         guard let limit = try? maxMember.value(),
               let image = try? titleImage.value() else { return }
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<Void>? in
+                guard let self else { return nil }
                 return self.useCases.updateGroupInfoUseCase
                     .execute(token: token, groupId: self.groupId, tagList: self.tagList, limit: limit, image: image)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
@@ -237,22 +229,14 @@ class MyGroupInfoEditViewModel: ViewModel {
     
     func deleteGroup() {
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<Void>? in
+                guard let self else { return nil }
                 return self.useCases.deleteGroupUseCase
                     .execute(token: token, groupId: self.groupId)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
-                // 아에 앞에 있던 네비게이션을 싹다 없애고 첫 씬으로 돌아가야함..!
                 self?.actions.popDetailScene?()
                 self?.nowSaving = false
             }, onFailure: { [weak self] error in

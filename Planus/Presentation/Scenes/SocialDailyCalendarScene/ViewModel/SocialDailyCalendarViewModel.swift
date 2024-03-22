@@ -16,8 +16,7 @@ enum SocialDailyCalendarViewModelType {
 class SocialDailyCalendarViewModel: ViewModel {
     
     struct UseCases {
-        var getTokenUseCase: GetTokenUseCase
-        var refreshTokenUseCase: RefreshTokenUseCase
+        var executeWithTokenUseCase: ExecuteWithTokenUseCase
         
         var fetchGroupDailyTodoListUseCase: FetchGroupDailyCalendarUseCase
         var fetchMemberDailyCalendarUseCase: FetchGroupMemberDailyCalendarUseCase
@@ -127,7 +126,6 @@ class SocialDailyCalendarViewModel: ViewModel {
             .didSelectTodoAt
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                print("fuck")
                 var todoId: Int?
                 switch indexPath.section {
                 case 0:
@@ -230,19 +228,12 @@ class SocialDailyCalendarViewModel: ViewModel {
         nowFetchLoading.onNext(())
 
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[[SocialTodoDaily]]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<[[SocialTodoDaily]]>? in
+                guard let self else { return nil }
                 return self.useCases.fetchMemberDailyCalendarUseCase
-                    .execute(token: token, groupId: group.groupId, memberId: memberId, date: currentDate)
+                    .execute(token: token, groupId: self.group.groupId, memberId: memberId, date: self.currentDate)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] list in
                 self?.scheduledTodoList = list[0]
                 self?.unscheduledTodoList = list[1]
@@ -255,19 +246,12 @@ class SocialDailyCalendarViewModel: ViewModel {
         nowFetchLoading.onNext(())
 
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[[SocialTodoDaily]]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<[[SocialTodoDaily]]>? in
+                guard let self else { return nil }
                 return self.useCases.fetchGroupDailyTodoListUseCase
-                    .execute(token: token, groupId: group.groupId, date: currentDate)
+                    .execute(token: token, groupId: self.group.groupId, date: self.currentDate)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] list in
                 self?.scheduledTodoList = list[0]
                 self?.unscheduledTodoList = list[1]

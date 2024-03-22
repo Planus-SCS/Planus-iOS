@@ -8,11 +8,9 @@
 import Foundation
 import RxSwift
 
-class GroupCreateViewModel: ViewModel {
+final class GroupCreateViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
         let groupCreateUseCase: GroupCreateUseCase
     }
     

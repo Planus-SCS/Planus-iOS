@@ -24,7 +24,7 @@ enum MyGroupSecionType {
     case chat
 }
 
-class MyGroupDetailViewModel: ViewModel {
+final class MyGroupDetailViewModel: ViewModel {
     
     struct UseCases {
         let fetchMyGroupDetailUseCase: FetchMyGroupDetailUseCase
@@ -37,9 +37,8 @@ class MyGroupDetailViewModel: ViewModel {
         let memberKickOutUseCase: MemberKickOutUseCase
         let setOnlineUseCase: SetOnlineUseCase
         
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
         let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
         let fetchMyGroupCalendarUseCase: FetchGroupMonthlyCalendarUseCase
         
@@ -166,20 +165,20 @@ class MyGroupDetailViewModel: ViewModel {
     
     lazy var membersFetcher: (Int) -> Single<[MyGroupMemberProfile]>? = { [weak self] groupId in
         guard let self else { return nil }
-        return self.useCases.getTokenUseCase
-            .execute()
-            .flatMap { token -> Single<[MyGroupMemberProfile]> in
-                return self.useCases.fetchMyGroupMemberListUseCase
+        return self.useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchMyGroupMemberListUseCase
                     .execute(token: token, groupId: groupId)
             }
     }
     
     lazy var groupDetailFetcher: (Int) -> Single<MyGroupDetail>? = { [weak self] groupId in
         guard let self else { return nil }
-        return self.useCases.getTokenUseCase
-            .execute()
-            .flatMap { token -> Single<MyGroupDetail> in
-                return self.useCases.fetchMyGroupDetailUseCase
+        return self.useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchMyGroupDetailUseCase
                     .execute(token: token, groupId: groupId)
             }
     }
@@ -206,8 +205,8 @@ class MyGroupDetailViewModel: ViewModel {
                 vm.mode = .notice
                 vm.nowInitLoading.onNext(())
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
-                    vm.initFetchDetails(groupId: vm.groupId, fetchType: .initail)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+                    vm.initFetchDetails(groupId: vm.groupId)
                 })
             })
             .disposed(by: bag)
@@ -224,8 +223,8 @@ class MyGroupDetailViewModel: ViewModel {
                     if vm.memberList?.isEmpty ?? true {
                         vm.nowLoadingWithBefore.onNext(vm.mode)
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
-                            vm.fetchMemberList()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+                            vm.fetchMemberList(groupId: vm.groupId)
                         })
                     } else {
                         vm.mode = .notice
@@ -240,7 +239,7 @@ class MyGroupDetailViewModel: ViewModel {
                         )
                         
                         let currentDate = Calendar.current.date(from: components) ?? Date()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
                             vm.createCalendar(date: currentDate)
                         })
                         
@@ -429,7 +428,7 @@ class MyGroupDetailViewModel: ViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, id in
                 guard id == vm.groupId else { return }
-                vm.fetchGroupDetail(groupId: id, fetchType: .update)
+                vm.fetchGroupDetail(groupId: id)
             })
             .disposed(by: bag)
         
@@ -511,16 +510,24 @@ class MyGroupDetailViewModel: ViewModel {
         self.isOnline.onNext(detail.isOnline)
     }
     
-    func initFetchDetails(groupId: Int, fetchType: FetchType) {
-        guard let groupDetailFetcher = groupDetailFetcher(groupId),
-              let membersFetcher = membersFetcher(groupId) else { return }
+    func initFetchDetails(groupId: Int) {
+        let groupDetailFetcher = useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchMyGroupDetailUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+        
+        let membersFetcher = useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchMyGroupMemberListUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+        
         Single.zip(
             groupDetailFetcher,
             membersFetcher
-        )
-        .handleRetry(
-            retryObservable: useCases.refreshTokenUseCase.execute(),
-            errorType: NetworkManagerError.tokenExpired
         )
         .subscribe(onSuccess: { [weak self] (detail, members) in
             self?.setGroupDetail(detail: detail)
@@ -532,14 +539,16 @@ class MyGroupDetailViewModel: ViewModel {
                 self?.didFetchMember.onNext(())
             }
         })
+        .disposed(by: bag)
     }
     
-    func fetchGroupDetail(groupId: Int, fetchType: FetchType) {
-        groupDetailFetcher(groupId)?
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
+    func fetchGroupDetail(groupId: Int) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchMyGroupDetailUseCase
+                    .execute(token: token, groupId: groupId)
+            }
             .subscribe(onSuccess: { [weak self] detail in
                 self?.setGroupDetail(detail: detail)
                 self?.didFetchInfo.onNext(())
@@ -550,8 +559,13 @@ class MyGroupDetailViewModel: ViewModel {
             .disposed(by: bag)
     }
     
-    func fetchMemberList() {
-        membersFetcher(groupId)?
+    func fetchMemberList(groupId: Int) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchMyGroupMemberListUseCase
+                    .execute(token: token, groupId: groupId)
+            }
             .subscribe(onSuccess: { [weak self] list in
                 self?.memberList = list
                 
@@ -581,19 +595,13 @@ class MyGroupDetailViewModel: ViewModel {
     }
     
     func fetchTodo(from: Date, to: Date) {
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[Date: [SocialTodoSummary]]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<[Date: [SocialTodoSummary]]>? in
+                guard let self else { return nil }
                 return self.useCases.fetchMyGroupCalendarUseCase
-                    .execute(token: token, groupId: groupId, from: from, to: to)
+                    .execute(token: token, groupId: self.groupId, from: from, to: to)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 self.todos = todoDict
@@ -614,19 +622,12 @@ class MyGroupDetailViewModel: ViewModel {
     
     func flipOnlineState() {
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<Void>? in
+                guard let self else { return nil }
                 return self.useCases.setOnlineUseCase
-                    .execute(token: token, groupId: groupId)
+                    .execute(token: token, groupId: self.groupId)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onFailure: { [weak self] _ in
                 self?.isOnline.onNext(try? self?.isOnline.value())
             })
@@ -635,19 +636,12 @@ class MyGroupDetailViewModel: ViewModel {
     
     func withdrawGroup() {
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<Void>? in
+                guard let self else { return nil }
                 return self.useCases.withdrawGroupUseCase
-                    .execute(token: token, groupId: groupId)
+                    .execute(token: token, groupId: self.groupId)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.actions.pop?()

@@ -8,12 +8,10 @@
 import Foundation
 import RxSwift
 
-class MyGroupListViewModel: ViewModel {
+final class MyGroupListViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUsecase: RefreshTokenUseCase
-        let setTokenUseCase: SetTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let fetchMyGroupListUseCase: FetchMyGroupListUseCase
         let fetchImageUseCase: FetchImageUseCase
         let groupCreateUseCase: GroupCreateUseCase
@@ -198,19 +196,11 @@ class MyGroupListViewModel: ViewModel {
         guard var group = self.groupList?[index] else { return }
         
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.setOnlineUseCase
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.setOnlineUseCase
                     .execute(token: token, groupId: group.groupId)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUsecase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onFailure: { [weak self] _ in //이경우 다시 바꿔주고 바꾸기
                 self?.didSuccessOnlineStateChange.onNext((index, false))
                 self?.showMessage.onNext("\(group.groupName) 그룹 \(group.isOnline ? "온" : "오프")라인으로 전환에 실패하였습니다.")
@@ -221,29 +211,19 @@ class MyGroupListViewModel: ViewModel {
     func fetchMyGroupList(fetchType: FetchType) {
         didStartFetching.onNext(())
         
-        DispatchQueue.main.asyncAfter(deadline: .now()+0.3, execute: { [weak self] in
-            guard let self else { return }
-            self.useCases.getTokenUseCase
-                .execute()
-                .flatMap { [weak self] token -> Single<[MyGroupSummary]> in
-                    guard let self else {
-                        throw DefaultError.noCapturedSelf
-                    }
-                    return self.useCases.fetchMyGroupListUseCase
-                        .execute(token: token)
-                }
-                .handleRetry(
-                    retryObservable: self.useCases.refreshTokenUsecase.execute(),
-                    errorType: NetworkManagerError.tokenExpired
-                )
-                .subscribe(onSuccess: { [weak self] list in
-                    self?.groupList = list
-                    self?.didFetchGroupList.onNext((fetchType))
-                }, onFailure: { [weak self] _ in
-                    self?.showMessage.onNext("얘기치 못한 이유로 로딩을 실패했어요 😭")
-                })
-                .disposed(by: self.bag)
-        })
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchMyGroupListUseCase
+                    .execute(token: token)
+            }
+            .subscribe(onSuccess: { [weak self] list in
+                self?.groupList = list
+                self?.didFetchGroupList.onNext((fetchType))
+            }, onFailure: { [weak self] _ in
+                self?.showMessage.onNext("얘기치 못한 이유로 로딩을 실패했어요 😭")
+            })
+            .disposed(by: self.bag)
     }
     
     func fetchImage(key: String) -> Single<Data> {

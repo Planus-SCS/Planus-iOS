@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class MyGroupNoticeEditViewModel: ViewModel {
+final class MyGroupNoticeEditViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let updateNoticeUseCase: UpdateNoticeUseCase
     }
     
@@ -107,19 +106,12 @@ class MyGroupNoticeEditViewModel: ViewModel {
         guard let notice = try? notice.value() else { return }
         
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<Void>? in
+                guard let self else { return nil }
                 return self.useCases.updateNoticeUseCase
                     .execute(token: token, groupNotice: GroupNotice(groupId: self.groupId, notice: notice))
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.actions.pop?()

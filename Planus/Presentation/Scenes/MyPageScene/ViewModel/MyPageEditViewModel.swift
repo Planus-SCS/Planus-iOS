@@ -8,17 +8,16 @@
 import Foundation
 import RxSwift
 
-class MyPageEditViewModel: ViewModel {
+final class MyPageEditViewModel: ViewModel {
     struct UseCases {
-        var getTokenUseCase: GetTokenUseCase
-        var refreshTokenUseCase: RefreshTokenUseCase
-        var readProfileUseCase: ReadProfileUseCase
-        var updateProfileUseCase: UpdateProfileUseCase
-        var fetchImageUseCase: FetchImageUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
+        let readProfileUseCase: ReadProfileUseCase
+        let updateProfileUseCase: UpdateProfileUseCase
+        let fetchImageUseCase: FetchImageUseCase
     }
     
     struct Actions {
-        var goBack: (() -> Void)?
+        let goBack: (() -> Void)?
     }
     
     struct Args {}
@@ -128,18 +127,11 @@ class MyPageEditViewModel: ViewModel {
     
     func fetchProfile() {
 
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Profile> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.readProfileUseCase.execute(token: token)
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.readProfileUseCase.execute(token: token)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] profile in
                 guard let self else { return }
 
@@ -172,24 +164,17 @@ class MyPageEditViewModel: ViewModel {
             isImageRemoved = !isInitialValueNil
         }
 
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.updateProfileUseCase.execute(
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.updateProfileUseCase.execute(
                     token: token,
                     name: name,
-                    introduce: try? self.introduce.value(),
+                    introduce: try? self?.introduce.value(),
                     isImageRemoved: isImageRemoved,
                     image: image
                 )
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.actions.goBack?()

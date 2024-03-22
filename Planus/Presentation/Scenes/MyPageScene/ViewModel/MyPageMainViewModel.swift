@@ -29,7 +29,7 @@ enum MyPageMenuType: Int, CaseIterable {
     }
 }
 
-class MyPageMainViewModel: ViewModel {
+final class MyPageMainViewModel: ViewModel {
     struct UseCases {
         let updateProfileUseCase: UpdateProfileUseCase
         let executeWithTokenUseCase: ExecuteWithTokenUseCase
@@ -237,8 +237,8 @@ class MyPageMainViewModel: ViewModel {
     func revokeAppleToken(code: String) {
         useCases
             .executeWithTokenUseCase
-            .execute() { [weak self] token -> Single<Void> in
-                return self!.useCases.revokeAppleTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.revokeAppleTokenUseCase
                     .execute(token: token, authorizationCode: code)
             }
             .subscribe(onSuccess: { [weak self] _ in

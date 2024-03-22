@@ -8,19 +8,12 @@
 import Foundation
 import RxSwift
 
-struct FilteredSocialTodoViewModel {
-    var periodTodo: [(Int, SocialTodoSummary)] //offset, Todo
-    var singleTodo: [(Int, SocialTodoSummary)] //offset, Todo
-    var holiday: (Int, String)?
-}
-
 class MemberProfileViewModel: ViewModel {
     
     struct UseCases {
         let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
         let dateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let fetchMemberCalendarUseCase: FetchGroupMemberCalendarUseCase
         let fetchImageUseCase: FetchImageUseCase
     }
@@ -315,12 +308,9 @@ class MemberProfileViewModel: ViewModel {
 
         
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[Date: [SocialTodoSummary]]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<[Date: [SocialTodoSummary]]>? in
+                guard let self else { return nil }
                 return self.useCases.fetchMemberCalendarUseCase
                     .execute(
                         token: token,
@@ -330,10 +320,6 @@ class MemberProfileViewModel: ViewModel {
                         to: toMonthStart
                     )
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return }
                 self.todos.merge(todoDict) { (_, new) in new }

@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class MyGroupMemberEditViewModel: ViewModel {
+final class MyGroupMemberEditViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let fetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase
         let fetchImageUseCase: FetchImageUseCase
         let memberKickOutUseCase: MemberKickOutUseCase
@@ -119,19 +118,14 @@ class MyGroupMemberEditViewModel: ViewModel {
         guard let memberId = memberList?[index].memberId,
               nowProcessingMemberId.filter({ $0 == memberId }).isEmpty else { return }
         nowProcessingMemberId.append(memberId)
-        let memberKickOutUseCase = self.useCases.memberKickOutUseCase
         
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { token -> Single<Void> in
-                return memberKickOutUseCase
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<Void>? in
+                guard let self else { return nil }
+                return self.useCases.memberKickOutUseCase
                     .execute(token: token, groupId: self.groupId, memberId: memberId)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowProcessingMemberId.removeAll(where: { $0 == memberId})
                 guard let index = self?.memberList?.firstIndex(where: { $0.memberId == memberId }) else { return }
@@ -151,18 +145,13 @@ class MyGroupMemberEditViewModel: ViewModel {
     }
     
     func fetchMemberList() {
-        let fetchMyGroupMemberListUseCase = self.useCases.fetchMyGroupMemberListUseCase
         useCases
-            .getTokenUseCase
-            .execute()
-            .flatMap { token -> Single<[MyGroupMemberProfile]> in
-                return fetchMyGroupMemberListUseCase
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<[MyGroupMemberProfile]>? in
+                guard let self else { return nil }
+                return self.useCases.fetchMyGroupMemberListUseCase
                     .execute(token: token, groupId: self.groupId)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] list in
                 self?.memberList = list
                 self?.didFetchMemberList.onNext(())

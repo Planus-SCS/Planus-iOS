@@ -299,7 +299,7 @@ enum MyPageReadableType: String {
     }
 }
 
-class MyPageReadableViewModel: ViewModel {
+final class MyPageReadableViewModel: ViewModel {
     struct UseCases {}
     
     struct Actions {
