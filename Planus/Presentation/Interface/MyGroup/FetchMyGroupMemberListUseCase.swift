@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol FetchMyGroupMemberListUseCase {
-    func execute(token: Token, groupId: Int) -> Single<[MyMember]>
+    func execute(token: Token, groupId: Int) -> Single<[MyGroupMemberProfile]>
 }

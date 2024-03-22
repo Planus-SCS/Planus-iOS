@@ -15,7 +15,7 @@ class DefaultFetchMyGroupMemberListUseCase: FetchMyGroupMemberListUseCase {
         self.myGroupRepository = myGroupRepository
     }
     
-    func execute(token: Token, groupId: Int) -> Single<[MyMember]> {
+    func execute(token: Token, groupId: Int) -> Single<[MyGroupMemberProfile]> {
         myGroupRepository
             .fetchMyGroupMemberList(token: token.accessToken, groupId: groupId)
             .map {

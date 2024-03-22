@@ -19,7 +19,7 @@ class DefaultGroupCreateUseCase: GroupCreateUseCase {
         self.myGroupRepository = myGroupRepository
     }
     
-    func execute(token: Token, groupCreate: GroupCreate, image: ImageFile) -> Single<Int> {
+    func execute(token: Token, groupCreate: MyGroupCreationInfo, image: ImageFile) -> Single<Int> {
         myGroupRepository.create(
             token: token.accessToken,
             groupCreateRequestDTO: groupCreate.toDTO(),

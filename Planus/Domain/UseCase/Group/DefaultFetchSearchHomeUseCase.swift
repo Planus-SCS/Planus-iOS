@@ -15,7 +15,7 @@ class DefaultFetchSearchHomeUseCase: FetchSearchHomeUseCase {
         self.groupRepository = groupRepository
     }
     
-    func execute(token: Token, page: Int, size: Int) -> Single<[UnJoinedGroupSummary]> {
+    func execute(token: Token, page: Int, size: Int) -> Single<[GroupSummary]> {
         groupRepository
             .fetchSearchHome(token: token.accessToken, page: page, size: size)
             .map {

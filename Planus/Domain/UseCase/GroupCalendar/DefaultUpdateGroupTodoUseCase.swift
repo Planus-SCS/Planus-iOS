@@ -14,7 +14,7 @@ class DefaultUpdateGroupTodoUseCase: UpdateGroupTodoUseCase {
     let groupCalendarRepository: GroupCalendarRepository
     var didUpdateGroupTodo = PublishSubject<Todo>()
     
-    private init(groupCalendarRepository: GroupCalendarRepository) {
+    init(groupCalendarRepository: GroupCalendarRepository) {
         self.groupCalendarRepository = groupCalendarRepository
     }
     

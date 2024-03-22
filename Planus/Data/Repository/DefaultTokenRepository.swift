@@ -11,13 +11,13 @@ import RxSwift
 class DefaultTokenRepository: TokenRepository {
     
     let apiProvider: APIProvider
-    let keyChainManager: KeyChainManager
+    let keyValueStorage: KeyValueStorage
     
     init(
         apiProvider: APIProvider,
-        keyChainManager: KeyChainManager
+        keyValueStorage: KeyValueStorage
     ) {
-        self.keyChainManager = keyChainManager
+        self.keyValueStorage = keyValueStorage
         self.apiProvider = apiProvider
     }
     
@@ -39,8 +39,8 @@ class DefaultTokenRepository: TokenRepository {
     }
     
     func get() -> Token? { //네트워킹 할때마다 사용됨
-        guard let accessToken = keyChainManager.get(key: "accessToken"),
-              let refreshToken = keyChainManager.get(key: "refreshToken") else {
+        guard let accessToken = keyValueStorage.get(key: "accessToken"),
+              let refreshToken = keyValueStorage.get(key: "refreshToken") else {
             return nil
         }
         let token = Token(
@@ -51,18 +51,18 @@ class DefaultTokenRepository: TokenRepository {
     }
     
     func set(token: Token) { //최초, refreshToken 만료 시에만 사용됨
-        keyChainManager.set(
+        keyValueStorage.set(
             key: "accessToken",
             value: token.accessToken.data(using: .utf8, allowLossyConversion: false) as Any
         )
-        keyChainManager.set(
+        keyValueStorage.set(
             key: "refreshToken",
             value: token.refreshToken.data(using: .utf8, allowLossyConversion: false) as Any
         )
     }
     
     func delete() {
-        keyChainManager.remove(key: "accessToken")
-        keyChainManager.remove(key: "refreshToken")
+        keyValueStorage.remove(key: "accessToken")
+        keyValueStorage.remove(key: "refreshToken")
     }
 }

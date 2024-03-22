@@ -9,9 +9,9 @@ import Foundation
 import RxSwift
 
 class DefaultProfileRepository: ProfileRepository {
-    let apiProvider: NetworkManager
+    let apiProvider: APIProvider
     
-    init(apiProvider: NetworkManager) {
+    init(apiProvider: APIProvider) {
         self.apiProvider = apiProvider
     }
     

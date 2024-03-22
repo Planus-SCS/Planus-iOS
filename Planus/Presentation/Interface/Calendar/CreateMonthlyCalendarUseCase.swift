@@ -8,5 +8,5 @@
 import Foundation
 
 protocol CreateMonthlyCalendarUseCase {
-    func execute(date: Date) -> [DayViewModel]
+    func execute(date: Date) -> [Day]
 }

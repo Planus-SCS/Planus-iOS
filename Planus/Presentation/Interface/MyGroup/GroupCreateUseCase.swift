@@ -10,5 +10,5 @@ import RxSwift
 
 protocol GroupCreateUseCase {
     var didCreateGroup: PublishSubject<Void> { get }
-    func execute(token: Token, groupCreate: GroupCreate, image: ImageFile) -> Single<Int>
+    func execute(token: Token, groupCreate: MyGroupCreationInfo, image: ImageFile) -> Single<Int>
 }

@@ -14,14 +14,14 @@ class DefaultCreateMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase {
         self.calendar = Calendar.current
     }
     
-    func execute(date: Date) -> [DayViewModel] {
+    func execute(date: Date) -> [Day] {
         
         let currentMonthStartIndex = (calendar.startDayOfTheWeek(from: date) + 7 - 1)%7
         let followingMonthStartIndex = currentMonthStartIndex + calendar.endDateOfMonth(for: date)
         let totalDaysCount = followingMonthStartIndex + ((followingMonthStartIndex % 7 == 0) ? 0 : (7 - followingMonthStartIndex % 7))
         var currentMonthStartDate = calendar.startDayOfMonth(date: date)
         
-        var dayList = [DayViewModel]()
+        var dayList = [Day]()
         
         (0..<totalDaysCount).forEach { day in
             var date: Date
@@ -40,9 +40,8 @@ class DefaultCreateMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase {
                 fatalError()
             }
             
-            dayList.append(DayViewModel(
+            dayList.append(Day(
                 date: date,
-                dayString: "\(calendar.component(.day, from: date))",
                 weekDay: WeekDay(rawValue: day%7)!,
                 state: state
             ))

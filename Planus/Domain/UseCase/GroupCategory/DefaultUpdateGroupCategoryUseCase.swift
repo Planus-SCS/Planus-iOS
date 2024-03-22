@@ -14,7 +14,7 @@ class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase { //이건 �
     
     var didUpdateCategoryWithGroupId = PublishSubject<(groupId: Int, category: Category)>()
     
-    private init(
+    init(
         categoryRepository: GroupCategoryRepository
     ) {
         self.categoryRepository = categoryRepository
