@@ -16,7 +16,7 @@ class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
         self.tokenRepository = tokenRepository
     }
     
-    func execute<T>(executable: @escaping (Token) -> Single<T>) -> PrimitiveSequence<SingleTrait, T> {
+    func execute<T>(executable: @escaping (Token) throws -> Single<T>) -> Single<T> {
         return Single<Token>.create { [weak self] emitter -> Disposable in
             guard let token = self?.tokenRepository.get() else {
                 emitter(.failure(TokenError.noTokenExist))
@@ -30,7 +30,7 @@ class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
             return executable(token)
         }
         .handleRetry(
-            retryObservable: { () -> PrimitiveSequence<SingleTrait, Token> in
+            retryObservable: { () -> Single<Token> in
                 tokenRepository
                     .refresh()
                     .map { [weak self] dto in

@@ -32,8 +32,7 @@ enum MyPageMenuType: Int, CaseIterable {
 class MyPageMainViewModel: ViewModel {
     struct UseCases {
         let updateProfileUseCase: UpdateProfileUseCase
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let removeTokenUseCase: RemoveTokenUseCase
         let removeProfileUseCase: RemoveProfileUseCase
         let fetchImageUseCase: FetchImageUseCase
@@ -206,18 +205,12 @@ class MyPageMainViewModel: ViewModel {
     
     func resign() {
         guard nowResigning else { return }
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.removeProfileUseCase.execute(token: token)
+        
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self!.useCases.removeProfileUseCase.execute(token: token)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.signOut()
@@ -242,17 +235,12 @@ class MyPageMainViewModel: ViewModel {
     }
 
     func revokeAppleToken(code: String) {
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else { throw DefaultError.noCapturedSelf }
-                return self.useCases.revokeAppleTokenUseCase
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<Void> in
+                return self!.useCases.revokeAppleTokenUseCase
                     .execute(token: token, authorizationCode: code)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.resign()
             }, onFailure: { [weak self] error in

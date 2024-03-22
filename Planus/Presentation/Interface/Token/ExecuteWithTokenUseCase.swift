@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol ExecuteWithTokenUseCase {
-    func execute<T>(executable: @escaping (Token) -> Single<T>) -> PrimitiveSequence<SingleTrait, T>
+    func execute<T>(executable: @escaping (Token) throws -> Single<T>) -> Single<T>
 }
