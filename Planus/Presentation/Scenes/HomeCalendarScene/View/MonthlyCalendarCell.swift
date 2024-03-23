@@ -9,13 +9,13 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class MonthlyCalendarCell: UICollectionViewCell {
+final class MonthlyCalendarCell: UICollectionViewCell {
     
     static let reuseIdentifier = "monthly-calendar-cell"
     
     var viewModel: HomeCalendarViewModel?
     
-    // MARK: 드래그 해서 기간 일정 만들기
+    // MARK: 드래그 해서 기간 일정 만드는 용
     var selectionState: Bool = false
     var firstPressedIndexPath: IndexPath?
     var lastPressedIndexPath: IndexPath?
@@ -80,19 +80,21 @@ class MonthlyCalendarCell: UICollectionViewCell {
         
         collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
     }
-    
-    func configureView() {
-        self.addSubview(collectionView)
-        collectionView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+}
+
+// MARK: Actions
+extension MonthlyCalendarCell {
+    func deselectItems() {
+        guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
+        paths.forEach { indexPath in
+            self.collectionView.deselectItem(at: indexPath, animated: true)
         }
+        collectionView.allowsMultipleSelection = false
     }
-    
-    func configureGestureRecognizer() {
-        self.collectionView.addGestureRecognizer(lpgr)
-        self.collectionView.addGestureRecognizer(pgr)
-    }
-    
+}
+
+// MARK: Fill
+extension MonthlyCalendarCell {
     func fill(section: Int, viewModel: HomeCalendarViewModel?) {
         self.section = section
         self.viewModel = viewModel
@@ -125,13 +127,20 @@ class MonthlyCalendarCell: UICollectionViewCell {
             .disposed(by: bag)
         self.bag = bag
     }
-    
-    func deselectItems() {
-        guard let paths = self.collectionView.indexPathsForSelectedItems else { return }
-        paths.forEach { indexPath in
-            self.collectionView.deselectItem(at: indexPath, animated: true)
+}
+
+// MARK: configure UI
+extension MonthlyCalendarCell {
+    func configureView() {
+        self.addSubview(collectionView)
+        collectionView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
-        collectionView.allowsMultipleSelection = false
+    }
+    
+    func configureGestureRecognizer() {
+        self.collectionView.addGestureRecognizer(lpgr)
+        self.collectionView.addGestureRecognizer(pgr)
     }
 }
 
@@ -158,7 +167,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         let height = calculateCellHeight(item: maxItem)
         
         let day = viewModel.mainDays[section][indexPath.item]
-        let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
+        let filteredTodo = viewModel.todosInDayViewModels[indexPath.item]
         
         cell.delegate = self
         cell.fill(
@@ -215,8 +224,6 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         return collectionView.indexPathsForSelectedItems?.contains(indexPath) == false
         
     }
-    
-    
 }
 
 extension MonthlyCalendarCell {
@@ -252,7 +259,6 @@ extension MonthlyCalendarCell {
         }
     }
     
-    // 이부분을 간소화 해야함
     @objc func drag(_ gestureRecognizer: UIPanGestureRecognizer) {
         guard self.selectionState else {
             self.isMultipleSelecting?.accept(false)
@@ -314,7 +320,6 @@ extension MonthlyCalendarCell {
                 }
             } else {
                 if nowIndexPath.item > lastPressedIndexPath.item {
-                    
                     (lastPressedIndexPath.item+1...nowIndexPath.item).forEach {
                         self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
                     }

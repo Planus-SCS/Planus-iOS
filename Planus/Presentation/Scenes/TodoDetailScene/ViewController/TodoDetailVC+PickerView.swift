@@ -21,6 +21,6 @@ extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        didSelectedGroupAt.onNext(row)
+        didSelectedGroupAt.accept(row)
     }
 }

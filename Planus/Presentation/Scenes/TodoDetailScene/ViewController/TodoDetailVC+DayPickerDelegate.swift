@@ -10,12 +10,12 @@ import UIKit
 extension TodoDetailViewController: DayPickerViewControllerDelegate {
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDate: Date) {
         todoDetailView.dateView.setDate(startDate: dayPickerViewController.dateFormatter2.string(from: didSelectDate))
-        didSelectedDateRange.onNext(DateRange(start: didSelectDate))
+        didSelectedDateRange.accept(DateRange(start: didSelectDate))
     }
     
     func unHighlightAllItem(_ dayPickerViewController: DayPickerViewController) {
         todoDetailView.dateView.setDate()
-        didSelectedDateRange.onNext(DateRange())
+        didSelectedDateRange.accept(DateRange())
     }
     
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDateInRange: (Date, Date)) {
@@ -28,6 +28,6 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
             endDate: dayPickerViewController.dateFormatter2.string(from: max)
         )
 
-        didSelectedDateRange.onNext(DateRange(start: min, end: max))
+        didSelectedDateRange.accept(DateRange(start: min, end: max))
     }
 }

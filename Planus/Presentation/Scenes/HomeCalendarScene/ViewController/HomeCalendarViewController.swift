@@ -376,7 +376,7 @@ final class HomeCalendarViewController: UIViewController {
     }
     
     func clearMonthUICache() {
-        viewModel?.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
+        viewModel?.weekDayChecker = [Int](repeating: -1, count: 6)
     }
     
     func showMonthPicker(firstYear: Date, current: Date, lastYear: Date) {
