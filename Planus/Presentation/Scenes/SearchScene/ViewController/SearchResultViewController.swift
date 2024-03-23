@@ -9,35 +9,14 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class SearchResultViewController: UIViewController {
-    
-    // 필요한거 화면에 뿌려줄 컬렉션 뷰, 근데 검색 결과를 보여줄 땐 한 뎁스를 타고 들어가야 한다!
-    var bag = DisposeBag()
-    
-    var viewModel: SearchResultViewModel?
-    
-    var isInitLoading = false
-    var isLoading: Bool = true
-    var isEnded: Bool = false
-    var tappedItemAt = PublishSubject<Int>()
-    var refreshRequired = PublishSubject<Void>()
-    var searchBtnTapped = PublishSubject<Void>()
-    var needLoadNextData = PublishSubject<Void>()
-    var tappedHistoryAt = PublishSubject<Int>()
-    var needFetchHistory = PublishSubject<Void>()
-    var removeHistoryAt = PublishSubject<Int>()
-    var removeAllHistory = PublishSubject<Void>()
-    
+final class SearchResultView: UIView {
     lazy var refreshControl: UIRefreshControl = {
         let rc = UIRefreshControl(frame: .zero)
-        rc.addTarget(self, action: #selector(refresh), for: .valueChanged)
         return rc
     }()
     
     lazy var historyView: SearchHistoryView = {
         let historyView = SearchHistoryView(frame: .zero)
-        historyView.collectionView.dataSource = self
-        historyView.collectionView.delegate = self
         historyView.isHidden = true
         historyView.alpha = 0
         return historyView
@@ -52,8 +31,6 @@ class SearchResultViewController: UIViewController {
     lazy var resultCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createSection())
         collectionView.register(SearchResultCell.self, forCellWithReuseIdentifier: SearchResultCell.reuseIdentifier)
-        collectionView.dataSource = self
-        collectionView.delegate = self
         collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
         collectionView.refreshControl = refreshControl
         return collectionView
@@ -72,17 +49,13 @@ class SearchResultViewController: UIViewController {
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
     
-    @objc func backBtnAction() {
-        viewModel?.actions.pop?()
-    }
-    
     lazy var searchBarField: UITextField = {
-        let textField = UITextField(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 55, height: 40))
+        let textField = UITextField(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 70, height: 40))
         textField.textColor = .black
         textField.font = UIFont(name: "Pretendard-Medium", size: 12)
         
@@ -90,7 +63,6 @@ class SearchResultViewController: UIViewController {
         textField.layer.cornerRadius = 10
         textField.clipsToBounds = true
         textField.clearButtonMode = .whileEditing
-        textField.delegate = self
         if let image = UIImage(named: "searchBarIcon") {
             textField.addleftimage(image: image, padding: 12)
         }
@@ -117,161 +89,32 @@ class SearchResultViewController: UIViewController {
         return button
     }()
     
-    convenience init(viewModel: SearchResultViewModel) {
-        self.init(nibName: nil, bundle: nil)
-        self.viewModel = viewModel
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         
         configureView()
         configureLayout()
-        
-        bind()
-        
-        searchBarField.becomeFirstResponder()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        self.navigationItem.setLeftBarButton(backButton, animated: true)
-        navigationController?.interactivePopGestureRecognizer?.delegate = self
-        self.navigationItem.setRightBarButton(UIBarButtonItem(customView: searchBarField), animated: true)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardEvent), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardEvent), name: UIResponder.keyboardWillHideNotification, object: nil)
-        
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        print("fatal error")
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
-    }
-    
-    @objc func keyboardEvent(notification: Notification) {
-        if notification.name == UIResponder.keyboardWillShowNotification { // 여기서 히스토리 받아오기
-            if historyView.isHidden {
-                historyView.setAnimatedIsHidden(false, duration: 0.1, onCompletion: { [weak self] in
-                    self?.resultCollectionView.isHidden = true
-                    self?.emptyResultView.isHidden = true
-                })
-            }
-        }
-    }
-    
-    func bind() {
-        guard let viewModel else { return }
+}
 
-        let input = SearchResultViewModel.Input(
-            viewDidLoad: Observable.just(()),
-            tappedItemAt: tappedItemAt.asObservable(),
-            tappedHistoryAt: tappedHistoryAt.asObservable(),
-            refreshRequired: refreshRequired.asObservable(),
-            keywordChanged: searchBarField.rx.text.asObservable(),
-            searchBtnTapped: searchBtnTapped.asObservable(),
-            createBtnTapped: createGroupButton.rx.tap.asObservable(),
-            needLoadNextData: needLoadNextData.asObservable(),
-            needFetchHistory: needFetchHistory.asObservable(),
-            removeHistoryAt: removeHistoryAt.asObservable(),
-            removeAllHistory: removeAllHistory.asObservable()
-        )
-        
-        let output = viewModel.transform(input: input)
-        
-        output
-            .didFetchAdditionalResult
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, range in
-                let indexList = Array(range).map { IndexPath(item: $0, section: 0) }
-                vc.resultCollectionView.performBatchUpdates({
-                    vc.resultCollectionView.insertItems(at: indexList)
-                }, completion: { _ in
-                    vc.isLoading = false
-                })
-            })
-            .disposed(by: bag)
-        
-        output
-            .didStartFetching
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.historyView.isHidden = true
-                vc.needFetchHistory.onNext(())
-                
-                vc.isInitLoading = true
-                vc.resultCollectionView.isHidden = false
-                vc.resultCollectionView.reloadData()
-            })
-            .disposed(by: bag)
-        
-        output
-            .didFetchInitialResult
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.isInitLoading = false
-                vc.resultCollectionView.performBatchUpdates({
-                    vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
-                }, completion: { _ in
-                    if vc.refreshControl.isRefreshing {
-                        vc.refreshControl.endRefreshing()
-                    }
-                    vc.isLoading = false
-                    vc.emptyResultView.setAnimatedIsHidden(viewModel.result.count != 0)
-                })
-            })
-            .disposed(by: bag)
-        
-        output
-            .resultEnded
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.isEnded = true
-            })
-            .disposed(by: bag)
-        
-        output
-            .keywordChanged
-            .distinctUntilChanged()
-            .bind(to: searchBarField.rx.text)
-            .disposed(by: bag)
-        
-        output
-            .didFetchHistory
-            .compactMap { $0 }
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.historyView.collectionView.reloadSections(IndexSet(integer: 0))
-            })
-            .disposed(by: bag)
-    }
-    
+// MARK: Configure UI
+private extension SearchResultView {
     func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.view.addSubview(resultCollectionView)
-        self.view.addSubview(emptyResultView)
-        self.view.addSubview(historyView)
-        self.view.addSubview(createGroupButton)
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.addSubview(resultCollectionView)
+        self.addSubview(emptyResultView)
+        self.addSubview(historyView)
+        self.addSubview(createGroupButton)
     }
     
     func configureLayout() {
         resultCollectionView.snp.makeConstraints {
-            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
+            $0.edges.equalTo(self.safeAreaLayoutGuide)
         }
         
         createGroupButton.snp.makeConstraints {
@@ -280,146 +123,17 @@ class SearchResultViewController: UIViewController {
         }
         
         historyView.snp.makeConstraints {
-            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
+            $0.edges.equalTo(self.safeAreaLayoutGuide)
         }
         
         emptyResultView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
     }
-    
-    @objc func refresh(_ sender: UIRefreshControl) {
-        if !isLoading {
-            sender.endRefreshing()
-            
-            isEnded = false
-            isLoading = true
-            refreshRequired.onNext(())
-        } else {
-            sender.endRefreshing()
-        }
-    }
-    
-    func searchBtnTapAction() {
-        searchBtnTapped.onNext(())
-        searchBarField.resignFirstResponder()
-    }
 }
 
-extension SearchResultViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        searchBtnTapAction()
-        return true
-    }
-}
-
-extension SearchResultViewController: UICollectionViewDataSource, UICollectionViewDelegate {
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        switch collectionView {
-        case self.resultCollectionView:
-            return 1
-        case historyView.collectionView:
-            return 1
-        default:
-            return Int()
-        }
-    }
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        
-        switch collectionView {
-        case self.resultCollectionView:
-            if isInitLoading {
-                return Int(UIScreen.main.bounds.height/250)*2
-            }
-            return viewModel?.result.count ?? Int()
-        case historyView.collectionView:
-            return viewModel?.history.count ?? Int()
-        default:
-            return Int()
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch collectionView {
-        case self.resultCollectionView:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell else { return UICollectionViewCell() }
-            if isInitLoading {
-                cell.startSkeletonAnimation()
-                return cell
-            }
-            
-            guard let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
-            cell.stopSkeletonAnimation()
-            
-            cell.fill(
-                title: item.name,
-                tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
-                memCount: "\(item.memberCount)/\(item.limitCount)",
-                captin: item.leaderName
-            )
-            
-            let cellBag = DisposeBag()
-            cell.bag = cellBag
-            viewModel?.fetchImage(key: item.groupImageUrl)
-                .observe(on: MainScheduler.asyncInstance)
-                .subscribe(onSuccess: { data in
-                    cell.fill(image: UIImage(data: data))
-                })
-                .disposed(by: cellBag)
-            
-            return cell
-        case historyView.collectionView: // 삭제버튼 핸들러도 같이 넘기자
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchHistoryCell.reuseIdentifier, for: indexPath) as? SearchHistoryCell,
-                  let item = viewModel?.history[indexPath.item] else { return UICollectionViewCell() }
-            cell.fill(keyWord: item)
-            
-            cell.closure = { [weak self] in
-                self?.removeHistoryAt.onNext(indexPath.item)
-            }
-            return cell
-        default:
-            return UICollectionViewCell()
-        }
-    }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView == self.resultCollectionView,
-           !isLoading,
-           !isEnded,
-           scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height - 250 {
-            isLoading = true
-            needLoadNextData.onNext(())
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        switch collectionView {
-        case self.resultCollectionView:
-            tappedItemAt.onNext(indexPath.item)
-        case historyView.collectionView:
-            searchBarField.resignFirstResponder()
-            tappedHistoryAt.onNext(indexPath.item)
-        default:
-            return
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        switch collectionView {
-        case historyView.collectionView:
-            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SearchHistoryHeaderView.reuseIdentifier, for: indexPath) as? SearchHistoryHeaderView else { return UICollectionReusableView() }
-            view.closure = { [weak self] in
-                self?.removeAllHistory.onNext(())
-            }
-            return view
-        default:
-            return UICollectionReusableView()
-        }
-    }
-}
-
-extension SearchResultViewController {
+// MARK: CollectionView Layout
+private extension SearchResultView {
     private func createSection() -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/2), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -437,6 +151,335 @@ extension SearchResultViewController {
         let layout = UICollectionViewCompositionalLayout(section: section)
         
         return layout
+    }
+}
+
+final class SearchResultViewController: UIViewController {
+    
+    // 필요한거 화면에 뿌려줄 컬렉션 뷰, 근데 검색 결과를 보여줄 땐 한 뎁스를 타고 들어가야 한다!
+    var bag = DisposeBag()
+    
+    var viewModel: SearchResultViewModel?
+    var searchResultView: SearchResultView?
+    
+    var searchResultCollectionDataSource: SearchResultCollectionDataSource?
+    var searchHistoryCollectionDataSource: SearchHistoryCollectionDataSource?
+    
+    var isLoading: Bool = true
+    var isEnded: Bool = false
+    
+    var tappedItemAt = PublishRelay<Int>()
+    var refreshRequired = PublishRelay<Void>()
+    var searchBtnTapped = PublishRelay<Void>()
+    var needLoadNextData = PublishRelay<Void>()
+    var tappedHistoryAt = PublishRelay<Int>()
+    var needFetchHistory = PublishRelay<Void>()
+    var removeAllHistory = PublishRelay<Void>()
+    
+    convenience init(viewModel: SearchResultViewModel) {
+        self.init(nibName: nil, bundle: nil)
+        self.viewModel = viewModel
+    }
+    
+    override func loadView() {
+        super.loadView()
+        
+        let view = SearchResultView(frame: self.view.frame)
+        self.view = view
+        self.searchResultView = view
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        configureView()
+        bind()
+        
+        searchResultView?.searchBarField.becomeFirstResponder()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        guard let searchResultView else { return }
+        
+        self.navigationItem.setLeftBarButton(searchResultView.backButton, animated: true)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+        self.navigationItem.setRightBarButton(UIBarButtonItem(customView: searchResultView.searchBarField), animated: true)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardEvent), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardEvent), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    func bind() {
+        guard let viewModel,
+              let searchResultView else { return }
+        
+        searchResultView.historyView.collectionView.rx
+            .itemSelected
+            .subscribe(onNext: { _ in
+                searchResultView.searchBarField.resignFirstResponder()
+            })
+            .disposed(by: bag)
+        
+        let input = SearchResultViewModel.Input(
+            viewDidLoad: Observable.just(()),
+            tappedItemAt: searchResultView.resultCollectionView.rx.itemSelected.map { $0.item }.asObservable(),
+            tappedHistoryAt: searchResultView.historyView.collectionView.rx.itemSelected.map { $0.item }.asObservable(),
+            refreshRequired: refreshRequired.asObservable(),
+            keywordChanged: searchResultView.searchBarField.rx.text.asObservable(),
+            searchBtnTapped: searchBtnTapped.asObservable(),
+            createBtnTapped: searchResultView.createGroupButton.rx.tap.asObservable(),
+            needLoadNextData: needLoadNextData.asObservable(),
+            needFetchHistory: needFetchHistory.asObservable(),
+            removeAllHistory: removeAllHistory.asObservable(),
+            backBtnTapped: searchResultView.backButton.rx.tap.asObservable()
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        output
+            .didFetchAdditionalResult
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, range in
+                let indexList = Array(range).map { IndexPath(item: $0, section: 0) }
+                searchResultView.resultCollectionView.performBatchUpdates({
+                    searchResultView.resultCollectionView.insertItems(at: indexList)
+                }, completion: { _ in
+                    vc.isLoading = false
+                })
+            })
+            .disposed(by: bag)
+        
+        output
+            .didStartFetching
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                searchResultView.historyView.isHidden = true
+                vc.needFetchHistory.accept(())
+                searchResultView.resultCollectionView.isHidden = false
+                searchResultView.resultCollectionView.reloadData()
+            })
+            .disposed(by: bag)
+        
+        output
+            .didFetchInitialResult
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                searchResultView.resultCollectionView.performBatchUpdates({
+                    searchResultView.resultCollectionView.reloadSections(IndexSet(integer: 0))
+                }, completion: { _ in
+                    if searchResultView.refreshControl.isRefreshing {
+                        searchResultView.refreshControl.endRefreshing()
+                    }
+                    vc.isLoading = false
+                    searchResultView.emptyResultView.setAnimatedIsHidden(viewModel.result.count != 0)
+                })
+            })
+            .disposed(by: bag)
+        
+        output
+            .resultEnded
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.isEnded = true
+            })
+            .disposed(by: bag)
+        
+        output
+            .keywordChanged
+            .distinctUntilChanged()
+            .bind(to: searchResultView.searchBarField.rx.text)
+            .disposed(by: bag)
+        
+        output
+            .didFetchHistory
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                searchResultView.historyView.collectionView.reloadSections(IndexSet(integer: 0))
+            })
+            .disposed(by: bag)
+    }
+}
+
+// MARK: Actions
+private extension SearchResultViewController {
+    @objc func keyboardEvent(notification: Notification) {
+        if notification.name == UIResponder.keyboardWillShowNotification { // 여기서 히스토리 받아오기
+            if let searchResultView,
+               searchResultView.historyView.isHidden {
+                searchResultView.historyView.setAnimatedIsHidden(false, duration: 0.1, onCompletion: { [weak self] in
+                    searchResultView.resultCollectionView.isHidden = true
+                    searchResultView.emptyResultView.isHidden = true
+                })
+            }
+        }
+    }
+    
+    @objc func refresh(_ sender: UIRefreshControl) {
+        if !isLoading {
+            sender.endRefreshing()
+            
+            isEnded = false
+            isLoading = true
+            refreshRequired.accept(())
+        } else {
+            sender.endRefreshing()
+        }
+    }
+    
+    func searchBtnTapAction() {
+        searchBtnTapped.accept(())
+        searchResultView?.searchBarField.resignFirstResponder()
+    }
+}
+
+// MARK: configure
+private extension SearchResultViewController {
+    func configureView() {
+        guard let viewModel else { return }
+        
+        searchResultView?.refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        
+        searchResultView?.resultCollectionView.delegate = self
+        searchResultView?.historyView.collectionView.delegate = self
+        
+        let resultDataSource = SearchResultCollectionDataSource(viewModel: viewModel)
+        let historyDataSource = SearchHistoryCollectionDataSource(viewModel: viewModel)
+        
+        self.searchResultCollectionDataSource = resultDataSource
+        self.searchHistoryCollectionDataSource = historyDataSource
+        
+        searchResultView?.resultCollectionView.dataSource = resultDataSource
+        searchResultView?.historyView.collectionView.dataSource = historyDataSource
+        
+        searchResultView?.searchBarField.delegate = self
+    }
+}
+
+extension SearchResultViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        searchBtnTapAction()
+        return true
+    }
+}
+
+final class SearchResultCollectionDataSource: NSObject, UICollectionViewDataSource {
+    var viewModel: SearchResultViewModel?
+    
+    convenience init(viewModel: SearchResultViewModel? = nil) {
+        self.init()
+        self.viewModel = viewModel
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if let viewModel,
+           viewModel.isInitLoading {
+            return Int(UIScreen.main.bounds.height/250)*2
+        }
+            return viewModel?.result.count ?? Int()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+            guard let viewModel,
+                  let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell else { return UICollectionViewCell() }
+        if viewModel.isInitLoading {
+                cell.startSkeletonAnimation()
+                return cell
+            }
+            
+            let item = viewModel.result[indexPath.item]
+            cell.stopSkeletonAnimation()
+            
+            cell.fill(
+                title: item.name,
+                tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
+                memCount: "\(item.memberCount)/\(item.limitCount)",
+                captin: item.leaderName
+            )
+            
+            let cellBag = DisposeBag()
+            cell.bag = cellBag
+            viewModel.fetchImage(key: item.groupImageUrl)
+                .observe(on: MainScheduler.asyncInstance)
+                .subscribe(onSuccess: { data in
+                    cell.fill(image: UIImage(data: data))
+                })
+                .disposed(by: cellBag)
+            
+            return cell
+    }
+}
+
+final class SearchHistoryCollectionDataSource: NSObject, UICollectionViewDataSource {
+    var viewModel: SearchResultViewModel?
+    
+    convenience init(viewModel: SearchResultViewModel? = nil) {
+        self.init()
+        self.viewModel = viewModel
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+            return viewModel?.history.count ?? Int()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchHistoryCell.reuseIdentifier, for: indexPath) as? SearchHistoryCell,
+                  let item = viewModel?.history[indexPath.item] else { return UICollectionViewCell() }
+            cell.fill(keyWord: item)
+            
+            cell.removeClosure = { [weak self] in
+                self?.viewModel?.removeHistoryAt(item: indexPath.item)
+            }
+            return cell
+    }
+}
+
+extension SearchResultViewController: UICollectionViewDelegate {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard let searchResultView else { return }
+        if scrollView == searchResultView.resultCollectionView,
+           !isLoading,
+           !isEnded,
+           scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height - 250 {
+            isLoading = true
+            needLoadNextData.accept(())
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard let searchResultView else { return UICollectionReusableView() }
+        
+        switch collectionView {
+        case searchResultView.historyView.collectionView:
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SearchHistoryHeaderView.reuseIdentifier, for: indexPath) as? SearchHistoryHeaderView else { return UICollectionReusableView() }
+            view.closure = { [weak self] in
+                self?.removeAllHistory.accept(())
+            }
+            return view
+        default:
+            return UICollectionReusableView()
+        }
     }
 }
 

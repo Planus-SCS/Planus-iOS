@@ -41,6 +41,7 @@ final class SearchResultViewModel: ViewModel {
     var keyword = BehaviorSubject<String?>(value: nil)
     
     var isLoading: Bool = false
+    var isInitLoading: Bool = false
     
     var didStartFetching = PublishSubject<Void>()
     var didFetchInitialResult = PublishSubject<Void>()
@@ -63,8 +64,8 @@ final class SearchResultViewModel: ViewModel {
         var createBtnTapped: Observable<Void>
         var needLoadNextData: Observable<Void>
         var needFetchHistory: Observable<Void>
-        var removeHistoryAt: Observable<Int>
         var removeAllHistory: Observable<Void>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -173,22 +174,20 @@ final class SearchResultViewModel: ViewModel {
             .disposed(by: bag)
         
         input
-            .removeHistoryAt
-            .withUnretained(self)
-            .subscribe(onNext: { vm, index in
-                vm.removeRecentQuery(keyword: vm.history[index])
-                vm.history.remove(at: index)
-                vm.didFetchHistory.onNext(())
-            })
-            .disposed(by: bag)
-        
-        input
             .removeAllHistory
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.removeAllQueries()
                 vm.history.removeAll()
                 vm.didFetchHistory.onNext(())
+            })
+            .disposed(by: bag)
+        
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         
@@ -200,6 +199,15 @@ final class SearchResultViewModel: ViewModel {
             keywordChanged: keyword.asObservable(),
             didFetchHistory: didFetchHistory.asObservable()
         )
+    }
+}
+
+// MARK: History Query
+extension SearchResultViewModel {
+    func removeHistoryAt(item: Int) {
+        removeRecentQuery(keyword: history[item])
+        history.remove(at: item)
+        didFetchHistory.onNext(())
     }
     
     func fetchRecentQueries() {
@@ -235,9 +243,13 @@ final class SearchResultViewModel: ViewModel {
             try? self.useCases.recentQueryRepository.removeAllQueries()
         }
     }
-    
+}
+
+// MARK: Fetch
+extension SearchResultViewModel {
     func fetchInitialresult(keyword: String) {
         saveRecentQuery(keyword: keyword)
+        isInitLoading = true
         didStartFetching.onNext(())
         page = 0
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [weak self] in
@@ -262,6 +274,7 @@ final class SearchResultViewModel: ViewModel {
 
                 if isInitial {
                     self.result = list
+                    self.isInitLoading = false
                     self.didFetchInitialResult.onNext(())
                 } else {
                     self.result += list
@@ -281,4 +294,3 @@ final class SearchResultViewModel: ViewModel {
             .execute(key: key)
     }
 }
-

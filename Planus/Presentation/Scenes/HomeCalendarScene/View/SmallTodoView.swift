@@ -15,7 +15,7 @@ class SmallTodoView: UIView {
     
     var toDoLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont(name: "Pretendard-Regular", size: 10)
+        label.font = UIFont(name: "Pretendard-Regular", size: 12)
         label.textAlignment = .center
         return label
     }()

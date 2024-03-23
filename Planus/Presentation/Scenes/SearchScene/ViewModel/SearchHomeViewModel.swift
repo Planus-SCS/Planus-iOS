@@ -126,15 +126,17 @@ final class SearchHomeViewModel: ViewModel {
             didStartFetching: didStartFetching.asObservable()
         )
     }
-    
+}
+
+// MARK: Fetch
+extension SearchHomeViewModel {
     func fetchInitialresult() {
         page = 0
         didStartFetching.onNext(())
-        print("remove!")
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [weak self] in
             self?.fetchResult(isInitial: true)
         })
-        
     }
     
     func fetchResult(isInitial: Bool) {
@@ -160,7 +162,7 @@ final class SearchHomeViewModel: ViewModel {
                     self.result += list
                     self.didFetchAdditionalResult.onNext((self.page * self.size..<self.page * self.size+list.count))
                 }
-                if list.count != self.size { //이럼 끝에 달한거임. 막아야함..!
+                if list.count != self.size {
                     self.resultEnded.onNext(())
                 }
                 self.page += 1

@@ -44,8 +44,8 @@ class SearchPresentationAssembly: Assembly {
             )
         }
         
-        container.register(SearchHomeViewController.self) { (r, injectable: SearchHomeViewModel.Injectable) in
-            return SearchHomeViewController(viewModel: r.resolve(SearchHomeViewModel.self, argument: injectable)!)
+        container.register(SearchResultViewController.self) { (r, injectable: SearchResultViewModel.Injectable) in
+            return SearchResultViewController(viewModel: r.resolve(SearchResultViewModel.self, argument: injectable)!)
         }
     }
 }

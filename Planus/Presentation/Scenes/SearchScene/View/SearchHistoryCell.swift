@@ -11,7 +11,7 @@ import RxSwift
 class SearchHistoryCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "search-history-cell"
     
-    var closure: (() -> Void)?
+    var removeClosure: (() -> Void)?
     
     var label: UILabel = {
         let label = UILabel(frame: .zero)
@@ -30,7 +30,7 @@ class SearchHistoryCell: SpringableCollectionViewCell {
     }()
     
     @objc func removeBtnTapped(_ sender: UIButton) {
-        closure?()
+        removeClosure?()
     }
     
     var separateView: UIView = {

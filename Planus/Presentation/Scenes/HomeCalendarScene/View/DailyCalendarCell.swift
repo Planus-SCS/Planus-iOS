@@ -286,7 +286,7 @@ extension DailyCalendarCell {
         }()
         titleLabel.text = title
         
-        titleLabel.frame = CGRect(x: 4, y: 0, width: (UIScreen.main.bounds.width/7) - 8, height: 12)
+        titleLabel.frame = CGRect(x: 4, y: 0, width: (UIScreen.main.bounds.width/7) - 8, height: 18)
 
         return titleLabel
     }
