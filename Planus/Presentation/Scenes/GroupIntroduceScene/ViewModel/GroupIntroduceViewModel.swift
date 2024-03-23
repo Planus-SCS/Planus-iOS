@@ -140,10 +140,13 @@ final class GroupIntroduceViewModel: ViewModel {
         )
     }
     
-    func generateShareLink() -> String? {
+    private func generateShareLink() -> String? {
         return useCases.generateGroupLinkUseCase.execute(groupId: groupId)
     }
-    
+}
+
+// MARK: API
+private extension GroupIntroduceViewModel {
     func fetchGroupInfo(id: Int) {
         
         let fetchGroupDetail = useCases
@@ -184,7 +187,6 @@ final class GroupIntroduceViewModel: ViewModel {
     }
     
     func requestJoinGroup() {
-        
         useCases
             .executeWithTokenUseCase
             .execute() { [weak self] token -> Single<Void>? in

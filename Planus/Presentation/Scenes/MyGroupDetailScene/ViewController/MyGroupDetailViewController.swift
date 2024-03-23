@@ -80,6 +80,8 @@ enum MyGroupDetailPageAttribute {
 class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate {
     var bag = DisposeBag()
     
+    let headerHeight: CGFloat = 330
+    
     let didChangedMonth = PublishSubject<Date>()
     var didSelectedDayAt = PublishSubject<Int>()
     var didSelectedMemberAt = PublishSubject<Int>()
@@ -813,7 +815,7 @@ extension MyGroupDetailViewController {
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
         
         let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                       heightDimension: .absolute(330))
+                                                       heightDimension: .absolute(headerHeight))
 
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: sectionHeaderSize,
@@ -925,7 +927,7 @@ extension MyGroupDetailViewController {
     }
     
     private func createLayout() -> UICollectionViewLayout {
-        return StickyTopCompositionalLayout { [weak self] (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+        return StickyTopCompositionalLayout(headerHeight: headerHeight) { [weak self] (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
             guard let self,
                   let mode = self.viewModel?.mode else { return nil }
 

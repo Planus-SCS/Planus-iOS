@@ -52,6 +52,7 @@ final class GroupCreateViewModel: ViewModel {
         var tagRemovedAt: Observable<Int>
         var maxMemberChanged: Observable<String?>
         var saveBtnTapped: Observable<Void>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -129,6 +130,14 @@ final class GroupCreateViewModel: ViewModel {
                     vm.nowSaving = true
                     vm.createGroup()
                 }
+            })
+            .disposed(by: bag)
+        
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         

@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-class GroupCreateLoadViewController: UIViewController {
+final class GroupCreateLoadViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: GroupCreateLoadViewModel?
     
