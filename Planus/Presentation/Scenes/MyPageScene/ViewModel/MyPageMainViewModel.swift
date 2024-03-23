@@ -79,8 +79,10 @@ final class MyPageMainViewModel: ViewModel {
     
     struct Input {
         var viewDidLoad: Observable<Void>
+        var editBtnTapped: Observable<Void>
         var didSelectedAt: Observable<Int>
         var didReceiveAppleAuthCode: Observable<Data>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -111,49 +113,19 @@ final class MyPageMainViewModel: ViewModel {
             .disposed(by: bag)
         
         input
+            .editBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.editProfile?()
+            })
+            .disposed(by: bag)
+        
+        input
             .didSelectedAt
             .withUnretained(self)
             .subscribe(onNext: { vm, item in
                 guard let type = MyPageMenuType(rawValue: item) else { return }
-
-                switch type {
-                case .serviceTerms:
-                    vm.actions.showTermsOfUse?()
-                case .privacyPolicy:
-                    vm.actions.showPrivacyPolicy?()
-                case .signOut:
-                    vm.showPopUp.onNext((
-                        title: "로그아웃",
-                        message: "로그아웃 합니다.",
-                        alertAttrs: [
-                            CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
-                            CustomAlertAttr(title: "로그아웃", actionHandler: {
-                                vm.signOut()
-                                vm.actions.backToSignIn?()
-                            }, type: .warning)
-                        ]
-                    ))
-                case .withDraw:
-                    vm.showPopUp.onNext((
-                        title: "회원 탈퇴",
-                        message: "플래너스를 탈퇴 합니다",
-                        alertAttrs: [
-                            CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
-                            CustomAlertAttr(title: "탈퇴", actionHandler: {
-                                vm.showPopUp.onNext((
-                                    title: "회원 탈퇴",
-                                    message: "회원 탈퇴를 진행하게 되면 모든 정보가 손실되요 😥",
-                                    alertAttrs: [
-                                        CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
-                                        CustomAlertAttr(title: "탈퇴", actionHandler: {
-                                            vm.resignTapped()
-                                        }, type: .warning)
-                                    ]
-                                ))
-                            }, type: .warning)
-                        ]
-                    ))
-                }
+                vm.routeMenu(type: type)
             })
             .disposed(by: bag)
         
@@ -163,6 +135,14 @@ final class MyPageMainViewModel: ViewModel {
             .subscribe(onNext: { vm, authData in
                 guard let authCodeStr = String(data: authData, encoding: .utf8) else { return }
                 vm.revokeAppleToken(code: authCodeStr)
+            })
+            .disposed(by: bag)
+        
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         
@@ -184,6 +164,47 @@ final class MyPageMainViewModel: ViewModel {
                 vm.didRefreshUserProfile.onNext(())
             })
             .disposed(by: bag)
+    }
+    
+    func routeMenu(type: MyPageMenuType) {
+        switch type {
+        case .serviceTerms:
+            actions.showTermsOfUse?()
+        case .privacyPolicy:
+            actions.showPrivacyPolicy?()
+        case .signOut:
+            showPopUp.onNext((
+                title: "로그아웃",
+                message: "로그아웃 합니다.",
+                alertAttrs: [
+                    CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
+                    CustomAlertAttr(title: "로그아웃", actionHandler: { [weak self] in
+                        self?.signOut()
+                        self?.actions.backToSignIn?()
+                    }, type: .warning)
+                ]
+            ))
+        case .withDraw:
+            showPopUp.onNext((
+                title: "회원 탈퇴",
+                message: "플래너스를 탈퇴 합니다",
+                alertAttrs: [
+                    CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
+                    CustomAlertAttr(title: "탈퇴", actionHandler: { [weak self] in
+                        self?.showPopUp.onNext((
+                            title: "회원 탈퇴",
+                            message: "회원 탈퇴를 진행하게 되면 모든 정보가 손실되요 😥",
+                            alertAttrs: [
+                                CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
+                                CustomAlertAttr(title: "탈퇴", actionHandler: {
+                                    self?.resignTapped()
+                                }, type: .warning)
+                            ]
+                        ))
+                    }, type: .warning)
+                ]
+            ))
+        }
     }
     
     func signOut() {

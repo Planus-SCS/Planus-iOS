@@ -47,6 +47,7 @@ final class MyPageEditViewModel: ViewModel {
         var didChangeIntroduce: Observable<String?>
         var didChangeImage: Observable<ImageFile?>
         var saveBtnTapped: Observable<Void>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -96,6 +97,14 @@ final class MyPageEditViewModel: ViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.updateProfile()
+            })
+            .disposed(by: bag)
+        
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.goBack
             })
             .disposed(by: bag)
         

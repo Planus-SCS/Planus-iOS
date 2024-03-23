@@ -12,7 +12,6 @@ class MyPagePresentationAssembly: Assembly {
     func assemble(container: Swinject.Container) {
         assembleMyPageMain(container: container)
         assembleMyPageReadableViewModel(container: container)
-        assembleMyPageEnquire(container: container)
         assembleMyPageEdit(container: container)
     }
     
@@ -48,17 +47,6 @@ class MyPagePresentationAssembly: Assembly {
         
         container.register(MyPageReadableViewController.self) { (r, injectable: MyPageReadableViewModel.Injectable) in
             return MyPageReadableViewController(viewModel: r.resolve(MyPageReadableViewModel.self, argument: injectable)!)
-        }
-    }
-
-    
-    func assembleMyPageEnquire(container: Container) {
-        container.register(MyPageEnquireViewModel.self) { r in
-            return MyPageEnquireViewModel()
-        }
-        
-        container.register(MyPageEnquireViewController.self) { r in
-            return MyPageEnquireViewController(viewModel: r.resolve(MyPageEnquireViewModel.self)!)
         }
     }
     

@@ -166,7 +166,7 @@ final class SignInViewController: UIViewController {
     }
 }
 
-//MARK: View Generator
+//MARK: configure
 private extension SignInViewController {
     func bind() {
         guard let viewModel,

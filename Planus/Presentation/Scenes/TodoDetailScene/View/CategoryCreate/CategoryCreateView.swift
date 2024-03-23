@@ -43,6 +43,8 @@ class CategoryCreateView: UIView {
         field.textAlignment = .center
         field.placeholder = "카테고리를 입력하세요"
         field.font = UIFont(name: "Pretendard-Medium", size: 18)
+        field.autocorrectionType = .no
+        field.spellCheckingType = .no
         return field
     }()
     

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct FilteredTodoViewModel {
+struct TodosInDayViewModel {
     var periodTodo: [(Int,Todo)] //offset, Todo
     var singleTodo: [(Int,Todo)] //offset, Todo
     var holiday: (Int, String)?

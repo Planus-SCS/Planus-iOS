@@ -38,7 +38,7 @@ final class RedirectionalWebViewController: UIViewController {
     }
 }
 
-// MARK: View Generator
+// MARK: configure
 private extension RedirectionalWebViewController {
     func bindAppStateObservable() {
         NotificationCenter.default.rx.notification(UIApplication.willEnterForegroundNotification)

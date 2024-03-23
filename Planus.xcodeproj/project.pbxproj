@@ -223,8 +223,6 @@
 		6A2BB1B529E4164E0053C5CA /* MyPageMainHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1B429E4164E0053C5CA /* MyPageMainHeaderView.swift */; };
 		6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1B829E426CD0053C5CA /* MyPageReadableViewController.swift */; };
 		6A2BB1BB29E429D50053C5CA /* MyPageReadableViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1BA29E429D50053C5CA /* MyPageReadableViewModel.swift */; };
-		6A2BB1BD29E431740053C5CA /* MyPageEnquireViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1BC29E431740053C5CA /* MyPageEnquireViewController.swift */; };
-		6A2BB1BF29E431F90053C5CA /* MyPageEnquireViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1BE29E431F90053C5CA /* MyPageEnquireViewModel.swift */; };
 		6A2BB1C129E437960053C5CA /* MyPageEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1C029E437960053C5CA /* MyPageEditViewController.swift */; };
 		6A2BB1C329E55E730053C5CA /* DefaultCreateTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1C229E55E730053C5CA /* DefaultCreateTodoUseCase.swift */; };
 		6A2BB1C529E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2BB1C429E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift */; };
@@ -877,8 +875,6 @@
 		6A2BB1B429E4164E0053C5CA /* MyPageMainHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageMainHeaderView.swift; sourceTree = "<group>"; };
 		6A2BB1B829E426CD0053C5CA /* MyPageReadableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageReadableViewController.swift; sourceTree = "<group>"; };
 		6A2BB1BA29E429D50053C5CA /* MyPageReadableViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageReadableViewModel.swift; sourceTree = "<group>"; };
-		6A2BB1BC29E431740053C5CA /* MyPageEnquireViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageEnquireViewController.swift; sourceTree = "<group>"; };
-		6A2BB1BE29E431F90053C5CA /* MyPageEnquireViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageEnquireViewModel.swift; sourceTree = "<group>"; };
 		6A2BB1C029E437960053C5CA /* MyPageEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageEditViewController.swift; sourceTree = "<group>"; };
 		6A2BB1C229E55E730053C5CA /* DefaultCreateTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCreateTodoUseCase.swift; sourceTree = "<group>"; };
 		6A2BB1C429E55E7F0053C5CA /* DefaultUpdateTodoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultUpdateTodoUseCase.swift; sourceTree = "<group>"; };
@@ -2385,7 +2381,6 @@
 			children = (
 				6A0B764C2BA98347008BC571 /* MyPageMainViewController.swift */,
 				6A2BB1B829E426CD0053C5CA /* MyPageReadableViewController.swift */,
-				6A2BB1BC29E431740053C5CA /* MyPageEnquireViewController.swift */,
 				6A2BB1C029E437960053C5CA /* MyPageEditViewController.swift */,
 			);
 			path = ViewController;
@@ -2396,7 +2391,6 @@
 			children = (
 				6A2BB1B229E40B890053C5CA /* MyPageMainViewModel.swift */,
 				6A2BB1BA29E429D50053C5CA /* MyPageReadableViewModel.swift */,
-				6A2BB1BE29E431F90053C5CA /* MyPageEnquireViewModel.swift */,
 				6AC0791D2A08DE41007ACDB8 /* MyPageEditViewModel.swift */,
 			);
 			path = ViewModel;
@@ -3590,7 +3584,6 @@
 				6AC078E22A0373F3007ACDB8 /* BaseURL.swift in Sources */,
 				6AF078072A98BE860086692B /* TodoDetailVC+DayPickerDelegate.swift in Sources */,
 				6AC0790A2A08C799007ACDB8 /* ProfileDTO.swift in Sources */,
-				6A2BB1BD29E431740053C5CA /* MyPageEnquireViewController.swift in Sources */,
 				6A95DFE229D53BA1009017D8 /* GroupIntroduceDefaultHeaderView.swift in Sources */,
 				6AC079742A0A77DC007ACDB8 /* MemberDTO.swift in Sources */,
 				6AF077C62A960E370086692B /* CategoryButton.swift in Sources */,
@@ -3647,7 +3640,6 @@
 				6A919A112A21115E00108BF4 /* SearchHistoryView.swift in Sources */,
 				6A0B76722BAB1981008BC571 /* MyGroupListSectionHeaderView.swift in Sources */,
 				6A24F89E29CE29F50000FD64 /* TodoCategory+Ext.swift in Sources */,
-				6A2BB1BF29E431F90053C5CA /* MyPageEnquireViewModel.swift in Sources */,
 				6A2BB1C329E55E730053C5CA /* DefaultCreateTodoUseCase.swift in Sources */,
 				6AC078E52A037A7F007ACDB8 /* URLPool.swift in Sources */,
 				6A24F89529CE285F0000FD64 /* MonthlyCalendarCell.swift in Sources */,

@@ -156,9 +156,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             .disposed(by: bag)
     }
     
-    func fetchGroupList() {
-        
-    }
+    func fetchGroupList() {}
     
     func saveDetail() {
         guard let title = try? todoTitle.value(),

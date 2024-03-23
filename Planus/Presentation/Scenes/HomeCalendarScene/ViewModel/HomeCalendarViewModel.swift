@@ -87,7 +87,7 @@ class HomeCalendarViewModel: ViewModel {
     
     var blockMemo = [[(Int, Bool)?]](repeating: [(Int, Bool)?](repeating: nil, count: 20), count: 42) //todoId, groupTodo여부
     var filteredWeeksOfYear = [Int](repeating: -1, count: 6)
-    var filteredTodoCache = [FilteredTodoViewModel](repeating: FilteredTodoViewModel(periodTodo: [], singleTodo: []), count: 42) //UI 표시용
+    var filteredTodoCache = [TodosInDayViewModel](repeating: TodosInDayViewModel(periodTodo: [], singleTodo: []), count: 42) //UI 표시용
     var cachedCellHeightForTodoCount = [Int: Double]()
     
     var groups = [Int: GroupName]()
@@ -98,7 +98,6 @@ class HomeCalendarViewModel: ViewModel {
     var didFinishRefreshing = PublishSubject<Void>()
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var todoListFetchedInIndexRange = BehaviorSubject<(Int, Int)?>(value: nil)
-    var showDailyTodoPage = PublishSubject<Day>()
     var showMonthPicker = PublishSubject<(Date, Date, Date)>()
     var didSelectMonth = PublishSubject<Int>()
     var needReloadSectionSet = PublishSubject<IndexSet>() //리로드 섹션을 해야함 왜?
@@ -126,13 +125,13 @@ class HomeCalendarViewModel: ViewModel {
         var didSelectMonth: Observable<Date>
         var filterGroupWithId: Observable<Int?>
         var refreshRequired: Observable<Void>
+        var profileBtnTapped: Observable<Void>
     }
     
     struct Output {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
         var todoListFetchedInIndexRange: Observable<(Int, Int)?> // a부터 b까지 리로드 해라!
-        var showDailyTodoPage: Observable<Day>
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var needReloadSectionSet: Observable<IndexSet>
@@ -219,7 +218,15 @@ class HomeCalendarViewModel: ViewModel {
             .didSelectItem
             .withUnretained(self)
             .subscribe { vm, index in
-                vm.showDailyTodoPage.onNext(vm.mainDays[index.0][index.1])
+                let day = vm.mainDays[index.0][index.1]
+                vm.actions.showDailyCalendarPage?(DailyCalendarViewModel.Args(
+                    currentDate: day.date,
+                    todoList: vm.todos[day.date] ?? [],
+                    categoryDict: vm.memberCategories ,
+                    groupDict: vm.groups ,
+                    groupCategoryDict: vm.groupCategories ,
+                    filteringGroupId: try? vm.filteredGroupId.value()
+                ))
             }
             .disposed(by: bag)
         
@@ -297,6 +304,15 @@ class HomeCalendarViewModel: ViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .profileBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                guard let profile = vm.profile else { return }
+                vm.actions.showMyPage?(profile)
+            })
+            .disposed(by: bag)
+        
         let needScrollToHome = PublishSubject<Void>()
         
         homeTabReselected?
@@ -312,7 +328,6 @@ class HomeCalendarViewModel: ViewModel {
             didLoadYYYYMM: currentYYYYMM.asObservable(),
             initialDayListFetchedInCenterIndex: initialDayListFetchedInCenterIndex.asObservable(),
             todoListFetchedInIndexRange: todoListFetchedInIndexRange.asObservable(),
-            showDailyTodoPage: showDailyTodoPage.asObservable(),
             showMonthPicker: showMonthPicker.asObservable(),
             monthChangedByPicker: didSelectMonth.asObservable(),
             needReloadSectionSet: needReloadSectionSet.asObservable(),
@@ -735,20 +750,135 @@ class HomeCalendarViewModel: ViewModel {
         needReloadSectionSet.onNext(sectionSet)
     }
     
-    func getMaxCountInWeek(indexPath: IndexPath) -> (offset: Int, element: FilteredTodoViewModel) {
+    func getMaxCountInWeek(indexPath: IndexPath) -> (offset: Int, element: TodosInDayViewModel) {
         let item = indexPath.item
         let section = indexPath.section
         
         // 한 주차 내에서만 구해야함
         let maxItem = Array(filteredTodoCache.enumerated())[indexPath.item - indexPath.item%7..<indexPath.item + 7 - indexPath.item%7].max(by: { a, b in
             a.element.periodTodo.count + a.element.singleTodo.count < b.element.periodTodo.count + b.element.singleTodo.count
-        }) ?? (offset: Int(), element: FilteredTodoViewModel(periodTodo: [], singleTodo: []))
+        }) ?? (offset: Int(), element: TodosInDayViewModel(periodTodo: [], singleTodo: []))
         
         return maxItem
     }
+}
+
+// MARK: VC쪽이 UI용 투두 ViewModel 리스트를 만들어달라고 요청할때 쓰이는 메서드
+extension HomeCalendarViewModel {
+    func stackTodosInDayViewModelOfWeek(at indexPath: IndexPath) {
+        let date = mainDays[indexPath.section][indexPath.item].date
+        if filteredWeeksOfYear[indexPath.item/7] != calendar.component(.weekOfYear, from: date) { //
+            filteredWeeksOfYear[indexPath.item/7] = calendar.component(.weekOfYear, from: date)
+            (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7).forEach { //해당주차의 blockMemo를 전부 0으로 초기화
+                blockMemo[$0] = [(Int, Bool)?](repeating: nil, count: 20)
+            }
+            
+            for (item, day) in Array(mainDays[indexPath.section].enumerated())[indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7] {
+                var todoList = todos[day.date] ?? []
+                if let filterGroupId = try? filteredGroupId.value() {
+                    todoList = todoList.filter( { $0.groupId == filterGroupId })
+                }
+                
+                let singleTodoList = prepareSingleTodosInDay(at: IndexPath(item: item, section: indexPath.section), todos: todoList)
+                let periodTodoList = preparePeriodTodosInDay(at: IndexPath(item: item, section: indexPath.section), todos: todoList)
+                
+                filteredTodoCache[indexPath.item] = generateTodosInDayViewModel(
+                    at: IndexPath(item: item, section: indexPath.section),
+                    singleTodos: singleTodoList,
+                    periodTodos: periodTodoList
+                )
+            }
+        }
+    }
     
-    func createFilteredTodosInWeek(indexPath: IndexPath) {
+    func maxHeightTodosInDayViewModelOfWeek(at indexPath: IndexPath) -> TodosInDayViewModel? {
+        let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
         
+        return filteredTodoCache[weekRange]
+            .max(by: { a, b in
+                let aHeight = (a.holiday != nil) ? a.holiday!.0 : (a.singleTodo.last != nil) ?
+                a.singleTodo.last!.0 : (a.periodTodo.last != nil) ? a.periodTodo.last!.0 : 0
+                let bHeight = (b.holiday != nil) ? b.holiday!.0 : (b.singleTodo.last != nil) ?
+                b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
+                return aHeight < bHeight
+            })
     }
 }
 
+// MARK: prepare TodosInDayViewModel
+private extension HomeCalendarViewModel {
+    func generateTodosInDayViewModel(at indexPath: IndexPath, singleTodos: [Todo], periodTodos: [Todo]) -> TodosInDayViewModel {
+        let periodTodo: [(Int, Todo)] = periodTodos.compactMap { todo in
+            for i in (0..<blockMemo[indexPath.item].count) {
+                if blockMemo[indexPath.item][i] == nil,
+                   let period = calendar.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
+                    for j in (0...period) {
+                        blockMemo[indexPath.item+j][i] = (todo.id!, todo.isGroupTodo)
+                    }
+                    return (i, todo)
+                }
+            }
+            return nil
+        }
+
+        let singleTodoInitialIndex = blockMemo[indexPath.item].enumerated().first(where: { (index, tuple) in
+            return tuple == nil
+        })?.offset ?? 0
+        
+        let singleTodo = singleTodos.enumerated().map { (index, todo) in
+            return (index + singleTodoInitialIndex, todo)
+        }
+        
+        var holiday: (Int, String)?
+        if let holidayTitle = HolidayPool.shared.holidays[mainDays[indexPath.section][indexPath.item].date] {
+            let holidayIndex = singleTodoInitialIndex + singleTodos.count
+            holiday = (holidayIndex, holidayTitle)
+        }
+        
+        return TodosInDayViewModel(periodTodo: periodTodo, singleTodo: singleTodo, holiday: holiday)
+    }
+    
+    func prepareSingleTodosInDay(at indexPath: IndexPath, todos: [Todo]) -> [Todo] {
+        return todos.filter { $0.startDate == $0.endDate }
+    }
+    
+    func preparePeriodTodosInDay(at indexPath: IndexPath, todos: [Todo]) -> [Todo] {
+        var periodList = todos.filter { $0.startDate != $0.endDate }
+        
+        if indexPath.item % 7 != 0 { // 만약 월요일이 아닐 경우, 오늘 시작하는것들만
+            periodList = periodList.filter { $0.startDate == mainDays[indexPath.section][indexPath.item].date }
+                .sorted { $0.endDate < $1.endDate }
+        } else { //월요일 중에 오늘이 startDate가 아닌 놈들만 startDate로 정렬, 그 뒤에는 전부다 endDate로 정렬하고, 이걸 다시 endDate를 업데이트
+            var continuousPeriodList = periodList
+                .filter { $0.startDate != mainDays[indexPath.section][indexPath.item].date }
+                .sorted{ ($0.startDate == $1.startDate) ? $0.endDate < $1.endDate : $0.startDate < $1.startDate }
+                .map { todo in
+                    var tmpTodo = todo
+                    tmpTodo.startDate = mainDays[indexPath.section][indexPath.item].date
+                    return tmpTodo
+                }
+            
+            var initialPeriodList = periodList
+                .filter { $0.startDate == mainDays[indexPath.section][indexPath.item].date }
+                .sorted{ $0.endDate < $1.endDate }
+            
+            periodList = continuousPeriodList + initialPeriodList
+        }
+        
+        return periodList.map { todo in
+            // 날짜는 day의 date를 사용하고, todo.endDate랑 비교를 해서 이게 같은주에 포함되는지 아닌지를 판단해야함..!
+            let currentWeek = calendar.component(.weekOfYear, from: mainDays[indexPath.section][indexPath.item].date)
+            let endWeek = calendar.component(.weekOfYear, from: todo.endDate)
+            
+            if currentWeek != endWeek {
+                let firstDayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: mainDays[indexPath.section][indexPath.item].date))
+                let lastDayOfWeek = calendar.date(byAdding: .day, value: 6, to: firstDayOfWeek!) //이게 이번주 일요일임.
+                var tmpTodo = todo
+                tmpTodo.endDate = lastDayOfWeek!
+                return tmpTodo
+            } else {
+                return todo
+            }
+        }
+    }
+}

@@ -29,7 +29,7 @@ class MyPageReadableViewController: UIViewController {
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
@@ -61,10 +61,16 @@ class MyPageReadableViewController: UIViewController {
         navigationItem.setLeftBarButton(backButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
-    
+}
+
+private extension MyPageReadableViewController {
     func bind() {
         guard let viewModel else { return }
-        let output = viewModel.transform(input: MyPageReadableViewModel.Input())
+        let input = MyPageReadableViewModel.Input(
+            backBtnTapped: backButton.rx.tap.asObservable()
+        )
+        let output = viewModel.transform(input: input)
+        
         navigationItem.title = output.navigationTitle
         textView.text = output.text
     }
@@ -78,10 +84,6 @@ class MyPageReadableViewController: UIViewController {
         textView.snp.makeConstraints {
             $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
-    }
-    
-    @objc func backBtnAction(_ sender: UIBarButtonItem) {
-        viewModel?.actions.goBack?()
     }
 }
 
