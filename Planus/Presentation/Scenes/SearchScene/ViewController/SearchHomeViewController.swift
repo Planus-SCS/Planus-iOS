@@ -136,7 +136,7 @@ final class SearchHomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configureView()
+        configureVC()
         bind()
     }
     
@@ -214,7 +214,7 @@ final class SearchHomeViewController: UIViewController {
             .disposed(by: bag)
     }
     
-    func configureView() {
+    func configureVC() {
         searchHomeView?.resultCollectionView.dataSource = self
         searchHomeView?.resultCollectionView.delegate = self
         

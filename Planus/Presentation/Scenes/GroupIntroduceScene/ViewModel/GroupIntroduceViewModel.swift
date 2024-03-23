@@ -143,6 +143,11 @@ final class GroupIntroduceViewModel: ViewModel {
     private func generateShareLink() -> String? {
         return useCases.generateGroupLinkUseCase.execute(groupId: groupId)
     }
+    
+    func fetchImage(key: String) -> Single<Data> {
+        return useCases.fetchImageUseCase
+            .execute(key: key)
+    }
 }
 
 // MARK: API
@@ -204,10 +209,5 @@ private extension GroupIntroduceViewModel {
                 self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
-    }
-    
-    func fetchImage(key: String) -> Single<Data> {
-        return useCases.fetchImageUseCase
-            .execute(key: key)
     }
 }

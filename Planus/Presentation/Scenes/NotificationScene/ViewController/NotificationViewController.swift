@@ -9,20 +9,9 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class NotificationViewController: UIViewController {
-    var bag = DisposeBag()
-    var nowLoading = true
-
-    var viewModel: NotificationViewModel?
-    
-    var didAllowBtnTappedAt = PublishSubject<Int?>()
-    var didDenyBtnTappedAt = PublishSubject<Int?>()
-
-    var refreshRequired = PublishSubject<Void>()
-    
+final class NotificationView: UIView {
     lazy var refreshControl: UIRefreshControl = {
         let rc = UIRefreshControl(frame: .zero)
-        rc.addTarget(self, action: #selector(refresh), for: .valueChanged)
         return rc
     }()
     
@@ -35,8 +24,6 @@ class NotificationViewController: UIViewController {
     lazy var resultCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.register(GroupJoinNotificationCell.self, forCellWithReuseIdentifier: GroupJoinNotificationCell.reuseIdentifier)
-        collectionView.dataSource = self
-        collectionView.delegate = self
         collectionView.refreshControl = refreshControl
         collectionView.backgroundColor = .clear
         return collectionView
@@ -50,17 +37,88 @@ class NotificationViewController: UIViewController {
         return item
     }()
     
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        configureView()
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+private extension NotificationView {
+    func configureView() {
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.addSubview(emptyResultView)
+        self.addSubview(resultCollectionView)
+    }
+    
+    func configureLayout() {
+        emptyResultView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        resultCollectionView.snp.makeConstraints {
+            $0.top.equalTo(self.safeAreaLayoutGuide.snp.top)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
+        }
+    }
+}
+
+private extension NotificationView {
+    func createLayout() -> UICollectionViewLayout {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
+                                               heightDimension: .absolute(122))
+
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        group.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 16, bottom: 0, trailing: 16)
+
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
+
+        let layout = UICollectionViewCompositionalLayout(section: section)
+
+        return layout
+    }
+}
+
+class NotificationViewController: UIViewController {
+    var bag = DisposeBag()
+    var nowLoading = true
+
+    var viewModel: NotificationViewModel?
+    var notificationView: NotificationView?
+    
+    var didAllowBtnTappedAt = PublishRelay<Int?>()
+    var didDenyBtnTappedAt = PublishRelay<Int?>()
+    var refreshRequired = PublishRelay<Void>()
+    
     convenience init(viewModel: NotificationViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
     
+    override func loadView() {
+        super.loadView()
+        
+        let view = NotificationView(frame: self.view.frame)
+        
+        self.view = view
+        self.notificationView = view
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureView()
-        configureLayout()
-
+        configureVC()
         bind()
     }
     
@@ -68,7 +126,7 @@ class NotificationViewController: UIViewController {
         super.viewWillAppear(animated)
         
         navigationItem.title = "그룹 신청 관리"
-        navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationItem.setLeftBarButton(notificationView?.backButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
@@ -78,16 +136,27 @@ class NotificationViewController: UIViewController {
             viewModel?.actions.finishScene?()
         }
     }
+}
+
+// MARK: Configure VC
+private extension NotificationViewController {
+    func configureVC() {
+        notificationView?.resultCollectionView.dataSource = self
+        notificationView?.resultCollectionView.delegate = self
+        
+        notificationView?.refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
+    }
     
     func bind() {
-        guard let viewModel else { return }
+        guard let viewModel,
+              let notificationView else { return }
         
         let input = NotificationViewModel.Input(
             viewDidLoad: Observable.just(()),
             didTapAllowBtnAt: didAllowBtnTappedAt.asObservable(),
             didTapDenyBtnAt: didDenyBtnTappedAt.asObservable(),
             refreshRequired: refreshRequired.asObservable(),
-            backBtnTapped: backButton.rx.tap.asObservable()
+            backBtnTapped: notificationView.backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -98,18 +167,7 @@ class NotificationViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, type in
-                vc.nowLoading = false
-                vc.resultCollectionView.performBatchUpdates {
-                    vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
-                }
-                vc.emptyResultView.isHidden = !(viewModel.joinAppliedList?.count == 0)
-
-                switch type {
-                case .refresh:
-                    vc.showToast(message: "새로고침을 성공하였습니다.", type: .normal)
-                default:
-                    return
-                }
+                vc.reloadApplies(type: type)
             })
             .disposed(by: bag)
         
@@ -118,14 +176,7 @@ class NotificationViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc.resultCollectionView.performBatchUpdates ({
-                    vc.resultCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
-                }, completion: { _ in
-                    UIView.performWithoutAnimation {
-                        vc.resultCollectionView.reloadSections(IndexSet(integer: 0))
-                    }
-                })
-                vc.emptyResultView.setAnimatedIsHidden(!(viewModel.joinAppliedList?.count == 0))
+                vc.removeApplyAt(index: index)
             })
             .disposed(by: bag)
         
@@ -138,37 +189,44 @@ class NotificationViewController: UIViewController {
             })
             .disposed(by: bag)
     }
+}
+
+// MARK: Actions
+private extension NotificationViewController {
+    func reloadApplies(type: FetchType) {
+        nowLoading = false
+        notificationView?.resultCollectionView.performBatchUpdates {
+            notificationView?.resultCollectionView.reloadSections(IndexSet(integer: 0))
+        }
+        notificationView?.emptyResultView.isHidden = !(viewModel?.joinAppliedList?.count == 0)
+
+        switch type {
+        case .refresh:
+            showToast(message: "새로고침을 성공하였습니다.", type: .normal)
+        default:
+            return
+        }
+    }
     
-    @objc func backBtnAction() {
-        viewModel?.actions.pop?()
+    func removeApplyAt(index: Int) {
+        notificationView?.resultCollectionView.performBatchUpdates ({
+            notificationView?.resultCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+        }, completion: { _ in
+            UIView.performWithoutAnimation { [weak self] in
+                self?.notificationView?.resultCollectionView.reloadSections(IndexSet(integer: 0))
+            }
+        })
+        notificationView?.emptyResultView.setAnimatedIsHidden(!(viewModel?.joinAppliedList?.count == 0))
     }
 
-    func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.view.addSubview(emptyResultView)
-        self.view.addSubview(resultCollectionView)
-    }
-    
-    func configureLayout() {
-        emptyResultView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        resultCollectionView.snp.makeConstraints {
-            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
-        }
-    }
-    
     @objc func refresh(_ sender: UIRefreshControl) {
         if sender.isRefreshing {
             sender.endRefreshing()
         }
         nowLoading = true
-        emptyResultView.isHidden = true
-        resultCollectionView.reloadData()
-        refreshRequired.onNext(())
+        notificationView?.emptyResultView.isHidden = true
+        notificationView?.resultCollectionView.reloadData()
+        refreshRequired.accept(())
     }
 }
 
@@ -211,27 +269,6 @@ extension NotificationViewController: UICollectionViewDataSource, UICollectionVi
         return cell
     }
 
-}
-
-extension NotificationViewController {
-    private func createLayout() -> UICollectionViewLayout {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                               heightDimension: .absolute(122))
-
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        group.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 16, bottom: 0, trailing: 16)
-
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
-
-        let layout = UICollectionViewCompositionalLayout(section: section)
-
-        return layout
-    }
 }
 
 extension NotificationViewController: UIGestureRecognizerDelegate {}

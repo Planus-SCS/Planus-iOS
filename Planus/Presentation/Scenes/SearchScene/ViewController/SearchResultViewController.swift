@@ -192,7 +192,7 @@ final class SearchResultViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureView()
+        configureVC()
         bind()
         
         searchResultView?.searchBarField.becomeFirstResponder()
@@ -349,7 +349,7 @@ private extension SearchResultViewController {
 
 // MARK: configure
 private extension SearchResultViewController {
-    func configureView() {
+    func configureVC() {
         guard let viewModel else { return }
         
         searchResultView?.refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)

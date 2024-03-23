@@ -374,7 +374,7 @@ private extension GroupIntroduceViewController {
 // MARK: Actions
 private extension GroupIntroduceViewController {
     func setJoinButton(state: GroupJoinableState) {
-        switch isJoined {
+        switch state {
         case .isJoined:
             groupIntroduceView?.joinButton.setTitle("그룹 페이지로 이동하기", for: .normal)
         case .notJoined:
