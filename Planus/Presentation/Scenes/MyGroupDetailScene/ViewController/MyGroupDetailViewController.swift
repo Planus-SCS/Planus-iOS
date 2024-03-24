@@ -335,7 +335,7 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             .subscribe(onNext: { vc, _ in
                 guard let mode = viewModel.mode else { return }
                 vc.nowLoading = false
-                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
+                viewModel.weekDayChecker = [Int](repeating: -1, count: 6)
                 vc.setSectionCount(mode: mode, trailingAction: {
                     vc.collectionView.reloadSections(IndexSet(integer: MyGroupDetailPageAttribute.calendar.sectionIndex))
                 }, completion: {
@@ -446,7 +446,7 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
     }
     
     func scrollToHeader(section: Int) {
-        guard let layoutAttributes =  collectionView.layoutAttributesForSupplementaryElement(ofKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 1)) else { return }
+        guard let layoutAttributes =  collectionView.layoutAttributesForSupplementaryElement(ofKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: section)) else { return }
         let viewOrigin = CGPoint(x: layoutAttributes.frame.origin.x, y: layoutAttributes.frame.origin.y);
         var offset = collectionView.contentOffset;
         let height = (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0) + (navigationController?.navigationBar.frame.height ?? 0)
@@ -577,7 +577,7 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
         case .info: return 0
         case .notice: return nowLoading ? 1 : (viewModel?.notice != nil) ? 1 : 0
         case .member: return nowLoading ? 6 : (viewModel?.memberList?.count ?? 0)
-        case .calendar: return nowLoading ? 42 : (viewModel?.mainDayList.count ?? 0)
+        case .calendar: return nowLoading ? 42 : (viewModel?.mainDays.count ?? 0)
         }
     }
     
@@ -594,7 +594,6 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
             }
             
             guard let item = viewModel?.notice else { return UICollectionViewCell() }
-            print("stop notice skele")
             cell.stopSkeletonAnimation()
             cell.fill(notice: item)
             return cell
@@ -954,131 +953,13 @@ extension MyGroupDetailViewController: UIPopoverPresentationControllerDelegate {
 extension MyGroupDetailViewController {
     func calendarCell(cell: DailyCalendarCell, indexPath: IndexPath) -> UICollectionViewCell {
         guard let viewModel else { return UICollectionViewCell() }
-        let screenWidth = UIScreen.main.bounds.width
+        viewModel.stackTodosInDayViewModelOfWeek(at: IndexPath(item: indexPath.item, section: indexPath.section))
         
-        var calendar = Calendar.current
-        calendar.firstWeekday = 2
+        guard let maxItem = viewModel.maxHeightTodosInDayViewModelOfWeek(at: IndexPath(item: indexPath.item, section: indexPath.section)) else { return UICollectionViewCell() }
+        let height = calculateCellHeight(item: maxItem)
         
-        let currentDate = viewModel.mainDayList[indexPath.item].date
-        if viewModel.filteredWeeksOfYear[indexPath.item/7] != calendar.component(.weekOfYear, from: currentDate) {
-            viewModel.filteredWeeksOfYear[indexPath.item/7] = calendar.component(.weekOfYear, from: currentDate)
-            (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7).forEach {
-                viewModel.blockMemo[$0] = [Int?](repeating: nil, count: 20)
-            }
-            for (item, day) in Array(viewModel.mainDayList.enumerated())[indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7] {
-                var filteredTodoList = viewModel.todos[day.date] ?? []
-                
-                var periodList = filteredTodoList.filter { $0.startDate != $0.endDate }
-                let singleList = filteredTodoList.filter { $0.startDate == $0.endDate }
-                
-                if item % 7 != 0 { // 만약 월요일이 아닐 경우, 오늘 시작하는것들만, 월요일이면 포함되는 전체 다!
-                    periodList = periodList.filter { $0.startDate == day.date }
-                        .sorted { $0.endDate < $1.endDate }
-                } else { //월요일 중에 오늘이 startDate가 아닌 놈들만 startDate로 정렬, 그 뒤에는 전부다 endDate로 정렬하고, 이걸 다시 endDate를 업댓해줘야함!
-                    
-                    var continuousPeriodList = periodList
-                        .filter { $0.startDate != day.date }
-                        .sorted{ ($0.startDate == $1.startDate) ? $0.endDate < $1.endDate : $0.startDate < $1.startDate }
-                        .map { todo in
-                            var tmpTodo = todo
-                            tmpTodo.startDate = day.date
-                            return tmpTodo
-                        }
-                    
-                    var initialPeriodList = periodList
-                        .filter { $0.startDate == day.date } //이걸 바로 end로 정렬해도 되나? -> 애를 바로 end로 정렬할 경우?
-                        .sorted{ $0.endDate < $1.endDate }
-                    
-                    periodList = continuousPeriodList + initialPeriodList
-                }
-                
-                periodList = periodList.map { todo in
-                    let currentWeek = calendar.component(.weekOfYear, from: day.date)
-                    let endWeek = calendar.component(.weekOfYear, from: todo.endDate)
-                    
-                    if currentWeek != endWeek {
-                        let firstDayOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: day.date))
-                        let lastDayOfWeek = calendar.date(byAdding: .day, value: 6, to: firstDayOfWeek!) //이게 이번주 일요일임.
-                        var tmpTodo = todo
-                        tmpTodo.endDate = lastDayOfWeek!
-                        return tmpTodo
-                    } else { return todo }
-                }
-                
-                let periodTodo: [(Int, SocialTodoSummary)] = periodList.compactMap { todo in
-                    for i in (0..<viewModel.blockMemo[item].count) {
-                        if viewModel.blockMemo[item][i] == nil,
-                           let period = Calendar.current.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
-                            for j in (0...period) {
-                                viewModel.blockMemo[item+j][i] = todo.todoId
-                            }
-                            return (i, todo)
-                        }
-                    }
-                    return nil
-                }
-                
-                var singleStartIndex = 0
-                viewModel.blockMemo[item].enumerated().forEach { (index, tuple) in
-                    if tuple != nil {
-                        singleStartIndex = index + 1
-                    }
-                }
-                
-                let singleTodo = singleList.enumerated().map { (index, todo) in
-                    return (index + singleStartIndex, todo)
-                }
-                
-                var holidayMock: (Int, String)?
-                if let holidayTitle = HolidayPool.shared.holidays[day.date] {
-                    let holidayIndex = singleStartIndex + singleTodo.count
-                    holidayMock = (holidayIndex, holidayTitle)
-                }
-                
-                viewModel.filteredTodoCache[item] = FilteredSocialTodoViewModel(periodTodo: periodTodo, singleTodo: singleTodo, holiday: holidayMock)
-            }
-        }
-        
-        let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
-        
-        guard let maxItem = viewModel.filteredTodoCache[weekRange]
-            .max(by: { a, b in
-                let aHeight = (a.holiday != nil) ? a.holiday!.0 : (a.singleTodo.last != nil) ?
-                a.singleTodo.last!.0 : (a.periodTodo.last != nil) ? a.periodTodo.last!.0 : 0
-                let bHeight = (b.holiday != nil) ? b.holiday!.0 : (b.singleTodo.last != nil) ?
-                b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
-                return aHeight < bHeight
-            }) else { return UICollectionViewCell() }
-                
-        guard var todosHeight = (maxItem.holiday != nil) ?
-                maxItem.holiday?.0 : (maxItem.singleTodo.count != 0) ?
-                maxItem.singleTodo.last?.0 : (maxItem.periodTodo.count != 0) ?
-                maxItem.periodTodo.last?.0 : 0 else { return UICollectionViewCell() }
-        
-        var height: CGFloat
-        if let cellHeight = viewModel.cachedCellHeightForTodoCount[todosHeight] {
-            height = cellHeight
-        } else {
-            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: 110))
-            mockCell.socialFill(
-                periodTodoList: maxItem.periodTodo,
-                singleTodoList: maxItem.singleTodo,
-                holiday: maxItem.holiday
-            )
-            
-            mockCell.layoutIfNeeded()
-            
-            let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
-                width: Double(1)/Double(7) * UIScreen.main.bounds.width,
-                height: UIView.layoutFittingCompressedSize.height
-            ))
-            let estimatedHeight = estimatedSize.height + mockCell.stackView.topY + 3
-            let targetHeight = (estimatedHeight > 110) ? estimatedHeight : 110
-            height = targetHeight
-        }
-        
-        let day = viewModel.mainDayList[indexPath.item]
-        let filteredTodo = viewModel.filteredTodoCache[indexPath.item]
+        let day = viewModel.mainDays[indexPath.item]
+        let filteredTodo = viewModel.todosInDayViewModels[indexPath.item]
         
         cell.fill(
             day: "\(Calendar.current.component(.day, from: day.date))",
@@ -1091,5 +972,33 @@ extension MyGroupDetailViewController {
         
         cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
         return cell
+    }
+    
+    func calculateCellHeight(item: SocialTodosInDayViewModel) -> CGFloat {
+        let todosHeight = ((item.holiday != nil) ?
+                           item.holiday?.0 : (item.singleTodo.count != 0) ?
+                           item.singleTodo.last?.0 : (item.periodTodo.count != 0) ?
+                           item.periodTodo.last?.0 : 0) ?? 0
+
+        if let cellHeight = viewModel?.cachedCellHeightForTodoCount[todosHeight] {
+            return cellHeight
+        } else {
+            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: 110))
+            mockCell.socialFill(
+                periodTodoList: item.periodTodo,
+                singleTodoList: item.singleTodo,
+                holiday: item.holiday
+            )
+            
+            mockCell.layoutIfNeeded()
+            
+            let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
+                width: Double(1)/Double(7) * UIScreen.main.bounds.width,
+                height: UIView.layoutFittingCompressedSize.height
+            ))
+            let estimatedHeight = estimatedSize.height + mockCell.stackView.topY + 3
+            let targetHeight = (estimatedHeight > 110) ? estimatedHeight : 110
+            return targetHeight
+        }
     }
 }

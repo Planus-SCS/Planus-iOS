@@ -38,6 +38,17 @@ class MyGroupListView: UIView {
         item.tintColor = .black
         return item
     }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        configureView()
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
 
 // MARK: Configure UI
@@ -93,7 +104,6 @@ private extension MyGroupListView {
 }
 
 class MyGroupListViewController: UIViewController {
-    
     
     var viewModel: MyGroupListViewModel?
     var myGroupListView: MyGroupListView?

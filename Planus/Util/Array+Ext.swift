@@ -18,9 +18,9 @@ extension Array {
             } else if isOrderedBefore(elem, self[mid]) {
                 hi = mid - 1
             } else {
-                return mid // found at position mid
+                return mid
             }
         }
-        return lo // not found, would be inserted at position lo
+        return lo
     }
 }

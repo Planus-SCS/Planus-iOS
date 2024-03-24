@@ -65,13 +65,12 @@ class MemberProfileViewModel: ViewModel {
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
 
-    var mainDayList = [[Day]]()
+    var mainDays = [[Day]]()
     var todos = [Date: [SocialTodoSummary]]()
     
-    var blockMemo = [[Int?]](repeating: [Int?](repeating: nil, count: 30), count: 42) //todoId
-    
-    var filteredWeeksOfYear = [Int](repeating: -1, count: 6)
-    var filteredTodoCache = [FilteredSocialTodoViewModel](repeating: FilteredSocialTodoViewModel(periodTodo: [], singleTodo: []), count: 42)
+    var todoStackingCache = [[Bool]](repeating: [Bool](repeating: false, count: 20), count: 42) //투두 스택쌓는 용도, 블럭 사이에 자리 있는지 확인하는 애
+    var weekDayChecker = [Int](repeating: -1, count: 6) //firstDayOfWeekChecker
+    var todosInDayViewModels = [SocialTodosInDayViewModel](repeating: SocialTodosInDayViewModel(), count: 42) //UI 표시용 뷰모델
     var cachedCellHeightForTodoCount = [Int: Double]()
 
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
@@ -166,7 +165,7 @@ class MemberProfileViewModel: ViewModel {
                     SocialDailyCalendarViewModel.Args(
                         group: vm.group,
                         type: .member(id: vm.member.memberId),
-                        date: vm.mainDayList[indexPath.section][indexPath.item].date
+                        date: vm.mainDays[indexPath.section][indexPath.item].date
                     )
                 )
             }
@@ -177,8 +176,8 @@ class MemberProfileViewModel: ViewModel {
             .withUnretained(self)
             .subscribe { vm, _ in
                 guard let currentDate = try? vm.currentDate.value() else { return }
-                let first = vm.mainDayList[0][7].date
-                let last = vm.mainDayList[vm.mainDayList.count-1][7].date
+                let first = vm.mainDays[0][7].date
+                let last = vm.mainDays[vm.mainDays.count-1][7].date
                 vm.showMonthPicker.onNext((first, currentDate, last))
             }
             .disposed(by: bag)
@@ -187,7 +186,7 @@ class MemberProfileViewModel: ViewModel {
             .withUnretained(self)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { vm, date in
-                let start = vm.mainDayList[0][7].date
+                let start = vm.mainDays[0][7].date
                 let index = vm.calendar.dateComponents([.month], from: vm.calendar.startDayOfMonth(date: start), to: date).month ?? 0
                 vm.currentIndex = index
                 vm.currentDate.onNext(date)
@@ -229,7 +228,7 @@ class MemberProfileViewModel: ViewModel {
     }
     
     func initCalendar(date: Date) {
-        mainDayList = (endOfFirstIndex...endOfLastIndex).map { difference -> [Day] in
+        mainDays = (endOfFirstIndex...endOfLastIndex).map { difference -> [Day] in
             let calendarDate = self.calendar.date(byAdding: DateComponents(month: difference), to: date) ?? Date()
             return useCases.createMonthlyCalendarUseCase.execute(date: calendarDate)
         }
@@ -242,7 +241,7 @@ class MemberProfileViewModel: ViewModel {
     
     func initTodoList(date: Date) {
         let fromIndex = (currentIndex - cachingAmount >= 0) ? currentIndex - cachingAmount : 0
-        let toIndex = currentIndex + cachingAmount + 1 < mainDayList.count ? currentIndex + cachingAmount + 1 : mainDayList.count-1
+        let toIndex = currentIndex + cachingAmount + 1 < mainDays.count ? currentIndex + cachingAmount + 1 : mainDays.count-1
         
         fetchTodoList(from: fromIndex, to: toIndex)
     }
@@ -332,5 +331,124 @@ class MemberProfileViewModel: ViewModel {
         useCases
             .fetchImageUseCase
             .execute(key: key)
+    }
+}
+
+// MARK: VC쪽이 UI용 투두 ViewModel 준비를 위해 요청
+extension MemberProfileViewModel {
+    func stackTodosInDayViewModelOfWeek(at indexPath: IndexPath) {
+        let date = mainDays[indexPath.section][indexPath.item].date
+        if indexPath.item%7 == 0, //월요일만 진입 가능
+           weekDayChecker[indexPath.item/7] != sharedCalendar.component(.weekOfYear, from: date) {
+            weekDayChecker[indexPath.item/7] = sharedCalendar.component(.weekOfYear, from: date)
+            (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 todoStackingCache를 전부 0으로 초기화
+                todoStackingCache[$0] = [Bool](repeating: false, count: 20)
+            }
+            
+            for (item, day) in Array(mainDays[indexPath.section].enumerated())[indexPath.item..<indexPath.item + 7] {
+                var todoList = todos[day.date] ?? []
+                
+                let singleTodoList = prepareSingleTodosInDay(at: IndexPath(item: item, section: indexPath.section), todos: todoList)
+                let periodTodoList = preparePeriodTodosInDay(at: IndexPath(item: item, section: indexPath.section), todos: todoList)
+                
+                todosInDayViewModels[item] = generateTodosInDayViewModel(
+                    at: IndexPath(item: item, section: indexPath.section),
+                    singleTodos: singleTodoList,
+                    periodTodos: periodTodoList
+                )
+            }
+        }
+    }
+    
+    func maxHeightTodosInDayViewModelOfWeek(at indexPath: IndexPath) -> SocialTodosInDayViewModel? {
+        let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
+        
+        return todosInDayViewModels[weekRange]
+            .max(by: { a, b in
+                let aHeight = (a.holiday != nil) ? a.holiday!.0 : (a.singleTodo.last != nil) ?
+                a.singleTodo.last!.0 : (a.periodTodo.last != nil) ? a.periodTodo.last!.0 : 0
+                let bHeight = (b.holiday != nil) ? b.holiday!.0 : (b.singleTodo.last != nil) ?
+                b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
+                return aHeight < bHeight
+            })
+    }
+}
+
+// MARK: prepare TodosInDayViewModel
+private extension MemberProfileViewModel {
+    func generateTodosInDayViewModel(at indexPath: IndexPath, singleTodos: [SocialTodoSummary], periodTodos: [SocialTodoSummary]) -> SocialTodosInDayViewModel {
+        let filteredPeriodTodos: [(Int, SocialTodoSummary)] = periodTodos.compactMap { todo in
+            for i in (0..<todoStackingCache[indexPath.item].count) {
+                if todoStackingCache[indexPath.item][i] == false,
+                   let period = sharedCalendar.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
+                    for j in (0...period) {
+                        todoStackingCache[indexPath.item+j][i] = true
+                    }
+                    return (i, todo)
+                }
+            }
+            return nil
+        }
+
+        let singleTodoInitialIndex = todoStackingCache[indexPath.item].enumerated().first(where: { _, isFilled in
+            return isFilled == false
+        })?.offset ?? 0
+        
+        let filteredSingleTodos = singleTodos.enumerated().map { (index, todo) in
+            return (index + singleTodoInitialIndex, todo)
+        }
+        
+        var holiday: (Int, String)?
+        if let holidayTitle = HolidayPool.shared.holidays[mainDays[indexPath.section][indexPath.item].date] {
+            let holidayIndex = singleTodoInitialIndex + singleTodos.count
+            holiday = (holidayIndex, holidayTitle)
+        }
+        
+        return SocialTodosInDayViewModel(periodTodo: filteredPeriodTodos, singleTodo: filteredSingleTodos, holiday: holiday)
+    }
+    
+    func prepareSingleTodosInDay(at indexPath: IndexPath, todos: [SocialTodoSummary]) -> [SocialTodoSummary] {
+        return todos.filter { $0.startDate == $0.endDate }
+    }
+    
+    func preparePeriodTodosInDay(at indexPath: IndexPath, todos: [SocialTodoSummary]) -> [SocialTodoSummary] {
+        var periodList = todos.filter { $0.startDate != $0.endDate }
+        let date = mainDays[indexPath.section][indexPath.item].date
+        
+        if indexPath.item % 7 != 0 { // 만약 월요일이 아닐 경우, 오늘 시작하는것들만
+            periodList = periodList.filter { $0.startDate == date }
+                .sorted { $0.endDate < $1.endDate }
+        } else { //월요일 중에 오늘이 startDate가 아닌 놈들만 startDate로 정렬, 그 뒤에는 전부다 endDate로 정렬하고, 이걸 다시 endDate를 업데이트
+            let continuousPeriodList = periodList
+                .filter { $0.startDate != date }
+                .sorted{ ($0.startDate == $1.startDate) ? $0.endDate < $1.endDate : $0.startDate < $1.startDate }
+                .map { todo in
+                    var tmpTodo = todo
+                    tmpTodo.startDate = date
+                    return tmpTodo
+                }
+            
+            let initialPeriodList = periodList
+                .filter { $0.startDate == date }
+                .sorted{ $0.endDate < $1.endDate }
+            
+            periodList = continuousPeriodList + initialPeriodList
+        }
+        
+        let firstDayOfWeek = sharedCalendar.date(from: sharedCalendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date))
+        let lastDayOfWeek = sharedCalendar.date(byAdding: .day, value: 6, to: firstDayOfWeek!)!  //일요일임.
+        
+        return periodList.map { todo in
+            let currentWeek = sharedCalendar.component(.weekOfYear, from: date)
+            let endWeek = sharedCalendar.component(.weekOfYear, from: todo.endDate)
+            
+            if currentWeek != endWeek {
+                var tmpTodo = todo
+                tmpTodo.endDate = lastDayOfWeek
+                return tmpTodo
+            } else {
+                return todo
+            }
+        }
     }
 }

@@ -32,7 +32,7 @@ class MemberProfileViewController: UIViewController {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.decelerationRate = .fast
         collectionView.isPagingEnabled = true
-        collectionView.register(NestedScrollableMonthlyCalendarCell.self, forCellWithReuseIdentifier: NestedScrollableMonthlyCalendarCell.reuseIdentifier)
+        collectionView.register(MemberMonthlyCalendarCell.self, forCellWithReuseIdentifier: MemberMonthlyCalendarCell.reuseIdentifier)
         
         return collectionView
     }()
@@ -116,7 +116,7 @@ class MemberProfileViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
                 vc.collectionView.performBatchUpdates({
-                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
+                    viewModel.weekDayChecker = [Int](repeating: -1, count: 6)
                     vc.collectionView.reloadData()
                 }, completion: { _ in
                     vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
@@ -130,7 +130,7 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, rangeSet in
-                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
+                viewModel.weekDayChecker = [Int](repeating: -1, count: 6)
                 vc.collectionView.reloadSections(rangeSet)
             })
             .disposed(by: bag)
@@ -256,9 +256,8 @@ class MemberProfileViewController: UIViewController {
             innerTableViewDidScroll(withDistance: dragYDiff)
             
         case .ended:
-            return
             innerTableViewScrollEnded(withScrollDirection: dragDirection)
-            
+            return
         default: return
         
         }
@@ -269,14 +268,14 @@ class MemberProfileViewController: UIViewController {
 
 extension MemberProfileViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        viewModel?.mainDayList.count ?? Int()
+        viewModel?.mainDays.count ?? Int()
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NestedScrollableMonthlyCalendarCell.reuseIdentifier, for: indexPath) as? NestedScrollableMonthlyCalendarCell,
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemberMonthlyCalendarCell.reuseIdentifier, for: indexPath) as? MemberMonthlyCalendarCell,
             let viewModel else { return UICollectionViewCell() }
         
         cell.fill(
