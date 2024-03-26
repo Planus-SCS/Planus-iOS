@@ -792,9 +792,9 @@ private extension HomeCalendarViewModel {
             return nil
         }
 
-        let singleTodoInitialIndex = todoStackingCache[indexPath.item].enumerated().first(where: { _, isFilled in
-            return isFilled == false
-        })?.offset ?? 0
+        let singleTodoInitialIndex = (todoStackingCache[indexPath.item].lastIndex(where: { isFilled in
+            return isFilled == true
+        }) ?? -1) + 1
         
         let filteredSingleTodos = singleTodos.enumerated().map { (index, todo) in
             return (index + singleTodoInitialIndex, todo)
