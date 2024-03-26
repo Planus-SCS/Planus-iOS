@@ -65,12 +65,7 @@ class CalendarDailyCell: SpringableCollectionViewCell {
     convenience init(mockableFrame: CGRect) {
         self.init(frame: mockableFrame)
         
-        stackView.snp.makeConstraints {
-            $0.top.equalTo(numberLabel.snp.bottom).offset(5)
-            $0.leading.equalToSuperview().inset(4)
-            $0.width.equalTo(UIScreen.main.bounds.width)
-            $0.bottom.equalToSuperview().inset(3)
-        }
+        remakeStackConstForMock()
     }
     
     override init(frame: CGRect) {
@@ -92,6 +87,15 @@ class CalendarDailyCell: SpringableCollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         numberLabel.layer.cornerRadius = numberLabel.bounds.width/2
+    }
+    
+    func remakeStackConstForMock() {
+        stackView.snp.remakeConstraints {
+            $0.top.equalTo(numberLabel.snp.bottom).offset(5)
+            $0.leading.equalToSuperview().inset(4)
+            $0.width.equalTo(UIScreen.main.bounds.width)
+            $0.bottom.equalToSuperview().inset(3)
+        }
     }
 }
 
@@ -140,7 +144,7 @@ extension CalendarDailyCell {
 }
 
 extension CalendarDailyCell {
-    func fill(periodTodoList: [(Int, SocialTodoSummary)], singleTodoList: [(Int, SocialTodoSummary)], holiday: (Int, String)?) {
+    func fill(periodTodoList: [(Int, TodoSummaryViewModel)], singleTodoList: [(Int, TodoSummaryViewModel)], holiday: (Int, String)?) {
         var currentIndex = 0
 
         periodTodoList.forEach { (index, todo) in
@@ -164,6 +168,28 @@ extension CalendarDailyCell {
             let holidayTitle = holiday.1
             stackEmptyView(count: holidayIndex-currentIndex)
             stackHolidayLabel(title: holidayTitle)
+        }
+    }
+    
+    func fillAndFit(periodTodoList: [(Int, TodoSummaryViewModel)], singleTodoList: [(Int, TodoSummaryViewModel)], holiday: (Int, String)?) -> CGFloat {
+        fill(periodTodoList: periodTodoList, singleTodoList: singleTodoList, holiday: holiday)
+        remakeStackConstForMock()
+        var targetHeight: CGFloat = 100
+        let estimatedSize = self.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+
+        let estimatedHeight = estimatedSize.height
+        return estimatedHeight
+    }
+    
+    func stretch(height: CGFloat) {
+        stackView.snp.makeConstraints {
+            $0.top.equalTo(numberLabel.snp.bottom).offset(5)
+            $0.leading.equalToSuperview().inset(4)
+            $0.width.equalTo(UIScreen.main.bounds.width)
+            $0.bottom.lessThanOrEqualToSuperview().inset(3)
+        }
+        self.contentView.snp.remakeConstraints {
+            $0.height.equalTo(height)
         }
     }
 }

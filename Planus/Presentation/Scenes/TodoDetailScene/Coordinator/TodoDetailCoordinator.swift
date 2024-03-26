@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-class TodoDetailCoordinator: Coordinator {
+final class TodoDetailCoordinator: Coordinator {
     
     struct Dependency {
         let navigationController: UINavigationController

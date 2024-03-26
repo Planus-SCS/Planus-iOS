@@ -7,10 +7,10 @@
 
 import UIKit
 
-class GroupIntroduceNoticeCell: SpringableCollectionViewCell {
+final class GroupIntroduceNoticeCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "group-introduce-notice-cell"
 
-    var noticeTextView: UITextView = {
+    private let noticeTextView: UITextView = {
         let textView = UITextView(frame: .zero)
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
         textView.textColor = .black
@@ -46,12 +46,12 @@ class GroupIntroduceNoticeCell: SpringableCollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureView() {
+    private func configureView() {
         self.addSubview(noticeTextView)
         self.backgroundColor = UIColor(hex: 0xF5F5FB)
     }
     
-    func configureLayout() {
+    private func configureLayout() {
         noticeTextView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(24)
             $0.top.bottom.equalToSuperview()

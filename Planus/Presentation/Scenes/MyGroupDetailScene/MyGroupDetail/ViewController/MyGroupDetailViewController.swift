@@ -273,7 +273,6 @@ extension MyGroupDetailViewController {
             .subscribe(onNext: { vc, _ in
                 guard let mode = viewModel.mode else { return }
                 vc.nowLoading = false
-                viewModel.weekDayChecker = [Int](repeating: -1, count: 6)
                 vc.setSectionCount(mode: mode, trailingAction: {
                     vc.collectionView.reloadSections(IndexSet(integer: MyGroupDetailPageAttribute.calendar.sectionIndex))
                 }, completion: {
@@ -610,14 +609,56 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarDailyCell.identifier, for: indexPath) as? CalendarDailyCell else {
                 return UICollectionViewCell()
             }
-            if nowLoading {
-                cell.startSkeletonAnimation()
-                return cell
-            }
-            cell.stopSkeletonAnimation()
-            
-            return calendarCell(cell: cell, indexPath: indexPath)
+            return calendarCell(collectionView, cellForItemAt: indexPath)
         }
+    }
+    
+    func calendarCell(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let viewModel,
+              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarDailyCell.identifier, for: indexPath) as? CalendarDailyCell else {
+            return UICollectionViewCell()
+        }
+        
+        if nowLoading {
+            cell.startSkeletonAnimation()
+            return cell
+        }
+        cell.stopSkeletonAnimation()
+
+        let day = viewModel.mainDays[indexPath.item]
+
+        cell.fill(
+            day: "\(Calendar.current.component(.day, from: day.date))",
+            state: day.state,
+            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: day.date)+5)%7)!,
+            isToday: day.date == viewModel.today,
+            isHoliday: HolidayPool.shared.holidays[day.date] != nil
+        )
+        
+        let (maxCount, maxTodo) = viewModel.maxCountDailyViewModelOfWeek(at: IndexPath(item: indexPath.item, section: 0))
+        
+        let item = viewModel.dailyViewModels[day.date]
+        if let cellHeight = viewModel.cachedCellHeightForTodoCount[maxCount] {
+            cell.stretch(height: cellHeight)
+        } else {
+            var targetHeight: CGFloat = 100
+            if let maxTodo {
+                let mockCell = CalendarDailyCell(mockableFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: UIView.layoutFittingCompressedSize.height))
+                let estimatedHeight = mockCell.fillAndFit(
+                    periodTodoList: maxTodo.periodTodo,
+                    singleTodoList: maxTodo.singleTodo,
+                    holiday: maxTodo.holiday
+                )
+                targetHeight = max(estimatedHeight, targetHeight)
+            }
+            viewModel.cachedCellHeightForTodoCount[maxCount] = targetHeight
+            cell.stretch(height: targetHeight)
+        }
+        
+        if let item = viewModel.dailyViewModels[day.date] {
+            cell.fill(periodTodoList: item.periodTodo, singleTodoList: item.singleTodo, holiday: item.holiday)
+        }
+        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -880,58 +921,6 @@ private extension MyGroupDetailViewController {
 extension MyGroupDetailViewController: UIPopoverPresentationControllerDelegate {
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
-    }
-}
-
-extension MyGroupDetailViewController {
-    func calendarCell(cell: CalendarDailyCell, indexPath: IndexPath) -> UICollectionViewCell {
-        guard let viewModel else { return UICollectionViewCell() }
-        viewModel.stackTodosInDayViewModelOfWeek(at: IndexPath(item: indexPath.item, section: indexPath.section))
-        
-        guard let maxItem = viewModel.maxHeightTodosInDayViewModelOfWeek(at: IndexPath(item: indexPath.item, section: indexPath.section)) else { return UICollectionViewCell() }
-        let height = calculateCellHeight(item: maxItem)
-        
-        let day = viewModel.mainDays[indexPath.item]
-        let filteredTodo = viewModel.todosInDayViewModels[indexPath.item]
-        
-        cell.fill(
-            day: "\(Calendar.current.component(.day, from: day.date))",
-            state: day.state,
-            weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: day.date)+5)%7)!,
-            isToday: day.date == viewModel.today,
-            isHoliday: HolidayPool.shared.holidays[day.date] != nil
-        )
-        
-        cell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
-        return cell
-    }
-    
-    func calculateCellHeight(item: SocialTodosInDayViewModel) -> CGFloat {
-        let todosHeight = ((item.holiday != nil) ?
-                           item.holiday?.0 : (item.singleTodo.count != 0) ?
-                           item.singleTodo.last?.0 : (item.periodTodo.count != 0) ?
-                           item.periodTodo.last?.0 : 0) ?? 0
-
-        if let cellHeight = viewModel?.cachedCellHeightForTodoCount[todosHeight] {
-            return cellHeight
-        } else {
-            let mockCell = CalendarDailyCell(frame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: 110))
-            mockCell.fill(
-                periodTodoList: item.periodTodo,
-                singleTodoList: item.singleTodo,
-                holiday: item.holiday
-            )
-            
-            mockCell.layoutIfNeeded()
-            
-            let estimatedSize = mockCell.systemLayoutSizeFitting(CGSize(
-                width: Double(1)/Double(7) * UIScreen.main.bounds.width,
-                height: UIView.layoutFittingCompressedSize.height
-            ))
-            let estimatedHeight = estimatedSize.height + 3
-            let targetHeight = (estimatedHeight > 110) ? estimatedHeight : 110
-            return targetHeight
-        }
     }
 }
 

@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-class MyPageCoordinator: Coordinator {
+final class MyPageCoordinator: Coordinator {
     
     struct Dependency {
         let navigationController: UINavigationController

@@ -188,7 +188,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         guard let viewModel,
               let section else { return CGSize() }
 
-        let (maxCount, maxTodo) = viewModel.maxCountTodosInDayViewModelOfWeek(at: IndexPath(item: indexPath.item, section: section))
+        let (maxCount, maxTodo) = viewModel.largestDailyViewModelOfWeek(at: IndexPath(item: indexPath.item, section: section))
 
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[maxCount] {
             return CGSize(width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: cellHeight)

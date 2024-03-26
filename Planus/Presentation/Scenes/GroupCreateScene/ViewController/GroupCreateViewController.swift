@@ -11,15 +11,15 @@ import RxCocoa
 import PhotosUI
 
 final class GroupCreateViewController: UIViewController {
-
-    var bag = DisposeBag()
+    
+    private var bag = DisposeBag()
     
     var viewModel: GroupCreateViewModel?
-    var groupCreateView: GroupCreateView?
+    private var groupCreateView: GroupCreateView?
     
-    var tagAdded = PublishRelay<String>()
-    var tagRemovedAt = PublishRelay<Int>()
-    var titleImageChanged = PublishRelay<ImageFile?>()
+    private let tagAdded = PublishRelay<String>()
+    private let tagRemovedAt = PublishRelay<Int>()
+    private let titleImageChanged = PublishRelay<ImageFile?>()
     
     convenience init(viewModel: GroupCreateViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -63,7 +63,7 @@ final class GroupCreateViewController: UIViewController {
     }
 }
 
-// MARK: Configure VC
+// MARK: bind viewModel
 private extension GroupCreateViewController {
     func bind() {
         guard let viewModel,
@@ -133,7 +133,7 @@ private extension GroupCreateViewController {
                 = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
             })
             .disposed(by: bag)
-
+        
         output
             .isCreateButtonEnabled
             .observe(on: MainScheduler.asyncInstance)
@@ -195,7 +195,10 @@ private extension GroupCreateViewController {
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: - configure
+private extension GroupCreateViewController {
     func configureView() {
         groupCreateView?.tagView.tagCollectionView.dataSource = self
         groupCreateView?.tagView.tagCollectionView.delegate = self
@@ -209,7 +212,7 @@ private extension GroupCreateViewController {
 private extension GroupCreateViewController {
     func insertTagAt(index: Int) {
         guard let groupCreateView else { return }
-
+        
         groupCreateView.tagView
             .tagCollectionView
             .performBatchUpdates({
@@ -236,11 +239,11 @@ private extension GroupCreateViewController {
                     .tagCollectionView
                     .deleteItems(at: [IndexPath(item: index, section: 0)])
             }, completion: { _ in
-                    UIView.performWithoutAnimation {
-                        groupCreateView.tagView
-                            .tagCollectionView
-                            .reloadSections(IndexSet(0...0))
-                    }
+                UIView.performWithoutAnimation {
+                    groupCreateView.tagView
+                        .tagCollectionView
+                        .reloadSections(IndexSet(0...0))
+                }
             })
     }
     
@@ -249,7 +252,7 @@ private extension GroupCreateViewController {
         phPickerConfiguration.selectionLimit = 1
         phPickerConfiguration.filter = .images
         phPickerConfiguration.preferredAssetRepresentationMode = .current
-
+        
         let phPicker = PHPickerViewController(configuration: phPickerConfiguration)
         phPicker.delegate = self
         self.present(phPicker, animated: true)
@@ -271,7 +274,7 @@ private extension GroupCreateViewController {
             $0.height.equalTo(0)
         }
         groupCreateView?.keyboardHeightConstraint = view.constraints.first(where: { $0.firstAttribute == .height })
-
+        
         groupCreateView?.contentStackView.addArrangedSubview(view)
     }
     
@@ -279,7 +282,7 @@ private extension GroupCreateViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification , object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-
+    
     // 노티피케이션을 제거하는 메서드
     func removeKeyboardNotifications(){
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification , object: nil)
@@ -291,9 +294,9 @@ private extension GroupCreateViewController {
               let keyboardFrame = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
             return
         }
-
+        
         guard let firstResponder = self.view.firstResponder else { return }
-
+        
         // 키보드에 가려진 후의 frame
         let container = CGRect(
             x: groupCreateView.scrollView.contentOffset.x,
@@ -301,9 +304,9 @@ private extension GroupCreateViewController {
             width: self.view.frame.width,
             height: self.view.frame.height - keyboardFrame.height
         )
-                
+        
         let globalFrame = firstResponder.convert(firstResponder.frame, to: groupCreateView.scrollView)
-
+        
         if !CGRectIntersectsRect(container, globalFrame) { // 만약 안보이면? 이동시켜주기!
             groupCreateView.scrollView.setContentOffset(
                 CGPoint(x: groupCreateView.scrollView.contentOffset.x, y: groupCreateView.scrollView.contentOffset.y + keyboardFrame.height),
@@ -313,7 +316,7 @@ private extension GroupCreateViewController {
         
         groupCreateView.keyboardHeightConstraint?.constant = keyboardFrame.height
     }
-
+    
     @objc func keyboardWillHide(_ sender: Notification) {
         groupCreateView?.keyboardHeightConstraint?.constant = 0
     }
@@ -393,7 +396,7 @@ private extension GroupCreateViewController {
                 height: groupCreateView.scrollView.frame.size.height - keyboardHeight
             )
             let realCenter = groupCreateView.tagView.tagCollectionView.convert(collectionViewCell.center, to: self.view)
-   
+            
             let currentYRange = groupCreateView.scrollView.contentOffset.y...groupCreateView.scrollView.contentOffset.y + self.view.frame.height - keyboardHeight
             if !currentYRange.contains(realCenter.y) {
                 groupCreateView.scrollView.setContentOffset(

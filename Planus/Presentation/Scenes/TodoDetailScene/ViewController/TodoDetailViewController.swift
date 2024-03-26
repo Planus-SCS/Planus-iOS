@@ -16,7 +16,7 @@ final class TodoDetailViewController: UIViewController {
     var pageDismissCompletionHandler: (() -> Void)?
     var isFirstAppear = true
     
-    // MARK: send ControlProperties to ViewModel
+    // MARK: UI Event
     var didSelectCategoryAt = PublishRelay<Int?>()
     var didRequestEditCategoryAt = PublishRelay<Int>()
     var didSelectedDateRange = PublishRelay<DateRange>()
@@ -104,10 +104,10 @@ extension TodoDetailViewController {
             didRemoveCategory: didDeleteCategoryId.asObservable(),
             categoryEditRequested: didRequestEditCategoryAt.asObservable(),
             categorySelectBtnTapped: todoDetailView.titleView.categoryButton.rx.tap.asObservable(),
-            todoSaveBtnTapped: todoDetailView.saveButton.rx.tap.asObservable(),
-            todoRemoveBtnTapped: todoDetailView.removeButton.rx.tap.asObservable(),
+            todoSaveBtnTapped: todoDetailView.saveButton.rx.tap.throttle(.seconds(1), scheduler: MainScheduler.asyncInstance).asObservable(),
+            todoRemoveBtnTapped: todoDetailView.removeButton.rx.tap.throttle(.seconds(1), scheduler: MainScheduler.asyncInstance).asObservable(),
             newCategoryAddBtnTapped: categoryView.addNewItemButton.rx.tap.asObservable(),
-            newCategorySaveBtnTapped: categoryCreateView.saveButton.rx.tap.asObservable(),
+            newCategorySaveBtnTapped: categoryCreateView.saveButton.rx.tap.throttle(.seconds(1), scheduler: MainScheduler.asyncInstance).asObservable(),
             categorySelectPageBackBtnTapped: categoryView.backButton.rx.tap.asObservable(),
             categoryCreatePageBackBtnTapped: categoryCreateView.backButton.rx.tap.asObservable()
         )

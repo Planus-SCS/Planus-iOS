@@ -7,10 +7,10 @@
 
 import UIKit
 
-class MyGroupDetailLoadingCell: UICollectionViewCell {
+final class MyGroupDetailLoadingCell: UICollectionViewCell {
     static let reuseIdentifier = "my-group-detail-loading-cell"
     
-    var spinner = UIActivityIndicatorView(style: .gray)
+    private let spinner = UIActivityIndicatorView(style: .gray)
     
     override init(frame: CGRect) {
         super.init(frame: frame)

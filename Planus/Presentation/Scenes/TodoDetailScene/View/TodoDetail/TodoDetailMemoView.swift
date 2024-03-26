@@ -41,7 +41,6 @@ class TodoDetailMemoView: UIView, TodoDetailAttributeView {
         textView.textColor = .black
         textView.backgroundColor = UIColor(hex: 0xF5F5FB)
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
-//        textView.delegate = self
         textView.layer.borderWidth = 1
         textView.layer.cornerCurve = .continuous
         textView.layer.cornerRadius = 10

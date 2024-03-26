@@ -11,7 +11,7 @@ import RxCocoa
 
 final class SearchHomeViewController: UIViewController {
     
-    private var bag = DisposeBag()
+    private let bag = DisposeBag()
     
     private var viewModel: SearchHomeViewModel?
     private var searchHomeView: SearchHomeView?
@@ -20,9 +20,9 @@ final class SearchHomeViewController: UIViewController {
     private var isLoading: Bool = true
     private var isEnded: Bool = false
     
-    private var tappedItemAt = PublishRelay<Int>()
-    private var refreshRequired = PublishRelay<Void>()
-    private var needLoadNextData = PublishRelay<Void>()
+    private let tappedItemAt = PublishRelay<Int>()
+    private let refreshRequired = PublishRelay<Void>()
+    private let needLoadNextData = PublishRelay<Void>()
     
     convenience init(viewModel: SearchHomeViewModel) {
         self.init(nibName: nil, bundle: nil)

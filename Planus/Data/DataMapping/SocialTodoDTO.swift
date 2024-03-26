@@ -16,8 +16,8 @@ struct SocialTodoSummaryResponseDTO: Codable {
 }
 
 extension SocialTodoSummaryResponseDTO {
-    func toDomain() -> SocialTodoSummary {
-        return SocialTodoSummary(
+    func toDomain() -> TodoSummaryViewModel {
+        return TodoSummaryViewModel(
             todoId: todoId,
             categoryColor: CategoryColor(rawValue: categoryColor) ?? .none,
             title: title,

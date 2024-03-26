@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MemberProfileCoordinator: Coordinator {
+final class MemberProfileCoordinator: Coordinator {
     
     struct Dependency {
         let navigationController: UINavigationController

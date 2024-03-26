@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MemberProfileCalendarHeaderView: UIView {
+final class MemberProfileCalendarHeaderView: UIView {
     lazy var yearMonthButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setTitle("2020년 0월", for: .normal)
@@ -17,10 +17,11 @@ class MemberProfileCalendarHeaderView: UIView {
         button.imageEdgeInsets = .init(top: 0, left: 5, bottom: 0, right: -5)
         button.tintColor = .black
         button.setTitleColor(.black, for: .normal)
-
+        
         return button
     }()
-    var weekStackView: UIStackView = {
+    
+    private let weekStackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.distribution = .fillEqually
         let dayOfTheWeek = ["월", "화", "수", "목", "금", "토", "일"]
@@ -44,7 +45,10 @@ class MemberProfileCalendarHeaderView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+}
+
+// MARK: - configure
+private extension MemberProfileCalendarHeaderView {
     func configureView() {
         self.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.addSubview(yearMonthButton)
@@ -65,5 +69,4 @@ class MemberProfileCalendarHeaderView: UIView {
             $0.bottom.equalToSuperview()
         }
     }
-
 }

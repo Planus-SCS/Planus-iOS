@@ -31,7 +31,7 @@ final class NotificationViewModel: ViewModel {
         let args: Args
     }
     
-    private var bag = DisposeBag()
+    private let bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
@@ -52,10 +52,10 @@ final class NotificationViewModel: ViewModel {
     
     var joinAppliedList: [MyGroupJoinAppliance]?
     var nowProcessingJoinId: [Int] = []
-    private var didFetchJoinApplyList = BehaviorSubject<FetchType?>(value: nil)
-    private var needRemoveAt = PublishSubject<Int>()
+    private let didFetchJoinApplyList = BehaviorSubject<FetchType?>(value: nil)
+    private let needRemoveAt = PublishSubject<Int>()
     
-    private var showMessage = PublishSubject<Message>()
+    private let showMessage = PublishSubject<Message>()
     
     init(
         useCases: UseCases,

@@ -7,8 +7,8 @@
 
 import UIKit
 
-class MemberProfileHeaderView: UIView {
-    var bottomView: UIView = {
+final class MemberProfileHeaderView: UIView {
+    private let bottomView: UIView = {
         let view = UIView(frame: .zero)
         view.backgroundColor = UIColor(hex: 0xF5F5FB)
         view.layer.cornerRadius = 10
@@ -17,7 +17,7 @@ class MemberProfileHeaderView: UIView {
         return view
     }()
     
-    var profileImageShadowView: UIView = {
+    private let profileImageShadowView: UIView = {
         let view = UIView(frame: .zero)
         view.layer.masksToBounds = false
         view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
@@ -27,7 +27,7 @@ class MemberProfileHeaderView: UIView {
         return view
     }()
     
-    var profileImageView: UIImageView = {
+    let profileImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -37,7 +37,7 @@ class MemberProfileHeaderView: UIView {
         return imageView
     }()
     
-    var nameLabel: UILabel = {
+    let nameLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.textColor = .black
         label.font = UIFont(name: "Pretendard-Bold", size: 16)
@@ -45,7 +45,7 @@ class MemberProfileHeaderView: UIView {
         return label
     }()
     
-    var introduceLabel: UILabel = {
+    let introduceLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
         label.textColor = UIColor(hex: 0x6F81A9)
@@ -54,7 +54,7 @@ class MemberProfileHeaderView: UIView {
         return label
     }()
     
-    var separateView: UIView = {
+    private let separateView: UIView = {
         let view = UIView(frame: .zero)
         view.backgroundColor = UIColor(hex: 0xBFC7D7)
         view.layer.masksToBounds = false
@@ -91,7 +91,10 @@ class MemberProfileHeaderView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+}
+
+// MARK: - configure
+private extension MemberProfileHeaderView {
     func configureView() {
         self.backgroundColor = UIColor(hex: 0xB2CAFA)
         self.addSubview(bottomView)
@@ -134,5 +137,4 @@ class MemberProfileHeaderView: UIView {
             $0.bottom.equalToSuperview()
         }
     }
-    
 }

@@ -164,7 +164,7 @@ final class DailyCalendarViewModel: ViewModel {
     }
 }
 
-// MARK: Configure
+// MARK: bind useCase
 private extension DailyCalendarViewModel {
     func bindTodoUseCase() {
         useCases.createTodoUseCase
@@ -212,9 +212,12 @@ private extension DailyCalendarViewModel {
                 vm.needReloadData.onNext(())
             })
             .disposed(by: bag)
-
+        
     }
-    
+}
+
+// MARK: - set
+private extension DailyCalendarViewModel {
     func setDate(currentDate: Date) {
         self.currentDate = currentDate
         self.currentDateText = dateFormatter.string(from: currentDate)

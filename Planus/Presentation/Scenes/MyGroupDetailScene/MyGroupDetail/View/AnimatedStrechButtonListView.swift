@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AnimatedStrechButtonListView: UIView {
+final class AnimatedStrechButtonListView: UIView {
 
     enum Axis {
         case up
@@ -20,15 +20,15 @@ class AnimatedStrechButtonListView: UIView {
         case shrinked
         case stretched
     }
-    var axis: Axis = .up
-    var state: State = .shrinked
+    private var axis: Axis = .up
+    private var state: State = .shrinked
     
-    var buttons = [UIButton]()
-    var anchorConstraints = [NSLayoutConstraint]()
-    var spacing: CGFloat = 5
+    private var buttons = [UIButton]()
+    private var anchorConstraints = [NSLayoutConstraint]()
+    private var spacing: CGFloat = 5
     
-    var itemMaxWidth: CGFloat = 0
-    var itemMaxHeight: CGFloat = 0
+    private var itemMaxWidth: CGFloat = 0
+    private var itemMaxHeight: CGFloat = 0
     
     convenience init(axis: Axis) {
         self.init(frame: .zero)
@@ -49,7 +49,7 @@ class AnimatedStrechButtonListView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func addButton(button: UIButton) {
+    public func addButton(button: UIButton) {
         buttons.append(button)
         self.insertSubview(button, at: 0)
         
@@ -88,7 +88,7 @@ class AnimatedStrechButtonListView: UIView {
         anchorConstraints.append(newConst)
     }
     
-    func stretch() {
+    public func stretch() {
         self.state = .stretched
         var offset: CGFloat = 0
         for i in 0..<buttons.count {
@@ -111,13 +111,13 @@ class AnimatedStrechButtonListView: UIView {
             newConst.isActive = true
             anchorConstraints[i] = newConst
         }
-//
+
         UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseIn, animations: {
             self.layoutIfNeeded()
         })
     }
     
-    func shrink(_ completion: (() -> Void)? = nil) {
+    public func shrink(_ completion: (() -> Void)? = nil) {
         self.state = .shrinked
         for i in 0..<buttons.count {
             anchorConstraints[i].isActive = false
@@ -135,7 +135,7 @@ class AnimatedStrechButtonListView: UIView {
             newConst.isActive = true
             anchorConstraints[i] = newConst
         }
-//
+
         UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
             self.layoutIfNeeded()
         }, completion: { _ in

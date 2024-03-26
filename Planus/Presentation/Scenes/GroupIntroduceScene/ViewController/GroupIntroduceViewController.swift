@@ -113,7 +113,10 @@ private extension GroupIntroduceViewController {
     func configureVC() {
         groupIntroduceView?.collectionView.dataSource = self
     }
-    
+}
+
+// MARK: - bind viewModel
+private extension GroupIntroduceViewController {
     func bind() {
         guard let viewModel,
               let groupIntroduceView else { return }
