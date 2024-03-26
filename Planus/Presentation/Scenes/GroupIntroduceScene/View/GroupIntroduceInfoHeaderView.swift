@@ -10,7 +10,9 @@ import RxSwift
 
 class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     static let reuseIdentifier = "group-introduce-info-header-supplementary-view"
-    var viewBag: DisposeBag?
+    
+    var bag: DisposeBag?
+    
     var titleImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
@@ -60,30 +62,6 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     }()
     
     var memberStackView: UIStackView = {
-        let stackView = UIStackView(frame: .zero)
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.spacing = 6
-        return stackView
-    }()
-    
-    var onlineIconView: UIImageView = {
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 14, height: 14))
-        imageView.image = UIImage(named: "onlineSmall")
-        imageView.contentMode = .scaleAspectFit
-        imageView.clipsToBounds = true
-        return imageView
-    }()
-    
-    var onlineCountLabel: UILabel = {
-        let label = UILabel(frame: .zero)
-        label.font = UIFont(name: "Pretendard-Regular", size: 14)
-        label.textColor = UIColor(hex: 0x6F81A9)
-        label.sizeToFit()
-        return label
-    }()
-    
-    var onlineStackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .horizontal
         stackView.alignment = .center
@@ -153,21 +131,14 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         centerContentView.addSubview(titleLabel)
         centerContentView.addSubview(tagLabel)
         
-        self.addSubview(memberStackView)
         memberStackView.addArrangedSubview(memberIconView)
         memberStackView.addArrangedSubview(memberCountLabel)
         
-        self.addSubview(captinStackView)
         captinStackView.addArrangedSubview(captinIconView)
         captinStackView.addArrangedSubview(captinNameLabel)
         
-        self.addSubview(onlineStackView)
-        onlineStackView.addArrangedSubview(onlineIconView)
-        onlineStackView.addArrangedSubview(onlineCountLabel)
-        
         self.addSubview(bottomStackView)
         bottomStackView.addArrangedSubview(memberStackView)
-        bottomStackView.addArrangedSubview(onlineStackView)
         bottomStackView.addArrangedSubview(captinStackView)
     }
     
@@ -205,27 +176,32 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         
     }
     
-    func fill(title: String, tag: String, memCount: String, captin: String, onlineCount: String? = nil) {
+    func fill(title: String, tag: String, memCount: String, captin: String, imgFetcher: Single<Data>) {
+        let bag = DisposeBag()
+        self.bag = bag
+        
         self.titleLabel.text = title
         self.tagLabel.text = tag
         self.memberCountLabel.text = memCount
-        self.captinNameLabel.text = captin
-        if let onlineCount {
-            onlineStackView.isHidden = false
-            onlineCountLabel.text = onlineCount
-        } else {
-            onlineStackView.isHidden = true
-        }
+        self.captinNameLabel.text = captin    
+
+        imgFetcher
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] data in
+                self?.fill(image: UIImage(data: data))
+            })
+            .disposed(by: bag)
     }
     
     func fill(image: UIImage?) {
-        UIView.transition(with: titleImageView,
-                          duration: 0.1,
-                          options: .transitionCrossDissolve,
-                          animations: {
-            self.titleImageView.image = image
-            
-        },
-                          completion: nil)
+        UIView.transition(
+            with: titleImageView,
+            duration: 0.1,
+            options: .transitionCrossDissolve,
+            animations: {
+                self.titleImageView.image = image
+            },
+            completion: nil
+        )
     }
 }

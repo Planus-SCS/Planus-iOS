@@ -36,12 +36,12 @@ final class GroupIntroduceViewModel: ViewModel {
     }
     
     
-    var bag = DisposeBag()
+    private var bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
     
-    var groupId: Int
+    private var groupId: Int
 
     var groupTitle: String?
     var tag: String?
@@ -51,12 +51,12 @@ final class GroupIntroduceViewModel: ViewModel {
     var groupImageUrl: String?
     var memberList: [Member]?
     
-    var didGroupInfoFetched = BehaviorSubject<Void?>(value: nil)
-    var didGroupMemberFetched = BehaviorSubject<Void?>(value: nil)
-    var isJoinableGroup = BehaviorSubject<GroupJoinableState?>(value: nil)
-    var applyCompleted = PublishSubject<Void>()
-    var showMessage = PublishSubject<Message>()
-    var showShareMenu = PublishSubject<String?>()
+    private var didGroupInfoFetched = BehaviorSubject<Void?>(value: nil)
+    private var didGroupMemberFetched = BehaviorSubject<Void?>(value: nil)
+    private var isJoinableGroup = BehaviorSubject<GroupJoinableState?>(value: nil)
+    private var applyCompleted = PublishSubject<Void>()
+    private var showMessage = PublishSubject<Message>()
+    private var showShareMenu = PublishSubject<String?>()
     
     struct Input {
         var viewDidLoad: Observable<Void>

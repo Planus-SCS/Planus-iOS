@@ -9,116 +9,20 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-final class SearchHomeView: UIView {
-    lazy var refreshControl: UIRefreshControl = {
-        let rc = UIRefreshControl(frame: .zero)
-        return rc
-    }()
-    
-    lazy var resultCollectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createSection())
-        collectionView.register(SearchResultCell.self, forCellWithReuseIdentifier: SearchResultCell.reuseIdentifier)
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
-        collectionView.refreshControl = refreshControl
-        return collectionView
-    }()
-    
-    lazy var searchButton: UIBarButtonItem = {
-        let image = UIImage(named: "searchBarIcon")?.withRenderingMode(.alwaysTemplate)
-        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
-        return item
-    }()
-    
-    var createGroupButton: SpringableButton = {
-        let button = SpringableButton(frame: .zero)
-        button.setImage(UIImage(named: "GroupAddBtn"), for: .normal)
-        button.layer.cornerRadius = 25
-        button.layer.cornerCurve = .continuous
-        button.layer.masksToBounds = false
-        button.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
-        button.layer.shadowOpacity = 1
-        button.layer.shadowOffset = CGSize(width: 0, height: 1)
-        button.layer.shadowRadius = 2
-        return button
-    }()
-    
-    var navigationTitleView: UIImageView = {
-        let image = UIImage(named: "PlanusGroup")
-        let view = UIImageView(image: image)
-        view.clipsToBounds = true
-        return view
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        configureView()
-        configureLayout()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        print("fatal error")
-    }
-}
-
-
-// MARK: configure UI
-private extension SearchHomeView {
-    func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.addSubview(resultCollectionView)
-        self.addSubview(createGroupButton)
-    }
-    
-    func configureLayout() {
-        resultCollectionView.snp.makeConstraints {
-            $0.edges.equalTo(self.safeAreaLayoutGuide)
-        }
-        
-        createGroupButton.snp.makeConstraints {
-            $0.bottom.trailing.equalToSuperview().inset(16)
-            $0.width.height.equalTo(50)
-        }
-    }
-}
-
-// MARK: CollectionView Layout
-private extension SearchHomeView {
-    private func createSection() -> UICollectionViewLayout {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/2), heightDimension: .fractionalHeight(1))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
-        
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                               heightDimension: .absolute(250))
-        
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
-
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 20, trailing: 7)
-        
-        let layout = UICollectionViewCompositionalLayout(section: section)
-
-        return layout
-    }
-}
-
 final class SearchHomeViewController: UIViewController {
     
-    var bag = DisposeBag()
+    private var bag = DisposeBag()
     
-    var viewModel: SearchHomeViewModel?
-    var searchHomeView: SearchHomeView?
+    private var viewModel: SearchHomeViewModel?
+    private var searchHomeView: SearchHomeView?
     
-    var isInitLoading = true
-    var isLoading: Bool = true
-    var isEnded: Bool = false
-    var tappedItemAt = PublishRelay<Int>()
-    var refreshRequired = PublishRelay<Void>()
-    var needLoadNextData = PublishRelay<Void>()
+    private var isInitLoading = true
+    private var isLoading: Bool = true
+    private var isEnded: Bool = false
+    
+    private var tappedItemAt = PublishRelay<Int>()
+    private var refreshRequired = PublishRelay<Void>()
+    private var needLoadNextData = PublishRelay<Void>()
     
     convenience init(viewModel: SearchHomeViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -135,7 +39,7 @@ final class SearchHomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         configureVC()
         bind()
     }
@@ -146,7 +50,10 @@ final class SearchHomeViewController: UIViewController {
         self.navigationItem.titleView = searchHomeView?.navigationTitleView
         self.navigationItem.setRightBarButton(searchHomeView?.searchButton, animated: false)
     }
-    
+}
+
+// MARK: - bind viewModel
+extension SearchHomeViewController {
     func bind() {
         guard let viewModel,
               let searchHomeView else { return }
@@ -213,15 +120,22 @@ final class SearchHomeViewController: UIViewController {
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: - configure VC
+private extension SearchHomeViewController {
     func configureVC() {
         searchHomeView?.resultCollectionView.dataSource = self
         searchHomeView?.resultCollectionView.delegate = self
         
         searchHomeView?.refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
     }
-        
-    @objc func refresh(_ sender: UIRefreshControl) {
+}
+
+// MARK: - Actions
+private extension SearchHomeViewController {
+    @objc 
+    func refresh(_ sender: UIRefreshControl) {
         if !isLoading {
             sender.endRefreshing()
             isLoading = true
@@ -233,8 +147,8 @@ final class SearchHomeViewController: UIViewController {
     }
 }
 
+// MARK: - Collection View
 extension SearchHomeViewController: UICollectionViewDataSource, UICollectionViewDelegate {
-    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
@@ -246,31 +160,23 @@ extension SearchHomeViewController: UICollectionViewDataSource, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell else { return UICollectionViewCell() }
+        guard let viewModel,
+              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.reuseIdentifier, for: indexPath) as? SearchResultCell else { return UICollectionViewCell() }
         if isInitLoading {
             cell.startSkeletonAnimation()
             return cell
         }
         
-        guard let item = viewModel?.result[indexPath.item] else { return UICollectionViewCell() }
+        let item = viewModel.result[indexPath.item]
         
         cell.stopSkeletonAnimation()
         cell.fill(
             title: item.name,
             tag: item.groupTags.map { "#\($0.name)" }.joined(separator: " "),
             memCount: "\(item.memberCount)/\(item.limitCount)",
-            captin: item.leaderName
+            captin: item.leaderName,
+            imgFetcher: viewModel.fetchImage(key: item.groupImageUrl)
         )
-        
-        let cellBag = DisposeBag()
-        cell.bag = cellBag
-        
-        viewModel?.fetchImage(key: item.groupImageUrl)
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onSuccess: { data in
-                cell.fill(image: UIImage(data: data))
-            })
-            .disposed(by: cellBag)
         
         return cell
     }

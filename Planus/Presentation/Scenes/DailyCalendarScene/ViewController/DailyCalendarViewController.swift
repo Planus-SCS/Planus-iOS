@@ -9,66 +9,14 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-final class DailyCalendarView: UIView {
-    lazy var addTodoButton: UIBarButtonItem = {
-        let image = UIImage(named: "plusBtn")
-        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
-        return item
-    }()
-    
-    lazy var dateTitleButton: UIButton = {
-        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
-        button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
-        button.setTitleColor(.black, for: .normal)
-        button.sizeToFit()
-        return button
-    }()
-    
-    lazy var collectionView: DailyCalendarCollectionView = {
-        let cv = DailyCalendarCollectionView(frame: .zero)
-        return cv
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        configureView()
-        configureLayout()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
-// MARK: configure UI
-extension DailyCalendarView {
-    func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.addSubview(collectionView)
-    }
-    
-    func configureLayout() {
-        dateTitleButton.snp.makeConstraints {
-            $0.width.equalTo(160)
-        }
-
-        collectionView.snp.makeConstraints {
-            $0.top.equalTo(self.safeAreaLayoutGuide)
-            $0.leading.trailing.bottom.equalToSuperview()
-        }
-    }
-}
-
 final class DailyCalendarViewController: UIViewController {
     
-    var bag = DisposeBag()
-    var viewModel: DailyCalendarViewModel?
-    var dailyCalendarView: DailyCalendarView?
+    private var bag = DisposeBag()
+    private var viewModel: DailyCalendarViewModel?
+    private var dailyCalendarView: DailyCalendarView?
     
-    var didTappedCompletionBtnAt = PublishRelay<IndexPath>()
-    var didDeleteTodoAt = PublishRelay<IndexPath>()
+    private var didTappedCompletionBtnAt = PublishRelay<IndexPath>()
+    private var didDeleteTodoAt = PublishRelay<IndexPath>()
     
     convenience init(viewModel: DailyCalendarViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -98,13 +46,17 @@ final class DailyCalendarViewController: UIViewController {
         navigationItem.setRightBarButton(dailyCalendarView?.addTodoButton, animated: false)
         navigationController?.presentationController?.delegate = self
     }
-    
+}
+
+// MARK: - bind viewModel
+extension DailyCalendarViewController {
     func bind() {
         guard let viewModel,
               let dailyCalendarView else { return }
         
         let input = DailyCalendarViewModel.Input(
             addTodoTapped: dailyCalendarView.addTodoButton.rx.tap.asObservable(),
+            todoSelectedAt: dailyCalendarView.collectionView.rx.itemSelected.asObservable(),
             deleteTodoAt: didDeleteTodoAt.asObservable(),
             completeTodoAt: didTappedCompletionBtnAt.asObservable()
         )
@@ -225,12 +177,14 @@ extension DailyCalendarViewController {
     }
 }
 
+// MARK: - modal dismiss handler
 extension DailyCalendarViewController: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         viewModel?.actions.finishScene?()
     }
 }
 
+// MARK: - collection View
 extension DailyCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch section {
@@ -246,7 +200,6 @@ extension DailyCalendarViewController: UICollectionViewDataSource, UICollectionV
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
         var todoItem: Todo?
         switch indexPath.section {
         case 0:
@@ -321,62 +274,15 @@ extension DailyCalendarViewController: UICollectionViewDataSource, UICollectionV
         return headerview
     }
     
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        var item: Todo?
-        switch indexPath.section {
-        case 0:
-            if let scheduledList = viewModel?.scheduledTodoList,
-               !scheduledList.isEmpty {
-                item = scheduledList[indexPath.item]
-            } else {
-                return false
-            }
-        case 1:
-            if let unscheduledList = viewModel?.unscheduledTodoList,
-               !unscheduledList.isEmpty {
-                item = unscheduledList[indexPath.item]
-            } else {
-                return false
-            }
-        default:
-            return false
-        }
-        guard let item else { return false }
+//    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {        
+//        return false
+//    }
+}
 
-        guard let groupDict = viewModel?.groupDict else { return false }
-        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-        var groupName: GroupName?
-        var mode: TodoDetailSceneMode
-        var category: Category?
+extension DailyCalendarViewController {
+    func showTodoDetail(item: Todo) {
         
-        if item.isGroupTodo {
-            guard let groupId = item.groupId else { return false }
-            groupName = groupDict[groupId]
-            mode = .view
-            category = viewModel?.groupCategoryDict[item.categoryId]
-        } else {
-            if let groupId = item.groupId {
-                groupName = groupDict[groupId]
-            }
-            mode = .edit
-            category = viewModel?.categoryDict[item.categoryId]
-        }
-
-        viewModel?.actions.showTodoDetailPage?(
-            MemberTodoDetailViewModel.Args(
-                groupList: groupList,
-                mode: mode,
-                todo: item,
-                category: category,
-                groupName: groupName,
-                start: viewModel?.currentDate,
-                end: nil
-            ), nil
-        )
-        
-        return false
     }
-
 }
 
 extension DailyCalendarViewController: UIPopoverPresentationControllerDelegate {

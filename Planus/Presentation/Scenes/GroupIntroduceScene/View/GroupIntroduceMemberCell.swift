@@ -6,9 +6,12 @@
 //
 
 import UIKit
+import RxSwift
 
 class GroupIntroduceMemberCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "group-introduce-member-cell"
+    
+    var bag: DisposeBag?
 
     var memberImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
@@ -98,10 +101,21 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
         }
     }
     
-    func fill(name: String, introduce: String?, isCaptin: Bool) {
+    func fill(name: String, introduce: String?, isCaptin: Bool, imgFetcher: Single<Data>) {
         memberNameLabel.text = name
         memberIntroduceLabel.text = introduce
         captinIconView.isHidden = !isCaptin
+        
+        let bag = DisposeBag()
+        self.bag = bag
+        imgFetcher
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] data in
+                self?.fill(image: UIImage(data: data))
+            }, onFailure: { [weak self] _ in
+                self?.fill(image: UIImage(named: "DefaultProfileMedium"))
+            })
+            .disposed(by: bag)
     }
     
     func fill(image: UIImage?) {

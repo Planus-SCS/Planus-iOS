@@ -27,7 +27,7 @@ final class GroupCreateViewModel: ViewModel {
         let args: Args
     }
     
-    var bag = DisposeBag()
+    private var bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions

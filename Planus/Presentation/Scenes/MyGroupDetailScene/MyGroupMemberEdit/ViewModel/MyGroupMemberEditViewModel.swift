@@ -99,7 +99,10 @@ final class MyGroupMemberEditViewModel: ViewModel {
             showMessage: showMessage.asObservable()
         )
     }
-    
+}
+
+// MARK: - bind
+private extension MyGroupMemberEditViewModel {
     func bindUseCase() {
         useCases
             .memberKickOutUseCase
@@ -113,7 +116,10 @@ final class MyGroupMemberEditViewModel: ViewModel {
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: - api
+private extension MyGroupMemberEditViewModel {
     func resignMember(index: Int) {
         guard let memberId = memberList?[index].memberId,
               nowProcessingMemberId.filter({ $0 == memberId }).isEmpty else { return }
@@ -134,7 +140,7 @@ final class MyGroupMemberEditViewModel: ViewModel {
             }, onFailure: { [weak self] error in
                 self?.nowProcessingMemberId.removeAll(where: { $0 == memberId})
                 guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
+                      case NetworkManagerError.clientError(let _, let message) = error,
                       let message = message else { return }
                 self?.showMessage.onNext(Message(text: message, state: .warning))
             })
@@ -158,7 +164,10 @@ final class MyGroupMemberEditViewModel: ViewModel {
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: Image Fetcher
+extension MyGroupMemberEditViewModel {
     func fetchImage(key: String) -> Single<Data> {
         useCases
             .fetchImageUseCase

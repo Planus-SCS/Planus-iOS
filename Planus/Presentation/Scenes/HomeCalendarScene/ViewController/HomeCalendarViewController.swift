@@ -29,11 +29,6 @@ final class HomeCalendarView: UIView {
         return button
     }()
     
-    lazy var profileBarButton: UIBarButtonItem = {
-        let item = UIBarButtonItem(customView: profileButton)
-        return item
-    }()
-    
     var weekStackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.distribution = .fillEqually
@@ -177,8 +172,10 @@ final class HomeCalendarViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationItem.titleView = homeCalendarView?.yearMonthButton
-        self.navigationItem.setRightBarButton(homeCalendarView?.profileBarButton, animated: false)
+        guard let homeCalendarView else { return }
+        
+        self.navigationItem.titleView = homeCalendarView.yearMonthButton
+        self.navigationItem.setRightBarButton(UIBarButtonItem(customView: homeCalendarView.profileButton), animated: false)
     }
     
     func bind() {
@@ -204,7 +201,7 @@ final class HomeCalendarViewController: UIViewController {
             didSelectMonth: isMonthChanged.asObservable(),
             filterGroupWithId: isGroupSelectedWithId.asObservable(),
             refreshRequired: refreshRequired.asObservable(),
-            profileBtnTapped: homeCalendarView.profileBarButton.rx.tap.asObservable()
+            profileBtnTapped: homeCalendarView.profileButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)

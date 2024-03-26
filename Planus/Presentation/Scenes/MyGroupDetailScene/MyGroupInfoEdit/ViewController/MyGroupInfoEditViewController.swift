@@ -7,53 +7,23 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 import PhotosUI
 
-class MyGroupInfoEditViewController: UIViewController {
+final class MyGroupInfoEditViewController: UIViewController {
     
     var bag = DisposeBag()
+    
     var viewModel: MyGroupInfoEditViewModel?
+    private var myGroupInfoEditView: MyGroupInfoEditView?
     
-    var tagAdded = PublishSubject<String>()
-    var tagRemovedAt = PublishSubject<Int>()
-    var removeBtnTapped = PublishSubject<Void>()
+    var tagAdded = PublishRelay<String>()
+    var tagRemovedAt = PublishRelay<Int>()
+    var removeBtnTapped = PublishRelay<Void>()
     
-    var titleImageChanged = PublishSubject<ImageFile?>()
+    var titleImageChanged = PublishRelay<ImageFile?>()
     
-    var scrollView = UIScrollView(frame: .zero)
     var keyboardHeightConstraint: NSLayoutConstraint?
-    
-    var contentStackView: UIStackView = {
-        let stackView = UIStackView(frame: .zero)
-        stackView.axis = .vertical
-        stackView.distribution = .equalSpacing
-        stackView.spacing = 0
-        stackView.alignment = .fill
-        return stackView
-    }()
-    
-    var infoView: GroupEditInfoView = .init(frame: .zero)
-    var tagView: GroupCreateTagView = .init(frame: .zero)
-    var limitView: GroupCreateLimitView = .init(frame: .zero)
-    var removeButtonView: WideButtonView = {
-        let view = WideButtonView.init(frame: .zero)
-        view.wideButton.backgroundColor = .systemPink
-        view.wideButton.setTitle("그룹 삭제하기", for: .normal)
-        return view
-    }()
-    
-    lazy var backButton: UIBarButtonItem = {
-        let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
-        return item
-    }()
-    
-    lazy var saveButton: UIBarButtonItem = {
-        let item = UIBarButtonItem(image: UIImage(named: "saveBarBtn"), style: .plain, target: nil, action: nil)
-        item.tintColor = UIColor(hex: 0x6495F4)
-        return item
-    }()
     
     convenience init(viewModel: MyGroupInfoEditViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -69,25 +39,32 @@ class MyGroupInfoEditViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func loadView() {
+        super.loadView()
+        
+        let view = MyGroupInfoEditView(frame: self.view.frame)
+        self.view = view
+        self.myGroupInfoEditView = view
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureView()
-        configureLayout()
-        addKeyboardSizeView()
-        hideKeyboardWithTap()
-        
+        configureVC()
         bind()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        self.navigationItem.setLeftBarButton(backButton, animated: false)
+        guard let myGroupInfoEditView else { return }
+        
+        self.navigationItem.setLeftBarButton(myGroupInfoEditView.backButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
-        self.navigationItem.setRightBarButton(saveButton, animated: false)
+        self.navigationItem.setRightBarButton(myGroupInfoEditView.saveButton, animated: false)
         self.navigationItem.rightBarButtonItem?.tintColor = .black
         self.navigationItem.title = "그룹 편집"
+        
         addKeyboardNotifications()
     }
     
@@ -96,20 +73,38 @@ class MyGroupInfoEditViewController: UIViewController {
         
         removeKeyboardNotifications()
     }
-    
+}
+
+// MARK: - confiugre VC
+private extension MyGroupInfoEditViewController {
+    func configureVC() {
+        addKeyboardSizeView()
+        hideKeyboardWithTap()
+        
+        myGroupInfoEditView?.tagView.tagCollectionView.dataSource = self
+        myGroupInfoEditView?.tagView.tagCollectionView.delegate = self
+
+        myGroupInfoEditView?.infoView.groupImageButton.addTarget(self, action: #selector(imageBtnTapped), for: .touchUpInside)
+    }
+}
+
+// MARK: - bind
+private extension MyGroupInfoEditViewController {
     func bind() {
-        guard let viewModel else { return }
+        guard let viewModel,
+                let myGroupInfoEditView else { return }
         
-        infoView.groupNameField.text = viewModel.title
-        limitView.limitField.text = "\((try? viewModel.maxMember.value()) ?? 0)"
+        myGroupInfoEditView.infoView.groupNameField.text = viewModel.title
+        myGroupInfoEditView.limitView.limitField.text = "\((try? viewModel.maxMember.value()) ?? 0)"
         
-        removeButtonView
+        myGroupInfoEditView
+            .removeButtonView
             .wideButton.rx.tap
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.showPopUp(title: "그룹 삭제하기", message: "삭제된 그룹은 추후 복구할 수 없습니다.", alertAttrs: [
                     CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
-                    CustomAlertAttr(title: "삭제", actionHandler: { [weak self] in self?.removeBtnTapped.onNext(()) }, type: .warning)]
+                    CustomAlertAttr(title: "삭제", actionHandler: { [weak self] in self?.removeBtnTapped.accept(()) }, type: .warning)]
                 )
             })
             .disposed(by: bag)
@@ -118,10 +113,10 @@ class MyGroupInfoEditViewController: UIViewController {
             titleImageChanged: titleImageChanged.asObservable(),
             tagAdded: tagAdded.asObservable(),
             tagRemovedAt: tagRemovedAt.asObservable(),
-            maxMemberChanged: limitView.didChangedLimitValue.asObservable(),
-            saveBtnTapped: saveButton.rx.tap.asObservable(),
+            maxMemberChanged: myGroupInfoEditView.limitView.didChangedLimitValue.asObservable(),
+            saveBtnTapped: myGroupInfoEditView.saveButton.rx.tap.asObservable(),
             removeBtnTapped: removeBtnTapped.asObservable(),
-            backBtnTapped: backButton.rx.tap.asObservable()
+            backBtnTapped: myGroupInfoEditView.backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -131,7 +126,7 @@ class MyGroupInfoEditViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
-                vc.limitView.limitField.layer.borderColor
+                myGroupInfoEditView.limitView.limitField.layer.borderColor
                 = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
             })
             .disposed(by: bag)
@@ -139,7 +134,7 @@ class MyGroupInfoEditViewController: UIViewController {
         output
             .isUpdateButtonEnabled
             .observe(on: MainScheduler.asyncInstance)
-            .bind(to: saveButton.rx.isEnabled)
+            .bind(to: myGroupInfoEditView.saveButton.rx.isEnabled)
             .disposed(by: bag)
         
         output
@@ -147,7 +142,7 @@ class MyGroupInfoEditViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, validation in
-                vc.tagView.tagCountCheckView.isValid(validation)
+                myGroupInfoEditView.tagView.tagCountCheckView.isValid(validation)
             })
             .disposed(by: bag)
         
@@ -156,7 +151,7 @@ class MyGroupInfoEditViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, validation in
-                vc.tagView.duplicateValidateCheckView.isValid(validation)
+                myGroupInfoEditView.tagView.duplicateValidateCheckView.isValid(validation)
             })
             .disposed(by: bag)
         
@@ -165,11 +160,11 @@ class MyGroupInfoEditViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, data in
-                guard let data = data else {
-                    vc.infoView.groupImageView.image = UIImage(named: "GroupCreateDefaultImage")
-                    return
+                if let data {
+                    myGroupInfoEditView.infoView.groupImageView.image = UIImage(data: data)
+                } else {
+                    myGroupInfoEditView.infoView.groupImageView.image = UIImage(named: "GroupCreateDefaultImage")
                 }
-                vc.infoView.groupImageView.image = UIImage(data: data)
             })
             .disposed(by: bag)
         
@@ -178,22 +173,7 @@ class MyGroupInfoEditViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc
-                    .tagView
-                    .tagCollectionView
-                    .performBatchUpdates({
-                        vc
-                            .tagView
-                            .tagCollectionView
-                            .insertItems(at: [IndexPath(item: index, section: 0)])
-                    }, completion: { _ in
-                        UIView.performWithoutAnimation {
-                            vc
-                                .tagView
-                                .tagCollectionView
-                                .reloadSections(IndexSet(0...0))
-                        }
-                    })
+                vc.insertTag(at: index)
             })
             .disposed(by: bag)
         
@@ -202,24 +182,7 @@ class MyGroupInfoEditViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc
-                    .tagView
-                    .tagCollectionView
-                    .performBatchUpdates({
-                        vc
-                            .tagView
-                            .tagCollectionView
-                            .deleteItems(at: [IndexPath(item: index, section: 0)])
-                    }, completion: { _ in
-                        UIView.performWithoutAnimation {
-                            vc
-                                .tagView
-                                .tagCollectionView
-                                .reloadSections(IndexSet(0...0))
-                        }
-                    })
-                
-                
+                vc.removeTag(at: index)
             })
             .disposed(by: bag)
         
@@ -234,36 +197,62 @@ class MyGroupInfoEditViewController: UIViewController {
             .disposed(by: bag)
         
     }
-    
-    func configureView() {
-        tagView.tagCollectionView.dataSource = self
-        tagView.tagCollectionView.delegate = self
+}
+
+// MARK: - Tag Actions
+private extension MyGroupInfoEditViewController {
+    func insertTag(at index: Int) {
+        guard let myGroupInfoEditView else { return }
         
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.view.addSubview(scrollView)
-        scrollView.addSubview(contentStackView)
-        contentStackView.addArrangedSubview(infoView)
-        contentStackView.addArrangedSubview(tagView)
-        contentStackView.addArrangedSubview(limitView)
-        contentStackView.addArrangedSubview(removeButtonView)
-        
-        infoView.groupImageButton.addTarget(self, action: #selector(imageBtnTapped), for: .touchUpInside)
+        myGroupInfoEditView
+            .tagView
+            .tagCollectionView
+            .performBatchUpdates({
+                myGroupInfoEditView
+                    .tagView
+                    .tagCollectionView
+                    .insertItems(at: [IndexPath(item: index, section: 0)])
+            }, completion: { _ in
+                UIView.performWithoutAnimation {
+                    myGroupInfoEditView
+                        .tagView
+                        .tagCollectionView
+                        .reloadSections(IndexSet(0...0))
+                }
+            })
     }
     
-    @objc func imageBtnTapped(_ sender: UIButton) {
+    func removeTag(at index: Int) {
+        guard let myGroupInfoEditView else { return }
+        
+        myGroupInfoEditView
+            .tagView
+            .tagCollectionView
+            .performBatchUpdates({
+                myGroupInfoEditView
+                    .tagView
+                    .tagCollectionView
+                    .deleteItems(at: [IndexPath(item: index, section: 0)])
+            }, completion: { _ in
+                UIView.performWithoutAnimation {
+                    myGroupInfoEditView
+                        .tagView
+                        .tagCollectionView
+                        .reloadSections(IndexSet(0...0))
+                }
+            })
+    }
+}
+
+// MARK: - Actions
+private extension MyGroupInfoEditViewController {
+    @objc 
+    func imageBtnTapped(_ sender: UIButton) {
         presentPhotoPicker()
     }
-    
-    func configureLayout() {
-        scrollView.snp.makeConstraints {
-            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
-        }
-        contentStackView.snp.makeConstraints {
-            $0.edges.width.equalToSuperview()
-        }
-        
-    }
-    
+}
+
+extension MyGroupInfoEditViewController: PHPickerViewControllerDelegate {
     func presentPhotoPicker() {
         var phPickerConfiguration = PHPickerConfiguration()
         phPickerConfiguration.selectionLimit = 1
@@ -274,9 +263,7 @@ class MyGroupInfoEditViewController: UIViewController {
         phPicker.delegate = self
         self.present(phPicker, animated: true)
     }
-}
-
-extension MyGroupInfoEditViewController: PHPickerViewControllerDelegate { //PHPicker 델리게이트
+    
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         
@@ -286,7 +273,7 @@ extension MyGroupInfoEditViewController: PHPickerViewControllerDelegate { //PHPi
             
             image = UIImage.resizeImage(image: image, targetWidth: 500)
             if let data = image.jpegData(compressionQuality: 1) {
-                self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "jpeg"))
+                self?.titleImageChanged.accept(ImageFile(filename: fileName, data: data, type: "jpeg"))
             }
         }
     }
@@ -315,7 +302,7 @@ extension MyGroupInfoEditViewController: UICollectionViewDataSource, UICollectio
             }
             cell.fill(tag: tag)
             cell.removeBtnClosure = { [weak self] in
-                self?.tagRemovedAt.onNext(indexPath.item)
+                self?.tagRemovedAt.accept(indexPath.item)
             }
             return cell
         }
@@ -330,6 +317,7 @@ extension MyGroupInfoEditViewController: UICollectionViewDataSource, UICollectio
     }
 }
 
+// MARK: - Keyboard
 extension MyGroupInfoEditViewController {
     func hideKeyboardWithTap() {
         let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
@@ -344,8 +332,7 @@ extension MyGroupInfoEditViewController {
             $0.height.equalTo(0)
         }
         self.keyboardHeightConstraint = view.constraints.first(where: { $0.firstAttribute == .height })
-        
-        self.contentStackView.addArrangedSubview(view)
+        myGroupInfoEditView?.contentStackView.addArrangedSubview(view)
     }
     
     func addKeyboardNotifications(){
@@ -353,41 +340,44 @@ extension MyGroupInfoEditViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    // 노티피케이션을 제거하는 메서드
     func removeKeyboardNotifications(){
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification , object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    @objc func keyboardWillShow(_ sender: Notification) {
-        guard let keyboardFrame = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+    @objc 
+    func keyboardWillShow(_ sender: Notification) {
+        guard let myGroupInfoEditView,
+              let keyboardFrame = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let firstResponder = self.view.firstResponder else {
             return
         }
 
-        guard let firstResponder = self.view.firstResponder else { return }
-
         // 키보드에 가려진 후의 frame
         let container = CGRect(
-            x: scrollView.contentOffset.x,
-            y: scrollView.contentOffset.y,
+            x: myGroupInfoEditView.scrollView.contentOffset.x,
+            y: myGroupInfoEditView.scrollView.contentOffset.y,
             width: self.view.frame.width,
             height: self.view.frame.height - keyboardFrame.height
         )
                 
-        let globalFrame = firstResponder.convert(firstResponder.frame, to: scrollView)
+        let globalFrame = firstResponder.convert(firstResponder.frame, to: myGroupInfoEditView.scrollView)
 
-        if !CGRectIntersectsRect(container, globalFrame) { // 만약 안보이면? 이동시켜주기!
-            scrollView.setContentOffset(
-                CGPoint(x: scrollView.contentOffset.x, y: scrollView.contentOffset.y + keyboardFrame.height),
+        if !CGRectIntersectsRect(container, globalFrame) { // 만약 안보이면 이동시켜주기
+            myGroupInfoEditView.scrollView.setContentOffset(
+                CGPoint(
+                    x: myGroupInfoEditView.scrollView.contentOffset.x,
+                    y: myGroupInfoEditView.scrollView.contentOffset.y + keyboardFrame.height
+                ),
                 animated: true
             )
         }
         
         self.keyboardHeightConstraint?.constant = keyboardFrame.height
-        
     }
     
-    @objc func keyboardWillHide(_ sender: Notification) {
+    @objc 
+    func keyboardWillHide(_ sender: Notification) {
         self.keyboardHeightConstraint?.constant = 0
     }
     
@@ -395,25 +385,29 @@ extension MyGroupInfoEditViewController {
 
 extension MyGroupInfoEditViewController {
     func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell) {
+        guard let myGroupInfoEditView else { return }
         let vc = GroupTagInputViewController(nibName: nil, bundle: nil)
         vc.tagAddclosure = { [weak self] tag in
-            self?.tagAdded.onNext(tag)
+            self?.tagAdded.accept(tag)
         }
         
         vc.keyboardAppearWithHeight = { [weak self] keyboardHeight in
             guard let self else { return }
             let container = CGRect(
-                x: self.scrollView.contentOffset.x,
-                y: self.scrollView.contentOffset.y,
-                width: self.scrollView.frame.size.width,
-                height: self.scrollView.frame.size.height - keyboardHeight
+                x: myGroupInfoEditView.scrollView.contentOffset.x,
+                y: myGroupInfoEditView.scrollView.contentOffset.y,
+                width: myGroupInfoEditView.scrollView.frame.size.width,
+                height: myGroupInfoEditView.scrollView.frame.size.height - keyboardHeight
             )
-            let realCenter = self.tagView.tagCollectionView.convert(collectionViewCell.center, to: self.view)
+            let realCenter = myGroupInfoEditView.tagView.tagCollectionView.convert(collectionViewCell.center, to: self.view)
    
-            let currentYRange = self.scrollView.contentOffset.y...self.scrollView.contentOffset.y + self.view.frame.height - keyboardHeight
+            let currentYRange = myGroupInfoEditView.scrollView.contentOffset.y...myGroupInfoEditView.scrollView.contentOffset.y + self.view.frame.height - keyboardHeight
             if !currentYRange.contains(realCenter.y) {
-                self.scrollView.setContentOffset(
-                    CGPoint(x: self.scrollView.contentOffset.x, y: self.scrollView.contentOffset.y + keyboardHeight),
+                myGroupInfoEditView.scrollView.setContentOffset(
+                    CGPoint(
+                        x: myGroupInfoEditView.scrollView.contentOffset.x,
+                        y: myGroupInfoEditView.scrollView.contentOffset.y + keyboardHeight
+                    ),
                     animated: true
                 )
             }
@@ -423,8 +417,8 @@ extension MyGroupInfoEditViewController {
         vc.modalPresentationStyle = .popover
         let popover: UIPopoverPresentationController = vc.popoverPresentationController!
         popover.delegate = self
-        popover.sourceView = self.scrollView
-        let globalFrame = collectionViewCell.convert(collectionViewCell.bounds, to: self.scrollView)
+        popover.sourceView = myGroupInfoEditView.scrollView
+        let globalFrame = collectionViewCell.convert(collectionViewCell.bounds, to: myGroupInfoEditView.scrollView)
         popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.minY, width: 0, height: 0)
         popover.permittedArrowDirections = [.down]
         

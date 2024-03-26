@@ -48,7 +48,7 @@ final class MyGroupInfoEditViewModel: ViewModel {
     
     let tagCountValidState = BehaviorSubject<Bool?>(value: nil)
     let tagDuplicateValidState = BehaviorSubject<Bool?>(value: nil)
-
+    
     var nowSaving = false
     
     var showMessage = PublishSubject<Message>()
@@ -193,7 +193,10 @@ final class MyGroupInfoEditViewModel: ViewModel {
             showMessage: showMessage.asObservable()
         )
     }
-    
+}
+
+// MARK: tag validation
+private extension MyGroupInfoEditViewModel {
     func checkTagValidation() {
         let tagCountState = tagList.count <= 5 && tagList.count > 0
         let tagDuplicateState = tagCountState && Set(tagList).count == tagList.count
@@ -201,7 +204,10 @@ final class MyGroupInfoEditViewModel: ViewModel {
         self.tagCountValidState.onNext(tagCountState)
         self.tagDuplicateValidState.onNext(tagDuplicateState)
     }
-    
+}
+
+// MARK: api
+private extension MyGroupInfoEditViewModel {
     func requestUpdateInfo() {
         guard let limit = try? maxMember.value(),
               let image = try? titleImage.value() else { return }

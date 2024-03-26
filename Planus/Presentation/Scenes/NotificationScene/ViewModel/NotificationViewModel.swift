@@ -31,7 +31,7 @@ final class NotificationViewModel: ViewModel {
         let args: Args
     }
     
-    var bag = DisposeBag()
+    private var bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
@@ -52,10 +52,10 @@ final class NotificationViewModel: ViewModel {
     
     var joinAppliedList: [MyGroupJoinAppliance]?
     var nowProcessingJoinId: [Int] = []
-    var didFetchJoinApplyList = BehaviorSubject<FetchType?>(value: nil)
-    var needRemoveAt = PublishSubject<Int>()
+    private var didFetchJoinApplyList = BehaviorSubject<FetchType?>(value: nil)
+    private var needRemoveAt = PublishSubject<Int>()
     
-    var showMessage = PublishSubject<Message>()
+    private var showMessage = PublishSubject<Message>()
     
     init(
         useCases: UseCases,
@@ -118,7 +118,10 @@ final class NotificationViewModel: ViewModel {
             showMessage: showMessage.asObservable()
         )
     }
-    
+}
+
+// MARK: - api
+private extension NotificationViewModel {
     func acceptGroupJoinAt(index: Int) {
         guard let id = joinAppliedList?[index].groupJoinId,
               nowProcessingJoinId.filter({ $0 == id }).isEmpty else { return }
@@ -180,11 +183,13 @@ final class NotificationViewModel: ViewModel {
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: - Image Fetcher
+extension NotificationViewModel {
     func fetchImage(key: String) -> Single<Data> {
         useCases
             .fetchImageUseCase
             .execute(key: key)
     }
-    
 }

@@ -8,27 +8,14 @@
 import UIKit
 import RxSwift
 
-class MyGroupMemberEditViewController: UIViewController {
+final class MyGroupMemberEditViewController: UIViewController {
     
-    var bag = DisposeBag()
-    var viewModel: MyGroupMemberEditViewModel?
+    private var bag = DisposeBag()
     
-    var didTappedResignButton = PublishSubject<Int>()
+    private var viewModel: MyGroupMemberEditViewModel?
+    private var myGroupMemberEditView: MyGroupMemberEditView?
     
-    lazy var memberCollectionView: UICollectionView = {
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: createMemberSection())
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
-        cv.register(MyGroupMemberEditCell.self, forCellWithReuseIdentifier: MyGroupMemberEditCell.reuseIdentifier)
-        cv.dataSource = self
-        return cv
-    }()
-    
-    lazy var backButton: UIBarButtonItem = {
-        let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
-        return item
-    }()
+    private var didTappedResignButton = PublishSubject<Int>()
     
     convenience init(viewModel: MyGroupMemberEditViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -43,14 +30,19 @@ class MyGroupMemberEditViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func loadView() {
+        super.loadView()
+        
+        let view = MyGroupMemberEditView(frame: self.view.frame)
+        self.view = view
+        self.myGroupMemberEditView = view
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureView()
-        configureLayout()
-        
+        configureVC()
         bind()
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -58,17 +50,28 @@ class MyGroupMemberEditViewController: UIViewController {
         
         navigationItem.title = "그룹 멤버 관리"
         
-        navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationItem.setLeftBarButton(myGroupMemberEditView?.backButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
-    
+}
+
+// MARK: - Configure VC
+private extension MyGroupMemberEditViewController {
+    func configureVC() {
+        myGroupMemberEditView?.memberCollectionView.dataSource = self
+    }
+}
+
+// MARK: - bind viewModel
+private extension MyGroupMemberEditViewController {
     func bind() {
-        guard let viewModel else { return }
+        guard let viewModel,
+              let myGroupMemberEditView else { return }
         
         let input = MyGroupMemberEditViewModel.Input(
             viewDidLoad: Observable.just(()),
             didTappedResignButton: didTappedResignButton,
-            backBtnTapped: backButton.rx.tap.asObservable()
+            backBtnTapped: myGroupMemberEditView.backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -79,7 +82,7 @@ class MyGroupMemberEditViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.memberCollectionView.reloadData()
+                myGroupMemberEditView.memberCollectionView.reloadData()
             })
             .disposed(by: bag)
         
@@ -88,7 +91,7 @@ class MyGroupMemberEditViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc.memberCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
+                myGroupMemberEditView.memberCollectionView.deleteItems(at: [IndexPath(item: index, section: 0)])
             })
             .disposed(by: bag)
         
@@ -101,35 +104,9 @@ class MyGroupMemberEditViewController: UIViewController {
             })
             .disposed(by: bag)
     }
-    
-    func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.view.addSubview(memberCollectionView)
-    }
-    
-    func configureLayout() {
-        memberCollectionView.snp.makeConstraints {
-            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
-        }
-    }
-    
-    private func createMemberSection() -> UICollectionViewLayout {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
-        
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(66))
-        
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 1)
-        group.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 26, bottom: 0, trailing: 26)
-        
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
-
-        return UICollectionViewCompositionalLayout(section: section)
-    }
 }
 
+// MARK: - collection View
 extension MyGroupMemberEditViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
@@ -140,22 +117,18 @@ extension MyGroupMemberEditViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let item = viewModel?.memberList?[indexPath.item],
+        guard let viewModel,
+              let item = viewModel.memberList?[indexPath.item],
               let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MyGroupMemberEditCell.reuseIdentifier, for: indexPath) as? MyGroupMemberEditCell else { return UICollectionViewCell() }
         
-        cell.fill(name: item.nickname, introduce: item.description, isCaptin: item.isLeader)
-        if let url = item.profileImageUrl {
-            viewModel?.fetchImage(key: url)
-                .observe(on: MainScheduler.asyncInstance)
-                .subscribe(onSuccess: { data in
-                    cell.fill(image: UIImage(data: data))
-                })
-                .disposed(by: bag)
-        } else {
-            cell.fill(image: UIImage(named: "DefaultProfileMedium"))
-        }
+        cell.fill(
+            name: item.nickname,
+            introduce: item.description,
+            isCaptin: item.isLeader,
+            imgFetcher: viewModel.fetchImage(key: item.profileImageUrl ?? String())
+            )
+
         cell.fill { [weak self] in
- 
             self?.showPopUp(title: "[\(item.nickname)] 를 강제 탈퇴 하시겠습니까?", message: "멤버 탈퇴는 이후에 취소가 불가능합니다", alertAttrs: [
                 CustomAlertAttr(title: "취소", actionHandler: {}, type: .normal),
                 CustomAlertAttr(title: "탈퇴", actionHandler: { self?.didTappedResignButton.onNext(indexPath.item)}, type: .warning)
@@ -163,8 +136,6 @@ extension MyGroupMemberEditViewController: UICollectionViewDataSource {
         }
         return cell
     }
-    
-    
 }
 
 extension MyGroupMemberEditViewController: UIGestureRecognizerDelegate {}

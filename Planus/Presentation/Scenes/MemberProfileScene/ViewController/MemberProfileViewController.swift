@@ -8,12 +8,12 @@
 import UIKit
 import RxSwift
 
-class MemberProfileViewController: UIViewController {
+final class MemberProfileViewController: UIViewController {
     var bag = DisposeBag()
     var viewModel: MemberProfileViewModel?
     
     var headerViewInitialHeight: CGFloat?
-    var headerViewFinalHeight: CGFloat? = 98 // 이것도 desc안넣고 mockFrame계산할까?
+    var headerViewFinalHeight: CGFloat? = 98
 
     var headerViewHeightConstraint: NSLayoutConstraint?
     
@@ -147,7 +147,7 @@ class MemberProfileViewController: UIViewController {
                 let popover: UIPopoverPresentationController = vc.popoverPresentationController!
                 popover.delegate = self
                 popover.sourceView = self.view
-//                popover.sourceItem = self.calendarHeaderView.yearMonthButton
+
                 let globalFrame = self.calendarHeaderView.yearMonthButton.convert(self.calendarHeaderView.yearMonthButton.bounds, to: self.view)
                 popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
                 popover.permittedArrowDirections = [.up]

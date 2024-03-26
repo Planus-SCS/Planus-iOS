@@ -7,6 +7,7 @@
 
 import Foundation
 import RxSwift
+import RxCocoa
 
 final class DailyCalendarViewModel: ViewModel {
     
@@ -68,6 +69,7 @@ final class DailyCalendarViewModel: ViewModel {
     
     struct Input {
         var addTodoTapped: Observable<Void>
+        var todoSelectedAt: Observable<IndexPath>
         var deleteTodoAt: Observable<IndexPath>
         var completeTodoAt: Observable<IndexPath>
     }
@@ -136,6 +138,14 @@ final class DailyCalendarViewModel: ViewModel {
             .disposed(by: bag)
         
         input
+            .todoSelectedAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, indexPath in
+                vm.todoItemSelected(at: indexPath)
+            })
+            .disposed(by: bag)
+        
+        input
             .completeTodoAt
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
@@ -153,7 +163,6 @@ final class DailyCalendarViewModel: ViewModel {
         )
     }
 }
-
 
 // MARK: Configure
 private extension DailyCalendarViewModel {
@@ -411,6 +420,61 @@ private extension DailyCalendarViewModel {
         default:
             return
         }
+    }
+}
+
+private extension DailyCalendarViewModel {
+    func todoItemSelected(at indexPath: IndexPath) {
+        var item: Todo?
+        switch indexPath.section {
+        case 0:
+            if let scheduledList = scheduledTodoList,
+               !scheduledList.isEmpty {
+                item = scheduledList[indexPath.item]
+            } else {
+                return
+            }
+        case 1:
+            if let unscheduledList = unscheduledTodoList,
+               !unscheduledList.isEmpty {
+                item = unscheduledList[indexPath.item]
+            } else {
+                return
+            }
+        default:
+            return
+        }
+        guard let item else { return  }
+
+        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+        var groupName: GroupName?
+        var mode: TodoDetailSceneMode
+        var category: Category?
+        
+        if item.isGroupTodo {
+            guard let groupId = item.groupId else { return }
+            groupName = groupDict[groupId]
+            mode = .view
+            category = groupCategoryDict[item.categoryId]
+        } else {
+            if let groupId = item.groupId {
+                groupName = groupDict[groupId]
+            }
+            mode = .edit
+            category = categoryDict[item.categoryId]
+        }
+
+        actions.showTodoDetailPage?(
+            MemberTodoDetailViewModel.Args(
+                groupList: groupList,
+                mode: mode,
+                todo: item,
+                category: category,
+                groupName: groupName,
+                start: currentDate,
+                end: nil
+            ), nil
+        )
     }
 }
 

@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class MemberProfileViewModel: ViewModel {
+final class MemberProfileViewModel: ViewModel {
     
     struct UseCases {
         let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase
@@ -64,7 +64,7 @@ class MemberProfileViewModel: ViewModel {
     
     var currentDate = BehaviorSubject<Date?>(value: nil)
     var currentYYYYMM = BehaviorSubject<String?>(value: nil)
-
+    
     var mainDays = [[Day]]()
     var todos = [Date: [SocialTodoSummary]]()
     
@@ -72,7 +72,7 @@ class MemberProfileViewModel: ViewModel {
     var weekDayChecker = [Int](repeating: -1, count: 6) //firstDayOfWeekChecker
     var todosInDayViewModels = [SocialTodosInDayViewModel](repeating: SocialTodosInDayViewModel(), count: 42) //UI 표시용 뷰모델
     var cachedCellHeightForTodoCount = [Int: Double]()
-
+    
     var initialDayListFetchedInCenterIndex = BehaviorSubject<Int?>(value: nil)
     var categoryFetched = BehaviorSubject<Void?>(value: nil)
     var needReloadSection = BehaviorSubject<IndexSet?>(value: nil)
@@ -222,7 +222,10 @@ class MemberProfileViewModel: ViewModel {
             memberImage: profileImage.asObservable()
         )
     }
-    
+}
+
+// MARK: - calendar
+private extension MemberProfileViewModel {
     func updateTitle(date: Date) {
         currentYYYYMM.onNext(useCases.dateFormatYYYYMMUseCase.execute(date: date))
     }
@@ -275,18 +278,15 @@ class MemberProfileViewModel: ViewModel {
     func checkCacheLoadNeed() {
         guard let currentDate = try? self.currentDate.value() else { return }
         if latestPrevCacheRequestedIndex - currentIndex == cachingIndexDiff {
-            latestPrevCacheRequestedIndex = currentIndex //90 - 110
-            // 100에서 시작해서 92에 도달함. 리로드하고 어디부터? 83-90
-            let fromIndex = currentIndex - cachingAmount // 92 - 10 - (10-8)
-            let toIndex = currentIndex - (cachingAmount - cachingIndexDiff) //92 - (10-8) : 90
+            latestPrevCacheRequestedIndex = currentIndex
+            let fromIndex = currentIndex - cachingAmount
+            let toIndex = currentIndex - (cachingAmount - cachingIndexDiff)
             fetch(from: fromIndex, to: toIndex)
             
-            // 100에서 시작함 108에 도달함. 리로드 실시하고 어디부터 어디까지? 111 - 118 까지
-            // 108에서 리로드를 했음. 현재는 119까지 있음. 그럼 이제 또 116에서 리로드가 이뤄지겠지?
         } else if currentIndex - latestFollowingCacheRequestedIndex == cachingIndexDiff {
             latestFollowingCacheRequestedIndex = currentIndex
-            let fromIndex = currentIndex + cachingAmount - cachingIndexDiff + 1 // 108 + 10 - 8 + 1
-            let toIndex = currentIndex + cachingAmount + 1 // 108 + 10
+            let fromIndex = currentIndex + cachingAmount - cachingIndexDiff + 1
+            let toIndex = currentIndex + cachingAmount + 1
             fetch(from: fromIndex, to: toIndex)
         }
     }
@@ -346,7 +346,7 @@ extension MemberProfileViewModel {
             }
             
             for (item, day) in Array(mainDays[indexPath.section].enumerated())[indexPath.item..<indexPath.item + 7] {
-                var todoList = todos[day.date] ?? []
+                let todoList = todos[day.date] ?? []
                 
                 let singleTodoList = prepareSingleTodosInDay(at: IndexPath(item: item, section: indexPath.section), todos: todoList)
                 let periodTodoList = preparePeriodTodosInDay(at: IndexPath(item: item, section: indexPath.section), todos: todoList)

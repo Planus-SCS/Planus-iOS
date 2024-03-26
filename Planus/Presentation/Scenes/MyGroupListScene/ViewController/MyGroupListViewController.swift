@@ -9,113 +9,19 @@ import UIKit
 import RxCocoa
 import RxSwift
 
-class MyGroupListView: UIView {
-    static let headerElementKind = "group-list-view-controller-header-kind"
+final class MyGroupListViewController: UIViewController {
+    
+    private var viewModel: MyGroupListViewModel?
+    private var myGroupListView: MyGroupListView?
 
-    lazy var refreshControl: UIRefreshControl = {
-        let rc = UIRefreshControl(frame: .zero)
-        return rc
-    }()
-    
-    lazy var resultCollectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        collectionView.register(MyGroupCell.self, forCellWithReuseIdentifier: MyGroupCell.reuseIdentifier)
-        collectionView.register(MyGroupListSectionHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: MyGroupListSectionHeaderView.reuseIdentifier)
-        collectionView.backgroundColor = .clear
-        collectionView.refreshControl = refreshControl
-        return collectionView
-    }()
-    
-    var emptyResultView: EmptyResultView = {
-        let view = EmptyResultView(text: "가입된 그룹이 없습니다.")
-        view.isHidden = true
-        return view
-    }()
-    
-    lazy var notificationButton: UIBarButtonItem = {
-        let image = UIImage(named: "notificationIcon")
-        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
-        return item
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    private var bag = DisposeBag()
         
-        configureView()
-        configureLayout()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
+    private var isInitLoading = false
+    private var tappedItemAt = PublishRelay<Int>()
+    private var becameOnlineStateAt = PublishRelay<Int>()
+    private var becameOfflineStateAt = PublishRelay<Int>()
 
-// MARK: Configure UI
-private extension MyGroupListView {
-    func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.addSubview(emptyResultView)
-        self.addSubview(resultCollectionView)
-    }
-    
-    func configureLayout() {
-        emptyResultView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        resultCollectionView.snp.makeConstraints {
-            $0.top.equalTo(self.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(self.safeAreaLayoutGuide.snp.bottom)
-        }
-    }
-}
-
-private extension MyGroupListView {
-    func createLayout() -> UICollectionViewLayout {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/2), heightDimension: .fractionalHeight(1))
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
-        
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                               heightDimension: .absolute(250))
-        
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        group.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
-
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 20, trailing: 7)
-        
-        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                       heightDimension: .absolute(34))
-
-        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: sectionHeaderSize,
-            elementKind: Self.headerElementKind,
-            alignment: .top
-        )
-
-        section.boundarySupplementaryItems = [sectionHeader]
-        
-        let layout = UICollectionViewCompositionalLayout(section: section)
-
-        return layout
-    }
-}
-
-class MyGroupListViewController: UIViewController {
-    
-    var viewModel: MyGroupListViewModel?
-    var myGroupListView: MyGroupListView?
-
-    var bag = DisposeBag()
-        
-    var isInitLoading = false
-    var tappedItemAt = PublishRelay<Int>()
-    var becameOnlineStateAt = PublishRelay<Int>()
-    var becameOfflineStateAt = PublishRelay<Int>()
-
-    var refreshRequired = PublishSubject<Void>()
+    private var refreshRequired = PublishSubject<Void>()
     
     convenience init(viewModel: MyGroupListViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -276,15 +182,16 @@ extension MyGroupListViewController: UICollectionViewDataSource, UICollectionVie
         return viewModel?.groupList?.count ?? 0
     }
     
-    // FIXME: 수정 필요
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MyGroupCell.reuseIdentifier, for: indexPath) as? MyGroupCell else { return UICollectionViewCell() }
         if isInitLoading {
             cell.startSkeletonAnimation()
             return cell
         }
-        guard let item = viewModel?.groupList?[indexPath.item] else { return UICollectionViewCell() }
         cell.stopSkeletonAnimation()
+        
+        guard let viewModel,
+              let item = viewModel.groupList?[indexPath.item] else { return UICollectionViewCell() }
 
         cell.bag = nil
         cell.fill(
@@ -293,13 +200,11 @@ extension MyGroupListViewController: UICollectionViewDataSource, UICollectionVie
             memCount: "\(item.totalCount)/\(item.limitCount)",
             leaderName: item.leaderName,
             onlineCount: "\(item.onlineCount)",
-            isOnline: item.isOnline
+            isOnline: item.isOnline,
+            imgFetcher: viewModel.fetchImage(key: item.groupImageUrl)
         )
         
-        let cellBag = DisposeBag()
         let outerSwitchBag = DisposeBag()
-        
-        cell.bag = cellBag
         cell.outerSwitchBag = outerSwitchBag
         
         cell.onlineSwitch.rx.isOn
@@ -316,13 +221,6 @@ extension MyGroupListViewController: UICollectionViewDataSource, UICollectionVie
             })
         .disposed(by: outerSwitchBag)
         
-        viewModel?.fetchImage(key: item.groupImageUrl)
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onSuccess: { data in
-                cell.fill(image: UIImage(data: data))
-            })
-            .disposed(by: cellBag)
-        
         return cell
     }
     
@@ -331,7 +229,6 @@ extension MyGroupListViewController: UICollectionViewDataSource, UICollectionVie
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
         guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: MyGroupListSectionHeaderView.reuseIdentifier, for: indexPath) as? MyGroupListSectionHeaderView else { return UICollectionReusableView() }
         if isInitLoading {
             view.startSkeletonAnimation()

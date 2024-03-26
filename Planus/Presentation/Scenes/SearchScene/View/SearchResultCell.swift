@@ -194,11 +194,21 @@ class SearchResultCell: SpringableCollectionViewCell {
         }
     }
     
-    func fill(title: String, tag: String?, memCount: String, captin: String) {
+    func fill(title: String, tag: String?, memCount: String, captin: String, imgFetcher: Single<Data>) {
         self.titleLabel.text = title
         self.tagLabel.text = tag
         self.memberCountLabel.text = memCount
         self.captinNameLabel.text = captin
+        
+        let bag = DisposeBag()
+        self.bag = bag
+        
+        imgFetcher
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] data in
+                self?.fill(image: UIImage(data: data))
+            })
+            .disposed(by: bag)
     }
     
     func fill(image: UIImage?) {

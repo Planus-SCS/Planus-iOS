@@ -7,99 +7,29 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
-extension MyGroupDetailNavigatorType {
-    var imageTitle: String {
-        switch self {
-        case .dot:
-            return "menuHideBtn"
-        case .notice:
-            return "NoticeCircleBtn"
-        case .calendar:
-            return "CalendarCircleBtn"
-        case .chat:
-            return "ChatCircleBtn"
-        }
-    }
-}
-
-enum MyGroupDetailPageType: Int {
-    case notice = 1
-    case calendar = 2
-    
-    var attributes: [MyGroupDetailPageAttribute] {
-        switch self {
-        case .notice:
-            return [.info, .notice, .member]
-        case .calendar:
-            return [.info, .calendar]
-        }
-    }
-}
-
-enum MyGroupDetailPageAttribute {
-    case info
-    case notice
-    case member
-    case calendar
-    
-    var sectionIndex: Int {
-        switch self {
-        case .info:
-            return 0
-        case .notice:
-            return 1
-        case .member:
-            return 2
-        case .calendar:
-            return 1
-        }
-    }
-    
-    var headerTitle: String? {
-        switch self {
-        case .notice:
-            return "공지사항"
-        case .member:
-            return "그룹멤버"
-        default: return nil
-        }
-    }
-    
-    var headerMessage: String? {
-        switch self {
-        case .notice:
-            return "우리 이렇게 진행해요"
-        case .member:
-            return "우리 이렇게 함께해요"
-        default: return nil
-        }
-    }
-}
-
-class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate {
+final class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate {
     var bag = DisposeBag()
     
     let headerHeight: CGFloat = 330
     
-    let didChangedMonth = PublishSubject<Date>()
-    var didSelectedDayAt = PublishSubject<Int>()
-    var didSelectedMemberAt = PublishSubject<Int>()
-    var didTappedOnlineButton = PublishSubject<Void>()
+    let didChangedMonth = PublishRelay<Date>()
+    var didSelectedDayAt = PublishRelay<Int>()
+    var didSelectedMemberAt = PublishRelay<Int>()
+    var didTappedOnlineButton = PublishRelay<Void>()
     
-    var didTappedShareBtn = PublishSubject<Void>()
-    var didTappedInfoEditBtn = PublishSubject<Void>()
-    var didTappedMemberEditBtn = PublishSubject<Void>()
-    var didTappedNoticeEditBtn = PublishSubject<Void>()
+    var didTappedShareBtn = PublishRelay<Void>()
+    var didTappedInfoEditBtn = PublishRelay<Void>()
+    var didTappedMemberEditBtn = PublishRelay<Void>()
+    var didTappedNoticeEditBtn = PublishRelay<Void>()
+    
+    var didTappedYearMonthBtn = PublishRelay<Void>()
     
     var nowLoading: Bool = false
     
     var didTappedButtonAt = PublishSubject<Int>()
     var modeChanged: Bool = false
-    
-    let initialTrailing: CGFloat = -27
-    let targetTrailing: CGFloat = 20
-    var firstXOffset: CGFloat?
         
     lazy var buttonList: [UIButton] = {
         return MyGroupDetailNavigatorType.allCases.map { [weak self] in
@@ -112,14 +42,20 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }()
     
-    var swipeBar: UIImageView = {
+    let dimmedView: UIView = {
+        let view = UIView(frame: .zero)
+        view.backgroundColor = .clear
+        return view
+    }()
+    
+    let  swipeBar: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "swipeBarLeft"))
         imageView.contentMode = .scaleToFill
         imageView.isUserInteractionEnabled = true
         return imageView
     }()
-
-    var buttonsView: AnimatedStrechButtonListView = {
+    
+    let  buttonsView: AnimatedStrechButtonListView = {
         let stretchButtonView = AnimatedStrechButtonListView(axis: .up)
         return stretchButtonView
     }()
@@ -128,12 +64,12 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
     
     lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-
+        
         cv.register(GroupIntroduceNoticeCell.self,
-            forCellWithReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier)
+                    forCellWithReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier)
         
         cv.register(JoinedGroupMemberCell.self,
-            forCellWithReuseIdentifier: JoinedGroupMemberCell.reuseIdentifier)
+                    forCellWithReuseIdentifier: JoinedGroupMemberCell.reuseIdentifier)
         
         cv.register(GroupIntroduceDefaultHeaderView.self,
                     forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
@@ -153,7 +89,7 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
         return cv
     }()
     
-    lazy var backButton: UIBarButtonItem = {
+    let backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
@@ -167,7 +103,7 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         configureView()
         configureLayout()
         configureGestureRecognizer()
@@ -180,7 +116,7 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
         super.viewWillAppear(animated)
         navigationItem.setLeftBarButton(backButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
-
+        
         let initialAppearance = UINavigationBarAppearance()
         let scrollingAppearance = UINavigationBarAppearance()
         scrollingAppearance.configureWithOpaqueBackground()
@@ -206,9 +142,23 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             viewModel?.actions.finishScene?()
         }
     }
-        
+}
+
+// MARK: - bind
+extension MyGroupDetailViewController {
     func bind() {
         guard let viewModel else { return }
+        
+        didTappedYearMonthBtn
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                guard let view = vc.collectionView.supplementaryView(
+                    forElementKind: UICollectionView.elementKindSectionHeader,
+                    at: IndexPath(item: 0, section: MyGroupDetailPageAttribute.calendar.sectionIndex)
+                ) as? JoinedGroupDetailCalendarHeaderView else { return }
+                vc.showMonthPickerVC(sourceView: view.yearMonthButton)
+            })
+            .disposed(by: bag)
         
         let input = MyGroupDetailViewModel.Input(
             viewDidLoad: Observable.just(()),
@@ -241,7 +191,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("output initFetch")
                 vc.nowLoading = false
                 
                 vc.setMenuButton(isLeader: viewModel.isLeader)
@@ -260,7 +209,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("output mode")
                 vc.modeChanged = true
             })
             .disposed(by: bag)
@@ -272,7 +220,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("output info")
                 vc.nowLoading = false
                 vc.collectionView.reloadSections(IndexSet(integer: 0))
             })
@@ -285,7 +232,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("output notice")
                 guard let mode = viewModel.mode else { return }
                 vc.nowLoading = false
                 vc.setSectionCount(mode: mode, trailingAction: {
@@ -299,13 +245,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             })
             .disposed(by: bag)
         
-        // 모드 바꾸는 순서
-        /*
-         만약 데이터 없으면?
-         섹션 갯수 줄이기 -> 바로 fetching
-         섹션 갯수 줄이기 -> 로딩뷰 -> fetching
-         */
-        
         output
             .didFetchMember
             .compactMap { $0 }
@@ -313,7 +252,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("output member")
                 guard let mode = viewModel.mode else { return }
                 vc.nowLoading = false
                 vc.setSectionCount(mode: mode, trailingAction: {
@@ -321,13 +259,13 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
                 }, completion: {
                     if vc.modeChanged {
                         vc.modeChanged = false
-                        vc.scrollToHeader(section: 1)
+                        vc.scrollToHeader(section: MyGroupDetailPageAttribute.notice.sectionIndex)
                     }
                 })
             })
             .disposed(by: bag)
         
-        output //모드 바꿀때 말고는 움직일 필요까진 없을듯한디,,,
+        output
             .didFetchCalendar
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
@@ -341,7 +279,7 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
                 }, completion: {
                     if vc.modeChanged {
                         vc.modeChanged = false
-                        vc.scrollToHeader(section: 1)
+                        vc.scrollToHeader(section: MyGroupDetailPageAttribute.calendar.sectionIndex)
                     }
                 })
             })
@@ -353,7 +291,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, mode in
-                print("output load")
                 vc.nowLoading = true
                 vc.setSectionCount(mode: mode, trailingAction: {
                     let indexSet = IndexSet(mode.attributes.filter { $0 != .info }.map { $0.sectionIndex })
@@ -368,7 +305,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                print("output initLoad")
                 vc.nowLoading = true
                 guard let mode = viewModel.mode else { return }
                 vc.setSectionCount(mode: mode, trailingAction: {
@@ -402,10 +338,12 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, isOnline in
-                guard let view = vc.collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: 0)) as? MyGroupInfoHeaderView else { return }
-                view.onlineButton.isOn = isOnline
-                view.onlineCountLabel.text = String(viewModel.onlineCount ?? 0)
+                guard let view = vc.collectionView.supplementaryView(
+                    forElementKind: UICollectionView.elementKindSectionHeader,
+                    at: IndexPath(item: 0, section: 0)
+                ) as? MyGroupInfoHeaderView else { return }
                 
+                view.onlineStatusChanged(count: String(viewModel.onlineCount ?? Int()), isOn: isOnline)
             })
             .disposed(by: bag)
         
@@ -417,7 +355,19 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
                 vc.showShareActivityVC(with: url)
             })
             .disposed(by: bag)
+        
+    }
+}
 
+// MARK: - Actions
+extension MyGroupDetailViewController {
+    func scrollToHeader(section: Int) {
+        guard let layoutAttributes =  collectionView.layoutAttributesForSupplementaryElement(ofKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: section)) else { return }
+        let viewOrigin = CGPoint(x: layoutAttributes.frame.origin.x, y: layoutAttributes.frame.origin.y);
+        var offset = collectionView.contentOffset;
+        let height = (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0) + (navigationController?.navigationBar.frame.height ?? 0)
+        offset.y = viewOrigin.y - collectionView.contentInset.top - height
+        collectionView.setContentOffset(offset, animated: true)
     }
     
     func setSectionCount(mode: MyGroupDetailPageType, trailingAction: (() -> Void)? = nil, completion: (() -> Void)? = nil) {
@@ -433,7 +383,10 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
             trailingAction?()
         }, completion: { _ in completion?() })
     }
-    
+}
+
+// MARK: - showVC
+extension MyGroupDetailViewController {
     func showShareActivityVC(with url: String) {
         var objectsToShare = [String]()
         objectsToShare.append(url)
@@ -445,32 +398,80 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
-    func scrollToHeader(section: Int) {
-        guard let layoutAttributes =  collectionView.layoutAttributesForSupplementaryElement(ofKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: section)) else { return }
-        let viewOrigin = CGPoint(x: layoutAttributes.frame.origin.x, y: layoutAttributes.frame.origin.y);
-        var offset = collectionView.contentOffset;
-        let height = (view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0) + (navigationController?.navigationBar.frame.height ?? 0)
-        offset.y = viewOrigin.y - collectionView.contentInset.top - height
-        collectionView.setContentOffset(offset, animated: true)
+    func showMonthPickerVC(sourceView: UIView) {
+        let dateMonth = viewModel?.currentDate ?? Date()
+        let firstMonth = Calendar.current.date(byAdding: DateComponents(month: -100), to: dateMonth) ?? Date()
+        let lastMonth = Calendar.current.date(byAdding: DateComponents(month: 500), to: dateMonth) ?? Date()
+        
+        let viewController = MonthPickerViewController(firstYear: firstMonth, lastYear: lastMonth, currentDate: dateMonth) { [weak self] date in
+            self?.didChangedMonth.accept(date)
+        }
+
+        viewController.preferredContentSize = CGSize(width: 320, height: 290)
+        viewController.modalPresentationStyle = .popover
+        let popover: UIPopoverPresentationController = viewController.popoverPresentationController!
+        popover.delegate = self
+        popover.sourceView = self.view
+        
+        let globalFrame = sourceView.convert(sourceView.bounds, to: self.view)
+
+        popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
+        popover.permittedArrowDirections = [.up]
+        self.present(viewController, animated: true, completion:nil)
+    }
+}
+
+// MARK: - Gestures
+private extension MyGroupDetailViewController {
+    func configureGestureRecognizer() {
+        let sgr = UISwipeGestureRecognizer(target: self, action: #selector(swiped))
+        sgr.direction = .left
+        swipeBar.addGestureRecognizer(sgr)
+        
+        let lgr = UILongPressGestureRecognizer(target: self, action: #selector(longPressed))
+        lgr.minimumPressDuration = 0
+        dimmedView.addGestureRecognizer(lgr)
     }
     
+    @objc 
+    func longPressed(_ sender: UILongPressGestureRecognizer) {
+        if sender.state == .began {
+            hideModeSelection()
+        }
+    }
+    
+    @objc 
+    func swiped(_ gestureRecognizer: UISwipeGestureRecognizer) {
+        if gestureRecognizer.direction == .left {
+            showModeSelection()
+        }
+    }
+    
+    @objc 
+    func buttonTapped(_ sender: UIButton) {
+        if sender.tag == 0 {
+            hideModeSelection()
+        } else {
+            didTappedButtonAt.onNext(sender.tag)
+        }
+    }
+}
+
+// MARK: configure VC
+private extension MyGroupDetailViewController {
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(collectionView)
+        self.view.addSubview(dimmedView)
         self.view.addSubview(buttonsView)
-        buttonList.forEach {
-            buttonsView.addButton(button: $0)
-        }
+        
+        buttonList.forEach { buttonsView.addButton(button: $0) }
+        
         self.view.addSubview(swipeBar)
         
         buttonsView.isHidden = true
         swipeBar.isHidden = true
-    }
-    
-    func configureGestureRecognizer() {
-        let sgr = UISwipeGestureRecognizer(target: self, action: #selector(swipe))
-        sgr.direction = .left
-        swipeBar.addGestureRecognizer(sgr)
+        dimmedView.isHidden = true
     }
     
     func configureLayout() {
@@ -485,23 +486,27 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
 
         buttonsView.snp.makeConstraints {
             $0.centerY.equalTo(swipeBar)
-            $0.trailing.equalToSuperview().inset(initialTrailing)
+            $0.trailing.equalToSuperview().inset(-27)
+        }
+        
+        dimmedView.snp.makeConstraints {
+            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
     }
-    @objc func swipe(_ gestureRecognizer: UISwipeGestureRecognizer) {
-        if gestureRecognizer.direction == .left {
-            showModeSelection()
-        }
-    }
-    
+}
+
+// MARK: - mode selection
+private extension MyGroupDetailViewController {
     func showModeSelection() {
+        self.dimmedView.isHidden = false
+        
         self.buttonsView.alpha = 0
         self.buttonsView.isHidden = false
         self.buttonsView.stretch()
         
         buttonsView.snp.remakeConstraints {
             $0.bottom.equalToSuperview().inset(50)
-            $0.trailing.equalTo(self.view).inset(targetTrailing)
+            $0.trailing.equalTo(self.view).inset(20)
         }
         
         swipeBar.snp.remakeConstraints {
@@ -514,14 +519,15 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
         UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
             self.view.layoutIfNeeded()
         })
-        
     }
     
     func hideModeSelection() {
+        self.dimmedView.isHidden = true
+        
         buttonsView.shrink { [weak self] in
             self?.buttonsView.snp.remakeConstraints {
                 $0.bottom.equalToSuperview().inset(50)
-                $0.trailing.equalToSuperview().inset(self?.initialTrailing ?? 0)
+                $0.trailing.equalToSuperview().inset(-27)
             }
             self?.swipeBar.snp.remakeConstraints {
                 $0.trailing.equalToSuperview()
@@ -536,16 +542,6 @@ class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDelegate
                 self?.view.layoutIfNeeded()
             })
         }
-        
-    }
-    
-    
-    @objc func buttonTapped(_ sender: UIButton) {
-        if sender.tag == 0 {
-            hideModeSelection()
-        } else {
-            didTappedButtonAt.onNext(sender.tag)
-        }
     }
 }
 
@@ -556,11 +552,11 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
         switch mode {
         case .notice:
             if indexPath.section == MyGroupDetailPageAttribute.member.sectionIndex {
-                didSelectedMemberAt.onNext(indexPath.item)
+                didSelectedMemberAt.accept(indexPath.item)
             }
         case .calendar:
             if indexPath.section == MyGroupDetailPageAttribute.calendar.sectionIndex {
-                didSelectedDayAt.onNext(indexPath.item)
+                didSelectedDayAt.accept(indexPath.item)
             }
         }
 
@@ -582,7 +578,8 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let mode = viewModel?.mode else { return UICollectionViewCell() }
+        guard let viewModel,
+              let mode = viewModel.mode else { return UICollectionViewCell() }
         
         switch mode.attributes[indexPath.section] {
         case .info: return UICollectionViewCell()
@@ -593,7 +590,7 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
                 return cell
             }
             
-            guard let item = viewModel?.notice else { return UICollectionViewCell() }
+            guard let item = viewModel.notice else { return UICollectionViewCell() }
             cell.stopSkeletonAnimation()
             cell.fill(notice: item)
             return cell
@@ -602,24 +599,12 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
             if nowLoading {
                 cell.startSkeletonAnimation()
                 return cell
-            } // nowLoading을 처음부터 true로? 아니면 갯술
-            
-            guard let item = viewModel?.memberList?[indexPath.item] else { return UICollectionViewCell() }
+            }
             cell.stopSkeletonAnimation()
             
-            cell.fill(name: item.nickname, introduce: item.description, isCaptin: item.isLeader, isOnline: item.isOnline)
-            
-            if let url = item.profileImageUrl {
-                viewModel?.fetchImage(key: url)
-                    .observe(on: MainScheduler.asyncInstance)
-                    .subscribe(onSuccess: { data in
-                        cell.fill(image: UIImage(data: data))
-                    })
-                    .disposed(by: bag)
-            } else {
-                cell.fill(image: UIImage(named: "DefaultProfileMedium"))
-            }
-            
+            guard let item = viewModel.memberList?[indexPath.item] else { return UICollectionViewCell() }
+            cell.fill(name: item.nickname, introduce: item.description, isCaptin: item.isLeader, isOnline: item.isOnline, imgFetcher: viewModel.fetchImage(key: item.profileImageUrl ?? String()))
+
             return cell
         case .calendar:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
@@ -637,7 +622,8 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
-        guard let mode = viewModel?.mode else { return UICollectionViewCell() }
+        guard let viewModel,
+              let mode = viewModel.mode else { return UICollectionViewCell() }
         
         switch mode.attributes[indexPath.section] {
         case .info:
@@ -649,36 +635,17 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
             
             view.stopSkeletonAnimation()
             
-            let viewBag = DisposeBag()
-            view.viewBag = viewBag
             view.fill(
-                title: viewModel?.groupTitle ?? "",
-                tag: viewModel?.tag?.map { "#\($0)" }.joined(separator: " ") ?? "",
-                memCount: String(viewModel?.memberCount ?? 0),
-                captin: viewModel?.leaderName ?? "",
-                onlineCount: String(viewModel?.onlineCount ?? 0),
-                isOnline: (try? viewModel?.isOnline.value()) ?? false
+                title: viewModel.groupTitle ?? "",
+                tag: viewModel.tag?.map { "#\($0)" }.joined(separator: " ") ?? "",
+                memCount: String(viewModel.memberCount ?? 0),
+                captin: viewModel.leaderName ?? "",
+                onlineCount: String(viewModel.onlineCount ?? 0),
+                isOnline: (try? viewModel.isOnline.value()) ?? false,
+                imgFetcher: viewModel.fetchImage(key: viewModel.groupImageUrl ?? String()),
+                onlineBtnTapped: self.didTappedOnlineButton
             )
-            
-            if let url = viewModel?.groupImageUrl {
-                viewModel?.fetchImage(key: url)
-                    .observe(on: MainScheduler.asyncInstance)
-                    .subscribe(onSuccess: { data in
-                        view.fill(image: UIImage(data: data))
-                    })
-                    .disposed(by: viewBag)
-            }
-            
-            view.onlineButton
-                .rx.tap
-                .throttle(.milliseconds(500), latest: false, scheduler: MainScheduler.instance)
-                .withUnretained(self)
-                .subscribe(onNext: { vc, _ in
-                    view.onlineButton.isOn = !view.onlineButton.isOn
-                    vc.didTappedOnlineButton.onNext(())
-                })
-                .disposed(by: viewBag)
-            
+
             return view
         case .notice, .member:
             guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: GroupIntroduceDefaultHeaderView.reuseIdentifier, for: indexPath) as? GroupIntroduceDefaultHeaderView else { return UICollectionReusableView() }
@@ -698,54 +665,21 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
             }
             
             view.stopSkeletonAnimation()
+            view.fill(title: viewModel.currentDateText ?? String(), btnTapped: didTappedYearMonthBtn)
             
-            let bag = DisposeBag()
-            view.yearMonthButton.setTitle(viewModel?.currentDateText, for: .normal)
-            view.yearMonthButton.rx.tap
-                .withUnretained(self)
-                .subscribe(onNext: { vc, _ in
-                    
-                    let dateMonth = vc.viewModel?.currentDate ?? Date()
-                    let firstMonth = Calendar.current.date(byAdding: DateComponents(month: -100), to: dateMonth) ?? Date()
-                    let lastMonth = Calendar.current.date(byAdding: DateComponents(month: 500), to: dateMonth) ?? Date()
-                    
-                    let viewController = MonthPickerViewController(firstYear: firstMonth, lastYear: lastMonth, currentDate: dateMonth) { date in
-                        vc.didChangedMonth.onNext(date)
-                    }
-
-                    viewController.preferredContentSize = CGSize(width: 320, height: 290)
-                    viewController.modalPresentationStyle = .popover
-                    let popover: UIPopoverPresentationController = viewController.popoverPresentationController!
-                    popover.delegate = vc
-                    popover.sourceView = vc.view
-                    
-                    let globalFrame = view.yearMonthButton.convert(view.yearMonthButton.bounds, to: vc.view)
-
-                    popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
-                    popover.permittedArrowDirections = [.up]
-                    vc.present(viewController, animated: true, completion:nil)
-                })
-                .disposed(by: bag)
-            view.bag = bag
             return view
         }
-        
-        
-        
-
-        
     }
 }
 
-
-extension MyGroupDetailViewController {
+private extension MyGroupDetailViewController {
     func setMenuButton(isLeader: Bool?) {
         let image = UIImage(named: "dotBtn")
         var item: UIBarButtonItem
         var menuChild = [UIAction]()
         
         let share = UIAction(title: "공유하기", image: UIImage(systemName: "square.and.arrow.up"), handler: { [weak self] _ in
-            self?.didTappedShareBtn.onNext(())
+            self?.didTappedShareBtn.accept(())
         })
         menuChild.append(share)
 
@@ -755,22 +689,21 @@ extension MyGroupDetailViewController {
                     title: "그룹 정보 수정",
                     image: UIImage(systemName: "pencil"),
                     handler: { [weak self] _ in
-                        self?.didTappedInfoEditBtn.onNext(())
+                        self?.didTappedInfoEditBtn.accept(())
                     }
                 ),
-                
                 UIAction(
                     title: "공지사항 수정",
                     image: UIImage(systemName: "speaker.badge.exclamationmark.fill"),
                     handler: { [weak self] _ in
-                        self?.didTappedNoticeEditBtn.onNext(())
+                        self?.didTappedNoticeEditBtn.accept(())
                     }
                 ),
                 UIAction(
                     title: "멤버 수정",
                     image: UIImage(systemName: "person"),
                     handler: { [weak self] _ in
-                        self?.didTappedMemberEditBtn.onNext(())
+                        self?.didTappedMemberEditBtn.accept(())
                     }
                 )
             ]
@@ -803,8 +736,8 @@ extension MyGroupDetailViewController {
     }
 }
 
-extension MyGroupDetailViewController {
-    private func createInfoSection() -> NSCollectionLayoutSection {
+private extension MyGroupDetailViewController {
+    func createInfoSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(1), heightDimension: .absolute(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(1),heightDimension: .absolute(1))
@@ -827,7 +760,7 @@ extension MyGroupDetailViewController {
         return section
     }
     
-    private func createNoticeSection() -> NSCollectionLayoutSection {
+    func createNoticeSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
         
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -853,7 +786,7 @@ extension MyGroupDetailViewController {
         return section
     }
     
-    private func createMemberSection() -> NSCollectionLayoutSection {
+    func createMemberSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
         
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -879,7 +812,7 @@ extension MyGroupDetailViewController {
         return section
     }
     
-    private func createCalendarSection() -> NSCollectionLayoutSection {
+    func createCalendarSection() -> NSCollectionLayoutSection {
         
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(Double(1)/Double(7)),
@@ -910,7 +843,7 @@ extension MyGroupDetailViewController {
         return section
     }
     
-    private func createLoadSection() -> NSCollectionLayoutSection {
+    func createLoadSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
         
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -925,7 +858,7 @@ extension MyGroupDetailViewController {
         return section
     }
     
-    private func createLayout() -> UICollectionViewLayout {
+    func createLayout() -> UICollectionViewLayout {
         return StickyTopCompositionalLayout(headerHeight: headerHeight) { [weak self] (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
             guard let self,
                   let mode = self.viewModel?.mode else { return nil }
@@ -999,6 +932,19 @@ extension MyGroupDetailViewController {
             let estimatedHeight = estimatedSize.height + mockCell.stackView.topY + 3
             let targetHeight = (estimatedHeight > 110) ? estimatedHeight : 110
             return targetHeight
+        }
+    }
+}
+
+extension MyGroupDetailNavigatorType {
+    var imageTitle: String {
+        switch self {
+        case .dot:
+            return "menuHideBtn"
+        case .notice:
+            return "NoticeCircleBtn"
+        case .calendar:
+            return "CalendarCircleBtn"
         }
     }
 }

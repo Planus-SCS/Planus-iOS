@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RxSwift
 
 class MyGroupMemberEditCell: GroupIntroduceMemberCell {
     
@@ -57,8 +58,8 @@ class MyGroupMemberEditCell: GroupIntroduceMemberCell {
 
     }
     
-    override func fill(name: String, introduce: String?, isCaptin: Bool) {
-        super.fill(name: name, introduce: introduce, isCaptin: isCaptin)
+    override func fill(name: String, introduce: String?, isCaptin: Bool, imgFetcher: Single<Data>) {
+        super.fill(name: name, introduce: introduce, isCaptin: isCaptin, imgFetcher: imgFetcher)
         resignButton.isHidden = isCaptin
     }
     

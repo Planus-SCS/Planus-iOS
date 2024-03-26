@@ -97,17 +97,10 @@ class MyGroupCell: SearchResultCell {
             $0.trailing.equalToSuperview().inset(12)
             $0.centerY.equalTo(onlineButton)
         }
-        
-//        chatButton.snp.makeConstraints {
-//            $0.height.equalTo(26)
-//            $0.leading.equalToSuperview().inset(12)
-//            $0.bottom.equalTo(bottomContentsView.snp.top).offset(-10)
-//            $0.trailing.lessThanOrEqualToSuperview().inset(12)
-//        }
     }
     
-    func fill(title: String, tag: String?, memCount: String, leaderName: String, onlineCount: String, isOnline: Bool) {
-        super.fill(title: title, tag: tag, memCount: memCount, captin: leaderName)
+    func fill(title: String, tag: String?, memCount: String, leaderName: String, onlineCount: String, isOnline: Bool, imgFetcher: Single<Data>) {
+        super.fill(title: title, tag: tag, memCount: memCount, captin: leaderName, imgFetcher: imgFetcher)
         onlineButton.setTitle(onlineCount, for: .normal)
         onlineSwitch.isOn = isOnline
     }

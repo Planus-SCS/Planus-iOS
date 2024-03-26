@@ -26,7 +26,7 @@ final class TodoDetailViewController: UIViewController {
     var didChangedTimeValue = PublishRelay<String?>()
     
     var pageType: TodoDetailViewControllerPageType = .todoDetail
-
+    
     var viewModel: TodoDetailViewModelable?
     
     // MARK: Child ViewController
@@ -59,11 +59,18 @@ final class TodoDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         configureView()
         configureLayout()
-
+        
         bind()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -71,13 +78,13 @@ final class TodoDetailViewController: UIViewController {
         
         if isFirstAppear {
             UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
-                 self.todoDetailView.snp.remakeConstraints {
-                     $0.bottom.leading.trailing.equalToSuperview()
-                     $0.height.lessThanOrEqualTo(700)
-                 }
-                 self.dimmedView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
-                 self.view.layoutIfNeeded()
-             }, completion: nil)
+                self.todoDetailView.snp.remakeConstraints {
+                    $0.bottom.leading.trailing.equalToSuperview()
+                    $0.height.lessThanOrEqualTo(700)
+                }
+                self.dimmedView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
+                self.view.layoutIfNeeded()
+            }, completion: nil)
             isFirstAppear = false
         }
     }
@@ -86,7 +93,10 @@ final class TodoDetailViewController: UIViewController {
         super.viewWillDisappear(animated)
         pageDismissCompletionHandler?()
     }
-    
+}
+
+// MARK: - bind viewModel
+extension TodoDetailViewController {
     func bind() {
         guard let viewModel else { return }
 
@@ -295,13 +305,6 @@ final class TodoDetailViewController: UIViewController {
         }
 
         viewModel.initFetch()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 }
 

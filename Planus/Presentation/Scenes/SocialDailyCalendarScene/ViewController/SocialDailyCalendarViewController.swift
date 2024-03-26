@@ -8,16 +8,14 @@
 import UIKit
 import RxSwift
 
-class SocialDailyCalendarViewController: UIViewController {
+final class SocialDailyCalendarViewController: UIViewController {
     
-    var bag = DisposeBag()
-    var viewModel: SocialDailyCalendarViewModel?
+    private var bag = DisposeBag()
+    private var viewModel: SocialDailyCalendarViewModel?
+        
+    private var spinner = UIActivityIndicatorView(style: .medium)
     
-    var didDeleteTodoAt = PublishSubject<IndexPath>()
-    
-    var spinner = UIActivityIndicatorView(style: .medium)
-
-    lazy var dateTitleButton: UIButton = {
+    private lazy var dateTitleButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
         button.setTitleColor(.black, for: .normal)
@@ -25,14 +23,14 @@ class SocialDailyCalendarViewController: UIViewController {
         return button
     }()
     
-    lazy var addTodoButton: UIBarButtonItem = {
+    private lazy var addTodoButton: UIBarButtonItem = {
         let image = UIImage(named: "plusBtn")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
     
-    lazy var collectionView: DailyCalendarCollectionView = {
+    private lazy var collectionView: DailyCalendarCollectionView = {
         let cv = DailyCalendarCollectionView(frame: .zero)
         cv.dataSource = self
         cv.delegate = self
@@ -68,7 +66,10 @@ class SocialDailyCalendarViewController: UIViewController {
         
         navigationController?.presentationController?.delegate = self
     }
-    
+}
+
+// MARK: - bind viewModel
+private extension SocialDailyCalendarViewController {
     func bind() {
         guard let viewModel else { return }
         
@@ -79,7 +80,7 @@ class SocialDailyCalendarViewController: UIViewController {
         )
         
         let output = viewModel.transform(input: input)
-                
+        
         spinner.isHidden = false
         spinner.startAnimating()
         collectionView.setAnimatedIsHidden(true, duration: 0)
@@ -99,7 +100,7 @@ class SocialDailyCalendarViewController: UIViewController {
             .disposed(by: bag)
         
         dateTitleButton.setTitle(output.currentDateText, for: .normal)
-
+        
         guard let type = output.socialType else { return }
         
         switch type {
@@ -109,7 +110,10 @@ class SocialDailyCalendarViewController: UIViewController {
             navigationItem.setRightBarButton((isLeader ?? false) ? addTodoButton : nil, animated: false)
         }
     }
-    
+}
+
+// MARK: - Configure VC
+private extension SocialDailyCalendarViewController{
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.view.addSubview(collectionView)
@@ -131,9 +135,9 @@ class SocialDailyCalendarViewController: UIViewController {
             $0.top.equalToSuperview().inset(50)
         }
     }
-        
 }
 
+// MARK: collection view
 extension SocialDailyCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch section {
@@ -183,10 +187,7 @@ extension SocialDailyCalendarViewController: UICollectionViewDataSource, UIColle
             completion: todoItem.isCompleted,
             isOwner: false
         )
-        
         return cell
-        
-
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {

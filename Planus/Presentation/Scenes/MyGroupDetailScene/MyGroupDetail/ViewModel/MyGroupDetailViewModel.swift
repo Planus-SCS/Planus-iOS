@@ -8,12 +8,10 @@
 import Foundation
 import RxSwift
 
-enum MyGroupDetailNavigatorType: Int, CaseIterable { //일케하면 데드락 생길수도 있음. 로딩을 분리? 아니면 아에 fetch 메서드를 다르게 가져갈까?
-    // 이걸로 구분하면 0눌렀을때 로딩중 바뀌고 fetch 시작, 다되기 전에 1눌러서 fetch 시작, 그럼 1결과를 보여주기 전에 0을 먼저 보여줄 수 있음.
+enum MyGroupDetailNavigatorType: Int, CaseIterable {
     case dot = 0
     case notice
     case calendar
-    case chat
 }
 
 enum MyGroupSecionType {
@@ -133,7 +131,7 @@ final class MyGroupDetailViewModel: ViewModel {
     var memberList: [MyGroupMemberProfile]?
     var memberKickedOutAt = PublishSubject<Int>()
     var needReloadMemberAt = PublishSubject<Int>()
-        
+    
     // MARK: mode1, calendar section
     var today: Date = {
         let components = Calendar.current.dateComponents(
@@ -153,7 +151,7 @@ final class MyGroupDetailViewModel: ViewModel {
     var weekDayChecker = [Int](repeating: -1, count: 6) //firstDayOfWeekChecker
     var todosInDayViewModels = [SocialTodosInDayViewModel](repeating: SocialTodosInDayViewModel(), count: 42) //UI 표시용 뷰모델
     var cachedCellHeightForTodoCount = [Int: Double]()
-        
+    
     var showDaily = PublishSubject<Date>()
     
     var mode: MyGroupDetailPageType?
@@ -209,44 +207,12 @@ final class MyGroupDetailViewModel: ViewModel {
                 })
             })
             .disposed(by: bag)
-
+        
         input
             .didTappedModeBtnAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                let mode = MyGroupDetailPageType(rawValue: index)
-                vm.mode = mode
-                vm.modeChanged.onNext(())
-                switch mode {
-                case .notice:
-                    if vm.memberList?.isEmpty ?? true {
-                        vm.nowLoadingWithBefore.onNext(vm.mode)
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
-                            vm.fetchMemberList(groupId: vm.groupId)
-                        })
-                    } else {
-                        vm.mode = .notice
-                        vm.didFetchNotice.onNext(())
-                    }
-                case .calendar:
-                    if vm.mainDays.isEmpty {
-                        vm.nowLoadingWithBefore.onNext(mode)
-                        let components = Calendar.current.dateComponents(
-                            [.year, .month],
-                            from: Date()
-                        )
-                        
-                        let currentDate = Calendar.current.date(from: components) ?? Date()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
-                            vm.createCalendar(date: currentDate)
-                        })
-                        
-                    } else {
-                        vm.didFetchCalendar.onNext(())
-                    }
-                default: return
-                }
+                vm.changeMode(to: index)
             })
             .disposed(by: bag)
         
@@ -265,7 +231,7 @@ final class MyGroupDetailViewModel: ViewModel {
             .subscribe(onNext: { vm, index in
                 guard let groupTitle = vm.groupTitle,
                       let member = vm.memberList?[index] else { return }
-
+                
                 vm.actions.showMemberProfile?(
                     MemberProfileViewModel.Args(
                         group: GroupName(groupId: vm.groupId, groupName: groupTitle),
@@ -373,11 +339,56 @@ final class MyGroupDetailViewModel: ViewModel {
             nowInitLoading: nowInitLoading.asObservable()
         )
     }
-    
+}
+
+// MARK: - Mode Actions
+private extension MyGroupDetailViewModel {
+    func changeMode(to index: Int) {
+        let mode = MyGroupDetailPageType(rawValue: index)
+        self.mode = mode
+        self.modeChanged.onNext(())
+        switch mode {
+        case .notice:
+            if memberList?.isEmpty ?? true {
+                nowLoadingWithBefore.onNext(mode)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [weak self] in
+                    guard let self else { return }
+                    fetchMemberList(groupId: groupId)
+                })
+            } else {
+                self.mode = .notice
+                didFetchNotice.onNext(())
+            }
+        case .calendar:
+            if mainDays.isEmpty {
+                nowLoadingWithBefore.onNext(mode)
+                let components = Calendar.current.dateComponents(
+                    [.year, .month],
+                    from: Date()
+                )
+                
+                let currentDate = Calendar.current.date(from: components) ?? Date()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [weak self] in
+                    self?.createCalendar(date: currentDate)
+                })
+                
+            } else {
+                didFetchCalendar.onNext(())
+            }
+        default: return
+        }
+    }
+}
+
+private extension MyGroupDetailViewModel {
     func generateShareLink() -> String? {
         return useCases.generateGroupLinkUseCase.execute(groupId: groupId)
     }
-    
+}
+
+// MARK: - bind UseCases
+private extension MyGroupDetailViewModel {
     func bindUseCase() {
         useCases
             .setOnlineUseCase
@@ -385,25 +396,8 @@ final class MyGroupDetailViewModel: ViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, arg in
                 let (groupId, memberId) = arg
-                guard groupId == vm.groupId,
-                      let exValue = try? vm.isOnline.value(),
-                      let onlineCount = vm.onlineCount else { return }
-                let newValue = !exValue
-                
-                vm.onlineCount = newValue ? (onlineCount + 1) : (onlineCount - 1)
-                vm.isOnline.onNext(newValue)
-                
-                vm.showMessage.onNext(Message(text: "\(vm.groupTitle ?? "") 그룹을 \(newValue ? "온" : "오프")라인으로 전환하였습니다.", state: .normal))
-                guard let index = vm.memberList?.firstIndex(where: { $0.memberId == memberId }),
-                      var member = vm.memberList?[index] else { return }
-                
-                member.isOnline = !member.isOnline
-                vm.memberList?[index] = member
-                
-                if vm.mode == .notice {
-                    vm.needReloadMemberAt.onNext(index)
-                }
-                
+                guard groupId == vm.groupId else { return }
+                vm.changeOnlineState(memberId: memberId)
             })
             .disposed(by: bag)
         
@@ -495,7 +489,32 @@ final class MyGroupDetailViewModel: ViewModel {
             .disposed(by: bag)
         
     }
-    
+}
+
+private extension MyGroupDetailViewModel {
+    func changeOnlineState(memberId: Int) {
+        guard let exValue = try? isOnline.value(),
+              let onlineCount else { return }
+        let newValue = !exValue
+        
+        self.onlineCount = newValue ? (onlineCount + 1) : (onlineCount - 1)
+        isOnline.onNext(newValue)
+        
+        showMessage.onNext(Message(text: "\(groupTitle ?? "") 그룹을 \(newValue ? "온" : "오프")라인으로 전환하였습니다.", state: .normal))
+        guard let index = memberList?.firstIndex(where: { $0.memberId == memberId }),
+              var member = memberList?[index] else { return }
+        
+        member.isOnline = !member.isOnline
+        memberList?[index] = member
+        
+        if mode == .notice {
+            needReloadMemberAt.onNext(index)
+        }
+        
+    }
+}
+
+private extension MyGroupDetailViewModel {
     func setGroupDetail(detail: MyGroupDetail) {
         self.isLeader = detail.isLeader
         self.groupTitle = detail.groupName
@@ -508,7 +527,10 @@ final class MyGroupDetailViewModel: ViewModel {
         self.notice = detail.notice
         self.isOnline.onNext(detail.isOnline)
     }
-    
+}
+
+// MARK: - api
+private extension MyGroupDetailViewModel {
     func initFetchDetails(groupId: Int) {
         let groupDetailFetcher = useCases
             .executeWithTokenUseCase
@@ -575,24 +597,6 @@ final class MyGroupDetailViewModel: ViewModel {
             .disposed(by: bag)
     }
     
-    
-    
-    func createCalendar(date: Date) {
-        updateCurrentDate(date: date)
-        mainDays = useCases.createMonthlyCalendarUseCase.execute(date: date)
-
-        let startDate = mainDays.first?.date ?? Date()
-        let endDate = mainDays.last?.date ?? Date()
-        fetchTodo(from: startDate, to: endDate)
-    }
-    
-    func updateCurrentDate(date: Date) {
-        currentDate = date
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy년 MM월"
-        self.currentDateText = dateFormatter.string(from: date)
-    }
-    
     func fetchTodo(from: Date, to: Date) {
         useCases
             .executeWithTokenUseCase
@@ -612,25 +616,14 @@ final class MyGroupDetailViewModel: ViewModel {
             .disposed(by: bag)
         
     }
-    
+}
+
+// MARK: Image Fetcher
+extension MyGroupDetailViewModel {
     func fetchImage(key: String) -> Single<Data> {
         useCases
             .fetchImageUseCase
             .execute(key: key)
-    }
-    
-    func flipOnlineState() {
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token -> Single<Void>? in
-                guard let self else { return nil }
-                return self.useCases.setOnlineUseCase
-                    .execute(token: token, groupId: self.groupId)
-            }
-            .subscribe(onFailure: { [weak self] _ in
-                self?.isOnline.onNext(try? self?.isOnline.value())
-            })
-            .disposed(by: bag)
     }
     
     func withdrawGroup() {
@@ -646,6 +639,42 @@ final class MyGroupDetailViewModel: ViewModel {
                 self?.actions.pop?()
             }, onError: {
                 print($0)
+            })
+            .disposed(by: bag)
+    }
+}
+
+// MARK: Calendar
+private extension MyGroupDetailViewModel {
+    func createCalendar(date: Date) {
+        updateCurrentDate(date: date)
+        mainDays = useCases.createMonthlyCalendarUseCase.execute(date: date)
+
+        let startDate = mainDays.first?.date ?? Date()
+        let endDate = mainDays.last?.date ?? Date()
+        fetchTodo(from: startDate, to: endDate)
+    }
+    
+    func updateCurrentDate(date: Date) {
+        currentDate = date
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy년 MM월"
+        self.currentDateText = dateFormatter.string(from: date)
+    }
+}
+
+// MARK: Online Actions
+extension MyGroupDetailViewModel {
+    func flipOnlineState() {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<Void>? in
+                guard let self else { return nil }
+                return self.useCases.setOnlineUseCase
+                    .execute(token: token, groupId: self.groupId)
+            }
+            .subscribe(onFailure: { [weak self] _ in
+                self?.isOnline.onNext(try? self?.isOnline.value())
             })
             .disposed(by: bag)
     }
