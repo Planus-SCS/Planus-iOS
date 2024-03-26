@@ -15,7 +15,7 @@ class SmallTodoView: UIView {
     
     var toDoLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont(name: "Pretendard-Regular", size: 12)
+        label.font = UIFont(name: "Pretendard-Regular", size: 13)
         label.textAlignment = .center
         return label
     }()
@@ -52,7 +52,8 @@ class SmallTodoView: UIView {
             
         }
         toDoLabel.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview()
+            $0.leading.equalTo(leadingView.snp.trailing).offset(2.5)
+            $0.trailing.equalToSuperview().inset(4)
             $0.centerY.equalToSuperview()
         }
     }

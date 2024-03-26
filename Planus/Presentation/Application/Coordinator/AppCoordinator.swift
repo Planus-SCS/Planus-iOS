@@ -29,7 +29,15 @@ final class AppCoordinator: Coordinator {
     }
     
     func start() {
+        showInitialPage()
         checkAutoSignIn()
+    }
+    
+    private func showInitialPage() {
+        let vc = InitialViewController()
+        dependency.window.rootViewController = vc
+        dependency.window.makeKeyAndVisible()
+        self.viewTransitionAnimation()
     }
     
     private func checkAutoSignIn() {
@@ -77,6 +85,7 @@ final class AppCoordinator: Coordinator {
         childCoordinators.append(signInCoordinator)
         
         dependency.window.makeKeyAndVisible()
+        self.viewTransitionAnimation()
     }
     
     func showMainTabFlow() {
