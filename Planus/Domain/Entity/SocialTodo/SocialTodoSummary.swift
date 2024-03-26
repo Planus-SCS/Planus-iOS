@@ -13,4 +13,5 @@ struct SocialTodoSummary {
     var title: String
     var startDate: Date
     var endDate: Date
+    var isCompleted: Bool?
 }

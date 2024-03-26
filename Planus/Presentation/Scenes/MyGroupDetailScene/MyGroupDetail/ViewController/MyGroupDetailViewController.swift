@@ -79,7 +79,7 @@ final class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDe
                     forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                     withReuseIdentifier: MyGroupInfoHeaderView.reuseIdentifier)
         
-        cv.register(DailyCalendarCell.self, forCellWithReuseIdentifier: DailyCalendarCell.identifier)
+        cv.register(CalendarDailyCell.self, forCellWithReuseIdentifier: CalendarDailyCell.identifier)
         cv.register(JoinedGroupDetailCalendarHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier)
         
         
@@ -607,7 +607,7 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
 
             return cell
         case .calendar:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarCell.identifier, for: indexPath) as? DailyCalendarCell else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarDailyCell.identifier, for: indexPath) as? CalendarDailyCell else {
                 return UICollectionViewCell()
             }
             if nowLoading {
@@ -884,7 +884,7 @@ extension MyGroupDetailViewController: UIPopoverPresentationControllerDelegate {
 }
 
 extension MyGroupDetailViewController {
-    func calendarCell(cell: DailyCalendarCell, indexPath: IndexPath) -> UICollectionViewCell {
+    func calendarCell(cell: CalendarDailyCell, indexPath: IndexPath) -> UICollectionViewCell {
         guard let viewModel else { return UICollectionViewCell() }
         viewModel.stackTodosInDayViewModelOfWeek(at: IndexPath(item: indexPath.item, section: indexPath.section))
         
@@ -899,11 +899,10 @@ extension MyGroupDetailViewController {
             state: day.state,
             weekDay: WeekDay(rawValue: (Calendar.current.component(.weekday, from: day.date)+5)%7)!,
             isToday: day.date == viewModel.today,
-            isHoliday: HolidayPool.shared.holidays[day.date] != nil,
-            height: height
+            isHoliday: HolidayPool.shared.holidays[day.date] != nil
         )
         
-        cell.socialFill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
+        cell.fill(periodTodoList: filteredTodo.periodTodo, singleTodoList: filteredTodo.singleTodo, holiday: filteredTodo.holiday)
         return cell
     }
     
@@ -916,8 +915,8 @@ extension MyGroupDetailViewController {
         if let cellHeight = viewModel?.cachedCellHeightForTodoCount[todosHeight] {
             return cellHeight
         } else {
-            let mockCell = DailyCalendarCell(mockFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: 110))
-            mockCell.socialFill(
+            let mockCell = CalendarDailyCell(frame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: 110))
+            mockCell.fill(
                 periodTodoList: item.periodTodo,
                 singleTodoList: item.singleTodo,
                 holiday: item.holiday
@@ -929,7 +928,7 @@ extension MyGroupDetailViewController {
                 width: Double(1)/Double(7) * UIScreen.main.bounds.width,
                 height: UIView.layoutFittingCompressedSize.height
             ))
-            let estimatedHeight = estimatedSize.height + mockCell.stackView.topY + 3
+            let estimatedHeight = estimatedSize.height + 3
             let targetHeight = (estimatedHeight > 110) ? estimatedHeight : 110
             return targetHeight
         }

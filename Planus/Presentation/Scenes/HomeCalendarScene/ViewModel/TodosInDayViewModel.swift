@@ -8,7 +8,7 @@
 import Foundation
 
 struct TodosInDayViewModel {
-    var periodTodo: [(Int,Todo)] //offset, Todo
-    var singleTodo: [(Int,Todo)] //offset, Todo
+    var periodTodo: [(Int, SocialTodoSummary)] //offset, Todo
+    var singleTodo: [(Int,SocialTodoSummary)] //offset, Todo
     var holiday: (Int, String)?
 }

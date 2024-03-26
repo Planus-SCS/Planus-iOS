@@ -185,7 +185,7 @@ final class HomeCalendarViewController: UIViewController {
         homeCalendarView.collectionView.delegate = self
         homeCalendarView.collectionView.dataSource = self
                 
-        viewModel.todoCompletionHandler = { [weak self] indexPath in
+        viewModel.todoCompletionHandler = { indexPath in
             guard let cell = homeCalendarView.collectionView.cellForItem(
                 at: indexPath
             ) as? MonthlyCalendarCell else { return }
@@ -220,22 +220,11 @@ final class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
                 homeCalendarView.collectionView.performBatchUpdates({
-                    vc.clearMonthUICache()
                     homeCalendarView.collectionView.reloadData()
                 }, completion: { _ in
                     homeCalendarView.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
                     vc.initialCalendarGenerated = true
                 })
-            })
-            .disposed(by: bag)
-            
-        output.todoListFetchedInIndexRange
-            .compactMap { $0 }
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, rangeSet in
-                vc.clearMonthUICache()
-                homeCalendarView.collectionView.reloadSections(IndexSet(rangeSet.0..<rangeSet.1))
             })
             .disposed(by: bag)
         
@@ -268,7 +257,6 @@ final class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, indexSet in
                 UIView.performWithoutAnimation({
-                    vc.clearMonthUICache()
                     homeCalendarView.collectionView.reloadSections(indexSet)
                 })
             })
@@ -279,7 +267,6 @@ final class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 UIView.performWithoutAnimation({
-                    vc.clearMonthUICache()
                     homeCalendarView.collectionView.reloadData()
                 })
             })
@@ -309,16 +296,6 @@ final class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 vc.setGroupButton()
-            })
-            .disposed(by: bag)
-        
-        output
-            .needFilterGroupWithId
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.clearMonthUICache()
-                homeCalendarView.collectionView.reloadData()
             })
             .disposed(by: bag)
         
@@ -371,11 +348,7 @@ final class HomeCalendarViewController: UIViewController {
         navigationItem.setLeftBarButton(item, animated: true)
         homeCalendarView?.groupListButton = item
     }
-    
-    func clearMonthUICache() {
-        viewModel?.weekDayChecker = [Int](repeating: -1, count: 6)
-    }
-    
+
     func showMonthPicker(firstYear: Date, current: Date, lastYear: Date) {
         guard let homeCalendarView else { return }
         

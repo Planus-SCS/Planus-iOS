@@ -60,7 +60,6 @@ final class HomeCalendarViewModel: ViewModel {
     
     var filteredGroupId = BehaviorSubject<Int?>(value: nil)
     
-    // for todoList caching
     let cachingIndexDiff = 8
     let cachingAmount = 10
     
@@ -87,11 +86,10 @@ final class HomeCalendarViewModel: ViewModel {
 
     var mainDays = [[Day]]()
     var todos = [Date: [Todo]]()
-    
-    // MARK: UI Generating caches
-    var todoStackingCache = [[Bool]](repeating: [Bool](repeating: false, count: 20), count: 42) //투두 스택쌓는 용도, 블럭 사이에 자리 있는지 확인하는 애
-    var weekDayChecker = [Int](repeating: -1, count: 6) //firstDayOfWeekChecker
-    var todosInDayViewModels = [TodosInDayViewModel](repeating: TodosInDayViewModel(periodTodo: [], singleTodo: []), count: 42) //UI 표시용 뷰모델
+        
+    // MARK: UI Generating Buffer
+    var todoStackingBuffer = [[Bool]](repeating: [Bool](repeating: false, count: 30), count: 42) //투두 스택쌓는 용도, 블럭 사이에 자리 있는지 확인하는 애
+    var dailyViewModels = [Date: TodosInDayViewModel]()
     var cachedCellHeightForTodoCount = [Int: Double]()
     
     var groups = [Int: GroupName]()
@@ -135,7 +133,6 @@ final class HomeCalendarViewModel: ViewModel {
     struct Output {
         var didLoadYYYYMM: Observable<String?>
         var initialDayListFetchedInCenterIndex: Observable<Int?>
-        var todoListFetchedInIndexRange: Observable<(Int, Int)?> // a부터 b까지 리로드 해라!
         var showMonthPicker: Observable<(Date, Date, Date)> //앞 현재 끝
         var monthChangedByPicker: Observable<Int> //인덱스만 알려주자!
         var needReloadSectionSet: Observable<IndexSet>
@@ -143,7 +140,6 @@ final class HomeCalendarViewModel: ViewModel {
         var profileImageFetched: Observable<Data?>
         var needWelcome: Observable<String?>
         var groupListFetched: Observable<Void?>
-        var needFilterGroupWithId: Observable<Int?>
         var didFinishRefreshing: Observable<Void>
         var needScrollToHome: Observable<Void>
     }
@@ -236,7 +232,11 @@ final class HomeCalendarViewModel: ViewModel {
             .disposed(by: bag)
         
         input.filterGroupWithId
-            .bind(to: filteredGroupId)
+            .withUnretained(self)
+            .subscribe(onNext: { vm, groupId in
+                vm.filteredGroupId.onNext(groupId)
+                vm.reDrawViewModel()
+            })
             .disposed(by: bag)
                 
         input
@@ -272,7 +272,6 @@ final class HomeCalendarViewModel: ViewModel {
         return Output(
             didLoadYYYYMM: currentYYYYMM.asObservable(),
             initialDayListFetchedInCenterIndex: initialDayListFetchedInCenterIndex.asObservable(),
-            todoListFetchedInIndexRange: todoListFetchedInIndexRange.asObservable(),
             showMonthPicker: showMonthPicker.asObservable(),
             monthChangedByPicker: didSelectMonth.asObservable(),
             needReloadSectionSet: needReloadSectionSet.asObservable(),
@@ -280,7 +279,6 @@ final class HomeCalendarViewModel: ViewModel {
             profileImageFetched: fetchedProfileImage.asObservable(),
             needWelcome: needWelcome.asObservable(),
             groupListFetched: initialReadGroup.asObservable(),
-            needFilterGroupWithId: filteredGroupId.asObservable(),
             didFinishRefreshing: didFinishRefreshing.asObservable(),
             needScrollToHome: needScrollToHome.asObservable()
         )
@@ -323,6 +321,7 @@ private extension HomeCalendarViewModel {
     
     func checkCacheLoadNeed() {
         guard let currentDate = try? self.currentDate.value() else { return }
+        print(latestPrevCacheRequestedIndex, latestFollowingCacheRequestedIndex)
         if latestPrevCacheRequestedIndex - currentIndex == cachingIndexDiff {
             latestPrevCacheRequestedIndex = currentIndex
             let fromIndex = currentIndex - cachingAmount
@@ -348,7 +347,7 @@ private extension HomeCalendarViewModel {
         initialDayListFetchedInCenterIndex.onNext(currentIndex)
     }
     
-    func initTodoList() { //index를 기점으로 초기화
+    func initTodoList() { //현재 index를 기점으로 초기화
         latestPrevCacheRequestedIndex = currentIndex
         latestFollowingCacheRequestedIndex = currentIndex
         
@@ -356,6 +355,11 @@ private extension HomeCalendarViewModel {
         let toIndex = currentIndex + cachingAmount + 1 < mainDays.count ? currentIndex + cachingAmount + 1 : mainDays.count-1
                 
         fetchTodoList(from: fromIndex, to: toIndex)
+    }
+    
+    func reDrawViewModel() {
+        let indexSet = IndexSet(latestPrevCacheRequestedIndex-cachingAmount...latestFollowingCacheRequestedIndex+cachingAmount)
+        prepareViewModel(indexSet: indexSet)
     }
 }
 
@@ -406,17 +410,17 @@ private extension HomeCalendarViewModel {
         useCases.updateProfileUseCase
             .didUpdateProfile
             .subscribe(onNext: { [weak self] profile in
-            guard let self else { return }
-            self.profile = profile
-            guard let imageUrl = profile.imageUrl else {
-                self.fetchedProfileImage.onNext(nil)
-                return
-            }
+                guard let self else { return }
+                self.profile = profile
+                guard let imageUrl = profile.imageUrl else {
+                    self.fetchedProfileImage.onNext(nil)
+                    return
+                }
                 self.useCases.fetchImageUseCase.execute(key: imageUrl)
-                .subscribe(onSuccess: { data in
-                    self.fetchedProfileImage.onNext(data)
-                })
-                .disposed(by: self.bag)
+                    .subscribe(onSuccess: { data in
+                        self.fetchedProfileImage.onNext(data)
+                    })
+                    .disposed(by: self.bag)
         })
         .disposed(by: bag)
     }
@@ -437,7 +441,7 @@ private extension HomeCalendarViewModel {
             .subscribe(onNext: { vm, category in
                 guard let id = category.id else { return }
                 vm.memberCategories[id] = category
-                vm.needReloadData.onNext(())
+                vm.reDrawViewModel()
             })
             .disposed(by: bag)
     }
@@ -501,8 +505,7 @@ private extension HomeCalendarViewModel {
             
             tmpDate = calendar.date(byAdding: DateComponents(day: 1), to: tmpDate) ?? Date()
         }
-
-        needReloadSectionSet.onNext(sectionSet)
+        prepareViewModel(indexSet: sectionSet)
     }
     
     func completeTodo(firstDate: Date, todo: Todo) {
@@ -521,7 +524,7 @@ private extension HomeCalendarViewModel {
             tmpDate = calendar.date(byAdding: DateComponents(day: 1), to: tmpDate) ?? Date()
         }
         
-        needReloadSectionSet.onNext(sectionSet)
+        prepareViewModel(indexSet: sectionSet)
     }
 
     func updateTodo(firstDate: Date, todoUpdate: TodoUpdateComparator) {
@@ -567,14 +570,12 @@ private extension HomeCalendarViewModel {
             sectionSet.insert(integersIn: range)
             addingTmpDate = calendar.date(byAdding: DateComponents(day: 1), to: addingTmpDate) ?? Date()
         }
-        needReloadSectionSet.onNext(sectionSet)
+        prepareViewModel(indexSet: sectionSet)
     }
     
     func deleteTodo(firstDate: Date, todo: Todo) {
-        
         var sectionSet = IndexSet()
         
-        // todo의 startDate ~ endDate까지 추가만 하면됨. section은 어떻게 찾을건가???
         var tmpDate = todo.startDate
         while(tmpDate <= todo.endDate) {
             todos[tmpDate]?.removeAll(where: { $0.id == todo.id && $0.isGroupTodo == todo.isGroupTodo })
@@ -586,7 +587,7 @@ private extension HomeCalendarViewModel {
             tmpDate = calendar.date(byAdding: DateComponents(day: 1), to: tmpDate) ?? Date()
         }
 
-        needReloadSectionSet.onNext(sectionSet)
+        prepareViewModel(indexSet: sectionSet)
     }
     
     func multipleDaysSelected(section: Int, items: (Int, Int)) {
@@ -641,8 +642,7 @@ private extension HomeCalendarViewModel {
             .subscribe(onSuccess: { [weak self] todoDict in
                 guard let self else { return } //만약 위로 스크롤해서 업데이트한거면 애를 초기화시켜버려야한다..!!!!
                 self.todos.merge(todoDict) { (_, new) in new }
-                self.todoListFetchedInIndexRange.onNext((fromIndex, toIndex))
-                
+                self.prepareViewModel(indexSet: IndexSet((fromIndex...toIndex)))
                 if self.nowRefreshing {
                     self.nowRefreshing = false
                     self.didFinishRefreshing.onNext(())
@@ -733,15 +733,27 @@ private extension HomeCalendarViewModel {
     }
 }
 
+extension HomeCalendarViewModel {
+    func prepareViewModel(indexSet: IndexSet) {
+        indexSet.forEach { section in
+            (0..<mainDays[section].count).forEach { item in
+                if item%7 == 0 {
+                    stackTodosInDayViewModelOfWeek(at: IndexPath(item: item, section: section))
+                }
+            }
+        }
+
+        needReloadSectionSet.onNext(indexSet)
+    }
+}
+
 // MARK: VC쪽이 UI용 투두 ViewModel 준비를 위해 요청
 extension HomeCalendarViewModel {
     func stackTodosInDayViewModelOfWeek(at indexPath: IndexPath) {
         let date = mainDays[indexPath.section][indexPath.item].date
-        if indexPath.item%7 == 0, //월요일만 진입 가능
-           weekDayChecker[indexPath.item/7] != calendar.component(.weekOfYear, from: date) {
-            weekDayChecker[indexPath.item/7] = calendar.component(.weekOfYear, from: date)
-            (indexPath.item..<indexPath.item + 7).forEach { //해당주차의 todoStackingCache를 전부 0으로 초기화
-                todoStackingCache[$0] = [Bool](repeating: false, count: 20)
+        if indexPath.item%7 == 0 {
+            (indexPath.item..<indexPath.item + 7).forEach {
+                todoStackingBuffer[$0] = [Bool](repeating: false, count: 30)
             }
             
             for (item, day) in Array(mainDays[indexPath.section].enumerated())[indexPath.item..<indexPath.item + 7] {
@@ -753,7 +765,7 @@ extension HomeCalendarViewModel {
                 let singleTodoList = prepareSingleTodosInDay(at: IndexPath(item: item, section: indexPath.section), todos: todoList)
                 let periodTodoList = preparePeriodTodosInDay(at: IndexPath(item: item, section: indexPath.section), todos: todoList)
                 
-                todosInDayViewModels[item] = generateTodosInDayViewModel(
+                dailyViewModels[day.date] = generateTodosInDayViewModel(
                     at: IndexPath(item: item, section: indexPath.section),
                     singleTodos: singleTodoList,
                     periodTodos: periodTodoList
@@ -762,42 +774,63 @@ extension HomeCalendarViewModel {
         }
     }
     
-    func maxHeightTodosInDayViewModelOfWeek(at indexPath: IndexPath) -> TodosInDayViewModel? {
+    func getDayHeight(at indexPath: IndexPath) -> Int {
+        let viewModel = dailyViewModels[mainDays[indexPath.section][indexPath.item].date]
+        guard let viewModel else { return 0 }
+        
+        return viewModel.holiday != nil
+        ? viewModel.holiday!.0 + 1 : viewModel.singleTodo.last != nil
+        ? viewModel.singleTodo.last!.0 + 1 : viewModel.periodTodo.last != nil
+        ? viewModel.periodTodo.last!.0 + 1 : 0
+    }
+    
+    func maxCountTodosInDayViewModelOfWeek(at indexPath: IndexPath) -> (Int, TodosInDayViewModel?) {
         let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
         
-        return todosInDayViewModels[weekRange]
-            .max(by: { a, b in
-                let aHeight = (a.holiday != nil) ? a.holiday!.0 : (a.singleTodo.last != nil) ?
-                a.singleTodo.last!.0 : (a.periodTodo.last != nil) ? a.periodTodo.last!.0 : 0
-                let bHeight = (b.holiday != nil) ? b.holiday!.0 : (b.singleTodo.last != nil) ?
-                b.singleTodo.last!.0 : (b.periodTodo.last != nil) ? b.periodTodo.last!.0 : 0
-                return aHeight < bHeight
-            })
+        let result = weekRange.map { (index: Int) -> (Int, TodosInDayViewModel?) in
+            let date = mainDays[indexPath.section][index].date
+            return (getDayHeight(at: IndexPath(item: index, section: indexPath.section)), dailyViewModels[date])
+        }.max { $0.0 < $1.0 }
+
+        return result ?? (0, nil)
+    }
+}
+
+extension Todo {
+    func toViewModel(color: CategoryColor) -> SocialTodoSummary {
+        return SocialTodoSummary(
+            todoId: self.id ?? Int(),
+            categoryColor: color,
+            title: self.title,
+            startDate: self.startDate,
+            endDate: self.endDate,
+            isCompleted: self.isCompleted
+        )
     }
 }
 
 // MARK: prepare TodosInDayViewModel
 private extension HomeCalendarViewModel {
     func generateTodosInDayViewModel(at indexPath: IndexPath, singleTodos: [Todo], periodTodos: [Todo]) -> TodosInDayViewModel {
-        let filteredPeriodTodos: [(Int, Todo)] = periodTodos.compactMap { todo in
-            for i in (0..<todoStackingCache[indexPath.item].count) {
-                if todoStackingCache[indexPath.item][i] == false,
+        let filteredPeriodTodos: [(Int, SocialTodoSummary)] = periodTodos.compactMap { todo in
+            for i in (0..<todoStackingBuffer[indexPath.item].count) {
+                if todoStackingBuffer[indexPath.item][i] == false,
                    let period = calendar.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
                     for j in (0...period) {
-                        todoStackingCache[indexPath.item+j][i] = true
+                        todoStackingBuffer[indexPath.item+j][i] = true
                     }
-                    return (i, todo)
+                    return (i, todo.toViewModel(color: todo.isGroupTodo ? (groupCategories[todo.categoryId]?.color ?? .none) : memberCategories[todo.categoryId]?.color ?? .none))
                 }
             }
             return nil
         }
 
-        let singleTodoInitialIndex = (todoStackingCache[indexPath.item].lastIndex(where: { isFilled in
+        let singleTodoInitialIndex = (todoStackingBuffer[indexPath.item].lastIndex(where: { isFilled in
             return isFilled == true
         }) ?? -1) + 1
         
         let filteredSingleTodos = singleTodos.enumerated().map { (index, todo) in
-            return (index + singleTodoInitialIndex, todo)
+            return (index + singleTodoInitialIndex, todo.toViewModel(color: todo.isGroupTodo ? (groupCategories[todo.categoryId]?.color ?? .none) : memberCategories[todo.categoryId]?.color ?? .none))
         }
         
         var holiday: (Int, String)?

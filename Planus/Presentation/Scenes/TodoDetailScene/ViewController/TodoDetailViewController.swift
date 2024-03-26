@@ -77,15 +77,7 @@ final class TodoDetailViewController: UIViewController {
         super.viewDidAppear(animated)
         
         if isFirstAppear {
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
-                self.todoDetailView.snp.remakeConstraints {
-                    $0.bottom.leading.trailing.equalToSuperview()
-                    $0.height.lessThanOrEqualTo(700)
-                }
-                self.dimmedView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
-                self.view.layoutIfNeeded()
-            }, completion: nil)
-            isFirstAppear = false
+            self.firstAppear()
         }
     }
     
@@ -443,7 +435,7 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
                 newAnchor.isActive = true
             }
             
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
                 if from != .title {
                     self.todoDetailView.attributeViewGroup[from.rawValue].alpha = 0
                 }
@@ -451,7 +443,7 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
                     self.todoDetailView.attributeViewGroup[to.rawValue].alpha = 1
                 }
             })
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
                 self.todoDetailView.upperView.layoutIfNeeded()
             })
         }

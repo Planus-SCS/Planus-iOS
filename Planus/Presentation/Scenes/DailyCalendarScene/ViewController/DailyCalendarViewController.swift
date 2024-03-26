@@ -247,6 +247,7 @@ extension DailyCalendarViewController: UICollectionViewDataSource, UICollectionV
             self?.didTappedCompletionBtnAt.accept(indexPath)
             Vibration.light.vibrate()
         }
+        
         return cell
         
 
