@@ -6,8 +6,6 @@
 //
 
 import UIKit
-import FirebaseCore
-import FirebaseMessaging
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -17,9 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         NetworkMonitor.shared.startMonitoring()
-        FirebaseApp.configure()
-        
-        Messaging.messaging().delegate = self
+
         UNUserNotificationCenter.current().delegate = self
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         
@@ -43,17 +39,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 
-}
-
-extension AppDelegate: MessagingDelegate {
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        Messaging.messaging().apnsToken = deviceToken
-    }
-    
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {        
-        guard let fcmToken else { return }
-        UserDefaultsManager().set(key: "fcmToken", value: fcmToken)
-    }
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
