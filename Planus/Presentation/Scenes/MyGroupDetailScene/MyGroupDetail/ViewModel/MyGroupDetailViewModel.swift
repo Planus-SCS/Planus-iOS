@@ -715,8 +715,8 @@ extension MyGroupDetailViewModel {
     }
     
     func getDayHeight(at indexPath: IndexPath) -> Int {
-        let viewModel = dailyViewModels[mainDays[indexPath.item].date]
-        guard let viewModel else { return 0 }
+        let date = mainDays[indexPath.item].date
+        guard let viewModel = dailyViewModels[date] else { return 0 }
         
         return viewModel.holiday != nil
         ? viewModel.holiday!.0 + 1 : viewModel.singleTodo.last != nil

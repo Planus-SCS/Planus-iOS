@@ -58,7 +58,6 @@ final class MemberProfileViewModel: ViewModel {
             [.year, .month, .day],
             from: Date()
         )
-        
         return Calendar.current.date(from: components) ?? Date()
     }()
     
@@ -91,6 +90,7 @@ final class MemberProfileViewModel: ViewModel {
         var didTappedTitleButton: Observable<Void>
         var didSelectMonth: Observable<Date>
         var backBtnTapped: Observable<Void>
+        var didInitDrawed: Observable<Void>
     }
     
     struct Output {
@@ -137,6 +137,14 @@ final class MemberProfileViewModel: ViewModel {
                 let currentDate = vm.calendar.date(from: components) ?? Date()
                 vm.currentDate.onNext(currentDate)
                 vm.initCalendar(date: currentDate)
+            }
+            .disposed(by: bag)
+        
+        input
+            .didInitDrawed
+            .withUnretained(self)
+            .subscribe { vm, _ in
+                guard let currentDate = try? vm.currentDate.value() else { return }
                 vm.initTodoList(date: currentDate)
             }
             .disposed(by: bag)
@@ -145,6 +153,7 @@ final class MemberProfileViewModel: ViewModel {
             .indexChanged
             .withUnretained(self)
             .subscribe { vm, index in
+                print("index changed to \(index)")
                 vm.scrolledTo(index: index)
             }
             .disposed(by: bag)
@@ -230,14 +239,16 @@ private extension MemberProfileViewModel {
         currentIndex = -endOfFirstIndex
         latestPrevCacheRequestedIndex = currentIndex
         latestFollowingCacheRequestedIndex = currentIndex
-        
         initialDayListFetchedInCenterIndex.onNext(currentIndex)
     }
     
     func initTodoList(date: Date) {
+        latestPrevCacheRequestedIndex = currentIndex
+        latestFollowingCacheRequestedIndex = currentIndex
+        
         let fromIndex = (currentIndex - cachingAmount >= 0) ? currentIndex - cachingAmount : 0
         let toIndex = currentIndex + cachingAmount + 1 < mainDays.count ? currentIndex + cachingAmount + 1 : mainDays.count-1
-        
+
         fetchTodoList(from: fromIndex, to: toIndex)
     }
     
@@ -299,7 +310,7 @@ extension MemberProfileViewModel {
         
         let fromMonthStart = calendar.date(byAdding: DateComponents(day: -7), to: calendar.startOfDay(for: fromMonth)) ?? Date()
         let toMonthStart = calendar.date(byAdding: DateComponents(day: 7), to: calendar.startOfDay(for: toMonth)) ?? Date()
-        
+        print(fromMonthStart, toMonthStart)
         useCases
             .executeWithTokenUseCase
             .execute() { [weak self] token -> Single<[Date: [TodoSummaryViewModel]]>? in
@@ -364,10 +375,17 @@ extension MemberProfileViewModel {
         }
     }
     
-    func getDayHeight(at indexPath: IndexPath) -> Int {
-        let viewModel = dailyViewModels[mainDays[indexPath.section][indexPath.item].date]
-        guard let viewModel else { return 0 }
-        
+//    func getDayHeight(at indexPath: IndexPath) -> Int {
+//        let date = mainDays[indexPath.section][indexPath.item].date
+//        guard let viewModel = dailyViewModels[date] else { return 0 }
+//        
+//        return viewModel.holiday != nil
+//        ? viewModel.holiday!.0 + 1 : viewModel.singleTodo.last != nil
+//        ? viewModel.singleTodo.last!.0 + 1 : viewModel.periodTodo.last != nil
+//        ? viewModel.periodTodo.last!.0 + 1 : 0
+//    }
+    
+    func getDayHeight(viewModel: DailyViewModel) -> Int {
         return viewModel.holiday != nil
         ? viewModel.holiday!.0 + 1 : viewModel.singleTodo.last != nil
         ? viewModel.singleTodo.last!.0 + 1 : viewModel.periodTodo.last != nil
@@ -377,12 +395,29 @@ extension MemberProfileViewModel {
     func largestDailyViewModelOfWeek(at indexPath: IndexPath) -> (Int, DailyViewModel?) {
         let weekRange = (indexPath.item - indexPath.item%7..<indexPath.item - indexPath.item%7 + 7)
         
-        let result = weekRange.map { (index: Int) -> (Int, DailyViewModel?) in
-            let date = mainDays[indexPath.section][index].date
-            return (getDayHeight(at: IndexPath(item: index, section: indexPath.section)), dailyViewModels[date])
-        }.max { $0.0 < $1.0 }
+//        let result = weekRange.map { [weak self] (index: Int) -> (Int, DailyViewModel?) in
+//            guard let self,
+//                  let vm = self.dailyViewModels[self.mainDays[indexPath.section][index].date] else { return (0, nil) }
+//            return (self.getDayHeight(viewModel: vm), vm)
+//        }.max { $0.0 < $1.0 }
+        
+        var maxVM: DailyViewModel?
+        var maxHeight: Int = 0
+        for i in weekRange {
+            let date = mainDays[indexPath.section][i].date
+            
+            let tmpVM = dailyViewModels[date]
+            if let tmpVM {
+                let a = getDayHeight(viewModel: tmpVM)
+                if maxHeight < a {
+                    maxVM = tmpVM
+                    maxHeight = a
+                }
+            }
+        }
+        
 
-        return result ?? (0, nil)
+        return (maxHeight, maxVM)
     }
 }
 

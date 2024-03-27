@@ -25,6 +25,8 @@ final class MemberProfileViewController: UIViewController {
     private var isSingleSelected = PublishRelay<IndexPath>()
     private var indexChanged = PublishRelay<Int>()
     private var isMonthChanged = PublishRelay<Date>()
+    private var initDrawFinished = PublishRelay<Void>()
+    
     private var didInitialCalendarGenerated = false
     
     private let headerView = MemberProfileHeaderView(frame: .zero)
@@ -99,7 +101,8 @@ final class MemberProfileViewController: UIViewController {
             didSelectItem: isSingleSelected.asObservable(),
             didTappedTitleButton: calendarHeaderView.yearMonthButton.rx.tap.asObservable(),
             didSelectMonth: isMonthChanged.asObservable(),
-            backBtnTapped: backButton.rx.tap.asObservable()
+            backBtnTapped: backButton.rx.tap.asObservable(),
+            didInitDrawed: initDrawFinished.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -122,6 +125,7 @@ final class MemberProfileViewController: UIViewController {
                 }, completion: { _ in
                     vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
                     vc.didInitialCalendarGenerated = true
+                    vc.initDrawFinished.accept(())
                 })
             })
             .disposed(by: bag)
@@ -235,7 +239,6 @@ extension MemberProfileViewController {
         popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
         popover.permittedArrowDirections = [.up]
         self.present(vc, animated: true, completion: nil)
-        print(globalFrame)
     }
 }
 
