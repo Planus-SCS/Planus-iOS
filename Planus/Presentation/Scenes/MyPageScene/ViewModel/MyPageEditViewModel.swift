@@ -104,7 +104,7 @@ final class MyPageEditViewModel: ViewModel {
             .backBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.actions.goBack
+                vm.actions.goBack?()
             })
             .disposed(by: bag)
         
