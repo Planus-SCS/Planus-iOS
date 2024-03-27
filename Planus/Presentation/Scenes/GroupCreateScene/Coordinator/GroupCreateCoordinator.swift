@@ -75,23 +75,21 @@ final class GroupCreateCoordinator: Coordinator {
                 injector: self.dependency.injector
             )
         )
-        coordinator.finishDelegate = self
-        self.childCoordinators.append(coordinator)
+        
+        guard let parent = self.finishDelegate as? Coordinator else { return }
+        coordinator.finishDelegate = parent as! CoordinatorFinishDelegate
+        parent.childCoordinators.append(coordinator)
         coordinator.start(groupId: groupId)
         
-        var children = dependency.navigationController.viewControllers
-        children.removeAll(where: { childVC in
-            switch childVC {
-            case is GroupCreateViewController:
-                return true
-            case is GroupCreateLoadViewController:
-                return true
-            default:
-                return false
+        if let transitionCo = dependency.navigationController.transitionCoordinator {
+            transitionCo.animate(alongsideTransition: nil, completion: { [weak self] _ in
+                self?.createCompletionHandler()
+            })
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.createCompletionHandler()
             }
-        })
-        
-        dependency.navigationController.setViewControllers(children, animated: true)
+        }
     }
     
     lazy var backWithCreateFailure: (String) -> Void = { [weak self] message in
@@ -112,6 +110,24 @@ final class GroupCreateCoordinator: Coordinator {
     lazy var finishScene: () -> Void = { [weak self] in
         guard let self else { return }
         self.finishDelegate?.coordinatorDidFinish(childCoordinator: self)
+    }
+    
+    lazy var createCompletionHandler: () -> Void = { [weak self] in
+        guard let self else { return }
+        var children = self.dependency.navigationController.viewControllers
+        children.removeAll(where: { childVC in
+            switch childVC {
+            case is GroupCreateViewController:
+                return true
+            case is GroupCreateLoadViewController:
+                return true
+            default:
+                return false
+            }
+        })
+        
+        self.dependency.navigationController.setViewControllers(children, animated: true)
+        finish()
     }
 }
 

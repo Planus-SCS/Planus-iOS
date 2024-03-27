@@ -76,12 +76,14 @@ final class GroupIntroduceViewController: UIViewController, UIGestureRecognizerD
         configureNavigationBarAppearance()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
         if isMovingFromParent {
             viewModel?.actions.finishScene?()
         }
     }
+    
+    
 }
 
 // MARK: ConfigureVC
