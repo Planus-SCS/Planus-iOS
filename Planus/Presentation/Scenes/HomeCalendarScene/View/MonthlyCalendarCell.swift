@@ -120,7 +120,7 @@ extension MonthlyCalendarCell {
         self.isMultipleSelected = isMultipleSelected
         self.isSingleSelected = isSingleSelected
         self.refreshRequired = refreshRequired
-        
+
         let bag = DisposeBag()
         didFetchRefreshedData
             .observe(on: MainScheduler.asyncInstance)
