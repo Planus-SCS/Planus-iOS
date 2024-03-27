@@ -32,6 +32,8 @@ final class GroupCreateViewModel: ViewModel {
     let useCases: UseCases
     let actions: Actions
     
+    let maxTagCnt = 5
+    
     var title = BehaviorSubject<String?>(value: nil)
     var notice = BehaviorSubject<String?>(value: nil)
     var titleImage = BehaviorSubject<ImageFile?>(value: nil)
@@ -94,6 +96,8 @@ final class GroupCreateViewModel: ViewModel {
             .tagRemovedAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
+                print(vm.tagList)
+                print(index)
                 vm.tagList.remove(at: index)
                 vm.checkTagValidation()
                 removeAt.onNext(index)
@@ -178,9 +182,8 @@ final class GroupCreateViewModel: ViewModel {
     }
     
     func checkTagValidation() {
-        let tagCountState = tagList.count <= 5 && tagList.count > 0
+        let tagCountState = tagList.count <= maxTagCnt && tagList.count > 0
         let tagDuplicateState = tagCountState && Set(tagList).count == tagList.count
-        
         self.tagCountValidState.onNext(tagCountState)
         self.tagDuplicateValidState.onNext(tagDuplicateState)
     }

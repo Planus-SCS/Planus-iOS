@@ -211,40 +211,83 @@ private extension GroupCreateViewController {
 // MARK: Actions
 private extension GroupCreateViewController {
     func insertTagAt(index: Int) {
-        guard let groupCreateView else { return }
+        guard let groupCreateView,
+              let viewModel else { return }
+        let maxTagCnt = viewModel.maxTagCnt
         
-        groupCreateView.tagView
-            .tagCollectionView
-            .performBatchUpdates({
-                groupCreateView.tagView
-                    .tagCollectionView
-                    .insertItems(at: [IndexPath(item: index, section: 0)])
-            }, completion: { _ in
-                UIView.performWithoutAnimation {
+        if viewModel.tagList.count == maxTagCnt {
+            groupCreateView
+                .tagView
+                .tagCollectionView
+                .performBatchUpdates({
                     groupCreateView.tagView
                         .tagCollectionView
-                        .reloadSections(IndexSet(0...0))
-                }
-            })
+                        .reloadItems(at: [IndexPath(item: maxTagCnt-1, section: 0)])
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        groupCreateView.tagView
+                            .tagCollectionView
+                            .reloadSections(IndexSet(integer: 0))
+                    }
+                })
+        } else {
+            groupCreateView
+                .tagView
+                .tagCollectionView
+                .performBatchUpdates({
+                    groupCreateView.tagView
+                        .tagCollectionView
+                        .insertItems(at: [IndexPath(item: index, section: 0)])
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        groupCreateView.tagView
+                            .tagCollectionView
+                            .reloadSections(IndexSet(integer: 0))
+                    }
+                })
+        }
     }
     
     func removeTagAt(index: Int) {
-        guard let groupCreateView else { return }
+        guard let groupCreateView,
+              let viewModel else { return }
+        let maxTagCnt = viewModel.maxTagCnt
         
-        groupCreateView
-            .tagView
-            .tagCollectionView
-            .performBatchUpdates({
-                groupCreateView.tagView
-                    .tagCollectionView
-                    .deleteItems(at: [IndexPath(item: index, section: 0)])
-            }, completion: { _ in
-                UIView.performWithoutAnimation {
+        if viewModel.tagList.count == maxTagCnt - 1 {
+            groupCreateView
+                .tagView
+                .tagCollectionView
+                .performBatchUpdates({
                     groupCreateView.tagView
                         .tagCollectionView
-                        .reloadSections(IndexSet(0...0))
-                }
-            })
+                        .deleteItems(at: [IndexPath(item: index, section: 0)])
+                    groupCreateView.tagView
+                        .tagCollectionView
+                        .insertItems(at: [IndexPath(item: maxTagCnt-1, section: 0)])
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        groupCreateView.tagView
+                            .tagCollectionView
+                            .reloadSections(IndexSet(integer: 0))
+                    }
+                })
+        } else {
+            groupCreateView
+                .tagView
+                .tagCollectionView
+                .performBatchUpdates({
+                    groupCreateView.tagView
+                        .tagCollectionView
+                        .deleteItems(at: [IndexPath(item: index, section: 0)])
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        groupCreateView.tagView
+                            .tagCollectionView
+                            .reloadSections(IndexSet(integer: 0))
+                    }
+                })
+        }
+
     }
     
     func presentPhotoPicker() {
