@@ -1382,6 +1382,7 @@
 		6A08AD4F29C87C61005947D2 /* Planus */ = {
 			isa = PBXGroup;
 			children = (
+				6A483DB129CA804C003375BF /* PlanusRelease.entitlements */,
 				6A08AD8E29C89753005947D2 /* Util */,
 				6A08AD7529C8927A005947D2 /* icons */,
 				6A08AD6A29C88545005947D2 /* Infrastructure */,
@@ -2627,7 +2628,6 @@
 		6A7783812BB3EAE4004A535F /* Info */ = {
 			isa = PBXGroup;
 			children = (
-				6A483DB129CA804C003375BF /* PlanusRelease.entitlements */,
 				6AF0788D2AA78C400086692B /* GoogleService-Info.plist */,
 				6A08AD5E29C87C63005947D2 /* Info.plist */,
 			);
@@ -4244,7 +4244,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QDZ5VUDS9T;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Planus/Info.plist;
+				INFOPLIST_FILE = Planus/Util/Info/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -4256,7 +4256,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.SCSY.Planus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4279,7 +4279,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QDZ5VUDS9T;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Planus/Info.plist;
+				INFOPLIST_FILE = Planus/Util/Info/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -4291,7 +4291,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.SCSY.Planus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
