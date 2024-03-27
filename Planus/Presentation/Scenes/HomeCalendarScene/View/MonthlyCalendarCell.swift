@@ -120,7 +120,7 @@ extension MonthlyCalendarCell {
         self.isMultipleSelected = isMultipleSelected
         self.isSingleSelected = isSingleSelected
         self.refreshRequired = refreshRequired
-        
+
         let bag = DisposeBag()
         didFetchRefreshedData
             .observe(on: MainScheduler.asyncInstance)
@@ -191,11 +191,11 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         let (maxCount, maxTodo) = viewModel.largestDailyViewModelOfWeek(at: IndexPath(item: indexPath.item, section: section))
 
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[maxCount] {
-            return CGSize(width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: cellHeight)
+            return CGSize(width: Double(1)/Double(7) * UIScreen.main.bounds.width - 0.1, height: cellHeight)
         } else {
             var targetHeight: CGFloat = 100
             if let maxTodo {
-                let mockCell = CalendarDailyCell(mockableFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: targetHeight))
+                let mockCell = CalendarDailyCell(mockableFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width - 0.1, height: targetHeight))
                 
                 mockCell.fill(
                     periodTodoList: maxTodo.periodTodo,
@@ -211,7 +211,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
 
             viewModel.cachedCellHeightForTodoCount[maxCount] = targetHeight
 
-            return CGSize(width: Double(1)/Double(7) * UIScreen.main.bounds.width, height: targetHeight)
+            return CGSize(width: Double(1)/Double(7) * UIScreen.main.bounds.width - 0.1, height: targetHeight)
         }
     }
 

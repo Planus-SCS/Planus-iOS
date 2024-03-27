@@ -68,8 +68,8 @@ final class MyGroupInfoEditViewController: UIViewController {
         addKeyboardNotifications()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
         
         removeKeyboardNotifications()
     }
@@ -202,45 +202,83 @@ private extension MyGroupInfoEditViewController {
 // MARK: - Tag Actions
 private extension MyGroupInfoEditViewController {
     func insertTag(at index: Int) {
-        guard let myGroupInfoEditView else { return }
+        guard let myGroupInfoEditView,
+              let viewModel else { return }
+        let maxTagCnt = viewModel.maxTagCnt
         
-        myGroupInfoEditView
-            .tagView
-            .tagCollectionView
-            .performBatchUpdates({
-                myGroupInfoEditView
-                    .tagView
-                    .tagCollectionView
-                    .insertItems(at: [IndexPath(item: index, section: 0)])
-            }, completion: { _ in
-                UIView.performWithoutAnimation {
-                    myGroupInfoEditView
-                        .tagView
+        if viewModel.tagList.count == maxTagCnt {
+            myGroupInfoEditView
+                .tagView
+                .tagCollectionView
+                .performBatchUpdates({
+                    myGroupInfoEditView.tagView
                         .tagCollectionView
-                        .reloadSections(IndexSet(0...0))
-                }
-            })
+                        .reloadItems(at: [IndexPath(item: maxTagCnt-1, section: 0)])
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        myGroupInfoEditView.tagView
+                            .tagCollectionView
+                            .reloadSections(IndexSet(integer: 0))
+                    }
+                })
+        } else {
+            myGroupInfoEditView
+                .tagView
+                .tagCollectionView
+                .performBatchUpdates({
+                    myGroupInfoEditView.tagView
+                        .tagCollectionView
+                        .insertItems(at: [IndexPath(item: index, section: 0)])
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        myGroupInfoEditView.tagView
+                            .tagCollectionView
+                            .reloadSections(IndexSet(integer: 0))
+                    }
+                })
+        }
     }
     
     func removeTag(at index: Int) {
-        guard let myGroupInfoEditView else { return }
+        guard let myGroupInfoEditView,
+              let viewModel else { return }
+        let maxTagCnt = viewModel.maxTagCnt
         
-        myGroupInfoEditView
-            .tagView
-            .tagCollectionView
-            .performBatchUpdates({
-                myGroupInfoEditView
-                    .tagView
-                    .tagCollectionView
-                    .deleteItems(at: [IndexPath(item: index, section: 0)])
-            }, completion: { _ in
-                UIView.performWithoutAnimation {
-                    myGroupInfoEditView
-                        .tagView
+        if viewModel.tagList.count == maxTagCnt - 1 {
+            myGroupInfoEditView
+                .tagView
+                .tagCollectionView
+                .performBatchUpdates({
+                    myGroupInfoEditView.tagView
                         .tagCollectionView
-                        .reloadSections(IndexSet(0...0))
-                }
-            })
+                        .deleteItems(at: [IndexPath(item: index, section: 0)])
+                    myGroupInfoEditView.tagView
+                        .tagCollectionView
+                        .insertItems(at: [IndexPath(item: maxTagCnt-1, section: 0)])
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        myGroupInfoEditView.tagView
+                            .tagCollectionView
+                            .reloadSections(IndexSet(integer: 0))
+                    }
+                })
+        } else {
+            myGroupInfoEditView
+                .tagView
+                .tagCollectionView
+                .performBatchUpdates({
+                    myGroupInfoEditView.tagView
+                        .tagCollectionView
+                        .deleteItems(at: [IndexPath(item: index, section: 0)])
+                }, completion: { _ in
+                    UIView.performWithoutAnimation {
+                        myGroupInfoEditView.tagView
+                            .tagCollectionView
+                            .reloadSections(IndexSet(integer: 0))
+                    }
+                })
+        }
+
     }
 }
 

@@ -67,7 +67,6 @@ final class MyGroupMemberEditViewModel: ViewModel {
     }
     
     func transform(input: Input) -> Output {
-        bindUseCase()
         
         input
             .viewDidLoad
@@ -98,23 +97,6 @@ final class MyGroupMemberEditViewModel: ViewModel {
             didFetchMemberList: didFetchMemberList.asObservable(),
             showMessage: showMessage.asObservable()
         )
-    }
-}
-
-// MARK: - bind
-private extension MyGroupMemberEditViewModel {
-    func bindUseCase() {
-        useCases
-            .memberKickOutUseCase
-            .didKickOutMemberAt
-            .subscribe(onNext: { [weak self] (groupId, memberId) in
-                guard let currentGroupId = self?.groupId,
-                      groupId == currentGroupId,
-                      let index = self?.memberList?.firstIndex(where: { $0.memberId == memberId }) else { return }
-                self?.memberList?.remove(at: index)
-                self?.resignedAt.onNext(index)
-            })
-            .disposed(by: bag)
     }
 }
 

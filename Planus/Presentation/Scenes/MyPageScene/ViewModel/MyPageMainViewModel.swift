@@ -10,15 +10,12 @@ import RxSwift
 import AuthenticationServices
 
 enum MyPageMenuType: Int, CaseIterable {
-    case serviceTerms = 0
-    case privacyPolicy
+    case privacyPolicy = 0
     case signOut
     case withDraw
     
     var title: String {
         switch self {
-        case .serviceTerms:
-            "이용 약관"
         case .privacyPolicy:
             "개인 정보 처리 방침"
         case .signOut:
@@ -168,8 +165,6 @@ final class MyPageMainViewModel: ViewModel {
     
     func routeMenu(type: MyPageMenuType) {
         switch type {
-        case .serviceTerms:
-            actions.showTermsOfUse?()
         case .privacyPolicy:
             actions.showPrivacyPolicy?()
         case .signOut:
