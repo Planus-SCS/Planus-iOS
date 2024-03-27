@@ -1364,8 +1364,6 @@
 		6A08AD4429C87C61005947D2 = {
 			isa = PBXGroup;
 			children = (
-				6AA3BAC82A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataClass copy.swift */,
-				6AA3BAC92A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataProperties copy.swift */,
 				6A08AD4F29C87C61005947D2 /* Planus */,
 				6A08AD4E29C87C61005947D2 /* Products */,
 				974AE7300BB25B96DF1DF093 /* Pods */,
@@ -1384,18 +1382,12 @@
 		6A08AD4F29C87C61005947D2 /* Planus */ = {
 			isa = PBXGroup;
 			children = (
-				6AF0788D2AA78C400086692B /* GoogleService-Info.plist */,
-				6A24F89F29CE3C6F0000FD64 /* Font */,
-				6A483DB129CA804C003375BF /* PlanusRelease.entitlements */,
 				6A08AD8E29C89753005947D2 /* Util */,
 				6A08AD7529C8927A005947D2 /* icons */,
 				6A08AD6A29C88545005947D2 /* Infrastructure */,
 				6A08AD6929C88508005947D2 /* Data */,
 				6A08AD6729C884B9005947D2 /* Domain */,
 				6A08AD6629C884B2005947D2 /* Presentation */,
-				6A08AD5929C87C63005947D2 /* Assets.xcassets */,
-				6A08AD5B29C87C63005947D2 /* LaunchScreen.storyboard */,
-				6A08AD5E29C87C63005947D2 /* Info.plist */,
 			);
 			path = Planus;
 			sourceTree = "<group>";
@@ -1455,6 +1447,8 @@
 		6A08AD6C29C88939005947D2 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				6A08AD5929C87C63005947D2 /* Assets.xcassets */,
+				6A08AD5B29C87C63005947D2 /* LaunchScreen.storyboard */,
 				6A0B769E2BADD4A2008BC571 /* ViewModel */,
 				6A91998D2A1276CF00108BF4 /* Enum */,
 				6A0B76682BA9A339008BC571 /* Extension */,
@@ -1693,6 +1687,8 @@
 		6A08AD8E29C89753005947D2 /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				6A7783812BB3EAE4004A535F /* Info */,
+				6A24F89F29CE3C6F0000FD64 /* Font */,
 				6A0B76AB2BB0809F008BC571 /* Settings */,
 				6AC078E62A0387F0007ACDB8 /* RxSwift */,
 				6A24F84F29CB77830000FD64 /* Calendar+Ext.swift */,
@@ -2628,6 +2624,16 @@
 			path = Entity;
 			sourceTree = "<group>";
 		};
+		6A7783812BB3EAE4004A535F /* Info */ = {
+			isa = PBXGroup;
+			children = (
+				6A483DB129CA804C003375BF /* PlanusRelease.entitlements */,
+				6AF0788D2AA78C400086692B /* GoogleService-Info.plist */,
+				6A08AD5E29C87C63005947D2 /* Info.plist */,
+			);
+			path = Info;
+			sourceTree = "<group>";
+		};
 		6A91994F2A11FEB000108BF4 /* MyGroupListScene */ = {
 			isa = PBXGroup;
 			children = (
@@ -3132,6 +3138,8 @@
 		6AA3BAC42A24A24900E5B8A2 /* DataModel */ = {
 			isa = PBXGroup;
 			children = (
+				6AA3BAC82A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataClass copy.swift */,
+				6AA3BAC92A24A3E800E5B8A2 /* RecentSearchKeyword+CoreDataProperties copy.swift */,
 				6AA3BAC52A24A27000E5B8A2 /* RecentSearch.xcdatamodeld */,
 			);
 			path = DataModel;
