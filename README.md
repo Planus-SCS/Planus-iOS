@@ -2,13 +2,13 @@
 
 ---
 
-<img width="2587" alt="SC 37" src="https://gist.github.com/assets/109147915/e6b87c38-1ef3-45f4-ac0f-f5993118f258">
+<img width="2587" alt="SC 37" src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/SC%2037%20(1).png?raw=true">
 
-<a href="https://apps.apple.com/kr/app/%ED%94%8C%EB%9E%98%EB%84%88%EC%8A%A4/id6459008318"><img height=70 src="https://gist.github.com/assets/109147915/6d75f249-f34f-4911-9c49-11cd570fe68f"> <a href="https://apps.apple.com/kr/app/%ED%94%8C%EB%9E%98%EB%84%88%EC%8A%A4/id6459008318"><img src="https://gist.github.com/assets/109147915/96185f88-c919-4fc3-b3e9-9407ed14f789" height=70>
+<a href="https://apps.apple.com/kr/app/%ED%94%8C%EB%9E%98%EB%84%88%EC%8A%A4/id6459008318"><img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/%EC%95%B1%EC%8A%A4%ED%86%A0%EC%96%B4.png?raw=true" height=70>
 <a>
 
 
-### 개인, 공유 일정을 하나의 캘린더로 관리하는 ‘플래너스’ 입니다.
+## 개인, 공유 일정을 하나의 캘린더로 관리하는 ‘플래너스’ 입니다.
 
 - 개인 일정 관리하기
     - 캘린더에 개인 일정을 추가해 보세요!
@@ -25,8 +25,8 @@
 
 | iOS |
 | --- |
-| <img src="https://gist.github.com/assets/109147915/d0b2262c-af68-4762-87b9-417108433845" width="150" height="150"> |
-| https://github.com/Sangmin627 |
+| <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/KakaoTalk_Photo_2024-03-28-02-33-55.jpeg?raw=true" width="150" height="150"> |
+| [@Sangmin627](https://github.com/Sangmin627) |
 
 ## 주요 기능 소개
 
@@ -34,23 +34,22 @@
 
 ### 홈 캘린더 기능
 
-![SC 4](https://gist.github.com/assets/109147915/f0ca6bb1-c064-43f0-9a86-943eb8d5baf7)
+![SC 4](https://github.com/Sangmin627/ContentsRepo/blob/main/Image/SC%204.png?raw=true)
 
 ### 그룹 활동 기능
 
-![SC 46](https://gist.github.com/assets/109147915/f681a35b-a90a-4bc4-bebb-a75e7c91e258)
+![SC 46](https://github.com/Sangmin627/ContentsRepo/blob/main/Image/SC%2046.png?raw=true)
 
 ## 실행 화면
-<img src="https://gist.github.com/assets/109147915/342b6792-7c11-4a20-a11e-2c5ecf6f03da" width="200" height="400">
 ---
 
-| 소셜 로그인 | 투두 | 기간 | 카테고리 관리 |
+| 소셜 로그인 | Todo 생성 | 캘린더 드래그 및 Todo 속성 | 카테고리 관리 |
 | --- | --- | --- | --- |
-| <img src="https://gist.github.com/assets/109147915/58dc30c5-0b75-4805-8924-55f0c8830e99" width="200" height="400"> | <img src="https://gist.github.com/assets/109147915/3bc253a3-1676-44e2-9275-2a416063e7d4" width="200" height="400"> | <img src="https://gist.github.com/assets/109147915/b79a0c04-fe6f-4e36-a263-f966a9a73677" width="200" height="400"> | <img src="https://gist.github.com/assets/109147915/8b510014-d7af-4746-9045-704600a3fa73" width="200" height="400"> |
-| 월 변경 | 캘린더 그룹 필터링 | 그룹검색 및 요청 | 그룹생성 |
-| <img src="https://gist.github.com/assets/109147915/c3726e05-1776-4ba0-a6da-62692fecb99e" width="200" height="400"> | <img src="https://gist.github.com/assets/109147915/2d5d5265-c07a-4e2d-9f0e-4ec78ceb5450" width="200" height="400"> | <img src="https://gist.github.com/assets/109147915/6151ca35-742e-4014-99a6-edc8c42c61f0" width="200" height="400"> | <img src="https://gist.github.com/assets/109147915/1845d2a9-8376-4320-9bf3-9be97c3467bb" width="200" height="400"> |
+| <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/1%EC%86%8C%EC%85%9C%EB%A1%9C%EA%B7%B8%EC%9D%B8.gif?raw=true" width="200" height="400"> | <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/2%ED%88%AC%EB%91%90%20%EC%83%9D%EC%84%B1.gif?raw=true" width="200" height="400"> | <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/3%EA%B8%B0%EA%B0%84%EA%B7%B8%EB%A3%B9%ED%88%AC%EB%91%90.gif?raw=true" width="200" height="400"> | <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/4%EC%B9%B4%ED%85%8C%EA%B3%A0%EB%A6%AC%20%EA%B4%80%EB%A6%AC.gif?raw=true" width="200" height="400"> |
+| 스크롤 및 Picker로 월 변경 | 캘린더 그룹 필터링 | 그룹검색 및 요청 | 그룹생성 |
+| <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/5%EB%82%A0%EC%A7%9C%EB%B3%80%EA%B2%BD.gif?raw=true" width="200" height="400"> | <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/7%EA%B7%B8%EB%A3%B9%20%ED%95%84%ED%84%B0%EB%A7%81.gif?raw=true" width="200" height="400"> | <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/6%EA%B7%B8%EB%A3%B9%EC%9A%94%EC%B2%AD.gif?raw=true" width="200" height="400"> | <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/8%EA%B7%B8%EB%A3%B9%EC%83%9D%EC%84%B1.gif?raw=true" width="200" height="400"> |
 | 그룹 캘린더 열람 | 멤버 캘린더 열람 | 개인정보 수정 |  |
-| <img src="https://gist.github.com/assets/109147915/7c309a61-c363-4078-a525-1a41daacbe9b" width="200" height="400"> | <img src="https://gist.github.com/assets/109147915/d0301378-fc1c-442e-9f08-04113d860c3d" width="200" height="400"> | <img src="https://gist.github.com/assets/109147915/342b6792-7c11-4a20-a11e-2c5ecf6f03da" width="200" height="400"> |  |
+| <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/9%EA%B7%B8%EB%A3%B9%EC%BA%98%EB%A6%B0%EB%8D%94.gif?raw=true" width="200" height="400"> | <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/10%EB%A9%A4%EB%B2%84%20%EC%BA%98%EB%A6%B0%EB%8D%94.gif?raw=true" width="200" height="400"> | <img src="https://github.com/Sangmin627/ContentsRepo/blob/main/Image/11%EA%B0%A0%EC%A0%95%EB%B3%B4%EC%88%98%EC%A0%95.gif?raw=true" width="200" height="400"> |  |
 
 ## 기술 스텍
 
