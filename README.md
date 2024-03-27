@@ -34,7 +34,7 @@
 
 ### 홈 캘린더 기능
 
-![SC 4](https://gist.github.com/assets/109147915/b750bc5b-42bd-4864-a8d9-357078688ae1)
+![SC 4](https://gist.github.com/assets/109147915/f0ca6bb1-c064-43f0-9a86-943eb8d5baf7)
 
 ### 그룹 활동 기능
 
