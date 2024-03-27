@@ -7,112 +7,63 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
-class HomeCalendarViewController: UIViewController {
+final class HomeCalendarViewController: UIViewController {
     
     var bag = DisposeBag()
     
+    var homeCalendarView: HomeCalendarView?
     var viewModel: HomeCalendarViewModel?
     
-    var isMonthChanged = PublishSubject<Date>()
-    var isMultipleSelecting = PublishSubject<Bool>()
-    var isMultipleSelected = PublishSubject<(Int, (Int, Int))>()
+    var isMonthChanged = PublishRelay<Date>()
+    var isMultipleSelecting = PublishRelay<Bool>()
+    var isMultipleSelected = PublishRelay<(Int, (Int, Int))>() //section, (item, item)
     var multipleTodoCompletionHandler: (() -> Void)?
-    var isSingleSelected = PublishSubject<(Int, Int)>()
-    var isGroupSelectedWithId = PublishSubject<Int?>()
-    var refreshRequired = PublishSubject<Void>()
-    var didFetchRefreshedData = PublishSubject<Void>()
+    var isSingleSelected = PublishRelay<(Int, Int)>()
+    var isGroupSelectedWithId = PublishRelay<Int?>()
+    var refreshRequired = PublishRelay<Void>()
+    var didFetchRefreshedData = PublishRelay<Void>()
     var initialCalendarGenerated = false
     
-    let indexChanged = PublishSubject<Int>()
-    
-    lazy var yearMonthButton: SpringableButton = {
-        let button = SpringableButton(frame: .zero)
-        button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
-        button.setImage(UIImage(named: "downButton"), for: .normal)
-        button.semanticContentAttribute = .forceRightToLeft
-        button.imageEdgeInsets = .init(top: 0, left: 5, bottom: 0, right: -5)
-        button.tintColor = .black
-        button.setTitleColor(.black, for: .normal)
-
-        return button
-    }()
-    
-    var groupListButton: UIBarButtonItem?
-    
-//    var profileButton
-    lazy var profileButton: ProfileButton = {
-        let button = ProfileButton(frame: .zero)
-        button.addTarget(self, action: #selector(profileButtonTapped), for: .touchUpInside)
-        return button
-    }()
-    
-    lazy var profileBarButton: UIBarButtonItem = {
-        let item = UIBarButtonItem(customView: profileButton)
-        return item
-    }()
-    
-    var weekStackView: UIStackView = {
-        let stackView = UIStackView(frame: .zero)
-        stackView.distribution = .fillEqually
-
-        let dayOfTheWeek = ["월", "화", "수", "목", "금", "토", "일"]
-        for i in 0..<7 {
-            let label = UILabel()
-            label.text = dayOfTheWeek[i]
-            label.textAlignment = .center
-            label.font = UIFont(name: "Pretendard-Regular", size: 12)
-            label.textColor = .black
-            stackView.addArrangedSubview(label)
-        }
-        stackView.backgroundColor = UIColor(hex: 0xF5F5FB)
-        return stackView
-    }()
-    
-    lazy var collectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.decelerationRate = .fast
-        collectionView.isPagingEnabled = true
-        collectionView.register(MonthlyCalendarCell.self, forCellWithReuseIdentifier: MonthlyCalendarCell.reuseIdentifier)
-        
-        return collectionView
-    }()
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    let indexChanged = PublishRelay<Int>()
     
     convenience init(viewModel: HomeCalendarViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
     
+    override func loadView() {
+        super.loadView()
+        
+        let view = HomeCalendarView(frame: self.view.frame)
+        self.view = view
+        self.homeCalendarView = view
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+
         bind()
-        configureView()
-        configureLayout()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationItem.titleView = yearMonthButton
+        guard let homeCalendarView else { return }
+        
+        self.navigationItem.titleView = homeCalendarView.yearMonthButton
+        self.navigationItem.setRightBarButton(UIBarButtonItem(customView: homeCalendarView.profileButton), animated: false)
     }
     
     func bind() {
-        guard let viewModel else { return }
+        guard let viewModel,
+              let homeCalendarView else { return }
         
-        viewModel.todoCompletionHandler = { [weak self] indexPath in
-            guard let cell = self?.collectionView.cellForItem(
+        homeCalendarView.collectionView.delegate = self
+        homeCalendarView.collectionView.dataSource = self
+                
+        viewModel.todoCompletionHandler = { indexPath in
+            guard let cell = homeCalendarView.collectionView.cellForItem(
                 at: indexPath
             ) as? MonthlyCalendarCell else { return }
             cell.deselectItems()
@@ -123,18 +74,20 @@ class HomeCalendarViewController: UIViewController {
             viewDidLoaded: Observable.just(()),
             didSelectItem: isSingleSelected.asObservable(),
             didMultipleSelectItemsInRange: isMultipleSelected.asObservable(),
-            didTappedTitleButton: yearMonthButton.rx.tap.asObservable(),
+            didTappedTitleButton: homeCalendarView.yearMonthButton.rx.tap.asObservable(),
             didSelectMonth: isMonthChanged.asObservable(),
             filterGroupWithId: isGroupSelectedWithId.asObservable(),
-            refreshRequired: refreshRequired.asObservable()
+            refreshRequired: refreshRequired.asObservable(),
+            profileBtnTapped: homeCalendarView.profileButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
         output.didLoadYYYYMM
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe { [weak self] text in
-                self?.yearMonthButton.setTitle(text, for: .normal)
+            .withUnretained(self)
+            .subscribe { vc, text in
+                homeCalendarView.yearMonthButton.setTitle(text, for: .normal)
             }
             .disposed(by: bag)
         
@@ -143,56 +96,20 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
-                vc.collectionView.performBatchUpdates({
-                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
-                    vc.collectionView.reloadData()
+                homeCalendarView.collectionView.performBatchUpdates({
+                    homeCalendarView.collectionView.reloadData()
                 }, completion: { _ in
-                    vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
+                    homeCalendarView.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
                     vc.initialCalendarGenerated = true
                 })
-            })
-            .disposed(by: bag)
-            
-        output.todoListFetchedInIndexRange
-            .compactMap { $0 }
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, rangeSet in //여기서 추가로 리로드중인게 있는지 확인해야하나???
-                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
-                vc.collectionView.reloadSections(IndexSet(rangeSet.0..<rangeSet.1))
-            })
-            .disposed(by: bag)
-        
-        output.showDailyTodoPage
-            .withUnretained(self)
-            .subscribe(onNext: { vc, day in
-                viewModel.actions.showDailyCalendarPage?(DailyCalendarViewModel.Args(
-                    currentDate: day.date,
-                    todoList: viewModel.todos[day.date] ?? [],
-                    categoryDict: viewModel.memberCategories ,
-                    groupDict: viewModel.groups ,
-                    groupCategoryDict: viewModel.groupCategories ,
-                    filteringGroupId: try? vc.viewModel?.filteredGroupId.value()
-                ))
             })
             .disposed(by: bag)
         
         output.showMonthPicker
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { first, current, last in
-                let vc = MonthPickerViewController(firstYear: first, lastYear: last, currentDate: current) { [weak self] date in
-                    self?.isMonthChanged.onNext(date)
-                }
-
-                vc.preferredContentSize = CGSize(width: 320, height: 290)
-                vc.modalPresentationStyle = .popover
-                let popover: UIPopoverPresentationController = vc.popoverPresentationController!
-                popover.delegate = self
-                popover.sourceView = self.view
-                let globalFrame = self.yearMonthButton.convert(self.yearMonthButton.bounds, to: nil)
-                popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
-                popover.permittedArrowDirections = [.up]
-                self.present(vc, animated: true, completion:nil)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, args in
+                vc.showMonthPicker(firstYear: args.0, current: args.1, lastYear: args.2)
             })
             .disposed(by: bag)
         
@@ -200,15 +117,15 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc.collectionView.setContentOffset(CGPoint(x: Double(index)*vc.view.frame.width, y: 0), animated: false)
+                homeCalendarView.collectionView.setContentOffset(CGPoint(x: Double(index)*vc.view.frame.width, y: 0), animated: false)
             })
             .disposed(by: bag)
         
         isMultipleSelecting
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { bool in
-                self.collectionView.isScrollEnabled = !bool
-                self.collectionView.isUserInteractionEnabled = !bool
+                homeCalendarView.collectionView.isScrollEnabled = !bool
+                homeCalendarView.collectionView.isUserInteractionEnabled = !bool
             })
             .disposed(by: bag)
         
@@ -217,8 +134,7 @@ class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, indexSet in
                 UIView.performWithoutAnimation({
-                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
-                    vc.collectionView.reloadSections(indexSet)
+                    homeCalendarView.collectionView.reloadSections(indexSet)
                 })
             })
             .disposed(by: bag)
@@ -228,8 +144,7 @@ class HomeCalendarViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 UIView.performWithoutAnimation({
-                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
-                    vc.collectionView.reloadData()
+                    homeCalendarView.collectionView.reloadData()
                 })
             })
             .disposed(by: bag)
@@ -238,7 +153,7 @@ class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, data in
-                vc.profileButton.fill(with: data)
+                homeCalendarView.profileButton.fill(with: data)
             })
             .disposed(by: bag)
         
@@ -262,31 +177,21 @@ class HomeCalendarViewController: UIViewController {
             .disposed(by: bag)
         
         output
-            .needFilterGroupWithId
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
-                vc.collectionView.reloadData()
-            })
-            .disposed(by: bag)
-        
-        output
             .didFinishRefreshing
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                vc.didFetchRefreshedData.onNext(())
+                vc.didFetchRefreshedData.accept(())
             })
             .disposed(by: bag)
         
-        output //이거는 처리를 하고 옮기기만 하는게 나을거같다..!!!! 그래도 될듯???
+        output
             .needScrollToHome
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
                 UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-                                vc.collectionView.setContentOffset(
+                                homeCalendarView.collectionView.setContentOffset(
                                CGPoint(x: CGFloat(100) * vc.view.frame.width, y: 0), animated: false)
                             })
             })
@@ -298,7 +203,7 @@ class HomeCalendarViewController: UIViewController {
         let image = UIImage(named: "groupCalendarList")
         var children = [UIMenuElement]()
         let all = UIAction(title: "모아 보기", handler: { [weak self] _ in
-            self?.groupSelected(id: nil)
+            self?.isGroupSelectedWithId.accept(nil)
         })
         children.append(all)
         if let groupDict = viewModel?.groups {
@@ -307,7 +212,7 @@ class HomeCalendarViewController: UIViewController {
             
             sortedList.enumerated().forEach { index, groupName in
                 let group = UIAction(title: groupName.groupName, handler: { [weak self] _ in
-                    self?.groupSelected(id: groupName.groupId)
+                    self?.isGroupSelectedWithId.accept(groupName.groupId)
                 })
                 children.append(group)
             }
@@ -318,18 +223,28 @@ class HomeCalendarViewController: UIViewController {
         let item = UIBarButtonItem(image: image, menu: buttonMenu)
         item.tintColor = UIColor(hex: 0x000000)
         navigationItem.setLeftBarButton(item, animated: true)
-        self.groupListButton = item
+        homeCalendarView?.groupListButton = item
     }
-    
-    func groupSelected(id: Int?) {
-        isGroupSelectedWithId.onNext(id)
-    }
-    
 
-    @objc func profileButtonTapped() {
-        guard let profile = viewModel?.profile else { return }
-        viewModel?.actions.showMyPage?(profile)
+    func showMonthPicker(firstYear: Date, current: Date, lastYear: Date) {
+        guard let homeCalendarView else { return }
+        
+        let vc = MonthPickerViewController(firstYear: firstYear, lastYear: lastYear, currentDate: current) { [weak self] date in
+            self?.isMonthChanged.accept(date)
+        }
+
+        vc.preferredContentSize = CGSize(width: 320, height: 290)
+        vc.modalPresentationStyle = .popover
+        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
+        popover.delegate = self
+        popover.sourceView = self.view
+        let globalFrame = homeCalendarView.yearMonthButton.convert(homeCalendarView.yearMonthButton.bounds, to: nil)
+        popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
+        popover.permittedArrowDirections = [.up]
+        self.present(vc, animated: true, completion:nil)
     }
+    
+    
 }
 
 // MARK: PopoverPresentationDelegate
@@ -373,8 +288,7 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
     func scrollViewDidScroll(_ scrollView: UIScrollView) { //이거를 저거 끝나고 잇자
         let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
         guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && initialCalendarGenerated else { return }
-        indexChanged.onNext(Int(round(floatedIndex)))
-        print(Int(round(floatedIndex)))
+        indexChanged.accept(Int(round(floatedIndex)))
     }
     
 }
@@ -382,63 +296,5 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
 // MARK: configureVC
 
 extension HomeCalendarViewController {
-    
-    func configureLayout() {
-        weekStackView.snp.makeConstraints {
-            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(25)
-            $0.leading.equalTo(self.view.safeAreaLayoutGuide.snp.leading)
-            $0.trailing.equalTo(self.view.safeAreaLayoutGuide.snp.trailing)
-        }
-        
-        collectionView.snp.makeConstraints {
-            $0.top.equalTo(weekStackView.snp.bottom).offset(10)
-            $0.leading.equalTo(weekStackView.snp.leading)
-            $0.trailing.equalTo(weekStackView.snp.trailing)
-            $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
-        }
-        
-        yearMonthButton.snp.makeConstraints {
-            $0.width.equalTo(150)
-            $0.height.equalTo(44)
-        }
-    }
 
-    func configureView() {
-        self.navigationItem.setLeftBarButton(groupListButton, animated: false)
-        self.navigationItem.setRightBarButton(profileBarButton, animated: false)
-        self.view.addSubview(collectionView)
-        self.view.addSubview(weekStackView)
-    }
-}
-
-// MARK: Compositional layout
-
-extension HomeCalendarViewController {
-
-    private func createLayout() -> UICollectionViewLayout {
-        
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1),
-            heightDimension: .fractionalHeight(1)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1),
-            heightDimension: .fractionalHeight(1)
-        )
-        
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
-        let section = NSCollectionLayoutSection(group: group)
-        section.orthogonalScrollingBehavior = .groupPaging
-        
-        let configuration = UICollectionViewCompositionalLayoutConfiguration()
-        configuration.scrollDirection = .horizontal
-        
-        let layout = UICollectionViewCompositionalLayout(section: section, configuration: configuration)
-        
-        return layout
-    }
-    
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RxSwift
 
 enum MyPageReadableType: String {
     case notice = "NOTICE"
@@ -299,7 +300,7 @@ enum MyPageReadableType: String {
     }
 }
 
-class MyPageReadableViewModel: ViewModel {
+final class MyPageReadableViewModel: ViewModel {
     struct UseCases {}
     
     struct Actions {
@@ -315,13 +316,16 @@ class MyPageReadableViewModel: ViewModel {
         let args: Args
     }
     
+    let bag = DisposeBag()
     let useCases: UseCases
     let actions: Actions
     
     var navigationTitle: String?
     var text: String?
     
-    struct Input {}
+    struct Input {
+        var backBtnTapped: Observable<Void>
+    }
     
     struct Output {
         var navigationTitle: String?
@@ -339,6 +343,14 @@ class MyPageReadableViewModel: ViewModel {
     }
     
     func transform(input: Input) -> Output {
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.goBack?()
+            })
+            .disposed(by: bag)
+        
         return Output(navigationTitle: navigationTitle, text: text)
     }
 }

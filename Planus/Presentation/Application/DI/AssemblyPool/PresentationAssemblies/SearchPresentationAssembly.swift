@@ -18,8 +18,7 @@ class SearchPresentationAssembly: Assembly {
         container.register(SearchHomeViewModel.self) { (r, injectable: SearchHomeViewModel.Injectable) in
             return SearchHomeViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     fetchSearchHomeUseCase: r.resolve(FetchSearchHomeUseCase.self)!,
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!
                 ),
@@ -37,8 +36,7 @@ class SearchPresentationAssembly: Assembly {
             return SearchResultViewModel(
                 useCases: .init(
                     recentQueryRepository: r.resolve(RecentQueryRepository.self)!,
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     fetchSearchResultUseCase: r.resolve(FetchSearchResultUseCase.self)!,
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!
                 ),
@@ -46,8 +44,8 @@ class SearchPresentationAssembly: Assembly {
             )
         }
         
-        container.register(SearchHomeViewController.self) { (r, injectable: SearchHomeViewModel.Injectable) in
-            return SearchHomeViewController(viewModel: r.resolve(SearchHomeViewModel.self, argument: injectable)!)
+        container.register(SearchResultViewController.self) { (r, injectable: SearchResultViewModel.Injectable) in
+            return SearchResultViewController(viewModel: r.resolve(SearchResultViewModel.self, argument: injectable)!)
         }
     }
 }

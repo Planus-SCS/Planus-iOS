@@ -7,14 +7,15 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 import AuthenticationServices
 
-class MyPageMainViewController: UIViewController {
+final class MyPageMainViewController: UIViewController {
     var bag = DisposeBag()
     var headerBag: DisposeBag?
     var viewModel: MyPageMainViewModel?
     
-    var didReceiveAppleAuthCode = PublishSubject<Data>()
+    var didReceiveAppleAuthCode = PublishRelay<Data>()
         
     lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -29,13 +30,13 @@ class MyPageMainViewController: UIViewController {
     
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
+        let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
     
     lazy var editButton: UIBarButtonItem = {
-        let item = UIBarButtonItem(title: "수정", style: .plain, target: self, action: #selector(editBtnTapped))
+        let item = UIBarButtonItem(title: "수정", style: .plain, target: nil, action: nil)
         item.tintColor = UIColor(hex: 0x6495F4)
         return item
     }()
@@ -43,14 +44,6 @@ class MyPageMainViewController: UIViewController {
     convenience init(viewModel: MyPageMainViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
@@ -78,22 +71,19 @@ class MyPageMainViewController: UIViewController {
             viewModel?.actions.finish?()
         }
     }
-    
-    @objc func backBtnAction() {
-        viewModel?.actions.pop?()
-    }
-    
-    @objc func editBtnTapped() {
-        viewModel?.actions.editProfile?()
-    }
-    
+}
+
+// MARK: configure
+private extension MyPageMainViewController {
     func bind() {
         guard let viewModel else { return }
         
         let input = MyPageMainViewModel.Input(
             viewDidLoad: Observable.just(()),
+            editBtnTapped: editButton.rx.tap.asObservable(),
             didSelectedAt: collectionView.rx.itemSelected.map { $0.item }.asObservable(),
-            didReceiveAppleAuthCode: didReceiveAppleAuthCode.asObservable()
+            didReceiveAppleAuthCode: didReceiveAppleAuthCode.asObservable(),
+            backBtnTapped: backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -140,14 +130,6 @@ class MyPageMainViewController: UIViewController {
         collectionView.snp.makeConstraints {
             $0.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
-    }
-    
-    func showASAuthController(request: ASAuthorizationAppleIDRequest) {
-        let controller = ASAuthorizationController(authorizationRequests: [request])
-        
-        controller.delegate = self
-        controller.presentationContextProvider = self
-        controller.performRequests()
     }
 }
 
@@ -229,8 +211,16 @@ extension MyPageMainViewController: UICollectionViewDataSource, UICollectionView
     }    
 }
 
-extension MyPageMainViewController: ASAuthorizationControllerDelegate {
+extension MyPageMainViewController: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
 
+    func showASAuthController(request: ASAuthorizationAppleIDRequest) {
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        
+        controller.delegate = self
+        controller.presentationContextProvider = self
+        controller.performRequests()
+    }
+    
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         
         guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
@@ -239,19 +229,17 @@ extension MyPageMainViewController: ASAuthorizationControllerDelegate {
             return
         }
 
-        didReceiveAppleAuthCode.onNext(authCodeData)
+        didReceiveAppleAuthCode.accept(authCodeData)
         
     }
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         viewModel?.nowResigning = false
     }
-}
-
-extension MyPageMainViewController: UIGestureRecognizerDelegate {}
-extension MyPageMainViewController: ASAuthorizationControllerPresentationContextProviding {
-
+    
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         return view.window!
     }
 }
+
+extension MyPageMainViewController: UIGestureRecognizerDelegate {}

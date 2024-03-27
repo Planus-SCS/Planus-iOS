@@ -13,8 +13,7 @@ class GroupIntroducePresentationAssembly: Assembly {
         container.register(GroupIntroduceViewModel.self) { (r, injectable: GroupIntroduceViewModel.Injectable) in
             return GroupIntroduceViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     setTokenUseCase: r.resolve(SetTokenUseCase.self)!,
                     fetchUnJoinedGroupUseCase: r.resolve(FetchUnJoinedGroupUseCase.self)!,
                     fetchMemberListUseCase: r.resolve(FetchMemberListUseCase.self)!,

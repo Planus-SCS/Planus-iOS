@@ -7,12 +7,12 @@
 
 import Foundation
 import RxSwift
+import RxCocoa
 
-class DailyCalendarViewModel: ViewModel {
+final class DailyCalendarViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         
         let createTodoUseCase: CreateTodoUseCase
         let updateTodoUseCase: UpdateTodoUseCase
@@ -45,10 +45,9 @@ class DailyCalendarViewModel: ViewModel {
         let args: Args
     }
     
+    let bag = DisposeBag()
     let useCases: UseCases
     let actions: Actions
-    
-    var bag = DisposeBag()
     
     var scheduledTodoList: [Todo]?
     var unscheduledTodoList: [Todo]?
@@ -69,6 +68,8 @@ class DailyCalendarViewModel: ViewModel {
     }()
     
     struct Input {
+        var addTodoTapped: Observable<Void>
+        var todoSelectedAt: Observable<IndexPath>
         var deleteTodoAt: Observable<IndexPath>
         var completeTodoAt: Observable<IndexPath>
     }
@@ -97,22 +98,132 @@ class DailyCalendarViewModel: ViewModel {
         self.actions = injectable.actions
         
         setDate(currentDate: injectable.args.currentDate)
-        setTodoList(
-            todoList: injectable.args.todoList,
+        setCategoryAndGroup(
             categoryDict: injectable.args.categoryDict,
             groupDict: injectable.args.groupDict,
             groupCategoryDict: injectable.args.groupCategoryDict,
             filteringGroupId: injectable.args.filteringGroupId
         )
+        setTodoListSorted(todoList: injectable.args.todoList)
     }
     
+    func transform(input: Input) -> Output {
+        bindTodoUseCase()
+        bindCategoryUseCase()
+        
+        input
+            .addTodoTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                let groupList = Array(vm.groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+                
+                var groupName: GroupName?
+                if let filteredGroupId = vm.filteringGroupId,
+                   let filteredGroupName = vm.groupDict[filteredGroupId] {
+                    groupName = filteredGroupName
+                }
+                
+                vm.actions.showTodoDetailPage?(
+                    MemberTodoDetailViewModel.Args(
+                        groupList: groupList,
+                        mode: .new,
+                        todo: nil,
+                        category: nil,
+                        groupName: groupName,
+                        start: vm.currentDate,
+                        end: nil
+                    ), nil
+                )
+            })
+            .disposed(by: bag)
+        
+        input
+            .todoSelectedAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, indexPath in
+                vm.todoItemSelected(at: indexPath)
+            })
+            .disposed(by: bag)
+        
+        input
+            .completeTodoAt
+            .withUnretained(self)
+            .subscribe(onNext: { vm, indexPath in
+                vm.completeTodoDataAt(indexPath: indexPath)
+            })
+            .disposed(by: bag)
+        
+        return Output(
+            currentDateText: currentDateText,
+            needInsertItem: needInsertItem.asObservable(),
+            needReloadItem: needReloadItem.asObservable(),
+            needDeleteItem: needDeleteItem.asObservable(),
+            needReloadData: needReloadData.asObservable(),
+            needMoveItem: needMoveItem.asObservable()
+        )
+    }
+}
+
+// MARK: bind useCase
+private extension DailyCalendarViewModel {
+    func bindTodoUseCase() {
+        useCases.createTodoUseCase
+            .didCreateTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                vm.notifiedTodoCreated(todo: todo)
+            })
+            .disposed(by: bag)
+        
+        useCases.updateTodoUseCase
+            .didUpdateTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todoUpdate in
+                vm.notifiedTodoUpdated(before: todoUpdate.before, after: todoUpdate.after)
+            })
+            .disposed(by: bag)
+        
+        useCases.deleteTodoUseCase
+            .didDeleteTodo
+            .withUnretained(self)
+            .subscribe(onNext: { vm, todo in
+                vm.notifiedTodoRemoved(todo: todo)
+            })
+            .disposed(by: bag)
+    }
+    
+    func bindCategoryUseCase() {
+        useCases.createCategoryUseCase
+            .didCreateCategory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                guard let id = category.id else { return }
+                
+                vm.categoryDict[id] = category
+            })
+            .disposed(by: bag)
+        
+        useCases.updateCategoryUseCase
+            .didUpdateCategory
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                guard let id = category.id else { return }
+                vm.categoryDict[id] = category
+                vm.needReloadData.onNext(())
+            })
+            .disposed(by: bag)
+        
+    }
+}
+
+// MARK: - set
+private extension DailyCalendarViewModel {
     func setDate(currentDate: Date) {
         self.currentDate = currentDate
         self.currentDateText = dateFormatter.string(from: currentDate)
     }
     
-    func setTodoList(
-        todoList: [Todo],
+    func setCategoryAndGroup(
         categoryDict: [Int: Category],
         groupDict: [Int: GroupName],
         groupCategoryDict: [Int: Category],
@@ -121,7 +232,10 @@ class DailyCalendarViewModel: ViewModel {
         self.categoryDict = categoryDict
         self.groupCategoryDict = groupCategoryDict
         self.groupDict = groupDict
-        
+        self.filteringGroupId = filteringGroupId
+    }
+    
+    private func setTodoListSorted(todoList: [Todo]) {
         var scheduled = [Todo]()
         var unscheduled = [Todo]()
         todoList.forEach { todo in
@@ -148,259 +262,235 @@ class DailyCalendarViewModel: ViewModel {
         
         self.scheduledTodoList = scheduled
         self.unscheduledTodoList = unscheduled
+    }
+}
+
+// MARK: Todo Actions
+private extension DailyCalendarViewModel {
+    func notifiedTodoCreated(todo: Todo) {
+        guard let currentDate,
+              todo.startDate <= currentDate,
+              currentDate <= todo.endDate else { return }
         
-        self.filteringGroupId = filteringGroupId
+        if let filteringGroupId = filteringGroupId,
+           todo.groupId != filteringGroupId {
+            return
+        }
+        
+        createTodoData(todo: todo)
     }
     
-    func bindCategoryUseCase() {
-        useCases.createCategoryUseCase
-            .didCreateCategory
-            .withUnretained(self)
-            .subscribe(onNext: { vm, category in
-                guard let id = category.id else { return }
-                
-                vm.categoryDict[id] = category
-            })
-            .disposed(by: bag)
-        
-        useCases.updateCategoryUseCase
-            .didUpdateCategory
-            .withUnretained(self)
-            .subscribe(onNext: { vm, category in
-                guard let id = category.id else { return }
-                vm.categoryDict[id] = category
-                vm.needReloadData.onNext(())
-            })
-            .disposed(by: bag)
-
+    func notifiedTodoRemoved(todo: Todo) {
+        removeTodoData(todo: todo)
     }
     
-    // 내 투두 볼때만 불릴예정
-    func bindTodoUseCase() {
-        useCases.createTodoUseCase
-            .didCreateTodo
-            .withUnretained(self)
-            .subscribe(onNext: { vm, todo in //무조건 추가하면 안된다.. 그룹보고 필터그룹이랑 다르면 추가 x
-                guard let currentDate = vm.currentDate,
-                      todo.startDate <= currentDate,
-                      currentDate <= todo.endDate else { return }
-                
-                if let filteringGroupId = vm.filteringGroupId,
-                   todo.groupId != filteringGroupId {
-                    return
-                }
-                
-                var section: Int
-                var item: Int
-                if let _ = todo.startTime {
-                    section = 0
-                    let memberTodoList = vm.scheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
-                    let innerIndex = memberTodoList?.insertionIndexOf(
-                        (Int(), todo),
-                        isOrderedBefore: { $0.1.startTime ?? String() < $1.1.startTime ?? String() }//////////////
-                     ) ?? 0
-                    
-                    item = innerIndex == memberTodoList?.count ? vm.scheduledTodoList?.count ?? 0 : memberTodoList?[innerIndex].0 ?? 0
-                    
-                    vm.scheduledTodoList?.insert(todo, at: item)
-                } else {
-                    vm.unscheduledTodoList?.append(todo)
-                    section = 1
-                    item = (vm.unscheduledTodoList?.count ?? Int()) - 1
-                }
-                vm.needInsertItem.onNext(IndexPath(item: item, section: section))
-            })
-            .disposed(by: bag)
+    func notifiedTodoUpdated(before: Todo, after: Todo) {
+        guard let currentDate else { return }
         
-        useCases.updateTodoUseCase
-            .didUpdateTodo
-            .withUnretained(self)
-            .subscribe(onNext: { vm, todoUpdate in //무조건 그대로 두면 안된다,,, 그룹을 확인해서 빼줘야한다..!
-                let todoAfterUpdate = todoUpdate.after
-                let todoBeforeUpdate = todoUpdate.before
-                
-                // MARK: 날짜가 포함 안되는 경우 걍 삭제해버림!
-                guard let currentDate = vm.currentDate else { return }
-                
-                if todoAfterUpdate.startDate > currentDate || todoAfterUpdate.endDate < currentDate {
-                    var section: Int
-                    var item: Int
-                    
-                    if let _ = todoBeforeUpdate.startTime {
-                        section = 0
-                        item = vm.scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
-                        vm.scheduledTodoList?.remove(at: item)
-                    } else {
-                        section = 1
-                        item = vm.unscheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
-                        vm.unscheduledTodoList?.remove(at: item)
-                    }
-                    vm.needDeleteItem.onNext(IndexPath(item: item, section: section))
-                }
-                else if let filteringGroupId = vm.filteringGroupId,
-                        todoAfterUpdate.groupId != filteringGroupId { //만약 필터링중에 그룹을 바꾼경우..! -> 삭제
-                    var section: Int
-                    var item: Int
-                    
-                    if let _ = todoBeforeUpdate.startTime {
-                        section = 0
-                        item = vm.scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
-                        vm.scheduledTodoList?.remove(at: item)
-                    } else {
-                        section = 1
-                        item = vm.unscheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
-                        vm.unscheduledTodoList?.remove(at: item)
-                    }
-                    vm.needDeleteItem.onNext(IndexPath(item: item, section: section))
-                }
-                else {
-                    switch (todoBeforeUpdate.startTime, todoAfterUpdate.startTime) {
-                    case (nil, nil): //이건 그냥 그대로 바꿔주면됨!
-                        let section = 1
-                        let item = vm.unscheduledTodoList?.firstIndex(where: { $0.id == todoAfterUpdate.id && !$0.isGroupTodo }) ?? 0
-                        vm.unscheduledTodoList?[item] = todoAfterUpdate
-                        vm.needReloadItem.onNext(IndexPath(item: item, section: section))
-                    case (_, nil): //일정에서 투두로
-                        let beforeSection = 0
-                        let beforeItem = vm.scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
-                        vm.scheduledTodoList?.remove(at: beforeItem)
-                        
-                        let afterSection = 1
-                        
-                        let memberTodoList = vm.unscheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
-                        
-                        let innerIndex = memberTodoList?.insertionIndexOf(
-                            (Int(), todoAfterUpdate),
-                            isOrderedBefore: { $0.1.id ?? Int() < $1.1.id ?? Int() }//////////////
-                         ) ?? 0
-                        
-                        let afterItem = (innerIndex == memberTodoList?.count ? vm.unscheduledTodoList?.count ?? 0 : memberTodoList?[innerIndex].0) ?? 0
-
-                        vm.unscheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
-                        vm.needMoveItem.onNext((IndexPath(item: beforeItem, section: beforeSection), IndexPath(item: afterItem, section: afterSection)))
-                    case (nil, _): //투두에서 일정으로
-                        let beforeSection = 1
-                        let beforeItem = vm.unscheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
-                        vm.unscheduledTodoList?.remove(at: beforeItem)
-                        
-                        let afterSection = 0
-                        
-                        let memberTodoList = vm.scheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
-                        let innerIndex = memberTodoList?.insertionIndexOf(
-                            (Int(), todoAfterUpdate),
-                            isOrderedBefore: { $0.1.startTime ?? String() < $1.1.startTime ?? String() }//////////////
-                         ) ?? 0
-                        
-                        let afterItem = (innerIndex == memberTodoList?.count ? vm.scheduledTodoList?.count : memberTodoList?[innerIndex].0) ?? 0
-
-                        vm.scheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
-                        vm.needMoveItem.onNext((IndexPath(item: beforeItem, section: beforeSection), IndexPath(item: afterItem, section: afterSection)))
-                    case (let beforeTime, let afterTime):
-                        if beforeTime == afterTime { //시간이 바뀐게 아닐경우..!
-                            let section = 0
-                            let item = vm.scheduledTodoList?.firstIndex(where: { $0.id == todoAfterUpdate.id && !$0.isGroupTodo }) ?? 0
-                            vm.scheduledTodoList?[item] = todoAfterUpdate
-                            vm.needReloadItem.onNext(IndexPath(item: item, section: section))
-                        } else {
-                            let section = 0
-                            let beforeItem = vm.scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
-                            vm.scheduledTodoList?.remove(at: beforeItem)
-                            
-                            let memberTodoList = vm.scheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
-                            
-                            let innerIndex = memberTodoList?.insertionIndexOf(
-                                (Int(), todoAfterUpdate),
-                                isOrderedBefore: { $0.1.startTime ?? String() < $1.1.startTime ?? String() }//////////////
-                             ) ?? 0
-                            
-                            let afterItem = (innerIndex == memberTodoList?.count ? vm.scheduledTodoList?.count : memberTodoList?[innerIndex].0) ?? 0
-                            
-                            vm.scheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
-                            vm.needMoveItem.onNext((IndexPath(item: beforeItem, section: section), IndexPath(item: afterItem, section: section)))
-                        }
-                    }
-                }
-            })
-            .disposed(by: bag)
-        
-        useCases.deleteTodoUseCase
-            .didDeleteTodo
-            .withUnretained(self)
-            .subscribe(onNext: { vm, todo in
-                var section: Int
-                var item: Int
-                if let _ = todo.startTime {
-                    section = 0
-                    item = vm.scheduledTodoList?.firstIndex(where: { $0.id == todo.id }) ?? 0
-                    vm.scheduledTodoList?.remove(at: item)
-                } else {
-                    section = 1
-                    item = vm.unscheduledTodoList?.firstIndex(where: { $0.id == todo.id }) ?? 0
-                    vm.unscheduledTodoList?.remove(at: item)
-                }
-                vm.needDeleteItem.onNext(IndexPath(item: item, section: section))
-            })
-            .disposed(by: bag)
+        if after.startDate > currentDate || after.endDate < currentDate { //날짜 변경 시 제거
+            removeTodoData(todo: before)
+        }
+        else if let filteringGroupId = filteringGroupId,
+                after.groupId != filteringGroupId { //만약 필터링 중인데 그룹이 바뀐 경우 제거
+            removeTodoData(todo: before)
+        }
+        else {
+            updateTodoData(todoBeforeUpdate: before, todoAfterUpdate: after)
+        }
     }
     
-    func transform(input: Input) -> Output {
-        bindTodoUseCase()
-        bindCategoryUseCase()
+    func createTodoData(todo: Todo) {
+        var section: Int
+        var item: Int
+        if let _ = todo.startTime {
+            section = 0
+            let memberTodoList = scheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
+            let innerIndex = memberTodoList?.insertionIndexOf(
+                (Int(), todo),
+                isOrderedBefore: { $0.1.startTime ?? String() < $1.1.startTime ?? String() }
+             ) ?? 0
+            
+            item = innerIndex == memberTodoList?.count ? scheduledTodoList?.count ?? 0 : memberTodoList?[innerIndex].0 ?? 0
+            scheduledTodoList?.insert(todo, at: item)
+        } else {
+            unscheduledTodoList?.append(todo)
+            section = 1
+            item = (unscheduledTodoList?.count ?? Int()) - 1
+        }
+        needInsertItem.onNext(IndexPath(item: item, section: section))
+    }
+    
+    func removeTodoData(todo: Todo) {
+        var section: Int
+        var item: Int
         
-        input
-            .completeTodoAt
-            .withUnretained(self)
-            .subscribe(onNext: { vm, indexPath in
-                switch indexPath.section {
-                case 0:
-                    guard var todo = vm.scheduledTodoList?[indexPath.item],
-                          var isCompleted = todo.isCompleted else { return }
-                    isCompleted = !isCompleted
-                    todo.isCompleted = isCompleted
-                    vm.scheduledTodoList?[indexPath.item] = todo
-                    vm.updateCompletionState(todo: todo)
-                case 1:
-                    guard var todo = vm.unscheduledTodoList?[indexPath.item],
-                          var isCompleted = todo.isCompleted else { return }
-                    isCompleted = !isCompleted
-                    todo.isCompleted = isCompleted
-                    vm.unscheduledTodoList?[indexPath.item] = todo
-                    vm.updateCompletionState(todo: todo)
-                default:
-                    return
-                }
-            })
-            .disposed(by: bag)
+        if let _ = todo.startTime {
+            section = 0
+            item = scheduledTodoList?.firstIndex(where: { $0.id == todo.id && !$0.isGroupTodo }) ?? 0
+            scheduledTodoList?.remove(at: item)
+        } else {
+            section = 1
+            item = unscheduledTodoList?.firstIndex(where: { $0.id == todo.id && !$0.isGroupTodo }) ?? 0
+            unscheduledTodoList?.remove(at: item)
+        }
+        needDeleteItem.onNext(IndexPath(item: item, section: section))
+    }
+    
+    func updateTodoData(todoBeforeUpdate: Todo, todoAfterUpdate: Todo) {
+        switch (todoBeforeUpdate.startTime, todoAfterUpdate.startTime) {
+        case (nil, nil): //시간 업데이트 x
+            let section = 1
+            let item = unscheduledTodoList?.firstIndex(where: { $0.id == todoAfterUpdate.id && !$0.isGroupTodo }) ?? 0
+            unscheduledTodoList?[item] = todoAfterUpdate
+            needReloadItem.onNext(IndexPath(item: item, section: section))
+        case (_, nil): //시간 제거
+            let beforeSection = 0
+            let beforeItem = scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
+            scheduledTodoList?.remove(at: beforeItem)
+            
+            let afterSection = 1
+            
+            let memberTodoList = unscheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
+            
+            let innerIndex = memberTodoList?.insertionIndexOf(
+                (Int(), todoAfterUpdate),
+                isOrderedBefore: { $0.1.id ?? Int() < $1.1.id ?? Int() }
+             ) ?? 0
+            
+            let afterItem = (innerIndex == memberTodoList?.count ? unscheduledTodoList?.count ?? 0 : memberTodoList?[innerIndex].0) ?? 0
+
+            unscheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
+            needMoveItem.onNext((IndexPath(item: beforeItem, section: beforeSection), IndexPath(item: afterItem, section: afterSection)))
+        case (nil, _): //시간이 생김
+            let beforeSection = 1
+            let beforeItem = unscheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
+            unscheduledTodoList?.remove(at: beforeItem)
+            
+            let afterSection = 0
+            
+            let memberTodoList = scheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
+            let innerIndex = memberTodoList?.insertionIndexOf(
+                (Int(), todoAfterUpdate),
+                isOrderedBefore: { $0.1.startTime ?? String() < $1.1.startTime ?? String() }
+             ) ?? 0
+            
+            let afterItem = (innerIndex == memberTodoList?.count ? scheduledTodoList?.count : memberTodoList?[innerIndex].0) ?? 0
+
+            scheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
+            needMoveItem.onNext((IndexPath(item: beforeItem, section: beforeSection), IndexPath(item: afterItem, section: afterSection)))
+        case (let beforeTime, let afterTime):
+            if beforeTime == afterTime { //시간이 변경 x
+                let section = 0
+                let item = scheduledTodoList?.firstIndex(where: { $0.id == todoAfterUpdate.id && !$0.isGroupTodo }) ?? 0
+                scheduledTodoList?[item] = todoAfterUpdate
+                needReloadItem.onNext(IndexPath(item: item, section: section))
+            } else { //시간 변경
+                let section = 0
+                let beforeItem = scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
+                scheduledTodoList?.remove(at: beforeItem)
+                
+                let memberTodoList = scheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
+                
+                let innerIndex = memberTodoList?.insertionIndexOf(
+                    (Int(), todoAfterUpdate),
+                    isOrderedBefore: { $0.1.startTime ?? String() < $1.1.startTime ?? String() }
+                 ) ?? 0
+                
+                let afterItem = (innerIndex == memberTodoList?.count ? scheduledTodoList?.count : memberTodoList?[innerIndex].0) ?? 0
+                
+                scheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
+                needMoveItem.onNext((IndexPath(item: beforeItem, section: section), IndexPath(item: afterItem, section: section)))
+            }
+        }
+    }
+    
+    func completeTodoDataAt(indexPath: IndexPath) {
+        switch indexPath.section {
+        case 0:
+            guard var todo = scheduledTodoList?[indexPath.item],
+                  var isCompleted = todo.isCompleted else { return }
+            isCompleted = !isCompleted
+            todo.isCompleted = isCompleted
+            scheduledTodoList?[indexPath.item] = todo
+            sendCompletionState(todo: todo)
+        case 1:
+            guard var todo = unscheduledTodoList?[indexPath.item],
+                  var isCompleted = todo.isCompleted else { return }
+            isCompleted = !isCompleted
+            todo.isCompleted = isCompleted
+            unscheduledTodoList?[indexPath.item] = todo
+            sendCompletionState(todo: todo)
+        default:
+            return
+        }
+    }
+}
+
+private extension DailyCalendarViewModel {
+    func todoItemSelected(at indexPath: IndexPath) {
+        var item: Todo?
+        switch indexPath.section {
+        case 0:
+            if let scheduledList = scheduledTodoList,
+               !scheduledList.isEmpty {
+                item = scheduledList[indexPath.item]
+            } else {
+                return
+            }
+        case 1:
+            if let unscheduledList = unscheduledTodoList,
+               !unscheduledList.isEmpty {
+                item = unscheduledList[indexPath.item]
+            } else {
+                return
+            }
+        default:
+            return
+        }
+        guard let item else { return  }
+
+        let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
+        var groupName: GroupName?
+        var mode: TodoDetailSceneMode
+        var category: Category?
         
-        return Output(
-            currentDateText: currentDateText,
-            needInsertItem: needInsertItem.asObservable(),
-            needReloadItem: needReloadItem.asObservable(),
-            needDeleteItem: needDeleteItem.asObservable(),
-            needReloadData: needReloadData.asObservable(),
-            needMoveItem: needMoveItem.asObservable()
+        if item.isGroupTodo {
+            guard let groupId = item.groupId else { return }
+            groupName = groupDict[groupId]
+            mode = .view
+            category = groupCategoryDict[item.categoryId]
+        } else {
+            if let groupId = item.groupId {
+                groupName = groupDict[groupId]
+            }
+            mode = .edit
+            category = categoryDict[item.categoryId]
+        }
+
+        actions.showTodoDetailPage?(
+            MemberTodoDetailViewModel.Args(
+                groupList: groupList,
+                mode: mode,
+                todo: item,
+                category: category,
+                groupName: groupName,
+                start: currentDate,
+                end: nil
+            ), nil
         )
     }
-    
-    func updateCompletionState(todo: Todo) {
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.todoCompleteUseCase
+}
+
+// MARK: API
+private extension DailyCalendarViewModel {
+    func sendCompletionState(todo: Todo) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.todoCompleteUseCase
                     .execute(token: token, todo: todo)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
-            .subscribe(onFailure: { _ in
-                // 처리 실패하면 버튼을 다시 원래대로 돌리면서 토스트 띄워야함..!
-                
-            })
+            .subscribe(onFailure: { _ in })
             .disposed(by: bag)
     }
-
 }

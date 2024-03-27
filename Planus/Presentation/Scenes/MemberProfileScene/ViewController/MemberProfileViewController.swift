@@ -7,24 +7,32 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
-class MemberProfileViewController: UIViewController {
-    var bag = DisposeBag()
-    var viewModel: MemberProfileViewModel?
+final class MemberProfileViewController: UIViewController {
+    private var bag = DisposeBag()
+    private var viewModel: MemberProfileViewModel?
     
-    var headerViewInitialHeight: CGFloat?
-    var headerViewFinalHeight: CGFloat? = 98 // 이것도 desc안넣고 mockFrame계산할까?
+    private var headerViewInitialHeight: CGFloat?
+    private let headerViewFinalHeight: CGFloat? = 98
+    
+    private var dragInitialY: CGFloat = 0
+    private var dragPreviousY: CGFloat = 0
+    private var dragDirection: DragDirection = .Up
 
-    var headerViewHeightConstraint: NSLayoutConstraint?
+    private var headerViewHeightConstraint: NSLayoutConstraint?
     
-    var isSingleSelected = PublishSubject<IndexPath>()
-    var indexChanged = PublishSubject<Int>()
-    var isMonthChanged = PublishSubject<Date>()
-    var didInitialCalendarGenerated = false
+    private var isSingleSelected = PublishRelay<IndexPath>()
+    private var indexChanged = PublishRelay<Int>()
+    private var isMonthChanged = PublishRelay<Date>()
+    private var initDrawFinished = PublishRelay<Void>()
     
-    let headerView = MemberProfileHeaderView(frame: .zero)
-    let calendarHeaderView = MemberProfileCalendarHeaderView(frame: .zero)
-    lazy var collectionView: UICollectionView = {
+    private var didInitialCalendarGenerated = false
+    
+    private let headerView = MemberProfileHeaderView(frame: .zero)
+    private let calendarHeaderView = MemberProfileCalendarHeaderView(frame: .zero)
+    
+    private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
         collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
         collectionView.delegate = self
@@ -32,21 +40,17 @@ class MemberProfileViewController: UIViewController {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.decelerationRate = .fast
         collectionView.isPagingEnabled = true
-        collectionView.register(NestedScrollableMonthlyCalendarCell.self, forCellWithReuseIdentifier: NestedScrollableMonthlyCalendarCell.reuseIdentifier)
+        collectionView.register(MemberMonthlyCalendarCell.self, forCellWithReuseIdentifier: MemberMonthlyCalendarCell.reuseIdentifier)
         
         return collectionView
     }()
     
-    lazy var backButton: UIBarButtonItem = {
+    private lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .black
         return item
     }()
-    
-    @objc func backBtnAction(_ sender: UIBarButtonItem) {
-        self.navigationController?.popViewController(animated: true)
-    }
     
     convenience init(viewModel: MemberProfileViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -97,7 +101,8 @@ class MemberProfileViewController: UIViewController {
             didSelectItem: isSingleSelected.asObservable(),
             didTappedTitleButton: calendarHeaderView.yearMonthButton.rx.tap.asObservable(),
             didSelectMonth: isMonthChanged.asObservable(),
-            backBtnTapped: backButton.rx.tap.asObservable()
+            backBtnTapped: backButton.rx.tap.asObservable(),
+            didInitDrawed: initDrawFinished.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -116,11 +121,11 @@ class MemberProfileViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, center in
                 vc.collectionView.performBatchUpdates({
-                    viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                     vc.collectionView.reloadData()
                 }, completion: { _ in
                     vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
                     vc.didInitialCalendarGenerated = true
+                    vc.initDrawFinished.accept(())
                 })
             })
             .disposed(by: bag)
@@ -130,29 +135,14 @@ class MemberProfileViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, rangeSet in
-                viewModel.filteredWeeksOfYear = [Int](repeating: -1, count: 6)
                 vc.collectionView.reloadSections(rangeSet)
             })
             .disposed(by: bag)
         
         output.showMonthPicker
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { first, current, last in
-                let vc = MonthPickerViewController(firstYear: first, lastYear: last, currentDate: current) { [weak self] date in
-                    self?.isMonthChanged.onNext(date)
-                }
-
-                vc.preferredContentSize = CGSize(width: 320, height: 290)
-                vc.modalPresentationStyle = .popover
-                let popover: UIPopoverPresentationController = vc.popoverPresentationController!
-                popover.delegate = self
-                popover.sourceView = self.view
-//                popover.sourceItem = self.calendarHeaderView.yearMonthButton
-                let globalFrame = self.calendarHeaderView.yearMonthButton.convert(self.calendarHeaderView.yearMonthButton.bounds, to: self.view)
-                popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
-                popover.permittedArrowDirections = [.up]
-                self.present(vc, animated: true, completion: nil)
-                print(globalFrame)
+            .subscribe(onNext: { [weak self] first, current, last in
+                self?.showMonthPicker(first: first, current: current, last: last)
             })
             .disposed(by: bag)
         
@@ -231,52 +221,39 @@ class MemberProfileViewController: UIViewController {
         headerView.isUserInteractionEnabled = true
         headerView.addGestureRecognizer(topViewPanGesture)
     }
-    
-    var dragInitialY: CGFloat = 0
-    var dragPreviousY: CGFloat = 0
-    var dragDirection: DragDirection = .Up
-    
-    @objc func topViewMoved(_ gesture: UIPanGestureRecognizer) {
-        
-        var dragYDiff : CGFloat
+}
 
-        switch gesture.state {
-            
-        case .began:
-            
-            dragInitialY = gesture.location(in: self.view).y
-            dragPreviousY = dragInitialY
-            
-        case .changed:
-            
-            let dragCurrentY = gesture.location(in: self.view).y
-            dragYDiff = dragPreviousY - dragCurrentY
-            dragPreviousY = dragCurrentY
-            dragDirection = dragYDiff < 0 ? .Down : .Up
-            innerTableViewDidScroll(withDistance: dragYDiff)
-            
-        case .ended:
-            return
-            innerTableViewScrollEnded(withScrollDirection: dragDirection)
-            
-        default: return
-        
+extension MemberProfileViewController {
+    func showMonthPicker(first: Date, current: Date, last: Date) {
+        let vc = MonthPickerViewController(firstYear: first, lastYear: last, currentDate: current) { [weak self] date in
+            self?.isMonthChanged.accept(date)
         }
+
+        vc.preferredContentSize = CGSize(width: 320, height: 290)
+        vc.modalPresentationStyle = .popover
+        let popover: UIPopoverPresentationController = vc.popoverPresentationController!
+        popover.delegate = self
+        popover.sourceView = self.view
+
+        let globalFrame = self.calendarHeaderView.yearMonthButton.convert(self.calendarHeaderView.yearMonthButton.bounds, to: self.view)
+        popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.maxY, width: 0, height: 0)
+        popover.permittedArrowDirections = [.up]
+        self.present(vc, animated: true, completion: nil)
     }
 }
 
 
 
-extension MemberProfileViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension MemberProfileViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        viewModel?.mainDayList.count ?? Int()
+        viewModel?.mainDays.count ?? Int()
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NestedScrollableMonthlyCalendarCell.reuseIdentifier, for: indexPath) as? NestedScrollableMonthlyCalendarCell,
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MemberMonthlyCalendarCell.reuseIdentifier, for: indexPath) as? MemberMonthlyCalendarCell,
             let viewModel else { return UICollectionViewCell() }
         
         cell.fill(
@@ -299,7 +276,7 @@ extension MemberProfileViewController: UICollectionViewDataSource, UICollectionV
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
         guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && didInitialCalendarGenerated else { return }
-        indexChanged.onNext(Int(round(floatedIndex)))
+        indexChanged.accept(Int(round(floatedIndex)))
     }
     
     
@@ -333,6 +310,36 @@ extension MemberProfileViewController {
         return layout
     }
     
+}
+
+extension MemberProfileViewController {
+    @objc 
+    func topViewMoved(_ gesture: UIPanGestureRecognizer) {
+        
+        var dragYDiff : CGFloat
+
+        switch gesture.state {
+            
+        case .began:
+            
+            dragInitialY = gesture.location(in: self.view).y
+            dragPreviousY = dragInitialY
+            
+        case .changed:
+            
+            let dragCurrentY = gesture.location(in: self.view).y
+            dragYDiff = dragPreviousY - dragCurrentY
+            dragPreviousY = dragCurrentY
+            dragDirection = dragYDiff < 0 ? .Down : .Up
+            innerTableViewDidScroll(withDistance: dragYDiff)
+            
+        case .ended:
+            innerTableViewScrollEnded(withScrollDirection: dragDirection)
+            return
+        default: return
+        
+        }
+    }
 }
 
 extension MemberProfileViewController: NestedScrollableCellDelegate {

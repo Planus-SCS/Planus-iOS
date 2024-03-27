@@ -8,17 +8,10 @@
 import Foundation
 import RxSwift
 
-enum GroupJoinableState {
-    case isJoined
-    case notJoined
-    case full
-}
-
-class GroupIntroduceViewModel: ViewModel {
+final class GroupIntroduceViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let setTokenUseCase: SetTokenUseCase
         let fetchUnJoinedGroupUseCase: FetchUnJoinedGroupUseCase
         let fetchMemberListUseCase: FetchMemberListUseCase
@@ -43,12 +36,12 @@ class GroupIntroduceViewModel: ViewModel {
     }
     
     
-    var bag = DisposeBag()
+    private var bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
     
-    var groupId: Int
+    private var groupId: Int
 
     var groupTitle: String?
     var tag: String?
@@ -58,12 +51,12 @@ class GroupIntroduceViewModel: ViewModel {
     var groupImageUrl: String?
     var memberList: [Member]?
     
-    var didGroupInfoFetched = BehaviorSubject<Void?>(value: nil)
-    var didGroupMemberFetched = BehaviorSubject<Void?>(value: nil)
-    var isJoinableGroup = BehaviorSubject<GroupJoinableState?>(value: nil)
-    var applyCompleted = PublishSubject<Void>()
-    var showMessage = PublishSubject<Message>()
-    var showShareMenu = PublishSubject<String?>()
+    private var didGroupInfoFetched = BehaviorSubject<Void?>(value: nil)
+    private var didGroupMemberFetched = BehaviorSubject<Void?>(value: nil)
+    private var isJoinableGroup = BehaviorSubject<GroupJoinableState?>(value: nil)
+    private var applyCompleted = PublishSubject<Void>()
+    private var showMessage = PublishSubject<Message>()
+    private var showShareMenu = PublishSubject<String?>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -97,7 +90,7 @@ class GroupIntroduceViewModel: ViewModel {
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
                     vm.fetchGroupInfo(id: vm.groupId)
                 })
             })
@@ -147,39 +140,37 @@ class GroupIntroduceViewModel: ViewModel {
         )
     }
     
-    func generateShareLink() -> String? {
+    private func generateShareLink() -> String? {
         return useCases.generateGroupLinkUseCase.execute(groupId: groupId)
     }
     
+    func fetchImage(key: String) -> Single<Data> {
+        return useCases.fetchImageUseCase
+            .execute(key: key)
+    }
+}
+
+// MARK: API
+private extension GroupIntroduceViewModel {
     func fetchGroupInfo(id: Int) {
         
-        let fetchGroupDetail = useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<GroupDetail> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.fetchUnJoinedGroupUseCase
+        let fetchGroupDetail = useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchUnJoinedGroupUseCase
                     .execute(token: token, id: id)
             }
         
-        let fetchGroupMember = useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[Member]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.fetchMemberListUseCase
+        let fetchGroupMember = useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchMemberListUseCase
                     .execute(token: token, groupId: id)
             }
         
         Single.zip(
             fetchGroupDetail,
             fetchGroupMember
-        )
-        .handleRetry(
-            retryObservable: useCases.refreshTokenUseCase.execute(),
-            errorType: NetworkManagerError.tokenExpired
         )
         .subscribe(onSuccess: { [weak self] (groupDetail, memberList) in
             self?.groupTitle = groupDetail.name
@@ -201,20 +192,13 @@ class GroupIntroduceViewModel: ViewModel {
     }
     
     func requestJoinGroup() {
-        
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token -> Single<Void>? in
+                guard let self else { return nil }
                 return self.useCases.applyGroupJoinUseCase
-                    .execute(token: token, groupId: groupId)
+                    .execute(token: token, groupId: self.groupId)
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.showMessage.onNext(Message(text: "가입을 요청하였습니다.", state: .normal))
@@ -225,10 +209,5 @@ class GroupIntroduceViewModel: ViewModel {
                 self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
-    }
-    
-    func fetchImage(key: String) -> Single<Data> {
-        return useCases.fetchImageUseCase
-            .execute(key: key)
     }
 }

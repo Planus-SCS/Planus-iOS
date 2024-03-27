@@ -29,11 +29,18 @@ final class AppCoordinator: Coordinator {
     }
     
     func start() {
+        showInitialPage()
         checkAutoSignIn()
     }
     
+    private func showInitialPage() {
+        let vc = InitialViewController()
+        dependency.window.rootViewController = vc
+        dependency.window.makeKeyAndVisible()
+        self.viewTransitionAnimation()
+    }
+    
     private func checkAutoSignIn() {
-        // 우선 여기서 자동로그인이 되있는지를 봐야한다..!
         let getTokenUseCase = dependency.injector.resolve(GetTokenUseCase.self)
         let refreshTokenUseCase = dependency.injector.resolve(RefreshTokenUseCase.self)
         
@@ -52,16 +59,13 @@ final class AppCoordinator: Coordinator {
                 }
             }, onFailure: { [weak self] error in
                 if let ne = error as? NetworkManagerError,
-                   case NetworkManagerError.clientError(let int, let string) = ne {
+                   case NetworkManagerError.clientError(_, let string) = ne {
                     print(string)
                 }
-                print("signIn!!")
                 self?.showSignInFlow()
             })
             .disposed(by: bag)
-        
-        // 마지막으로 리프레시 된놈을 얻어와야한다..!
-            
+                    
     }
     
     func showSignInFlow() {
@@ -81,19 +85,20 @@ final class AppCoordinator: Coordinator {
         childCoordinators.append(signInCoordinator)
         
         dependency.window.makeKeyAndVisible()
+        self.viewTransitionAnimation()
     }
     
     func showMainTabFlow() {
-            let navigation = UINavigationController()
-            self.dependency.window.rootViewController = navigation
-
-            let tabCoordinator = MainTabCoordinator(dependency: MainTabCoordinator.Dependency(navigationController: navigation, injector: self.dependency.injector))
-            tabCoordinator.finishDelegate = self
-            tabCoordinator.start()
-            self.childCoordinators.append(tabCoordinator)
-            
-            self.dependency.window.makeKeyAndVisible()
-            self.viewTransitionAnimation()
+        let navigation = UINavigationController()
+        self.dependency.window.rootViewController = navigation
+        
+        let tabCoordinator = MainTabCoordinator(dependency: MainTabCoordinator.Dependency(navigationController: navigation, injector: self.dependency.injector))
+        tabCoordinator.finishDelegate = self
+        tabCoordinator.start()
+        self.childCoordinators.append(tabCoordinator)
+        
+        self.dependency.window.makeKeyAndVisible()
+        self.viewTransitionAnimation()
     }
     
     func viewTransitionAnimation() {
@@ -126,19 +131,13 @@ final class AppCoordinator: Coordinator {
     }
     
     func patchFCMToken() {
-        let getTokenUseCase = dependency.injector.resolve(GetTokenUseCase.self)
-        let refreshTokenUseCase = dependency.injector.resolve(RefreshTokenUseCase.self)
+        let executeWithTokenUseCase = dependency.injector.resolve(ExecuteWithTokenUseCase.self)
         let fcmRepo = dependency.injector.resolve(FCMRepository.self)
 
-        getTokenUseCase
-            .execute()
-            .flatMap { token -> Single<Void> in
+        executeWithTokenUseCase
+            .execute() { token -> Single<Void>? in
                 fcmRepo.patchFCMToken(token: token.accessToken).map { _ in () }
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { _ in
                 print("fcm patch success")
             }, onFailure: { error in

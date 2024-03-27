@@ -15,7 +15,7 @@ class DefaultFetchGroupMemberCalendarUseCase: FetchGroupMemberCalendarUseCase {
         self.memberCalendarRepository = memberCalendarRepository
     }
     
-    func execute(token: Token, groupId: Int, memberId: Int, from: Date, to: Date) -> Single<[Date: [SocialTodoSummary]]> {
+    func execute(token: Token, groupId: Int, memberId: Int, from: Date, to: Date) -> Single<[Date: [TodoSummaryViewModel]]> {
         return memberCalendarRepository
             .fetchMemberCalendar(
                 token: token.accessToken,
@@ -26,7 +26,7 @@ class DefaultFetchGroupMemberCalendarUseCase: FetchGroupMemberCalendarUseCase {
             )
             .map { $0.data.map { $0.toDomain() } }
             .map { list in
-                var dict = [Date: [SocialTodoSummary]]()
+                var dict = [Date: [TodoSummaryViewModel]]()
                 list.forEach { todo in
                     
                     var dateItr = todo.startDate

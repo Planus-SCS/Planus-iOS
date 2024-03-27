@@ -19,8 +19,7 @@ class TodoDetailPresentationAssembly: Assembly {
             MemberTodoDetailViewModel.self
         ) { (r, injectable: MemberTodoDetailViewModel.Injectable) in
             return MemberTodoDetailViewModel(
-                getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                 createTodoUseCase: r.resolve(CreateTodoUseCase.self)!,
                 updateTodoUseCase: r.resolve(UpdateTodoUseCase.self)!,
                 deleteTodoUseCase: r.resolve(DeleteTodoUseCase.self)!,
@@ -34,8 +33,7 @@ class TodoDetailPresentationAssembly: Assembly {
         
         container.register(SocialTodoDetailViewModel.self) { (r, injectable: SocialTodoDetailViewModel.Injectable) in
             return SocialTodoDetailViewModel(
-                getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                 fetchGroupMemberTodoDetailUseCase: r.resolve(FetchGroupMemberTodoDetailUseCase.self)!,
                 fetchGroupTodoDetailUseCase: r.resolve(FetchGroupTodoDetailUseCase.self)!,
                 createGroupTodoUseCase: r.resolve(CreateGroupTodoUseCase.self)!,

@@ -7,11 +7,22 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 class TodoDetailMemoView: UIView, TodoDetailAttributeView {
     var bottomConstraint: NSLayoutConstraint!
         
     var bag = DisposeBag()
+    
+    var isMemoActive = BehaviorRelay<Bool?>(value: nil)
+    lazy var memoObservable = Observable.combineLatest(
+        isMemoActive.compactMap { $0 }.asObservable(),
+        memoTextView.rx.text.asObservable()
+    ).map { args -> String? in
+        let (isActive, text) = args
+        guard isActive else { return nil }
+        return text ?? String()
+    }
     
     lazy var memoHeightConstraint: NSLayoutConstraint = {
         return memoTextView.heightAnchor.constraint(equalToConstant: 70)
@@ -30,12 +41,13 @@ class TodoDetailMemoView: UIView, TodoDetailAttributeView {
         textView.textColor = .black
         textView.backgroundColor = UIColor(hex: 0xF5F5FB)
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
-//        textView.delegate = self
         textView.layer.borderWidth = 1
         textView.layer.cornerCurve = .continuous
         textView.layer.cornerRadius = 10
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isScrollEnabled = true
+        textView.autocorrectionType = .no
+        textView.spellCheckingType = .no
         return textView
     }()
     

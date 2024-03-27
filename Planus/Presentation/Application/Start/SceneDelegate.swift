@@ -24,24 +24,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let window = window else { return }
 
-        injector.assemble([
-            InfraAssembly(),
-            DataAssembly(),
-            DomainAssembly(),
-            PresentationAssembly()
-        ])
-    
-        
+        configureInjector()
         self.appCoordinator = AppCoordinator(dependency: AppCoordinator.Dependency(window: window, injector: injector))
-     
-        // Universal Link를 통해 앱이 실행된 경우
-        if let userActivity = connectionOptions.userActivities.first,
-           userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-           let url = userActivity.webpageURL {
-            appCoordinator?.appendActionAfterAutoSignIn { [weak self] in
-                self?.appCoordinator?.parseUniversalLink(url: url)
-            }
-        }
+        checkUniversalLinkOpen(options: connectionOptions)
         
         self.appCoordinator?.start()
                 
@@ -93,3 +78,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 }
 
+extension SceneDelegate {
+    // MARK: - 유니버셜 링크로 앱 연지 확인
+    func checkUniversalLinkOpen(options connectionOptions: UIScene.ConnectionOptions) {
+        if let userActivity = connectionOptions.userActivities.first,
+           userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+           let url = userActivity.webpageURL {
+            appCoordinator?.appendActionAfterAutoSignIn { [weak self] in
+                self?.appCoordinator?.parseUniversalLink(url: url)
+            }
+        }
+    }
+    
+    func configureInjector() {
+        injector.assemble([
+            InfraAssembly(),
+            DataAssembly(),
+            DomainAssembly(),
+            PresentationAssembly()
+        ])
+    }
+}

@@ -13,8 +13,7 @@ class DailyCalendarPresentationAssembly: Assembly {
         container.register(DailyCalendarViewModel.self) { (r, injectable: DailyCalendarViewModel.Injectable) in
             return DailyCalendarViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     createTodoUseCase: r.resolve(CreateTodoUseCase.self)!,
                     updateTodoUseCase: r.resolve(UpdateTodoUseCase.self)!,
                     deleteTodoUseCase: r.resolve(DeleteTodoUseCase.self)!,

@@ -66,22 +66,20 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     let removeKeyboard = PublishSubject<Void>()
     var nowSaving: Bool = false
     var isSaveEnabled: Bool?
-
-    var getTokenUseCase: GetTokenUseCase
-    var refreshTokenUseCase: RefreshTokenUseCase
     
-    var createTodoUseCase: CreateTodoUseCase
-    var updateTodoUseCase: UpdateTodoUseCase
-    var deleteTodoUseCase: DeleteTodoUseCase
+    let executeWithTokenUseCase: ExecuteWithTokenUseCase
     
-    var createCategoryUseCase: CreateCategoryUseCase
-    var updateCategoryUseCase: UpdateCategoryUseCase
-    var deleteCategoryUseCase: DeleteCategoryUseCase
-    var readCategoryUseCase: ReadCategoryListUseCase
+    let createTodoUseCase: CreateTodoUseCase
+    let updateTodoUseCase: UpdateTodoUseCase
+    let deleteTodoUseCase: DeleteTodoUseCase
+    
+    let createCategoryUseCase: CreateCategoryUseCase
+    let updateCategoryUseCase: UpdateCategoryUseCase
+    let deleteCategoryUseCase: DeleteCategoryUseCase
+    let readCategoryUseCase: ReadCategoryListUseCase
     
     init(
-        getTokenUseCase: GetTokenUseCase,
-        refreshTokenUseCase: RefreshTokenUseCase,
+        executeWithTokenUseCase: ExecuteWithTokenUseCase,
         createTodoUseCase: CreateTodoUseCase,
         updateTodoUseCase: UpdateTodoUseCase,
         deleteTodoUseCase: DeleteTodoUseCase,
@@ -91,8 +89,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
         readCategoryUseCase: ReadCategoryListUseCase,
         injectable: Injectable
     ) {
-        self.getTokenUseCase = getTokenUseCase
-        self.refreshTokenUseCase = refreshTokenUseCase
+        self.executeWithTokenUseCase = executeWithTokenUseCase
         self.createTodoUseCase = createTodoUseCase
         self.updateTodoUseCase = updateTodoUseCase
         self.deleteTodoUseCase = deleteTodoUseCase
@@ -147,19 +144,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func fetchCategoryList() {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[Category]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.readCategoryUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.readCategoryUseCase
                     .execute(token: token)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] list in
                 self?.categorys = list.filter { $0.status == .active }
                 self?.needReloadCategoryList.onNext(())
@@ -167,9 +156,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             .disposed(by: bag)
     }
     
-    func fetchGroupList() {
-        
-    }
+    func fetchGroupList() {}
     
     func saveDetail() {
         guard let title = try? todoTitle.value(),
@@ -223,19 +210,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func createTodo(todo: Todo) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Int> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.createTodoUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.createTodoUseCase
                     .execute(token: token, todo: todo)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] id in
                 var todoWithId = todo
                 todoWithId.id = id
@@ -252,19 +231,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func updateTodo(todoUpdate: TodoUpdateComparator) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.updateTodoUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.updateTodoUseCase
                     .execute(token: token, todoUpdate: todoUpdate)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
                 self?.needDismiss.onNext(())
@@ -279,19 +250,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func deleteTodo(todo: Todo) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.deleteTodoUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.deleteTodoUseCase
                     .execute(token: token, todo: todo)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
                 self?.needDismiss.onNext(())
@@ -306,19 +269,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     }
 
     func saveNewCategory(category: Category) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Int> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.createCategoryUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.createCategoryUseCase
                     .execute(token: token, category: category)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] id in
                 var categoryWithId = category
                 categoryWithId.id = id
@@ -340,19 +295,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     func updateCategory(category: Category) {
         guard let id = category.id else { return }
         
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Int> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.updateCategoryUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.updateCategoryUseCase
                     .execute(token: token, id: id, category: category)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] id in
                 guard let index = self?.categorys.firstIndex(where: { $0.id == id }) else { return }
                 self?.categorys[index] = category
@@ -370,19 +317,11 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     }
     
     func deleteCategory(id: Int) {
-        getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Void> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.deleteCategoryUseCase
+        executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.deleteCategoryUseCase
                     .execute(token: token, id: id)
             }
-            .handleRetry(
-                retryObservable: refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] in
             }, onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,

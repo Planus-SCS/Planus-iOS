@@ -7,10 +7,7 @@
 
 import UIKit
 import RxSwift
-/*
- 만약 지금 생각한대로 안쪽을 네비게이션으로 만든다면? 밖에서 navi 자체의 레이아웃을 잡을 줄 알아야하는데,,, 이게 말처럼 쉬운게 아니다 사실...
- 계속 바깥부모한테 얼마얼마만큼으로 높이를 조절하라고 전달해야하는데,,, 높이는 또 어떻게 계산해야하는데???? 일단 이대로 하자...
- */
+
 class TodoDetailView: UIView {
     
     var bag = DisposeBag()

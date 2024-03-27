@@ -11,8 +11,7 @@ import RxSwift
 class GroupCreateLoadViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let groupCreateUseCase: GroupCreateUseCase
     }
     
@@ -74,23 +73,17 @@ class GroupCreateLoadViewModel: ViewModel {
     }
     
     func createGroup() {
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<Int> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                guard let self else { return nil }
                 return self.useCases.groupCreateUseCase
                     .execute(
                         token: token,
-                        groupCreate: groupCreate,
-                        image: groupImage
+                        groupCreate: self.groupCreate,
+                        image: self.groupImage
                     )
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] groupId in
                 self?.actions.showCreatedGroupPage?(groupId)

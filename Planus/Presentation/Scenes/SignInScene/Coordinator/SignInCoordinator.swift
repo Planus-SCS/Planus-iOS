@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SignInCoordinator: Coordinator {
+final class SignInCoordinator: Coordinator {
     
     struct Dependency {
         let navigationController: UINavigationController

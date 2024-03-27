@@ -6,10 +6,12 @@
 //
 
 import UIKit
+import RxSwift
 
 class DailyCalendarTodoCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "big-todo-cell"
     
+    var bag: DisposeBag?
     var buttonClosure: (() -> Void)?
     
     var titleLabel: UILabel = {
@@ -26,7 +28,6 @@ class DailyCalendarTodoCell: SpringableCollectionViewCell {
 
     lazy var checkButton: DailyCalendarTodoCheckButton = {
         let button = DailyCalendarTodoCheckButton(frame: .zero)
-        button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         return button
     }()
         
@@ -128,7 +129,7 @@ class DailyCalendarTodoCell: SpringableCollectionViewCell {
     }
     
     func fill(closure: @escaping () -> Void) {
-        self.buttonClosure = closure
+        checkButton.addHandler(handler: closure)
     }
 
     func fill(
@@ -171,9 +172,5 @@ class DailyCalendarTodoCell: SpringableCollectionViewCell {
             checkButton.isHidden = true
         }
         checkButton.isUserInteractionEnabled = isOwner
-    }
-
-    @objc func buttonAction(_ sender: UIButton) {
-        buttonClosure?()
     }
 }

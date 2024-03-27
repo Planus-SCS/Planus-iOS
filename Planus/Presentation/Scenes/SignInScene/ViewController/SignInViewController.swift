@@ -11,13 +11,7 @@ import RxSwift
 import RxCocoa
 import AuthenticationServices
 
-class SignInViewController: UIViewController {
-    var bag = DisposeBag()
-    
-    var didReceiveAppleIdentityToken = PublishSubject<(String, PersonNameComponents?)>()
-    
-    var viewModel: SignInViewModel?
-    
+final class SignInView: UIView {
     var logoImageView: UIImageView = {
         let image = UIImage(named: "logo")
         let imageView = UIImageView(frame: CGRect(
@@ -81,6 +75,65 @@ class SignInViewController: UIViewController {
         return button
     }()
     
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        configureView()
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+
+// MARK: Configure UI
+private extension SignInView {
+    func configureView() {
+        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        
+        self.addSubview(logoImageView)
+        self.addSubview(greetingLabel)
+        self.addSubview(kakaoSignButton)
+        self.addSubview(googleSigninButton)
+        self.addSubview(appleSigninButton)
+    }
+    
+    func configureLayout() {
+        greetingLabel.snp.makeConstraints {
+            $0.center.equalTo(self.safeAreaLayoutGuide.snp.center)
+        }
+        
+        logoImageView.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(greetingLabel.snp.top)
+        }
+        
+        kakaoSignButton.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(greetingLabel.snp.bottom).offset(39)
+        }
+        
+        googleSigninButton.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(kakaoSignButton.snp.bottom).offset(16)
+        }
+        
+        appleSigninButton.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(googleSigninButton.snp.bottom).offset(16)
+        }
+    }
+}
+
+final class SignInViewController: UIViewController {
+    let bag = DisposeBag()
+    let didReceiveAppleIdentityToken = PublishRelay<(String, PersonNameComponents?)>()
+    
+    var viewModel: SignInViewModel?
+    var signInView: SignInView?
+
     convenience init(viewModel: SignInViewModel) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
@@ -94,26 +147,35 @@ class SignInViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func loadView() {
+        super.loadView()
+        
+        let view = SignInView(frame: self.view.frame)
+        self.view = view
+        self.signInView = view
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureView()
-        configureLayout()
-
         bind()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)        
     }
-    
+}
+
+//MARK: configure
+private extension SignInViewController {
     func bind() {
-        guard let viewModel else { return }
+        guard let viewModel,
+              let signInView else { return }
         
         let input = SignInViewModel.Input(
-            kakaoSignInTapped: kakaoSignButton.rx.tap.asObservable(),
-            googleSignInTapped: googleSigninButton.rx.tap.asObservable(),
-            appleSignInTapped: appleSigninButton.rx.tap.asObservable(),
+            kakaoSignInTapped: signInView.kakaoSignButton.rx.tap.asObservable(),
+            googleSignInTapped: signInView.googleSigninButton.rx.tap.asObservable(),
+            appleSignInTapped: signInView.appleSigninButton.rx.tap.asObservable(),
             didReceiveAppleIdentityToken: didReceiveAppleIdentityToken.asObservable()
         )
         
@@ -137,43 +199,11 @@ class SignInViewController: UIViewController {
             })
             .disposed(by: bag)
     }
-    
-    func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
-        
-        self.view.addSubview(logoImageView)
-        self.view.addSubview(greetingLabel)
-        self.view.addSubview(kakaoSignButton)
-        self.view.addSubview(googleSigninButton)
-        self.view.addSubview(appleSigninButton)
-    }
-    
-    func configureLayout() {
-        greetingLabel.snp.makeConstraints {
-            $0.center.equalTo(self.view.safeAreaLayoutGuide.snp.center)
-        }
-        
-        logoImageView.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(greetingLabel.snp.top)
-        }
-        
-        kakaoSignButton.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.top.equalTo(greetingLabel.snp.bottom).offset(39)
-        }
-        
-        googleSigninButton.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.top.equalTo(kakaoSignButton.snp.bottom).offset(16)
-        }
-        
-        appleSigninButton.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.top.equalTo(googleSigninButton.snp.bottom).offset(16)
-        }
-    }
+}
 
+//MARK: Apple SignIn
+extension SignInViewController: ASAuthorizationControllerDelegate {
+    
     func showASAuthController(request: ASAuthorizationAppleIDRequest) {
         let controller = ASAuthorizationController(authorizationRequests: [request])
         
@@ -181,10 +211,6 @@ class SignInViewController: UIViewController {
         controller.presentationContextProvider = self
         controller.performRequests()
     }
-
-}
-
-extension SignInViewController: ASAuthorizationControllerDelegate {
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         
@@ -197,8 +223,7 @@ extension SignInViewController: ASAuthorizationControllerDelegate {
                let familyName = userFullName.familyName {
                 fullName = PersonNameComponents(givenName: givenName, familyName: familyName)
             }
-
-            didReceiveAppleIdentityToken.onNext((identityToken, fullName))
+            didReceiveAppleIdentityToken.accept((identityToken, fullName))
         }
     }
 

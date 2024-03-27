@@ -8,12 +8,11 @@
 import UIKit
 import RxSwift
 
-class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
+final class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
     static let reuseIdentifier = "group-introduce-header-supplementary-view"
     
-    // index를 넣어두고 버튼 탭을 처리해야하나? 아니면 클로저를 넣어둘까? 클로저로 가는게 좋을듯함..!
     var buttonActionClosure: (() -> Void)?
-
+    
     var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.textColor = UIColor(hex: 0x6495F4)
@@ -40,6 +39,14 @@ class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func fill(title: String?, description: String?) {
+        self.titleLabel.text = title
+        self.descLabel.text = description
+    }
+}
+
+// MARK: - configure
+private extension GroupIntroduceDefaultHeaderView {
     func configureView() {
         self.backgroundColor = UIColor(hex: 0xF5F5FB)
         self.addSubview(titleLabel)
@@ -63,10 +70,4 @@ class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
             $0.trailing.lessThanOrEqualToSuperview().inset(24).priority(1000)
         }
     }
-    
-    func fill(title: String?, description: String?) {
-        self.titleLabel.text = title
-        self.descLabel.text = description
-    }
-
 }

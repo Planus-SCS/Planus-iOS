@@ -7,7 +7,7 @@
 
 import UIKit
 
-class GroupCreateCoordinator: Coordinator {
+final class GroupCreateCoordinator: Coordinator {
     
     struct Dependency {
         let navigationController: UINavigationController

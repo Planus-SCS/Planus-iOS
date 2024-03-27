@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RxSwift
 
 class JoinedGroupMemberCell: GroupIntroduceMemberCell {
         
@@ -20,8 +21,8 @@ class JoinedGroupMemberCell: GroupIntroduceMemberCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func fill(name: String, introduce: String?, isCaptin: Bool, isOnline: Bool) {
-        super.fill(name: name, introduce: introduce, isCaptin: isCaptin)
+    func fill(name: String, introduce: String?, isCaptin: Bool, isOnline: Bool, imgFetcher: Single<Data>) {
+        super.fill(name: name, introduce: introduce, isCaptin: isCaptin, imgFetcher: imgFetcher)
         memberImageView.alpha = isOnline ? 1.0 : 0.5
         memberImageView.layer.borderColor
         = isOnline ? UIColor(hex: 0x6495F4).cgColor : UIColor.gray.cgColor

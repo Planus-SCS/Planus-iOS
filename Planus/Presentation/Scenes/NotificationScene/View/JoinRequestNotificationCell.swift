@@ -7,14 +7,15 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 class GroupJoinNotificationCell: UICollectionViewCell {
     static let reuseIdentifier = "group-join-notification-cell"
     
     var bag: DisposeBag?
     var indexPath: IndexPath?
-    var isAllowTapped: PublishSubject<Int?>?
-    var isDenyTapped: PublishSubject<Int?>?
+    var isAllowTapped: PublishRelay<Int?>?
+    var isDenyTapped: PublishRelay<Int?>?
     
     var profileImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "JoinNotificationProfile"))
@@ -152,18 +153,18 @@ class GroupJoinNotificationCell: UICollectionViewCell {
     }
     
     @objc func allowBtnTapped(_ sender: UIButton) {
-        isAllowTapped?.onNext(indexPath?.item)
+        isAllowTapped?.accept(indexPath?.item)
     }
     
     @objc func denyBtnTapped(_ sender: UIButton) {
-        isDenyTapped?.onNext(indexPath?.item)
+        isDenyTapped?.accept(indexPath?.item)
     }
     
     func fill(
         bag: DisposeBag,
         indexPath: IndexPath,
-        isAllowTapped: PublishSubject<Int?>,
-        isDenyTapped: PublishSubject<Int?>
+        isAllowTapped: PublishRelay<Int?>,
+        isDenyTapped: PublishRelay<Int?>
     ) {
         self.bag = bag
         self.indexPath = indexPath

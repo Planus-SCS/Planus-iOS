@@ -27,7 +27,7 @@ class RedirectionalWebViewModel: ViewModel {
     }
     
     
-    var bag = DisposeBag()
+    let bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions

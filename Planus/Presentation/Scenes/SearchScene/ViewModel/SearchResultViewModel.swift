@@ -8,12 +8,11 @@
 import Foundation
 import RxSwift
 
-class SearchResultViewModel: ViewModel {
+final class SearchResultViewModel: ViewModel {
     
     struct UseCases {
         let recentQueryRepository: RecentQueryRepository
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let fetchSearchResultUseCase: FetchSearchResultUseCase
         let fetchImageUseCase: FetchImageUseCase
     }
@@ -42,6 +41,7 @@ class SearchResultViewModel: ViewModel {
     var keyword = BehaviorSubject<String?>(value: nil)
     
     var isLoading: Bool = false
+    var isInitLoading: Bool = false
     
     var didStartFetching = PublishSubject<Void>()
     var didFetchInitialResult = PublishSubject<Void>()
@@ -64,8 +64,8 @@ class SearchResultViewModel: ViewModel {
         var createBtnTapped: Observable<Void>
         var needLoadNextData: Observable<Void>
         var needFetchHistory: Observable<Void>
-        var removeHistoryAt: Observable<Int>
         var removeAllHistory: Observable<Void>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -174,22 +174,20 @@ class SearchResultViewModel: ViewModel {
             .disposed(by: bag)
         
         input
-            .removeHistoryAt
-            .withUnretained(self)
-            .subscribe(onNext: { vm, index in
-                vm.removeRecentQuery(keyword: vm.history[index])
-                vm.history.remove(at: index)
-                vm.didFetchHistory.onNext(())
-            })
-            .disposed(by: bag)
-        
-        input
             .removeAllHistory
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
                 vm.removeAllQueries()
                 vm.history.removeAll()
                 vm.didFetchHistory.onNext(())
+            })
+            .disposed(by: bag)
+        
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         
@@ -201,6 +199,15 @@ class SearchResultViewModel: ViewModel {
             keywordChanged: keyword.asObservable(),
             didFetchHistory: didFetchHistory.asObservable()
         )
+    }
+}
+
+// MARK: History Query
+extension SearchResultViewModel {
+    func removeHistoryAt(item: Int) {
+        removeRecentQuery(keyword: history[item])
+        history.remove(at: item)
+        didFetchHistory.onNext(())
     }
     
     func fetchRecentQueries() {
@@ -236,35 +243,38 @@ class SearchResultViewModel: ViewModel {
             try? self.useCases.recentQueryRepository.removeAllQueries()
         }
     }
-    
+}
+
+// MARK: Fetch
+extension SearchResultViewModel {
     func fetchInitialresult(keyword: String) {
         saveRecentQuery(keyword: keyword)
+        isInitLoading = true
         didStartFetching.onNext(())
         page = 0
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [weak self] in
             self?.fetchResult(keyword: keyword, isInitial: true)
         })
     }
     
     func fetchResult(keyword: String, isInitial: Bool) {
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[GroupSummary]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.fetchSearchResultUseCase
-                    .execute(token: token, keyWord: keyword, page: self.page, size: self.size)
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchSearchResultUseCase
+                    .execute(
+                        token: token,
+                        keyWord: keyword,
+                        page: self?.page ?? Int(),
+                        size: self?.size ?? Int()
+                    )
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] list in
                 guard let self else { return }
 
                 if isInitial {
                     self.result = list
+                    self.isInitLoading = false
                     self.didFetchInitialResult.onNext(())
                 } else {
                     self.result += list
@@ -284,4 +294,3 @@ class SearchResultViewModel: ViewModel {
             .execute(key: key)
     }
 }
-

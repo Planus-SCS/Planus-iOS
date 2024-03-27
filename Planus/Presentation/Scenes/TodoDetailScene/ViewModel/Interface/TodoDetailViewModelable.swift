@@ -179,12 +179,6 @@ extension TodoDetailViewModelable {
             .disposed(by: bag)
         
         input
-            .memoTextChanged
-            .subscribe(onNext: { text in
-                print("vm memo: ", text)
-            }).disposed(by: bag)
-        
-        input
             .creatingCategoryNameTextChanged
             .bind(to: newCategoryName)
             .disposed(by: bag)

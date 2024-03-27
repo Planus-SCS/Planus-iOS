@@ -15,8 +15,7 @@ class MemberProfilePresentationAssembly: Assembly {
                 useCases: .init(
                     createMonthlyCalendarUseCase: r.resolve(CreateMonthlyCalendarUseCase.self)!,
                     dateFormatYYYYMMUseCase: r.resolve(DateFormatYYYYMMUseCase.self)!,
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     fetchMemberCalendarUseCase: r.resolve(FetchGroupMemberCalendarUseCase.self)!,
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!
                 ),

@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import RxSwift
 
 class DailyCalendarTodoCheckButton: SpringableButton {
+    var bag = DisposeBag()
     
     var onImage: UIImage? = {
         let image = UIImage(named: "checkedBox")
@@ -38,25 +40,36 @@ class DailyCalendarTodoCheckButton: SpringableButton {
             }
         }
     }
-        
+    
+    var tapHandler: (() -> Void)?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         self.setImage(offImage, for: .normal)
         self.addSubview(checkImageView)
-        self.addTarget(self, action: #selector(tapped), for: .touchUpInside)
+        
         checkImageView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
+        
+        self.rx.tap
+            .throttle(.seconds(1), scheduler: MainScheduler.asyncInstance)
+            .subscribe(onNext: { [weak self] in
+                guard let self,
+                let handler = self.tapHandler else { return }
+                self.isOn = !(self.isOn)
+                handler()
+            })
+            .disposed(by: bag)
     }
     
     required init?(coder: NSCoder) {
         fatalError()
     }
     
-    @objc func tapped() {
-        self.isOn = !isOn
-        Vibration.medium.vibrate()
+    func addHandler(handler: @escaping () -> Void) {
+        self.tapHandler = handler
     }
     
     func setColor(color: CategoryColor) {

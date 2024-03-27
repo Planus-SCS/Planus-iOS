@@ -23,10 +23,10 @@ extension TodoDetailViewController: UICollectionViewDataSource, UICollectionView
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let item = viewModel?.categoryColorList[indexPath.item] else { return }
-        didChangednewCategoryColor.onNext(item)
+        didChangednewCategoryColor.accept(item)
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        didChangednewCategoryColor.onNext(nil)
+        didChangednewCategoryColor.accept(nil)
     }
 }

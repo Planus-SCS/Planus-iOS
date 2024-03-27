@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SearchCoordinator: Coordinator {
+final class SearchCoordinator: Coordinator {
     struct Dependency {
         let navigationController: UINavigationController
         let injector: Injector

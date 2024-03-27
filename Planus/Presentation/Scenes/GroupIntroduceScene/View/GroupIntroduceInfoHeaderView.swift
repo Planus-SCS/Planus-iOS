@@ -10,8 +10,10 @@ import RxSwift
 
 class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     static let reuseIdentifier = "group-introduce-info-header-supplementary-view"
-    var viewBag: DisposeBag?
-    var titleImageView: UIImageView = {
+    
+    var bag: DisposeBag?
+    
+    private let titleImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -19,7 +21,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         return imageView
     }()
     
-    var captinIconView: UIImageView = {
+    private let captinIconView: UIImageView = {
         let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 14, height: 14))
         imageView.image = UIImage(named: "captinSmall")
         imageView.contentMode = .scaleAspectFit
@@ -27,7 +29,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         return imageView
     }()
     
-    var captinNameLabel: UILabel = {
+    private let captinNameLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
         label.textColor = UIColor(hex: 0x6F81A9)
@@ -35,7 +37,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         return label
     }()
     
-    var captinStackView: UIStackView = {
+    private let captinStackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .horizontal
         stackView.alignment = .center
@@ -43,7 +45,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         return stackView
     }()
     
-    var memberIconView: UIImageView = {
+    private let memberIconView: UIImageView = {
         let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 14, height: 14))
         imageView.image = UIImage(named: "peopleSmall")
         imageView.contentMode = .scaleAspectFit
@@ -51,7 +53,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         return imageView
     }()
     
-    var memberCountLabel: UILabel = {
+    private let memberCountLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
         label.textColor = UIColor(hex: 0x6F81A9)
@@ -59,7 +61,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         return label
     }()
     
-    var memberStackView: UIStackView = {
+    private let memberStackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .horizontal
         stackView.alignment = .center
@@ -67,31 +69,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         return stackView
     }()
     
-    var onlineIconView: UIImageView = {
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 14, height: 14))
-        imageView.image = UIImage(named: "onlineSmall")
-        imageView.contentMode = .scaleAspectFit
-        imageView.clipsToBounds = true
-        return imageView
-    }()
-    
-    var onlineCountLabel: UILabel = {
-        let label = UILabel(frame: .zero)
-        label.font = UIFont(name: "Pretendard-Regular", size: 14)
-        label.textColor = UIColor(hex: 0x6F81A9)
-        label.sizeToFit()
-        return label
-    }()
-    
-    var onlineStackView: UIStackView = {
-        let stackView = UIStackView(frame: .zero)
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.spacing = 6
-        return stackView
-    }()
-    
-    var bottomStackView: UIStackView = {
+    let bottomStackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.axis = .horizontal
         stackView.alignment = .center
@@ -100,7 +78,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         return stackView
     }()
     
-    var titleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 20)
         label.textColor = .black
@@ -109,7 +87,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         return label
     }()
     
-    var tagLabel: UILabel = {
+    private let tagLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "메모를 입력하세요"
         label.textColor = UIColor(hex: 0x6F81A9)
@@ -120,7 +98,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
         return label
     }()
     
-    var centerContentView: UIView = {
+    let centerContentView: UIView = {
         let view = UIView(frame: .zero)
         view.backgroundColor = .white
         view.layer.cornerRadius = 10
@@ -146,28 +124,21 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     
     func configureView() {
         self.backgroundColor = UIColor(hex: 0xF5F5FB)
-
+        
         self.addSubview(titleImageView)
         
         self.addSubview(centerContentView)
         centerContentView.addSubview(titleLabel)
         centerContentView.addSubview(tagLabel)
         
-        self.addSubview(memberStackView)
         memberStackView.addArrangedSubview(memberIconView)
         memberStackView.addArrangedSubview(memberCountLabel)
         
-        self.addSubview(captinStackView)
         captinStackView.addArrangedSubview(captinIconView)
         captinStackView.addArrangedSubview(captinNameLabel)
         
-        self.addSubview(onlineStackView)
-        onlineStackView.addArrangedSubview(onlineIconView)
-        onlineStackView.addArrangedSubview(onlineCountLabel)
-        
         self.addSubview(bottomStackView)
         bottomStackView.addArrangedSubview(memberStackView)
-        bottomStackView.addArrangedSubview(onlineStackView)
         bottomStackView.addArrangedSubview(captinStackView)
     }
     
@@ -201,31 +172,37 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
             $0.leading.trailing.equalToSuperview().inset(18)
             $0.height.greaterThanOrEqualTo(18)
         }
-        
-        
     }
-    
-    func fill(title: String, tag: String, memCount: String, captin: String, onlineCount: String? = nil) {
+}
+
+// MARK: fill
+extension GroupIntroduceInfoHeaderView {
+    func fill(title: String, tag: String, memCount: String, captin: String, imgFetcher: Single<Data>) {
+        let bag = DisposeBag()
+        self.bag = bag
+        
         self.titleLabel.text = title
         self.tagLabel.text = tag
         self.memberCountLabel.text = memCount
-        self.captinNameLabel.text = captin
-        if let onlineCount {
-            onlineStackView.isHidden = false
-            onlineCountLabel.text = onlineCount
-        } else {
-            onlineStackView.isHidden = true
-        }
+        self.captinNameLabel.text = captin    
+
+        imgFetcher
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] data in
+                self?.fill(image: UIImage(data: data))
+            })
+            .disposed(by: bag)
     }
     
     func fill(image: UIImage?) {
-        UIView.transition(with: titleImageView,
-                          duration: 0.1,
-                          options: .transitionCrossDissolve,
-                          animations: {
-            self.titleImageView.image = image
-            
-        },
-                          completion: nil)
+        UIView.transition(
+            with: titleImageView,
+            duration: 0.1,
+            options: .transitionCrossDissolve,
+            animations: {
+                self.titleImageView.image = image
+            },
+            completion: nil
+        )
     }
 }

@@ -13,8 +13,7 @@ class HomeCalendarPresentationAssembly: Assembly {
         container.register(HomeCalendarViewModel.self) { (r, injectable: HomeCalendarViewModel.Injectable) in
             return HomeCalendarViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUseCase: r.resolve(RefreshTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     createTodoUseCase: r.resolve(CreateTodoUseCase.self)!,
                     readTodoListUseCase: r.resolve(ReadTodoListUseCase.self)!,
                     updateTodoUseCase: r.resolve(UpdateTodoUseCase.self)!,

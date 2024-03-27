@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class SearchHomeViewModel: ViewModel {
+final class SearchHomeViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
+        let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let fetchSearchHomeUseCase: FetchSearchHomeUseCase
         let fetchImageUseCase: FetchImageUseCase
     }
@@ -127,31 +126,32 @@ class SearchHomeViewModel: ViewModel {
             didStartFetching: didStartFetching.asObservable()
         )
     }
-    
+}
+
+// MARK: Fetch
+extension SearchHomeViewModel {
     func fetchInitialresult() {
         page = 0
         didStartFetching.onNext(())
-        print("remove!")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: { [weak self] in
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [weak self] in
             self?.fetchResult(isInitial: true)
         })
-        
     }
     
     func fetchResult(isInitial: Bool) {
-        useCases.getTokenUseCase
-            .execute()
-            .flatMap { [weak self] token -> Single<[GroupSummary]> in
-                guard let self else {
-                    throw DefaultError.noCapturedSelf
-                }
-                return self.useCases.fetchSearchHomeUseCase
-                    .execute(token: token, page: self.page, size: self.size)
+
+        useCases
+            .executeWithTokenUseCase
+            .execute { [weak self] token in
+                self?.useCases
+                    .fetchSearchHomeUseCase
+                    .execute(
+                        token: token,
+                        page: self?.page ?? Int(),
+                        size: self?.size ?? Int()
+                    )
             }
-            .handleRetry(
-                retryObservable: useCases.refreshTokenUseCase.execute(),
-                errorType: NetworkManagerError.tokenExpired
-            )
             .subscribe(onSuccess: { [weak self] list in
                 guard let self else { return }
 
@@ -162,7 +162,7 @@ class SearchHomeViewModel: ViewModel {
                     self.result += list
                     self.didFetchAdditionalResult.onNext((self.page * self.size..<self.page * self.size+list.count))
                 }
-                if list.count != self.size { //이럼 끝에 달한거임. 막아야함..!
+                if list.count != self.size {
                     self.resultEnded.onNext(())
                 }
                 self.page += 1

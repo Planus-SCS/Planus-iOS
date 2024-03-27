@@ -12,6 +12,5 @@ target 'Planus' do
     pod 'SnapKit', '~> 5.6.0'
     pod 'Swinject'
   # Pods for Firebase
-    pod 'FirebaseMessaging'
 
 end

@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-class HomeCalendarCoordinator: Coordinator {
+final class HomeCalendarCoordinator: Coordinator {
     
     struct Dependency {
         let navigationController: UINavigationController

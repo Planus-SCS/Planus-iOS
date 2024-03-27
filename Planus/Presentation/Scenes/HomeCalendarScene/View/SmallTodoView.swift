@@ -15,15 +15,15 @@ class SmallTodoView: UIView {
     
     var toDoLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont(name: "Pretendard-Regular", size: 10)
+        label.font = UIFont(name: "Pretendard-Regular", size: 13)
         label.textAlignment = .center
         return label
     }()
     
-    convenience init(frame: CGRect, text: String, categoryColor: CategoryColor, isComplete: Bool?) {
-        self.init(frame: frame)
+    convenience init(title: String, categoryColor: CategoryColor, isComplete: Bool?) {
+        self.init(frame: .zero)
         
-        fill(text: text, categoryColor: categoryColor, isComplete: isComplete)
+        fill(title: title, categoryColor: categoryColor, isComplete: isComplete)
     }
     
     override init(frame: CGRect) {
@@ -46,18 +46,20 @@ class SmallTodoView: UIView {
     }
     
     func configureLayout() {
-        leadingView.frame = CGRect(x: 0, y: 0, width: 2, height: self.frame.height)
+        leadingView.snp.makeConstraints {
+            $0.leading.top.bottom.equalToSuperview()
+            $0.width.equalTo(2)
+            
+        }
         toDoLabel.snp.makeConstraints {
             $0.leading.equalTo(leadingView.snp.trailing).offset(2.5)
             $0.trailing.equalToSuperview().inset(4)
             $0.centerY.equalToSuperview()
         }
-        toDoLabel.frame = CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height)
     }
     
-    // FIXME: 상의 후 소셜투두 Summary에도 isComplete 담겨오면 옵셔널 빼고 쓰자.!!!
-    func fill(text: String, categoryColor: CategoryColor, isComplete: Bool?) {
-        self.toDoLabel.text = text
+    func fill(title: String, categoryColor: CategoryColor, isComplete: Bool?) {
+        self.toDoLabel.text = title
         self.leadingView.backgroundColor = categoryColor.todoLeadingColor
         self.backgroundColor = categoryColor.todoForCalendarColor
         self.toDoLabel.textColor = categoryColor.todoThickColor

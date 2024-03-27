@@ -35,7 +35,7 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
             self.categoryCreateView.nameField.text = item.title
             self.categoryCreateView.collectionView.selectItem(at: IndexPath(item: viewModel.categoryColorList.firstIndex(where: { $0 == item.color})!, section: 0), animated: false, scrollPosition: .top)
             
-            self.didRequestEditCategoryAt.onNext(id)
+            self.didRequestEditCategoryAt.accept(id)
             success(true)
         }
         edit.backgroundColor = .systemTeal
@@ -48,7 +48,7 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
             guard let categoryId = self.viewModel?.categorys[indexPath.row].id else { return }
             self.viewModel?.categorys.remove(at: indexPath.row)
             self.categoryView.tableView.deleteRows(at: [indexPath], with: .fade)
-            self.didDeleteCategoryId.onNext(categoryId)
+            self.didDeleteCategoryId.accept(categoryId)
             success(true)
         }
         remove.backgroundColor = .systemPink
@@ -61,6 +61,6 @@ extension TodoDetailViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        didSelectCategoryAt.onNext(indexPath.row)
+        didSelectCategoryAt.accept(indexPath.row)
     }
 }

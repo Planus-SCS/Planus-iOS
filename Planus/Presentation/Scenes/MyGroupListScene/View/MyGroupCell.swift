@@ -8,14 +8,14 @@
 import UIKit
 import RxSwift
 
-class MyGroupCell: SearchResultCell {
+final class MyGroupCell: SearchResultCell {
     
     var outerSwitchBag: DisposeBag?
-    var indexPath: IndexPath?
+    private var indexPath: IndexPath?
     
-    var isOnline = PublishSubject<Bool>()
+    private var isOnline = PublishSubject<Bool>()
 
-    var chatButton: SpringableButton = {
+    private let chatButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
         button.setTitle("바로가기", for: .normal)
         button.backgroundColor = UIColor(hex: 0x000000, a: 0.7)
@@ -30,7 +30,7 @@ class MyGroupCell: SearchResultCell {
         return button
     }()
     
-    var onlineButton: UIButton = {
+    let onlineButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setTitle("3", for: .normal)
         button.backgroundColor = UIColor(hex: 0x000000, a: 0.7)
@@ -97,17 +97,10 @@ class MyGroupCell: SearchResultCell {
             $0.trailing.equalToSuperview().inset(12)
             $0.centerY.equalTo(onlineButton)
         }
-        
-//        chatButton.snp.makeConstraints {
-//            $0.height.equalTo(26)
-//            $0.leading.equalToSuperview().inset(12)
-//            $0.bottom.equalTo(bottomContentsView.snp.top).offset(-10)
-//            $0.trailing.lessThanOrEqualToSuperview().inset(12)
-//        }
     }
     
-    func fill(title: String, tag: String?, memCount: String, leaderName: String, onlineCount: String, isOnline: Bool) {
-        super.fill(title: title, tag: tag, memCount: memCount, captin: leaderName)
+    func fill(title: String, tag: String?, memCount: String, leaderName: String, onlineCount: String, isOnline: Bool, imgFetcher: Single<Data>) {
+        super.fill(title: title, tag: tag, memCount: memCount, captin: leaderName, imgFetcher: imgFetcher)
         onlineButton.setTitle(onlineCount, for: .normal)
         onlineSwitch.isOn = isOnline
     }

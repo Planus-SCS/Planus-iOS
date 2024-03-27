@@ -30,6 +30,11 @@ class TokenDomainAssembly: Assembly {
             let tokenRepository = r.resolve(TokenRepository.self)!
             return DefaultRemoveTokenUseCase(tokenRepository: tokenRepository)
         }
+        
+        container.register(ExecuteWithTokenUseCase.self) { r in
+            let tokenRepository = r.resolve(TokenRepository.self)!
+            return DefaultExecuteWithTokenUseCase(tokenRepository: tokenRepository)
+        }
     }
     
 }

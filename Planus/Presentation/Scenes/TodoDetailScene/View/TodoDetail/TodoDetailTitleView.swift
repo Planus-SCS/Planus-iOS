@@ -19,6 +19,8 @@ class TodoDetailTitleView: UIView, TodoDetailAttributeView {
         textField.font = UIFont(name: "Pretendard-Regular", size: 20)
         textField.textColor = .black
         textField.placeholder = "일정을 입력하세요"
+        textField.autocorrectionType = .no
+        textField.spellCheckingType = .no
         return textField
     }()
     

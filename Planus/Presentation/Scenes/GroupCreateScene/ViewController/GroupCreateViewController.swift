@@ -7,44 +7,19 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 import PhotosUI
 
-class GroupCreateViewController: UIViewController {
-
-    var bag = DisposeBag()
+final class GroupCreateViewController: UIViewController {
+    
+    private var bag = DisposeBag()
+    
     var viewModel: GroupCreateViewModel?
+    private var groupCreateView: GroupCreateView?
     
-    var tagAdded = PublishSubject<String>()
-    var tagRemovedAt = PublishSubject<Int>()
-    var titleImageChanged = PublishSubject<ImageFile?>()
-    
-    var scrollView = UIScrollView(frame: .zero)
-    var keyboardHeightConstraint: NSLayoutConstraint?
-    
-    var contentStackView: UIStackView = {
-        let stackView = UIStackView(frame: .zero)
-        stackView.axis = .vertical
-        stackView.distribution = .equalSpacing
-        stackView.spacing = 0
-        stackView.alignment = .fill
-        return stackView
-    }()
-    
-    var infoView: GroupCreateInfoView = .init(frame: .zero)
-    var tagView: GroupCreateTagView = .init(frame: .zero)
-    var limitView: GroupCreateLimitView = .init(frame: .zero)
-    var createButtonView: WideButtonView = .init(frame: .zero)
-    
-    lazy var backButton: UIBarButtonItem = {
-        let image = UIImage(named: "back")
-        let item = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(backBtnAction))
-        item.tintColor = .black
-        return item
-    }()
-    
-    @objc func backBtnAction() {
-        viewModel?.actions.pop?()
-    }
+    private let tagAdded = PublishRelay<String>()
+    private let tagRemovedAt = PublishRelay<Int>()
+    private let titleImageChanged = PublishRelay<ImageFile?>()
     
     convenience init(viewModel: GroupCreateViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -52,21 +27,18 @@ class GroupCreateViewController: UIViewController {
         self.viewModel = viewModel
     }
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    override func loadView() {
+        super.loadView()
+        
+        let view = GroupCreateView(frame: self.view.frame)
+        self.view = view
+        self.groupCreateView = view
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureView()
-        configureLayout()
-        addKeyboardSizeView()
-        hideKeyboardWithTap()
         
         bind()
     }
@@ -74,9 +46,9 @@ class GroupCreateViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        self.navigationItem.setLeftBarButton(backButton, animated: false)
+        navigationItem.setLeftBarButton(groupCreateView?.backButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
-        self.navigationItem.title = "그룹 생성"
+        navigationItem.title = "그룹 생성"
         
         self.addKeyboardNotifications()
     }
@@ -89,18 +61,32 @@ class GroupCreateViewController: UIViewController {
             viewModel?.actions.finishScene?()
         }
     }
-    
+}
+
+// MARK: bind viewModel
+private extension GroupCreateViewController {
     func bind() {
-        guard let viewModel else { return }
+        guard let viewModel,
+              let groupCreateView else { return }
+        
+        groupCreateView
+            .infoView
+            .groupImageButton.rx.tap
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.presentPhotoPicker()
+            })
+            .disposed(by: bag)
         
         let input = GroupCreateViewModel.Input(
-            titleChanged: infoView.groupNameField.rx.text.skip(1).asObservable(),
-            noticeChanged: infoView.groupNoticeTextView.rx.text.skip(1).asObservable(),
+            titleChanged: groupCreateView.infoView.groupNameField.rx.text.skip(1).asObservable(),
+            noticeChanged: groupCreateView.infoView.groupNoticeTextView.rx.text.skip(1).asObservable(),
             titleImageChanged: titleImageChanged.asObservable(),
             tagAdded: tagAdded.asObservable(),
             tagRemovedAt: tagRemovedAt.asObservable(),
-            maxMemberChanged: limitView.didChangedLimitValue.asObservable(),
-            saveBtnTapped: createButtonView.wideButton.rx.tap.asObservable()
+            maxMemberChanged: groupCreateView.limitView.didChangedLimitValue.asObservable(),
+            saveBtnTapped: groupCreateView.createButtonView.wideButton.rx.tap.asObservable(),
+            backBtnTapped: groupCreateView.backButton.rx.tap.asObservable()
         )
         let output = viewModel.transform(input: input)
         
@@ -110,7 +96,7 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
-                vc.infoView.groupNameField.layer.borderColor
+                groupCreateView.infoView.groupNameField.layer.borderColor
                 = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
             })
             .disposed(by: bag)
@@ -121,7 +107,7 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
-                vc.infoView.groupNoticeTextView.layer.borderColor
+                groupCreateView.infoView.groupNoticeTextView.layer.borderColor
                 = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
             })
             .disposed(by: bag)
@@ -132,7 +118,7 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
-                vc.infoView.groupNoticeTextView.layer.borderColor
+                groupCreateView.infoView.groupNoticeTextView.layer.borderColor
                 = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
             })
             .disposed(by: bag)
@@ -143,18 +129,18 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
-                vc.limitView.limitField.layer.borderColor
+                groupCreateView.limitView.limitField.layer.borderColor
                 = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
             })
             .disposed(by: bag)
-
+        
         output
             .isCreateButtonEnabled
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, enabled in
-                vc.createButtonView.wideButton.isEnabled = enabled
-                vc.createButtonView.wideButton.alpha = enabled ? 1.0 : 0.5
+                groupCreateView.createButtonView.wideButton.isEnabled = enabled
+                groupCreateView.createButtonView.wideButton.alpha = enabled ? 1.0 : 0.5
             })
             .disposed(by: bag)
         
@@ -165,7 +151,7 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, validation in
-                vc.tagView.tagCountCheckView.isValid(validation)
+                groupCreateView.tagView.tagCountCheckView.isValid(validation)
             })
             .disposed(by: bag)
         
@@ -174,7 +160,7 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, validation in
-                vc.tagView.duplicateValidateCheckView.isValid(validation)
+                groupCreateView.tagView.duplicateValidateCheckView.isValid(validation)
             })
             .disposed(by: bag)
         
@@ -184,10 +170,10 @@ class GroupCreateViewController: UIViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, data in
                 guard let data = data else {
-                    vc.infoView.groupImageView.image = UIImage(named: "GroupCreateDefaultImage")
+                    groupCreateView.infoView.groupImageView.image = UIImage(named: "GroupCreateDefaultImage")
                     return
                 }
-                vc.infoView.groupImageView.image = UIImage(data: data)
+                groupCreateView.infoView.groupImageView.image = UIImage(data: data)
             })
             .disposed(by: bag)
         
@@ -196,22 +182,7 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc
-                    .tagView
-                    .tagCollectionView
-                    .performBatchUpdates({
-                        vc
-                            .tagView
-                            .tagCollectionView
-                            .insertItems(at: [IndexPath(item: index, section: 0)])
-                    }, completion: { _ in
-                            UIView.performWithoutAnimation {
-                                vc
-                                    .tagView
-                                    .tagCollectionView
-                                    .reloadSections(IndexSet(0...0))
-                            }
-                    })
+                vc.insertTagAt(index: index)
             })
             .disposed(by: bag)
         
@@ -220,57 +191,60 @@ class GroupCreateViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, index in
-                vc
-                    .tagView
-                    .tagCollectionView
-                    .performBatchUpdates({
-                        vc
-                            .tagView
-                            .tagCollectionView
-                            .deleteItems(at: [IndexPath(item: index, section: 0)])
-                    }, completion: { _ in
-                            UIView.performWithoutAnimation {
-                                vc
-                                    .tagView
-                                    .tagCollectionView
-                                    .reloadSections(IndexSet(0...0))
-                            }
-                    })
-                
-                
+                vc.removeTagAt(index: index)
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: - configure
+private extension GroupCreateViewController {
     func configureView() {
-        tagView.tagCollectionView.dataSource = self
-        tagView.tagCollectionView.delegate = self
+        groupCreateView?.tagView.tagCollectionView.dataSource = self
+        groupCreateView?.tagView.tagCollectionView.delegate = self
         
-        createButtonView.wideButton.setTitle("그룹 생성하기", for: .normal)
+        addKeyboardSizeView()
+        hideKeyboardWithTap()
+    }
+}
 
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
-        self.view.addSubview(scrollView)
-        scrollView.addSubview(contentStackView)
-        contentStackView.addArrangedSubview(infoView)
-        contentStackView.addArrangedSubview(tagView)
-        contentStackView.addArrangedSubview(limitView)
-        contentStackView.addArrangedSubview(createButtonView)
+// MARK: Actions
+private extension GroupCreateViewController {
+    func insertTagAt(index: Int) {
+        guard let groupCreateView else { return }
         
-        infoView.groupImageButton.addTarget(self, action: #selector(imageBtnTapped), for: .touchUpInside)
+        groupCreateView.tagView
+            .tagCollectionView
+            .performBatchUpdates({
+                groupCreateView.tagView
+                    .tagCollectionView
+                    .insertItems(at: [IndexPath(item: index, section: 0)])
+            }, completion: { _ in
+                UIView.performWithoutAnimation {
+                    groupCreateView.tagView
+                        .tagCollectionView
+                        .reloadSections(IndexSet(0...0))
+                }
+            })
     }
     
-    @objc func imageBtnTapped(_ sender: UIButton) {
-        presentPhotoPicker()
-    }
-    
-    func configureLayout() {
-        scrollView.snp.makeConstraints {
-            $0.edges.equalTo(self.view.safeAreaLayoutGuide)
-        }
-        contentStackView.snp.makeConstraints {
-            $0.edges.width.equalToSuperview()
-        }
-
+    func removeTagAt(index: Int) {
+        guard let groupCreateView else { return }
+        
+        groupCreateView
+            .tagView
+            .tagCollectionView
+            .performBatchUpdates({
+                groupCreateView.tagView
+                    .tagCollectionView
+                    .deleteItems(at: [IndexPath(item: index, section: 0)])
+            }, completion: { _ in
+                UIView.performWithoutAnimation {
+                    groupCreateView.tagView
+                        .tagCollectionView
+                        .reloadSections(IndexSet(0...0))
+                }
+            })
     }
     
     func presentPhotoPicker() {
@@ -278,14 +252,15 @@ class GroupCreateViewController: UIViewController {
         phPickerConfiguration.selectionLimit = 1
         phPickerConfiguration.filter = .images
         phPickerConfiguration.preferredAssetRepresentationMode = .current
-
+        
         let phPicker = PHPickerViewController(configuration: phPickerConfiguration)
         phPicker.delegate = self
         self.present(phPicker, animated: true)
     }
 }
 
-extension GroupCreateViewController {
+// MARK: Keyboard
+private extension GroupCreateViewController {
     func hideKeyboardWithTap() {
         let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
         tap.cancelsTouchesInView = false
@@ -298,16 +273,16 @@ extension GroupCreateViewController {
         view.snp.makeConstraints {
             $0.height.equalTo(0)
         }
-        self.keyboardHeightConstraint = view.constraints.first(where: { $0.firstAttribute == .height })
-
-        self.contentStackView.addArrangedSubview(view)
+        groupCreateView?.keyboardHeightConstraint = view.constraints.first(where: { $0.firstAttribute == .height })
+        
+        groupCreateView?.contentStackView.addArrangedSubview(view)
     }
     
     func addKeyboardNotifications(){
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification , object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-
+    
     // 노티피케이션을 제거하는 메서드
     func removeKeyboardNotifications(){
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification , object: nil)
@@ -315,34 +290,35 @@ extension GroupCreateViewController {
     }
     
     @objc func keyboardWillShow(_ sender: Notification) {
-        guard let keyboardFrame = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+        guard let groupCreateView,
+              let keyboardFrame = sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
             return
         }
-
+        
         guard let firstResponder = self.view.firstResponder else { return }
-
+        
         // 키보드에 가려진 후의 frame
         let container = CGRect(
-            x: scrollView.contentOffset.x,
-            y: scrollView.contentOffset.y,
+            x: groupCreateView.scrollView.contentOffset.x,
+            y: groupCreateView.scrollView.contentOffset.y,
             width: self.view.frame.width,
             height: self.view.frame.height - keyboardFrame.height
         )
-                
-        let globalFrame = firstResponder.convert(firstResponder.frame, to: scrollView)
-
+        
+        let globalFrame = firstResponder.convert(firstResponder.frame, to: groupCreateView.scrollView)
+        
         if !CGRectIntersectsRect(container, globalFrame) { // 만약 안보이면? 이동시켜주기!
-            scrollView.setContentOffset(
-                CGPoint(x: scrollView.contentOffset.x, y: scrollView.contentOffset.y + keyboardFrame.height),
+            groupCreateView.scrollView.setContentOffset(
+                CGPoint(x: groupCreateView.scrollView.contentOffset.x, y: groupCreateView.scrollView.contentOffset.y + keyboardFrame.height),
                 animated: true
             )
         }
         
-        self.keyboardHeightConstraint?.constant = keyboardFrame.height
+        groupCreateView.keyboardHeightConstraint?.constant = keyboardFrame.height
     }
-
+    
     @objc func keyboardWillHide(_ sender: Notification) {
-        self.keyboardHeightConstraint?.constant = 0
+        groupCreateView?.keyboardHeightConstraint?.constant = 0
     }
 }
 
@@ -356,7 +332,7 @@ extension GroupCreateViewController: PHPickerViewControllerDelegate { //PHPicker
             
             image = UIImage.resizeImage(image: image, targetWidth: 500)
             if let data = image.jpegData(compressionQuality: 1) {
-                self?.titleImageChanged.onNext(ImageFile(filename: fileName, data: data, type: "jpeg"))
+                self?.titleImageChanged.accept(ImageFile(filename: fileName, data: data, type: "jpeg"))
             }
         }
     }
@@ -385,7 +361,7 @@ extension GroupCreateViewController: UICollectionViewDataSource, UICollectionVie
             }
             cell.fill(tag: tag)
             cell.removeBtnClosure = { [weak self] in
-                self?.tagRemovedAt.onNext(indexPath.item)
+                self?.tagRemovedAt.accept(indexPath.item)
             }
             return cell
         }
@@ -394,48 +370,52 @@ extension GroupCreateViewController: UICollectionViewDataSource, UICollectionVie
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if indexPath.item == (viewModel?.tagList.count ?? 0) {
             guard let cell = collectionView.cellForItem(at: indexPath) else { return false }
-            self.shouldPresentTestVC(cell: cell)
+            self.shouldPresentTagVC(cell: cell)
         }
         return false
     }
 }
 
-extension GroupCreateViewController {
-    func shouldPresentTestVC(cell collectionViewCell: UICollectionViewCell) {
-        guard let viewModel else { return }
+private extension GroupCreateViewController {
+    func shouldPresentTagVC(cell collectionViewCell: UICollectionViewCell) {
+        guard let groupCreateView,
+              let viewModel else { return }
         
         let vc = GroupTagInputViewController(isInfoViewing: viewModel.initialTagPopedOver)
         viewModel.initialTagPopedOver = false
         
         vc.tagAddclosure = { [weak self] tag in
-            self?.tagAdded.onNext(tag)            
+            self?.tagAdded.accept(tag)
         }
         vc.keyboardAppearWithHeight = { [weak self] keyboardHeight in
             guard let self else { return }
             let container = CGRect(
-                x: self.scrollView.contentOffset.x,
-                y: self.scrollView.contentOffset.y,
-                width: self.scrollView.frame.size.width,
-                height: self.scrollView.frame.size.height - keyboardHeight
+                x: groupCreateView.scrollView.contentOffset.x,
+                y: groupCreateView.scrollView.contentOffset.y,
+                width: groupCreateView.scrollView.frame.size.width,
+                height: groupCreateView.scrollView.frame.size.height - keyboardHeight
             )
-            let realCenter = self.tagView.tagCollectionView.convert(collectionViewCell.center, to: self.view)
-   
-            let currentYRange = self.scrollView.contentOffset.y...self.scrollView.contentOffset.y + self.view.frame.height - keyboardHeight
+            let realCenter = groupCreateView.tagView.tagCollectionView.convert(collectionViewCell.center, to: self.view)
+            
+            let currentYRange = groupCreateView.scrollView.contentOffset.y...groupCreateView.scrollView.contentOffset.y + self.view.frame.height - keyboardHeight
             if !currentYRange.contains(realCenter.y) {
-                self.scrollView.setContentOffset(
-                    CGPoint(x: self.scrollView.contentOffset.x, y: self.scrollView.contentOffset.y + keyboardHeight),
+                groupCreateView.scrollView.setContentOffset(
+                    CGPoint(
+                        x: groupCreateView.scrollView.contentOffset.x,
+                        y: groupCreateView.scrollView.contentOffset.y + keyboardHeight
+                    ),
                     animated: true
                 )
             }
             
-            self.keyboardHeightConstraint?.constant = keyboardHeight
+            groupCreateView.keyboardHeightConstraint?.constant = keyboardHeight
         }
         
         vc.modalPresentationStyle = .popover
         let popover: UIPopoverPresentationController = vc.popoverPresentationController!
         popover.delegate = self
-        popover.sourceView = self.scrollView
-        let globalFrame = collectionViewCell.convert(collectionViewCell.bounds, to: self.scrollView)
+        popover.sourceView = groupCreateView.scrollView
+        let globalFrame = collectionViewCell.convert(collectionViewCell.bounds, to: groupCreateView.scrollView)
         popover.sourceRect = CGRect(x: globalFrame.midX, y: globalFrame.minY, width: 0, height: 0)
         popover.permittedArrowDirections = [.down]
         

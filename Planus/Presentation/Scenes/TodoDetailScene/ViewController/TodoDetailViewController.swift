@@ -16,27 +16,17 @@ final class TodoDetailViewController: UIViewController {
     var pageDismissCompletionHandler: (() -> Void)?
     var isFirstAppear = true
     
-    // MARK: send ControlProperties to ViewModel
-    var didSelectCategoryAt = PublishSubject<Int?>()
-    var didRequestEditCategoryAt = PublishSubject<Int>()
-    var didSelectedDateRange = PublishSubject<DateRange>()
-    var didSelectedGroupAt = PublishSubject<Int?>()
-    var didChangednewCategoryColor = PublishSubject<CategoryColor?>()
-    var didDeleteCategoryId = PublishSubject<Int>()
-    var didChangedTimeValue = PublishSubject<String?>()
-    
-    var isMemoActive = BehaviorSubject<Bool?>(value: nil)
-    lazy var memoObservable = Observable.combineLatest(
-        isMemoActive.compactMap { $0 }.asObservable(),
-        todoDetailView.memoView.memoTextView.rx.text.asObservable()
-    ).map { args -> String? in
-        let (isActive, text) = args
-        guard isActive else { return nil }
-        return text ?? String()
-    }
+    // MARK: UI Event
+    var didSelectCategoryAt = PublishRelay<Int?>()
+    var didRequestEditCategoryAt = PublishRelay<Int>()
+    var didSelectedDateRange = PublishRelay<DateRange>()
+    var didSelectedGroupAt = PublishRelay<Int?>()
+    var didChangednewCategoryColor = PublishRelay<CategoryColor?>()
+    var didDeleteCategoryId = PublishRelay<Int>()
+    var didChangedTimeValue = PublishRelay<String?>()
     
     var pageType: TodoDetailViewControllerPageType = .todoDetail
-
+    
     var viewModel: TodoDetailViewModelable?
     
     // MARK: Child ViewController
@@ -69,48 +59,25 @@ final class TodoDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         configureView()
         configureLayout()
-
+        
         bind()
     }
     
-    func configureAddTodoView() {
-        dayPickerViewController.delegate = self
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
-        todoDetailView.icnView.delegate = self
-        todoDetailView.groupView.groupPickerView.dataSource = self
-        todoDetailView.groupView.groupPickerView.delegate = self
-        
-        todoDetailView.clockView.timePicker.addTarget(self, action: #selector(didChangeTime), for: .valueChanged)
-        
-        todoDetailView.addSubview(dayPickerViewController.view)
-    }
-    
-    func configureSelectCategoryView() {
-        categoryView.tableView.dataSource = self
-        categoryView.tableView.delegate = self
-    }
-    
-    func configureCreateCategoryView() {
-        categoryCreateView.collectionView.dataSource = self
-        categoryCreateView.collectionView.delegate = self
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
         if isFirstAppear {
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
-                 self.todoDetailView.snp.remakeConstraints {
-                     $0.bottom.leading.trailing.equalToSuperview()
-                     $0.height.lessThanOrEqualTo(700)
-                 }
-                 self.dimmedView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
-                 self.view.layoutIfNeeded()
-             }, completion: nil)
-            isFirstAppear = false
+            self.firstAppear()
         }
     }
     
@@ -118,31 +85,29 @@ final class TodoDetailViewController: UIViewController {
         super.viewWillDisappear(animated)
         pageDismissCompletionHandler?()
     }
+}
 
-    // 3
-    @objc private func dimmedViewTapped(_ tapRecognizer: UITapGestureRecognizer) {
-        hideBottomSheetAndGoBack()
-    }
-    
+// MARK: - bind viewModel
+extension TodoDetailViewController {
     func bind() {
         guard let viewModel else { return }
 
-        let input = TodoDetailViewModelableInput( //스킵을 해도 이러는가??
+        let input = TodoDetailViewModelableInput(
             titleTextChanged: todoDetailView.titleView.todoTitleField.rx.text.skip(1).asObservable(),
             categorySelectedAt: didSelectCategoryAt.asObservable(),
             dayRange: didSelectedDateRange.distinctUntilChanged().asObservable(),
             timeFieldChanged: didChangedTimeValue.asObservable(),
             groupSelectedAt: didSelectedGroupAt.distinctUntilChanged().asObservable(),
-            memoTextChanged: memoObservable,
+            memoTextChanged: todoDetailView.memoView.memoObservable,
             creatingCategoryNameTextChanged: categoryCreateView.nameField.rx.text.asObservable(),
             creatingCategoryColorChanged: didChangednewCategoryColor.asObservable(),
             didRemoveCategory: didDeleteCategoryId.asObservable(),
             categoryEditRequested: didRequestEditCategoryAt.asObservable(),
             categorySelectBtnTapped: todoDetailView.titleView.categoryButton.rx.tap.asObservable(),
-            todoSaveBtnTapped: todoDetailView.saveButton.rx.tap.asObservable(),
-            todoRemoveBtnTapped: todoDetailView.removeButton.rx.tap.asObservable(),
+            todoSaveBtnTapped: todoDetailView.saveButton.rx.tap.throttle(.seconds(1), scheduler: MainScheduler.asyncInstance).asObservable(),
+            todoRemoveBtnTapped: todoDetailView.removeButton.rx.tap.throttle(.seconds(1), scheduler: MainScheduler.asyncInstance).asObservable(),
             newCategoryAddBtnTapped: categoryView.addNewItemButton.rx.tap.asObservable(),
-            newCategorySaveBtnTapped: categoryCreateView.saveButton.rx.tap.asObservable(),
+            newCategorySaveBtnTapped: categoryCreateView.saveButton.rx.tap.throttle(.seconds(1), scheduler: MainScheduler.asyncInstance).asObservable(),
             categorySelectPageBackBtnTapped: categoryView.backButton.rx.tap.asObservable(),
             categoryCreatePageBackBtnTapped: categoryCreateView.backButton.rx.tap.asObservable()
         )
@@ -333,25 +298,47 @@ final class TodoDetailViewController: UIViewController {
 
         viewModel.initFetch()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-    }
-    
+}
+
+// MARK: Actions
+private extension TodoDetailViewController {
     @objc func didChangeTime(_ sender: UIDatePicker) {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH:mm"
         let dateStr = dateFormatter.string(from: sender.date)
         
-        didChangedTimeValue.onNext(dateStr)
+        didChangedTimeValue.accept(dateStr)
+    }
+    
+    @objc private func dimmedViewTapped(_ tapRecognizer: UITapGestureRecognizer) {
+        hideBottomSheetAndGoBack()
     }
 }
 
 // MARK: Generate UI
-extension TodoDetailViewController {
+private extension TodoDetailViewController {
+    func configureAddTodoView() {
+        dayPickerViewController.delegate = self
+        
+        todoDetailView.icnView.delegate = self
+        todoDetailView.groupView.groupPickerView.dataSource = self
+        todoDetailView.groupView.groupPickerView.delegate = self
+        
+        todoDetailView.clockView.timePicker.addTarget(self, action: #selector(didChangeTime), for: .valueChanged)
+        
+        todoDetailView.addSubview(dayPickerViewController.view)
+    }
+    
+    func configureSelectCategoryView() {
+        categoryView.tableView.dataSource = self
+        categoryView.tableView.delegate = self
+    }
+    
+    func configureCreateCategoryView() {
+        categoryCreateView.collectionView.dataSource = self
+        categoryCreateView.collectionView.delegate = self
+    }
+    
     func configureView() {
         self.view.addSubview(dimmedView)
         self.view.addSubview(todoDetailView)
@@ -381,7 +368,8 @@ extension TodoDetailViewController {
         }
         
         todoDetailView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview()
+            $0.width.equalToSuperview()
+            $0.leading.equalToSuperview()
             $0.top.equalTo(self.view.snp.bottom)
             $0.height.lessThanOrEqualTo(700)
         }
@@ -419,13 +407,13 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
         case .calendar:
             dayPickerViewController.setDate(startDate: nil, endDate: nil)
         case .clock:
-            didChangedTimeValue.onNext(nil)
+            didChangedTimeValue.accept(nil)
         case .group:
             if viewModel?.type == .memberTodo {
-                didSelectedGroupAt.onNext(nil)
+                didSelectedGroupAt.accept(nil)
             }
         case .memo:
-            isMemoActive.onNext(false)
+            todoDetailView.memoView.isMemoActive.accept(false)
             todoDetailView.memoView.memoTextView.text = nil
         }
     }
@@ -447,7 +435,7 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
                 newAnchor.isActive = true
             }
             
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
                 if from != .title {
                     self.todoDetailView.attributeViewGroup[from.rawValue].alpha = 0
                 }
@@ -455,7 +443,7 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
                     self.todoDetailView.attributeViewGroup[to.rawValue].alpha = 1
                 }
             })
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
                 self.todoDetailView.upperView.layoutIfNeeded()
             })
         }
@@ -472,9 +460,9 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
             case .group:
                 todoDetailView.titleView.todoTitleField.becomeFirstResponder()
                 let index = todoDetailView.groupView.groupPickerView.selectedRow(inComponent: 0)
-                didSelectedGroupAt.onNext(index)
+                didSelectedGroupAt.accept(index)
             case .memo:
-                isMemoActive.onNext(true)
+                todoDetailView.memoView.isMemoActive.accept(true)
                 todoDetailView.memoView.memoTextView.becomeFirstResponder()
             }
         }

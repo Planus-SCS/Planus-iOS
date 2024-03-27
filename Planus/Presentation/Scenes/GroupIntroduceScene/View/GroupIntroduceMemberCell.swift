@@ -6,11 +6,14 @@
 //
 
 import UIKit
+import RxSwift
 
 class GroupIntroduceMemberCell: SpringableCollectionViewCell {
     static let reuseIdentifier = "group-introduce-member-cell"
-
-    var memberImageView: UIImageView = {
+    
+    private var bag: DisposeBag?
+    
+    let memberImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -19,7 +22,7 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
         return imageView
     }()
     
-    var memberNameLabel: UILabel = {
+    let memberNameLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-SemiBold", size: 16)
         label.textColor = .black
@@ -27,7 +30,7 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
         return label
     }()
     
-    var captinIconView: UIImageView = {
+    private let captinIconView: UIImageView = {
         let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 12, height: 12))
         imageView.image = UIImage(named: "captinSmall")
         imageView.contentMode = .scaleAspectFit
@@ -36,7 +39,7 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
         return imageView
     }()
     
-    var memberIntroduceLabel: UILabel = {
+    let memberIntroduceLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
         label.textColor = UIColor(hex: 0x6F81A9)
@@ -98,10 +101,21 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
         }
     }
     
-    func fill(name: String, introduce: String?, isCaptin: Bool) {
+    func fill(name: String, introduce: String?, isCaptin: Bool, imgFetcher: Single<Data>) {
         memberNameLabel.text = name
         memberIntroduceLabel.text = introduce
         captinIconView.isHidden = !isCaptin
+        
+        let bag = DisposeBag()
+        self.bag = bag
+        imgFetcher
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] data in
+                self?.fill(image: UIImage(data: data))
+            }, onFailure: { [weak self] _ in
+                self?.fill(image: UIImage(named: "DefaultProfileMedium"))
+            })
+            .disposed(by: bag)
     }
     
     func fill(image: UIImage?) {

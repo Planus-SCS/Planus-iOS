@@ -8,11 +8,9 @@
 import Foundation
 import RxSwift
 
-class GroupCreateViewModel: ViewModel {
+final class GroupCreateViewModel: ViewModel {
     
     struct UseCases {
-        let getTokenUseCase: GetTokenUseCase
-        let refreshTokenUseCase: RefreshTokenUseCase
         let groupCreateUseCase: GroupCreateUseCase
     }
     
@@ -29,7 +27,7 @@ class GroupCreateViewModel: ViewModel {
         let args: Args
     }
     
-    var bag = DisposeBag()
+    private var bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
@@ -54,6 +52,7 @@ class GroupCreateViewModel: ViewModel {
         var tagRemovedAt: Observable<Int>
         var maxMemberChanged: Observable<String?>
         var saveBtnTapped: Observable<Void>
+        var backBtnTapped: Observable<Void>
     }
     
     struct Output {
@@ -131,6 +130,14 @@ class GroupCreateViewModel: ViewModel {
                     vm.nowSaving = true
                     vm.createGroup()
                 }
+            })
+            .disposed(by: bag)
+        
+        input
+            .backBtnTapped
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         

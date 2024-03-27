@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 class JoinedGroupDetailCalendarHeaderView: UICollectionReusableView {
     static let reuseIdentifier = "joined-group-detail-calendar-header-view"
@@ -74,5 +75,16 @@ class JoinedGroupDetailCalendarHeaderView: UICollectionReusableView {
         }
     }
     
+    func fill(title: String, btnTapped: PublishRelay<Void>) {
+        let bag = DisposeBag()
+        yearMonthButton.setTitle(title, for: .normal)
+        yearMonthButton.rx.tap
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                btnTapped.accept(())
+            })
+            .disposed(by: bag)
+        self.bag = bag
+    }
     
 }

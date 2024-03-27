@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MemberProfileCoordinator: Coordinator {
+final class MemberProfileCoordinator: Coordinator {
     
     struct Dependency {
         let navigationController: UINavigationController
@@ -31,7 +31,7 @@ class MemberProfileCoordinator: Coordinator {
     lazy var showMemberProfilePage: (MemberProfileViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
         
-        let vc = dependency.injector.resolve(
+        let vc = self.dependency.injector.resolve(
             MemberProfileViewController.self,
             argument: MemberProfileViewModel.Injectable(
                 actions: .init(
@@ -43,7 +43,7 @@ class MemberProfileCoordinator: Coordinator {
             )
         )
         vc.hidesBottomBarWhenPushed = true
-        dependency.navigationController.pushViewController(vc, animated: true)
+        self.dependency.navigationController.pushViewController(vc, animated: true)
         
     }
     

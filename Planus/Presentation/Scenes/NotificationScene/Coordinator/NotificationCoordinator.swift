@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-class NotificationCoordinator: Coordinator {
+final class NotificationCoordinator: Coordinator {
     
     struct Dependency {
         let navigationController: UINavigationController

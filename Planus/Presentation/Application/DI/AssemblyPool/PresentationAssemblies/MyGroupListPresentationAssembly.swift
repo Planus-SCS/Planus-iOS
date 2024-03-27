@@ -13,9 +13,7 @@ class MyGroupListPresentationAssembly: Assembly {
         container.register(MyGroupListViewModel.self) { (r, injectable: MyGroupListViewModel.Injectable) in
             return MyGroupListViewModel(
                 useCases: .init(
-                    getTokenUseCase: r.resolve(GetTokenUseCase.self)!,
-                    refreshTokenUsecase: r.resolve(RefreshTokenUseCase.self)!,
-                    setTokenUseCase: r.resolve(SetTokenUseCase.self)!,
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     fetchMyGroupListUseCase: r.resolve(FetchMyGroupListUseCase.self)!,
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,
                     groupCreateUseCase: r.resolve(GroupCreateUseCase.self)!,

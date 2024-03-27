@@ -8,6 +8,17 @@
 import UIKit
 
 extension TodoDetailViewController {
+    func firstAppear() {
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseInOut, animations: {
+            self.todoDetailView.snp.remakeConstraints {
+                $0.bottom.leading.trailing.equalToSuperview()
+                $0.height.lessThanOrEqualTo(700)
+            }
+            self.dimmedView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
+            self.view.layoutIfNeeded()
+        }, completion: nil)
+        isFirstAppear = false
+    }
     func moveFromAddToSelect() {
         guard self.pageType != .selectCategory else { return }
 
@@ -99,7 +110,7 @@ extension TodoDetailViewController {
     
     func hideBottomSheetAndGoBack() {
         self.view.endEditing(true)
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
             self.dimmedView.alpha = 0.0
             switch self.pageType {
             case .todoDetail:
