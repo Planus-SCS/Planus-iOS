@@ -59,7 +59,7 @@ class MyGroupDomainAssembly: Assembly {
         container.register(MemberKickOutUseCase.self) { r in
             let myGroupRepository = r.resolve(MyGroupRepository.self)!
             return DefaultMemberKickOutUseCase(myGroupRepository: myGroupRepository)
-        }
+        }.inObjectScope(.container)
         
         container.register(UpdateGroupInfoUseCase.self) { r in
             let myGroupRepository = r.resolve(MyGroupRepository.self)!

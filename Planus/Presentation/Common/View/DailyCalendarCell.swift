@@ -92,7 +92,7 @@ class CalendarDailyCell: SpringableCollectionViewCell {
     func remakeStackConstForMock() {
         stackView.snp.remakeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
-            $0.leading.equalToSuperview().inset(4)
+            $0.leading.equalToSuperview().inset(3)
             $0.width.equalTo(UIScreen.main.bounds.width)
             $0.bottom.equalToSuperview().inset(3)
         }
@@ -115,7 +115,7 @@ private extension CalendarDailyCell {
         
         stackView.snp.makeConstraints {
             $0.top.equalTo(numberLabel.snp.bottom).offset(5)
-            $0.leading.equalToSuperview().inset(4)
+            $0.leading.equalToSuperview().inset(3)
             $0.width.equalTo(UIScreen.main.bounds.width)
             $0.bottom.lessThanOrEqualToSuperview().inset(3)
         }
@@ -200,7 +200,7 @@ extension CalendarDailyCell {
         (0..<count).forEach { _ in
             let view = UIView(frame: .zero)
             view.snp.makeConstraints {
-                $0.width.equalTo(UIScreen.main.bounds.width * Double(1)/Double(7) - 8)
+                $0.width.equalTo(UIScreen.main.bounds.width * Double(1)/Double(7) - 6)
                 $0.height.equalTo(18)
             }
             view.backgroundColor = .clear
@@ -213,7 +213,7 @@ extension CalendarDailyCell {
         var todoView = SmallTodoView(title: title, categoryColor: color, isComplete: isComplete)
 
         todoView.snp.makeConstraints {
-            $0.width.equalTo(UIScreen.main.bounds.width * Double(1)/Double(7) * Double(diff) - 8)
+            $0.width.equalTo(UIScreen.main.bounds.width * Double(1)/Double(7) * Double(diff) - 6)
             $0.height.equalTo(18)
         }
         stackView.addArrangedSubview(todoView)
@@ -230,7 +230,7 @@ extension CalendarDailyCell {
         titleLabel.text = title
         
         titleLabel.snp.makeConstraints {
-            $0.width.equalTo(UIScreen.main.bounds.width * Double(1)/Double(7) - 8)
+            $0.width.equalTo(UIScreen.main.bounds.width * Double(1)/Double(7) - 6)
             $0.height.equalTo(18)
         }
         stackView.addArrangedSubview(titleLabel)
