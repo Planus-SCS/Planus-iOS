@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import AuthenticationServices
 
-class SignInViewModel: ViewModel {
+final class SignInViewModel: ViewModel {
     
     struct UseCases {
         let kakaoSignInUseCase: KakaoSignInUseCase
