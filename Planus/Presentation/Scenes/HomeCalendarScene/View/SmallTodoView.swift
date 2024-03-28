@@ -15,8 +15,9 @@ class SmallTodoView: UIView {
     
     var toDoLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont(name: "Pretendard-Regular", size: 13)
+        label.font = UIFont(name: "Pretendard-Regular", size: 11)
         label.textAlignment = .center
+        label.lineBreakMode = .byCharWrapping
         return label
     }()
     
@@ -52,8 +53,8 @@ class SmallTodoView: UIView {
             
         }
         toDoLabel.snp.makeConstraints {
-            $0.leading.equalTo(leadingView.snp.trailing).offset(2.5)
-            $0.trailing.equalToSuperview().inset(4)
+            $0.leading.equalTo(leadingView.snp.trailing).offset(1)
+            $0.trailing.equalToSuperview().inset(2)
             $0.centerY.equalToSuperview()
         }
     }

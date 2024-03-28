@@ -53,7 +53,7 @@ final class HomeCalendarView: UIView {
         collectionView.decelerationRate = .fast
         collectionView.isPagingEnabled = true
         collectionView.register(MonthlyCalendarCell.self, forCellWithReuseIdentifier: MonthlyCalendarCell.reuseIdentifier)
-        
+        collectionView.isHidden = true
         return collectionView
     }()
     

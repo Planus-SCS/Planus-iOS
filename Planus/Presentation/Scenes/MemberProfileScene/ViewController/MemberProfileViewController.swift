@@ -84,8 +84,8 @@ final class MemberProfileViewController: UIViewController {
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
         
         if isMovingFromParent {
             viewModel?.actions.finishScene?()

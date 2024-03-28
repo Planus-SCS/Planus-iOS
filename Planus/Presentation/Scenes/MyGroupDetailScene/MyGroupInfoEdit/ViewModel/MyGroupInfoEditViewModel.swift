@@ -40,6 +40,8 @@ final class MyGroupInfoEditViewModel: ViewModel {
     let useCases: UseCases
     let actions: Actions
     
+    let maxTagCnt = 5
+    
     var groupId: Int
     var title: String
     var tagList: [String]
@@ -198,7 +200,7 @@ final class MyGroupInfoEditViewModel: ViewModel {
 // MARK: tag validation
 private extension MyGroupInfoEditViewModel {
     func checkTagValidation() {
-        let tagCountState = tagList.count <= 5 && tagList.count > 0
+        let tagCountState = tagList.count <= maxTagCnt && tagList.count > 0
         let tagDuplicateState = tagCountState && Set(tagList).count == tagList.count
         
         self.tagCountValidState.onNext(tagCountState)

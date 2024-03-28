@@ -11,22 +11,22 @@ import RxCocoa
 
 final class HomeCalendarViewController: UIViewController {
     
-    var bag = DisposeBag()
+    private var bag = DisposeBag()
     
-    var homeCalendarView: HomeCalendarView?
-    var viewModel: HomeCalendarViewModel?
+    private var homeCalendarView: HomeCalendarView?
+    private var viewModel: HomeCalendarViewModel?
     
-    var isMonthChanged = PublishRelay<Date>()
-    var isMultipleSelecting = PublishRelay<Bool>()
-    var isMultipleSelected = PublishRelay<(Int, (Int, Int))>() //section, (item, item)
-    var multipleTodoCompletionHandler: (() -> Void)?
-    var isSingleSelected = PublishRelay<(Int, Int)>()
-    var isGroupSelectedWithId = PublishRelay<Int?>()
-    var refreshRequired = PublishRelay<Void>()
-    var didFetchRefreshedData = PublishRelay<Void>()
-    var initialCalendarGenerated = false
+    private let isMonthChanged = PublishRelay<Date>()
+    private let isMultipleSelecting = PublishRelay<Bool>()
+    private let isMultipleSelected = PublishRelay<(Int, (Int, Int))>() //section, (item, item)
+    private var multipleTodoCompletionHandler: (() -> Void)?
+    private let isSingleSelected = PublishRelay<(Int, Int)>()
+    private let isGroupSelectedWithId = PublishRelay<Int?>()
+    private let refreshRequired = PublishRelay<Void>()
+    private let didFetchRefreshedData = PublishRelay<Void>()
+    private var initialCalendarGenerated = false
     
-    let indexChanged = PublishRelay<Int>()
+    private let indexChanged = PublishRelay<Int>()
     
     convenience init(viewModel: HomeCalendarViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -43,7 +43,7 @@ final class HomeCalendarViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         bind()
     }
     
@@ -54,6 +54,10 @@ final class HomeCalendarViewController: UIViewController {
         self.navigationItem.titleView = homeCalendarView.yearMonthButton
         self.navigationItem.setRightBarButton(UIBarButtonItem(customView: homeCalendarView.profileButton), animated: false)
     }
+}
+
+// MARK: - bind viewModel
+private extension HomeCalendarViewController {
     
     func bind() {
         guard let viewModel,
@@ -101,6 +105,7 @@ final class HomeCalendarViewController: UIViewController {
                 }, completion: { _ in
                     homeCalendarView.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
                     vc.initialCalendarGenerated = true
+                    homeCalendarView.collectionView.setAnimatedIsHidden(false, duration: 0.1)
                 })
             })
             .disposed(by: bag)
@@ -133,9 +138,7 @@ final class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, indexSet in
-                UIView.performWithoutAnimation({
-                    homeCalendarView.collectionView.reloadSections(indexSet)
-                })
+                homeCalendarView.collectionView.reloadSections(indexSet)
             })
             .disposed(by: bag)
         
@@ -143,9 +146,7 @@ final class HomeCalendarViewController: UIViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                UIView.performWithoutAnimation({
-                    homeCalendarView.collectionView.reloadData()
-                })
+                homeCalendarView.collectionView.reloadData()
             })
             .disposed(by: bag)
         
@@ -198,7 +199,10 @@ final class HomeCalendarViewController: UIViewController {
             .disposed(by: bag)
             
     }
-    
+}
+
+// MARK: - Setting
+private extension HomeCalendarViewController {
     func setGroupButton() {
         let image = UIImage(named: "groupCalendarList")
         var children = [UIMenuElement]()
@@ -225,7 +229,10 @@ final class HomeCalendarViewController: UIViewController {
         navigationItem.setLeftBarButton(item, animated: true)
         homeCalendarView?.groupListButton = item
     }
+}
 
+// MARK: - Actions
+private extension HomeCalendarViewController {
     func showMonthPicker(firstYear: Date, current: Date, lastYear: Date) {
         guard let homeCalendarView else { return }
         
@@ -243,12 +250,9 @@ final class HomeCalendarViewController: UIViewController {
         popover.permittedArrowDirections = [.up]
         self.present(vc, animated: true, completion:nil)
     }
-    
-    
 }
 
-// MARK: PopoverPresentationDelegate
-
+// MARK: - PopoverPresentationDelegate
 extension HomeCalendarViewController: UIPopoverPresentationControllerDelegate {
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return .none
@@ -291,10 +295,4 @@ extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionVi
         indexChanged.accept(Int(round(floatedIndex)))
     }
     
-}
-
-// MARK: configureVC
-
-extension HomeCalendarViewController {
-
 }
