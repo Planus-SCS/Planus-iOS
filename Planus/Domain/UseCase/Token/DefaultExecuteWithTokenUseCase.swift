@@ -17,6 +17,19 @@ class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
     }
     
     func execute<T>(executable: @escaping (Token) -> Single<T>?) -> Single<T> {
+        return getToken()
+            .flatMap { token -> Single<T> in
+                return executable(token) ?? Single.error(DefaultError.noCapturedSelf)
+            }
+            .handleRetry(
+                retryObservable: self.refreshTokenIfNeeded(),
+                errorType: NetworkManagerError.tokenExpired
+            )
+    }
+}
+
+private extension DefaultExecuteWithTokenUseCase {
+    func getToken() -> Single<Token> {
         return Single<Token>.create { [weak self] emitter -> Disposable in
             guard let token = self?.tokenRepository.get() else {
                 emitter(.failure(TokenError.noTokenExist))
@@ -25,21 +38,14 @@ class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
             emitter(.success(token))
             return Disposables.create()
         }
-        .flatMap { [weak self] token -> Single<T> in
-            guard let executableUseCase = executable(token) else { throw DefaultError.noCapturedSelf }
-            return executableUseCase
-        }
-        .handleRetry(
-            retryObservable: { () -> Single<Token> in
-                tokenRepository
-                    .refresh()
-                    .map { [weak self] dto in
-                        let token = dto.data.toDomain()
-                        self?.tokenRepository.set(token: token)
-                        return token
-                    }
-            }(),
-            errorType: NetworkManagerError.tokenExpired
-        )
+    }
+    
+    func refreshTokenIfNeeded() -> Single<Token> {
+        return tokenRepository.refresh()
+            .map { [weak self] dto in
+                let token = dto.data.toDomain()
+                self?.tokenRepository.set(token: token)
+                return token
+            }
     }
 }
