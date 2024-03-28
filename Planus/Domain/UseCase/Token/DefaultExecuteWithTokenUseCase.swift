@@ -19,7 +19,7 @@ class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
     func execute<T>(executable: @escaping (Token) -> Single<T>?) -> Single<T> {
         return getToken()
             .flatMap { token -> Single<T> in
-                return executable(token) ?? Single.error(DefaultError.noCapturedSelf)
+                return executable(token) ?? Single.error(DefaultError.noThingExecutable)
             }
             .handleRetry(
                 retryObservable: self.refreshTokenIfNeeded(),
@@ -29,6 +29,10 @@ class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
 }
 
 private extension DefaultExecuteWithTokenUseCase {
+    enum DefaultError: Error {
+        case noThingExecutable
+    }
+    
     func getToken() -> Single<Token> {
         return Single<Token>.create { [weak self] emitter -> Disposable in
             guard let token = self?.tokenRepository.get() else {

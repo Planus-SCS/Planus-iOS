@@ -24,7 +24,3 @@ public enum NetworkManagerError: Error, Equatable {
 enum TokenError: Error, Equatable {
     case noTokenExist
 }
-
-enum DefaultError: Error {
-    case noCapturedSelf
-}
