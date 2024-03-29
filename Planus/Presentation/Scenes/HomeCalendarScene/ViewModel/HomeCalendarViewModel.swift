@@ -111,7 +111,7 @@ final class HomeCalendarViewModel: ViewModel {
     private let showAlert = PublishSubject<Message>()
     private let fetchedProfileImage = BehaviorSubject<Data?>(value: nil)
     private let groupListFetched = BehaviorSubject<[GroupName]?>(value: nil)
-    var todoDetailViewCompletionHandler: ((IndexPath) -> Void)?
+    var createPeriodTodoCompletionHandler: ((IndexPath) -> Void)?
 
     struct Input {
         var viewDidLoaded: Observable<Void>
@@ -123,7 +123,7 @@ final class HomeCalendarViewModel: ViewModel {
         var filterGroupWithId: Observable<Int?>
         var refreshRequired: Observable<Void>
         var profileBtnTapped: Observable<Void>
-        var todoDetailViewCompletionHandler: ((IndexPath) -> Void)?
+        var createPeriodTodoCompletionHandler: ((IndexPath) -> Void)?
     }
     
     struct Output {
@@ -247,6 +247,8 @@ final class HomeCalendarViewModel: ViewModel {
             })
             .disposed(by: bag)
         
+        self.createPeriodTodoCompletionHandler = input.createPeriodTodoCompletionHandler
+        
         return Output(
             dateTitleUpdated: dateTitle.asObservable(),
             needMoveTo: needMoveToIndex.asObservable(),
@@ -295,7 +297,6 @@ private extension HomeCalendarViewModel {
     }
     
     func jumpedTo(index: Int) {
-        print("jump ok")
         currentIndex.onNext(index)
         fetchAll()
     }
@@ -524,7 +525,7 @@ private extension HomeCalendarViewModel {
                 end: endDate
             )
         ) { [weak self] in
-            self?.todoDetailViewCompletionHandler?(IndexPath(item: 0, section: a.section))
+            self?.createPeriodTodoCompletionHandler?(IndexPath(item: 0, section: a.section))
         }
     }
     

@@ -239,7 +239,14 @@ extension MonthlyCalendarCell {
             
             self.firstPressedIndexPath = nowIndexPath
             self.lastPressedIndexPath = nowIndexPath
+            
+            nowMultipleSelecting?.accept(true)
+            
             collectionView.selectItem(at: nowIndexPath, animated: true, scrollPosition: [])
+            collectionView.isScrollEnabled = false
+            collectionView.isUserInteractionEnabled = false
+            collectionView.allowsMultipleSelection = true
+            
             Vibration.selection.vibrate()
         case .ended:
             selectionState = false
@@ -275,11 +282,6 @@ extension MonthlyCalendarCell {
         
         guard let nowIndexPath = collectionView.indexPathForItem(at: location) else { return }
         switch gestureRecognizer.state {
-        case .began:
-            nowMultipleSelecting?.accept(true)
-            collectionView.isScrollEnabled = false
-            collectionView.isUserInteractionEnabled = false
-            collectionView.allowsMultipleSelection = true
         case .changed:
             guard let firstPressedIndexPath = firstPressedIndexPath,
                   let lastPressedIndexPath = lastPressedIndexPath,
@@ -329,7 +331,6 @@ extension MonthlyCalendarCell {
                         self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
                     }
                 } else {
-                    
                     (nowIndexPath.item..<lastPressedIndexPath.item).forEach {
                         self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
                     }
@@ -337,9 +338,17 @@ extension MonthlyCalendarCell {
             }
             self.lastPressedIndexPath = nowIndexPath
             Vibration.selection.vibrate()
+            
         default:
             break
         }
+    }
+    
+    private func selectedIndexPaths(from startIndexPath: IndexPath, to endIndexPath: IndexPath) -> [IndexPath] {
+        let section = startIndexPath.section
+        let start = min(startIndexPath.item, endIndexPath.item)
+        let end = max(startIndexPath.item, endIndexPath.item)
+        return (start...end).map { IndexPath(item: $0, section: section) }
     }
 }
 

@@ -79,7 +79,7 @@ private extension HomeCalendarViewController {
         guard let viewModel,
               let homeCalendarView else { return }
   
-        let todoDetailViewCompletionHandler = { indexPath in
+        let createPeriodTodoCompletionHandler = { indexPath in
             guard let cell = homeCalendarView.collectionView.cellForItem(
                 at: indexPath
             ) as? MonthlyCalendarCell else { return }
@@ -104,7 +104,7 @@ private extension HomeCalendarViewController {
             filterGroupWithId: isGroupSelectedWithId.asObservable(),
             refreshRequired: refreshRequired.asObservable(),
             profileBtnTapped: homeCalendarView.profileButton.rx.tap.asObservable(),
-            todoDetailViewCompletionHandler: todoDetailViewCompletionHandler
+            createPeriodTodoCompletionHandler: createPeriodTodoCompletionHandler
         )
         
         let output = viewModel.transform(input: input)
