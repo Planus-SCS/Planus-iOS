@@ -10,7 +10,7 @@ import RxSwift
 import RxCocoa
 
 final class HomeCalendarView: UIView {
-    lazy var yearMonthButton: SpringableButton = {
+    let yearMonthButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
         button.setImage(UIImage(named: "downButton"), for: .normal)
@@ -24,12 +24,12 @@ final class HomeCalendarView: UIView {
     
     var groupListButton: UIBarButtonItem? // 그룹 로드 후 생성
     
-    lazy var profileButton: ProfileButton = {
+    let profileButton: ProfileButton = {
         let button = ProfileButton(frame: .zero)
         return button
     }()
     
-    var weekStackView: UIStackView = {
+    let weekStackView: UIStackView = {
         let stackView = UIStackView(frame: .zero)
         stackView.distribution = .fillEqually
 
@@ -72,7 +72,7 @@ final class HomeCalendarView: UIView {
 }
 
 // MARK: Configure
-extension HomeCalendarView {
+private extension HomeCalendarView {
     func configureLayout() {
         weekStackView.snp.makeConstraints {
             $0.top.equalTo(self.safeAreaLayoutGuide.snp.top).offset(25)
@@ -101,9 +101,8 @@ extension HomeCalendarView {
 }
 
 // MARK: Compositional layout
-extension HomeCalendarView {
-
-    private func createLayout() -> UICollectionViewLayout {
+private extension HomeCalendarView {
+    func createLayout() -> UICollectionViewLayout {
         
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
@@ -128,5 +127,4 @@ extension HomeCalendarView {
         
         return layout
     }
-    
 }

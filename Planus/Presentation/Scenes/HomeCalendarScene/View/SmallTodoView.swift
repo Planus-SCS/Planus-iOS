@@ -7,13 +7,13 @@
 
 import UIKit
 
-class SmallTodoView: UIView {
-    var leadingView: UIView = {
+final class SmallTodoView: UIView {
+    private let leadingView: UIView = {
         let view = UIView(frame: .zero)
         return view
     }()
     
-    var toDoLabel: UILabel = {
+    private let toDoLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 11)
         label.textAlignment = .center
@@ -38,7 +38,8 @@ class SmallTodoView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureView() {
+    
+    private func configureView() {
         self.layer.cornerRadius = 3
         self.layer.cornerCurve = .continuous
         self.clipsToBounds = true
@@ -46,7 +47,7 @@ class SmallTodoView: UIView {
         self.addSubview(toDoLabel)
     }
     
-    func configureLayout() {
+    private func configureLayout() {
         leadingView.snp.makeConstraints {
             $0.leading.top.bottom.equalToSuperview()
             $0.width.equalTo(2)

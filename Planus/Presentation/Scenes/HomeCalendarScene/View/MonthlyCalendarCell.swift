@@ -15,16 +15,16 @@ final class MonthlyCalendarCell: UICollectionViewCell {
     
     var viewModel: HomeCalendarViewModel?
     
-    // MARK: 드래그 해서 기간 일정 만드는 용
+    // MARK: - Darg for period Todo
     private var selectionState: Bool = false
     private var firstPressedIndexPath: IndexPath?
     private var lastPressedIndexPath: IndexPath?
     
     private var section: Int?
     
-    private var isMultipleSelecting: PublishRelay<Bool>?
-    private var isMultipleSelected: PublishRelay<(Int, (Int, Int))>?
-    private var isSingleSelected: PublishRelay<(Int, Int)>?
+    private var nowMultipleSelecting: PublishRelay<Bool>?
+    private var multipleItemSelected: PublishRelay<(IndexPath, IndexPath)>?
+    private var itemSelected: PublishRelay<(Int, Int)>?
     private var refreshRequired: PublishRelay<Void>?
     
     var bag: DisposeBag?
@@ -110,15 +110,15 @@ extension MonthlyCalendarCell {
     }
     
     func fill(
-        isMultipleSelecting: PublishRelay<Bool>,
-        isMultipleSelected: PublishRelay<(Int, (Int, Int))>,
-        isSingleSelected: PublishRelay<(Int, Int)>,
+        nowMultipleSelecting: PublishRelay<Bool>,
+        multipleItemSelected: PublishRelay<(IndexPath, IndexPath)>,
+        itemSelected: PublishRelay<(Int, Int)>,
         refreshRequired: PublishRelay<Void>,
         didFetchRefreshedData: PublishRelay<Void>
     ) {
-        self.isMultipleSelecting = isMultipleSelecting
-        self.isMultipleSelected = isMultipleSelected
-        self.isSingleSelected = isSingleSelected
+        self.nowMultipleSelecting = nowMultipleSelecting
+        self.multipleItemSelected = multipleItemSelected
+        self.itemSelected = itemSelected
         self.refreshRequired = refreshRequired
 
         let bag = DisposeBag()
@@ -217,7 +217,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
 
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let section {
-            isSingleSelected?.accept((section, indexPath.item))
+            itemSelected?.accept((section, indexPath.item))
         }
         return false
     }
@@ -247,12 +247,15 @@ extension MonthlyCalendarCell {
             guard let section,
                   let firstPressedItem = self.firstPressedIndexPath?.item,
                   let lastPressedItem = self.lastPressedIndexPath?.item else { return }
-            self.isMultipleSelected?.accept((section, (firstPressedItem, lastPressedItem)))
+            self.multipleItemSelected?.accept(
+                (IndexPath(item: firstPressedItem, section: section),
+                 IndexPath(item: lastPressedItem, section: section)
+                ))
             
             firstPressedIndexPath = nil
             lastPressedIndexPath = nil
             
-            self.isMultipleSelecting?.accept(false)
+            self.nowMultipleSelecting?.accept(false)
             
             collectionView.isScrollEnabled = true
             collectionView.isUserInteractionEnabled = true
@@ -263,7 +266,7 @@ extension MonthlyCalendarCell {
     
     @objc func drag(_ gestureRecognizer: UIPanGestureRecognizer) {
         guard self.selectionState else {
-            self.isMultipleSelecting?.accept(false)
+            self.nowMultipleSelecting?.accept(false)
             collectionView.isScrollEnabled = true
             collectionView.isUserInteractionEnabled = true
             return
@@ -273,7 +276,7 @@ extension MonthlyCalendarCell {
         guard let nowIndexPath = collectionView.indexPathForItem(at: location) else { return }
         switch gestureRecognizer.state {
         case .began:
-            isMultipleSelecting?.accept(true)
+            nowMultipleSelecting?.accept(true)
             collectionView.isScrollEnabled = false
             collectionView.isUserInteractionEnabled = false
             collectionView.allowsMultipleSelection = true
