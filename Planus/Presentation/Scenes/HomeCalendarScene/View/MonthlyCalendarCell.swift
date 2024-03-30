@@ -282,68 +282,35 @@ extension MonthlyCalendarCell {
         }
         let location = gestureRecognizer.location(in: collectionView)
         
-        guard let nowIndexPath = collectionView.indexPathForItem(at: location) else { return }
+        guard let indexPath = collectionView.indexPathForItem(at: location) else { return }
         switch gestureRecognizer.state {
         case .changed:
             guard let firstPressedIndexPath = firstPressedIndexPath,
                   let lastPressedIndexPath = lastPressedIndexPath,
-                  lastPressedIndexPath != nowIndexPath else { return }
+                  lastPressedIndexPath != indexPath else { return }
             
+            let indexPathsToDeselect = Set(selectedIndexPaths(from: firstPressedIndexPath, to: lastPressedIndexPath))
+            let indexPathsToSelect = Set(selectedIndexPaths(from: firstPressedIndexPath, to: indexPath))
             
-            if firstPressedIndexPath.item < lastPressedIndexPath.item {
-                if firstPressedIndexPath.item > nowIndexPath.item {
-                    (firstPressedIndexPath.item+1...lastPressedIndexPath.item).forEach {
-                        self.collectionView.deselectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true)
-                    }
-                    (nowIndexPath.item..<firstPressedIndexPath.item).forEach {
-                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-                    }
-                } else if nowIndexPath.item < lastPressedIndexPath.item {
-                    (nowIndexPath.item+1...lastPressedIndexPath.item).forEach {
-                        self.collectionView.deselectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true)
-                    }
-                } else if nowIndexPath.item > lastPressedIndexPath.item {
-                    (lastPressedIndexPath.item+1...nowIndexPath.item).forEach {
-                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-                    }
-                }
-            } else if (firstPressedIndexPath.item > lastPressedIndexPath.item) {
-                if (firstPressedIndexPath.item < nowIndexPath.item) {
-                    
-                    (lastPressedIndexPath.item..<firstPressedIndexPath.item).forEach {
-                        self.collectionView.deselectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true)
-                    }
-                    (firstPressedIndexPath.item+1...nowIndexPath.item).forEach {
-                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-                    }
-                } else if lastPressedIndexPath.item < nowIndexPath.item {
-                    
-                    (lastPressedIndexPath.item..<nowIndexPath.item).forEach {
-                        self.collectionView.deselectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true)
-                    }
-                } else if nowIndexPath.item < lastPressedIndexPath.item {
-                    
-                    (nowIndexPath.item..<lastPressedIndexPath.item).forEach {
-                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-                    }
-                }
-            } else {
-                if nowIndexPath.item > lastPressedIndexPath.item {
-                    (lastPressedIndexPath.item+1...nowIndexPath.item).forEach {
-                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-                    }
-                } else {
-                    (nowIndexPath.item..<lastPressedIndexPath.item).forEach {
-                        self.collectionView.selectItem(at: IndexPath(item: $0, section: firstPressedIndexPath.section), animated: true, scrollPosition: [])
-                    }
-                }
-            }
-            self.lastPressedIndexPath = nowIndexPath
+            let foo = Array(indexPathsToDeselect.subtracting(indexPathsToSelect))
+            let boo = Array(indexPathsToSelect.subtracting(indexPathsToDeselect))
+
+            foo.forEach { collectionView.deselectItem(at: $0, animated: true) }
+            boo.forEach { collectionView.selectItem(at: $0, animated: true, scrollPosition: []) }
+
+            self.lastPressedIndexPath = indexPath
             Vibration.selection.vibrate()
             
         default:
             break
         }
+    }
+    
+    private func selectedIndexPaths(from startIndexPath: IndexPath, to endIndexPath: IndexPath) -> [IndexPath] {
+        let section = startIndexPath.section
+        let start = min(startIndexPath.item, endIndexPath.item)
+        let end = max(startIndexPath.item, endIndexPath.item)
+        return (start...end).map { IndexPath(item: $0, section: section) }
     }
 }
 
