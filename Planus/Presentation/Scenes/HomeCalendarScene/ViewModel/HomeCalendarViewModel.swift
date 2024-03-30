@@ -96,9 +96,9 @@ final class HomeCalendarViewModel: ViewModel {
     private var currentIndex = BehaviorSubject<Int>(value: 0)
     private let filteredGroupId = BehaviorSubject<Int?>(value: nil)
     
-    var groups = [Int: GroupName]()
-    var memberCategories = [Int: Category]()
-    var groupCategories = [Int: Category]()
+    private var groups = [Int: GroupName]()
+    private var memberCategories = [Int: Category]()
+    private var groupCategories = [Int: Category]()
     
     var profile: Profile?
     
@@ -106,17 +106,16 @@ final class HomeCalendarViewModel: ViewModel {
     private let refreshFinished = PublishSubject<Void>()
     private let showMonthPicker = PublishSubject<(first: Date, current: Date, last: Date)>()
     private let reloadSectionSet = PublishSubject<SectionChange>()
-    private let reloadData = PublishSubject<Void>()
     private let needMoveToIndex = BehaviorSubject<CalendarMovable?>(value: nil)
     private let showAlert = PublishSubject<Message>()
     private let fetchedProfileImage = BehaviorSubject<Data?>(value: nil)
     private let groupListFetched = BehaviorSubject<[GroupName]?>(value: nil)
-    var createPeriodTodoCompletionHandler: ((IndexPath) -> Void)?
+    private var createPeriodTodoCompletionHandler: ((IndexPath) -> Void)?
 
     struct Input {
         var viewDidLoaded: Observable<Void>
         var movedToIndex: Observable<CalendarMovable>
-        var itemSelectedAt: Observable<(Int, Int)>
+        var itemSelectedAt: Observable<IndexPath>
         var multipleItemSelectedInRange: Observable<(IndexPath, IndexPath)>
         var titleBtnTapped: Observable<Void>
         var monthSelected: Observable<Date>
@@ -144,8 +143,8 @@ final class HomeCalendarViewModel: ViewModel {
         self.useCases = useCases
         self.actions = injectable.actions
         
-        today = sharedCalendar.startOfDay(date: Date())
-        firstMonth = sharedCalendar.date(
+        self.today = sharedCalendar.startOfDay(date: Date())
+        self.firstMonth = sharedCalendar.date(
             byAdding: .month,
             value: self.endOfFirstIndex,
             to: sharedCalendar.startDayOfMonth(date: self.today)
@@ -178,8 +177,8 @@ final class HomeCalendarViewModel: ViewModel {
         input
             .itemSelectedAt
             .withUnretained(self)
-            .subscribe { vm, index in
-                let day = vm.mainDays[index.0][index.1]
+            .subscribe { vm, indexPath in
+                let day = vm.mainDays[indexPath.section][indexPath.item]
                 vm.actions.showDailyCalendarPage?(DailyCalendarViewModel.Args(
                     currentDate: day.date,
                     todoList: vm.todos[day.date] ?? [],
@@ -221,7 +220,8 @@ final class HomeCalendarViewModel: ViewModel {
             })
             .disposed(by: bag)
         
-        input.filterGroupWithId
+        input
+            .filterGroupWithId
             .withUnretained(self)
             .subscribe(onNext: { vm, groupId in
                 vm.filteredGroupId.onNext(groupId)
@@ -278,14 +278,13 @@ private extension HomeCalendarViewModel {
         guard let currentIndex = try? currentIndex.value() else { return }
         prevBufferRequestedIndex = currentIndex
         followingBufferRequestedIndex = currentIndex
-        
-        let fromIndex = (currentIndex - cachingAmount >= 0) ? currentIndex - cachingAmount : 0
-        let toIndex = currentIndex + cachingAmount + 1 < mainDays.count ? currentIndex + cachingAmount + 1 : mainDays.count-1
+        let firstIndex = max(currentIndex - cachingAmount, 0)
+        let lastIndex = min(currentIndex + cachingAmount + 1, mainDays.count-1)
                 
         todos.removeAll()
         dailyViewModels.removeAll()
         
-        fetchTodoList(from: fromIndex, to: toIndex)
+        fetchTodoList(from: firstIndex, to: lastIndex)
     }
 }
 
@@ -656,21 +655,17 @@ private extension HomeCalendarViewModel {
 // MARK: - 달을 묶어서 ViewModel 준비를 요청
 extension HomeCalendarViewModel {
     func drawDailyViewModels(with type: SectionChange) {
-        var sectionSet: IndexSet
         switch type {
-        case .apiFetched(let indexSet), .internalChange(let indexSet):
-            sectionSet = indexSet
-        }
-
-        sectionSet.forEach { section in
-            todoStackingBuffer = [[Bool]](repeating: [Bool](repeating: false, count: 30), count: 42)
-            (0..<mainDays[section].count).forEach { item in
-                guard item%7 == 0 else { return }
-                stackDailyViewModelsOfWeek(at: IndexPath(item: item, section: section))
+        case .apiFetched(let sectionSet), .internalChange(let sectionSet):
+            sectionSet.forEach { section in
+                todoStackingBuffer = [[Bool]](repeating: [Bool](repeating: false, count: 30), count: 42)
+                (0..<mainDays[section].count).forEach { item in
+                    guard item%7 == 0 else { return }
+                    stackDailyViewModelsOfWeek(at: IndexPath(item: item, section: section))
+                }
             }
+            reloadSectionSet.onNext(type)
         }
-        
-        reloadSectionSet.onNext(type)
     }
     
     func reDrawDailyViewModel() {
@@ -683,8 +678,6 @@ extension HomeCalendarViewModel {
 extension HomeCalendarViewModel {
     func stackDailyViewModelsOfWeek(at indexPath: IndexPath) {
         guard indexPath.item % 7 == 0 else { return }
-        
-        let date = mainDays[indexPath.section][indexPath.item].date
 
         Array(mainDays[indexPath.section].enumerated())[indexPath.item..<indexPath.item + 7].forEach { (item, day) in
             guard var todoList = todos[day.date] else { return }
@@ -701,7 +694,6 @@ extension HomeCalendarViewModel {
                 periodTodos: periodTodoList
             )
         }
-        
     }
     
     func getDayHeight(at indexPath: IndexPath) -> Int {
@@ -733,7 +725,7 @@ private extension HomeCalendarViewModel {
         let singleTodoInitialIndex = calculateSingleTodoInitialIndex(indexPath: indexPath, singleTodos: singleTodos)
         let filteredSingleTodos = mapSingleTodosToViewModels(indexOffset: singleTodoInitialIndex, singleTodos: singleTodos)
         let holiday = determineHoliday(indexPath: indexPath, totalTodoCount: singleTodoInitialIndex + filteredSingleTodos.count)
-        
+
         return DailyViewModel(periodTodo: filteredPeriodTodos, singleTodo: filteredSingleTodos, holiday: holiday)
     }
 
@@ -751,7 +743,7 @@ private extension HomeCalendarViewModel {
                     (groupCategories[todo.categoryId]?.color ?? .none) : (memberCategories[todo.categoryId]?.color ?? .none)
                     let viewModel = todo.toViewModel(color: viewModelColor)
                     filteredPeriodTodos.append((i, viewModel))
-                    return filteredPeriodTodos
+                    break
                 }
             }
         }

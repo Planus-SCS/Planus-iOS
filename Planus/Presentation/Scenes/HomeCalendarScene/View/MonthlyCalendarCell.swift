@@ -22,14 +22,15 @@ final class MonthlyCalendarCell: UICollectionViewCell {
     
     private var section: Int?
     
+    // MARK: - UI Event
     private var nowMultipleSelecting: PublishRelay<Bool>?
     private var multipleItemSelected: PublishRelay<(IndexPath, IndexPath)>?
-    private var itemSelected: PublishRelay<(Int, Int)>?
+    private var itemSelected: PublishRelay<IndexPath>?
     private var refreshRequired: PublishRelay<Void>?
     
     var bag: DisposeBag?
     
-    lazy var lpgr : UILongPressGestureRecognizer = {
+    private lazy var lpgr : UILongPressGestureRecognizer = {
         let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(self.longTap(_:)))
         lpgr.minimumPressDuration = 0.4
         lpgr.delegate = self
@@ -37,13 +38,13 @@ final class MonthlyCalendarCell: UICollectionViewCell {
         return lpgr
     }()
     
-    lazy var pgr: UIPanGestureRecognizer = {
+    private lazy var pgr: UIPanGestureRecognizer = {
         let pgr = UIPanGestureRecognizer(target: self, action: #selector(self.drag(_:)))
         pgr.delegate = self
         return pgr
     }()
     
-    lazy var collectionView: UICollectionView = {
+    private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.sectionInset = .init(top: 0, left: 0, bottom: 0, right: 0)
@@ -60,15 +61,11 @@ final class MonthlyCalendarCell: UICollectionViewCell {
         return cv
     }()
     
-    lazy var refreshControl: UIRefreshControl = {
+    private lazy var refreshControl: UIRefreshControl = {
         let rc = UIRefreshControl(frame: .zero)
         rc.addTarget(self, action: #selector(refresh), for: .valueChanged)
         return rc
     }()
-    
-    @objc func refresh(_ sender: UIRefreshControl) {
-        refreshRequired?.accept(())
-    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -97,6 +94,11 @@ extension MonthlyCalendarCell {
         }
         collectionView.allowsMultipleSelection = false
     }
+    
+    @objc 
+    func refresh(_ sender: UIRefreshControl) {
+        refreshRequired?.accept(())
+    }
 }
 
 // MARK: Fill
@@ -112,7 +114,7 @@ extension MonthlyCalendarCell {
     func fill(
         nowMultipleSelecting: PublishRelay<Bool>,
         multipleItemSelected: PublishRelay<(IndexPath, IndexPath)>,
-        itemSelected: PublishRelay<(Int, Int)>,
+        itemSelected: PublishRelay<IndexPath>,
         refreshRequired: PublishRelay<Void>,
         didFetchRefreshedData: PublishRelay<Void>
     ) {
@@ -135,7 +137,7 @@ extension MonthlyCalendarCell {
     }
 }
 
-// MARK: configure UI
+// MARK: configure
 extension MonthlyCalendarCell {
     func configureView() {
         self.addSubview(collectionView)
@@ -217,7 +219,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
 
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let section {
-            itemSelected?.accept((section, indexPath.item))
+            itemSelected?.accept(IndexPath(item: indexPath.item, section: section))
         }
         return false
     }
@@ -343,17 +345,9 @@ extension MonthlyCalendarCell {
             break
         }
     }
-    
-    private func selectedIndexPaths(from startIndexPath: IndexPath, to endIndexPath: IndexPath) -> [IndexPath] {
-        let section = startIndexPath.section
-        let start = min(startIndexPath.item, endIndexPath.item)
-        let end = max(startIndexPath.item, endIndexPath.item)
-        return (start...end).map { IndexPath(item: $0, section: section) }
-    }
 }
 
-// MARK: GestureRecognizerDelegate
-
+// MARK: - GestureRecognizerDelegate
 extension MonthlyCalendarCell: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true

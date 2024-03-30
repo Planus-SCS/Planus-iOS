@@ -10,6 +10,7 @@ import RxSwift
 import RxCocoa
 
 final class MemberProfileViewController: UIViewController {
+    
     private var bag = DisposeBag()
     private var viewModel: MemberProfileViewModel?
     
@@ -22,12 +23,11 @@ final class MemberProfileViewController: UIViewController {
 
     private var headerViewHeightConstraint: NSLayoutConstraint?
     
-    private var isSingleSelected = PublishRelay<IndexPath>()
-    private var indexChanged = PublishRelay<Int>()
-    private var isMonthChanged = PublishRelay<Date>()
-    private var initDrawFinished = PublishRelay<Void>()
+    private let itemSelected = PublishRelay<IndexPath>()
+    private let movedToIndex = PublishRelay<MemberProfileViewModel.CalendarMovable>()
+    private let isMonthChanged = PublishRelay<Date>()
     
-    private var didInitialCalendarGenerated = false
+    private var observeScroll = false
     
     private let headerView = MemberProfileHeaderView(frame: .zero)
     private let calendarHeaderView = MemberProfileCalendarHeaderView(frame: .zero)
@@ -96,18 +96,18 @@ final class MemberProfileViewController: UIViewController {
         guard let viewModel else { return }
         
         let input = MemberProfileViewModel.Input(
-            indexChanged: indexChanged.asObservable(),
             viewDidLoaded: Observable.just(()),
-            didSelectItem: isSingleSelected.asObservable(),
-            didTappedTitleButton: calendarHeaderView.yearMonthButton.rx.tap.asObservable(),
-            didSelectMonth: isMonthChanged.asObservable(),
-            backBtnTapped: backButton.rx.tap.asObservable(),
-            didInitDrawed: initDrawFinished.asObservable()
+            movedToIndex: movedToIndex.asObservable(),
+            itemSelectedAt: itemSelected.asObservable(),
+            titleBtnTapped: calendarHeaderView.yearMonthButton.rx.tap.asObservable(),
+            monthSelected: isMonthChanged.asObservable(),
+            backBtnTapped: backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
-        output.didLoadYYYYMM
+        output
+            .dateTitleUpdated
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe { vc, text in
@@ -115,42 +115,42 @@ final class MemberProfileViewController: UIViewController {
             }
             .disposed(by: bag)
         
-        output.initialDayListFetchedInCenterIndex
+        output
+            .needMoveTo
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, center in
-                vc.collectionView.performBatchUpdates({
-                    vc.collectionView.reloadData()
-                }, completion: { _ in
-                    vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
-                    vc.didInitialCalendarGenerated = true
-                    vc.initDrawFinished.accept(())
-                })
-            })
-            .disposed(by: bag)
-            
-        output.needReloadSectionInRange
-            .compactMap { $0 }
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, rangeSet in
-                vc.collectionView.reloadSections(rangeSet)
+            .subscribe(onNext: { vc, type in
+                switch type {
+                case .initialized(let index):
+                    vc.initializeToIndex(centerIndex: index)
+                case .jump(let index):
+                    vc.jumpToIndex(index: index)
+                default:
+                    return
+                }
             })
             .disposed(by: bag)
         
-        output.showMonthPicker
+        output
+            .showMonthPicker
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { [weak self] first, current, last in
-                self?.showMonthPicker(first: first, current: current, last: last)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, args in
+                vc.showMonthPicker(
+                    first: args.first,
+                    current: args.current,
+                    last: args.last
+                )
             })
             .disposed(by: bag)
         
-        output.monthChangedByPicker
+        output
+            .reloadSectionSet
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, index in
-                vc.collectionView.setContentOffset(CGPoint(x: Double(index)*vc.view.frame.width, y: 0), animated: false)
+            .subscribe(onNext: { vc, indexSet in
+                vc.collectionView.reloadSections(indexSet)
             })
             .disposed(by: bag)
         
@@ -169,6 +169,26 @@ final class MemberProfileViewController: UIViewController {
             memberName: output.memberName,
             memberDesc: output.memberDesc
         )
+    }
+    
+    func jumpToIndex(index: Int) {
+        observeScroll = false
+        collectionView.contentOffset = CGPoint(x: CGFloat(index) * view.frame.width, y: 0)
+        observeScroll = true
+        movedToIndex.accept(.jump(index))
+    }
+    
+    func initializeToIndex(centerIndex: Int) {
+        collectionView.performBatchUpdates({
+            collectionView.reloadData()
+        }, completion: { [weak self] _ in
+            guard let self else { return }
+            self.collectionView.contentOffset = CGPoint(x: CGFloat(centerIndex) * self.view.frame.width, y: 0)
+            self.collectionView.setAnimatedIsHidden(false, duration: 0.1)
+
+            self.observeScroll = true
+            self.movedToIndex.accept(.initialized(centerIndex))
+        })
     }
     
     func configureHeaderViewLayout(memberName: String?, memberDesc: String?) {
@@ -260,8 +280,9 @@ extension MemberProfileViewController: UICollectionViewDataSource, UICollectionV
             section: indexPath.section,
             viewModel: viewModel
         )
+        
         cell.fill(
-            isSingleSelected: isSingleSelected
+            itemSelected: itemSelected
         )
         
         cell.fill(
@@ -275,8 +296,8 @@ extension MemberProfileViewController: UICollectionViewDataSource, UICollectionV
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
-        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && didInitialCalendarGenerated else { return }
-        indexChanged.accept(Int(round(floatedIndex)))
+        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && observeScroll else { return }
+        movedToIndex.accept(.scroll(Int(round(floatedIndex))))
     }
     
     

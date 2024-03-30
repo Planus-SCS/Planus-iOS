@@ -16,10 +16,11 @@ final class HomeCalendarViewController: UIViewController {
     private var homeCalendarView: HomeCalendarView?
     private var viewModel: HomeCalendarViewModel?
     
+    // MARK: - UI Event
     private let isMonthChanged = PublishRelay<Date>()
     private let nowMultipleSelecting = PublishRelay<Bool>()
     private let multipleItemSelected = PublishRelay<(IndexPath, IndexPath)>()
-    private let itemSelected = PublishRelay<(Int, Int)>()
+    private let itemSelected = PublishRelay<IndexPath>()
     private let isGroupSelectedWithId = PublishRelay<Int?>()
     private let refreshRequired = PublishRelay<Void>()
     private let didFetchRefreshedData = PublishRelay<Void>()
@@ -51,6 +52,7 @@ final class HomeCalendarViewController: UIViewController {
     }
 }
 
+// MARK: - Configure
 private extension HomeCalendarViewController {
     func configureVC() {
         guard let homeCalendarView else { return }
@@ -201,9 +203,11 @@ private extension HomeCalendarViewController {
     }
 }
 
+// MARK: Calendar Move Actions
 private extension HomeCalendarViewController {
     func jumpToIndex(index: Int) {
         guard let homeCalendarView else { return }
+        
         observeScroll = false
         homeCalendarView.collectionView.contentOffset = CGPoint(x: CGFloat(index) * view.frame.width, y: 0)
         observeScroll = true
@@ -212,6 +216,7 @@ private extension HomeCalendarViewController {
     
     func initializeToIndex(centerIndex: Int) {
         guard let homeCalendarView else { return }
+        
         homeCalendarView.collectionView.performBatchUpdates({
             homeCalendarView.collectionView.reloadData()
         }, completion: { [weak self] _ in
@@ -249,7 +254,7 @@ private extension HomeCalendarViewController {
     }
 }
 
-// MARK: - Actions
+// MARK: - show VC
 private extension HomeCalendarViewController {
     func showMonthPicker(firstYear: Date, current: Date, lastYear: Date) {
         guard let homeCalendarView else { return }
@@ -270,8 +275,7 @@ private extension HomeCalendarViewController {
     }
 }
 
-// MARK: CollectionView DataSource, Delegate
-
+// MARK: - CollectionView DataSource, Delegate
 extension HomeCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         viewModel?.mainDays.count ?? Int()
