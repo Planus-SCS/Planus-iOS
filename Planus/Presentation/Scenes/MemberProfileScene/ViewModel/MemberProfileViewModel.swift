@@ -328,6 +328,7 @@ extension MemberProfileViewModel {
     }
 }
 
+// MARK: - DailyViewModel 그리기
 extension MemberProfileViewModel {
     func drawDailyViewModels(indexSet: IndexSet) {
         indexSet.forEach { section in

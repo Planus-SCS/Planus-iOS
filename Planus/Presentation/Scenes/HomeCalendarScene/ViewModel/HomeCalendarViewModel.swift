@@ -537,7 +537,7 @@ private extension HomeCalendarViewModel {
     }
 }
 
-// MARK: Fetch
+// MARK: Fetch Data
 private extension HomeCalendarViewModel {
     func fetchTodoList(from startIndex: Int, to endIndex: Int) {
         guard let currentDate = try? self.currentMonth.value(),
@@ -652,8 +652,8 @@ private extension HomeCalendarViewModel {
     }
 }
 
-// MARK: - 달을 묶어서 ViewModel 준비를 요청
-extension HomeCalendarViewModel {
+// MARK: - 섹션별로 dailyViewModel 그리기
+private extension HomeCalendarViewModel {
     func drawDailyViewModels(with type: SectionChange) {
         switch type {
         case .apiFetched(let sectionSet), .internalChange(let sectionSet):
@@ -674,11 +674,11 @@ extension HomeCalendarViewModel {
     }
 }
 
-// MARK: VC쪽 UI용 투두 ViewModel 준비를 위해 요청
-extension HomeCalendarViewModel {
+// MARK: 주 단위로 뷰모델 셋팅
+private extension HomeCalendarViewModel {
     func stackDailyViewModelsOfWeek(at indexPath: IndexPath) {
         guard indexPath.item % 7 == 0 else { return }
-
+        
         Array(mainDays[indexPath.section].enumerated())[indexPath.item..<indexPath.item + 7].forEach { (item, day) in
             guard var todoList = todos[day.date] else { return }
             if let filterGroupId = try? filteredGroupId.value() {
@@ -695,7 +695,10 @@ extension HomeCalendarViewModel {
             )
         }
     }
-    
+}
+
+// MARK: - 주 단위로 셀의 높이를 맞추기 위한 메서드
+extension HomeCalendarViewModel {
     func getDayHeight(at indexPath: IndexPath) -> Int {
         let date = mainDays[indexPath.section][indexPath.item].date
         guard let viewModel = dailyViewModels[date] else { return 0 }
@@ -725,16 +728,16 @@ private extension HomeCalendarViewModel {
         let singleTodoInitialIndex = calculateSingleTodoInitialIndex(indexPath: indexPath, singleTodos: singleTodos)
         let filteredSingleTodos = mapSingleTodosToViewModels(indexOffset: singleTodoInitialIndex, singleTodos: singleTodos)
         let holiday = determineHoliday(indexPath: indexPath, totalTodoCount: singleTodoInitialIndex + filteredSingleTodos.count)
-
+        
         return DailyViewModel(periodTodo: filteredPeriodTodos, singleTodo: filteredSingleTodos, holiday: holiday)
     }
-
+    
     private func mapPeriodTodosToViewModels(indexPath: IndexPath, periodTodos: [Todo]) -> [(Int, TodoSummaryViewModel)] {
         var filteredPeriodTodos: [(Int, TodoSummaryViewModel)] = []
         
         for todo in periodTodos {
             for i in 0..<todoStackingBuffer[indexPath.item].count {
-                if todoStackingBuffer[indexPath.item][i] == false, 
+                if todoStackingBuffer[indexPath.item][i] == false,
                     let period = sharedCalendar.dateComponents([.day], from: todo.startDate, to: todo.endDate).day {
                     for j in 0...period {
                         todoStackingBuffer[indexPath.item+j][i] = true
@@ -749,12 +752,12 @@ private extension HomeCalendarViewModel {
         }
         return filteredPeriodTodos
     }
-
+    
     private func calculateSingleTodoInitialIndex(indexPath: IndexPath, singleTodos: [Todo]) -> Int {
         let lastFilledIndex = todoStackingBuffer[indexPath.item].lastIndex { $0 == true } ?? -1
         return lastFilledIndex + 1
     }
-
+    
     private func mapSingleTodosToViewModels(indexOffset: Int, singleTodos: [Todo]) -> [(Int, TodoSummaryViewModel)] {
         return singleTodos.enumerated().map { (index, todo) in
             let viewModelColor = todo.isGroupTodo ? (groupCategories[todo.categoryId]?.color ?? .none) : (memberCategories[todo.categoryId]?.color ?? .none)
@@ -762,7 +765,7 @@ private extension HomeCalendarViewModel {
             return (index + indexOffset, viewModel)
         }
     }
-
+    
     private func determineHoliday(indexPath: IndexPath, totalTodoCount: Int) -> (Int, String)? {
         if let holidayTitle = HolidayPool.shared.holidays[mainDays[indexPath.section][indexPath.item].date] {
             let holidayIndex = totalTodoCount
@@ -770,6 +773,10 @@ private extension HomeCalendarViewModel {
         }
         return nil
     }
+}
+
+// MARK: - filter Todos
+private extension HomeCalendarViewModel {
     
     func prepareSingleTodosInDay(at indexPath: IndexPath, todos: [Todo]) -> [Todo] {
         return todos.filter { $0.startDate == $0.endDate }
