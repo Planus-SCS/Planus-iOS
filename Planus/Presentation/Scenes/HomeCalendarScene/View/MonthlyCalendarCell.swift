@@ -32,7 +32,7 @@ final class MonthlyCalendarCell: UICollectionViewCell {
     
     private lazy var lpgr : UILongPressGestureRecognizer = {
         let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(self.longTap(_:)))
-        lpgr.minimumPressDuration = 0.4
+        lpgr.minimumPressDuration = 0.3
         lpgr.delegate = self
         lpgr.delaysTouchesBegan = false
         return lpgr
@@ -300,7 +300,6 @@ extension MonthlyCalendarCell {
 
             self.lastPressedIndexPath = indexPath
             Vibration.selection.vibrate()
-            
         default:
             break
         }
