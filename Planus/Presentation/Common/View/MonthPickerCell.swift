@@ -1,5 +1,5 @@
 //
-//  MonthPickerViewCell.swift
+//  MonthPickerCell.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/03/27.
@@ -7,11 +7,11 @@
 
 import UIKit
 
-class MonthPickerCell: SpringableCollectionViewCell {
+final class MonthPickerCell: SpringableCollectionViewCell {
     
     static let reuseIdentifier = "month-picker-cell"
     
-    var monthLabel: UILabel = {
+    private let monthLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         label.textColor = .black
@@ -38,14 +38,14 @@ class MonthPickerCell: SpringableCollectionViewCell {
         self.layer.borderWidth = 0
     }
     
-    func configureView() {
+    private func configureView() {
         self.layer.cornerRadius = 17
         self.layer.cornerCurve = .continuous
         self.layer.borderColor = UIColor(hex: 0x6495F4).cgColor
         self.addSubview(monthLabel)
     }
     
-    func configureLayout() {
+    private func configureLayout() {
         monthLabel.snp.makeConstraints {
             $0.center.equalToSuperview()
         }

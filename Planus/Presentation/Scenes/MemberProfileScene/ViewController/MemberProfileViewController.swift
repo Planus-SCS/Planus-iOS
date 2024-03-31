@@ -10,24 +10,24 @@ import RxSwift
 import RxCocoa
 
 final class MemberProfileViewController: UIViewController {
+    
     private var bag = DisposeBag()
     private var viewModel: MemberProfileViewModel?
     
+    // MARK: - For Header Stretchable Layout
     private var headerViewInitialHeight: CGFloat?
-    private let headerViewFinalHeight: CGFloat? = 98
-    
+    private var headerViewFinalHeight: CGFloat? = 98
     private var dragInitialY: CGFloat = 0
     private var dragPreviousY: CGFloat = 0
     private var dragDirection: DragDirection = .Up
-
     private var headerViewHeightConstraint: NSLayoutConstraint?
     
-    private var isSingleSelected = PublishRelay<IndexPath>()
-    private var indexChanged = PublishRelay<Int>()
-    private var isMonthChanged = PublishRelay<Date>()
-    private var initDrawFinished = PublishRelay<Void>()
+    // MARK: - UI Event
+    private let itemSelected = PublishRelay<IndexPath>()
+    private let movedToIndex = PublishRelay<MemberProfileViewModel.CalendarMovable>()
+    private let isMonthChanged = PublishRelay<Date>()
     
-    private var didInitialCalendarGenerated = false
+    private var observeScroll = false
     
     private let headerView = MemberProfileHeaderView(frame: .zero)
     private let calendarHeaderView = MemberProfileCalendarHeaderView(frame: .zero)
@@ -91,23 +91,26 @@ final class MemberProfileViewController: UIViewController {
             viewModel?.actions.finishScene?()
         }
     }
-    
+}
+
+// MARK: - bind ViewModel
+private extension MemberProfileViewController {
     func bind() {
         guard let viewModel else { return }
         
         let input = MemberProfileViewModel.Input(
-            indexChanged: indexChanged.asObservable(),
             viewDidLoaded: Observable.just(()),
-            didSelectItem: isSingleSelected.asObservable(),
-            didTappedTitleButton: calendarHeaderView.yearMonthButton.rx.tap.asObservable(),
-            didSelectMonth: isMonthChanged.asObservable(),
-            backBtnTapped: backButton.rx.tap.asObservable(),
-            didInitDrawed: initDrawFinished.asObservable()
+            movedToIndex: movedToIndex.asObservable(),
+            itemSelectedAt: itemSelected.asObservable(),
+            titleBtnTapped: calendarHeaderView.yearMonthButton.rx.tap.asObservable(),
+            monthSelected: isMonthChanged.asObservable(),
+            backBtnTapped: backButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
         
-        output.didLoadYYYYMM
+        output
+            .dateTitleUpdated
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe { vc, text in
@@ -115,42 +118,42 @@ final class MemberProfileViewController: UIViewController {
             }
             .disposed(by: bag)
         
-        output.initialDayListFetchedInCenterIndex
+        output
+            .needMoveTo
             .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, center in
-                vc.collectionView.performBatchUpdates({
-                    vc.collectionView.reloadData()
-                }, completion: { _ in
-                    vc.collectionView.contentOffset = CGPoint(x: CGFloat(center) * vc.view.frame.width, y: 0)
-                    vc.didInitialCalendarGenerated = true
-                    vc.initDrawFinished.accept(())
-                })
-            })
-            .disposed(by: bag)
-            
-        output.needReloadSectionInRange
-            .compactMap { $0 }
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, rangeSet in
-                vc.collectionView.reloadSections(rangeSet)
+            .subscribe(onNext: { vc, type in
+                switch type {
+                case .initialized(let index):
+                    vc.initializeToIndex(centerIndex: index)
+                case .jump(let index):
+                    vc.jumpToIndex(index: index)
+                default:
+                    return
+                }
             })
             .disposed(by: bag)
         
-        output.showMonthPicker
+        output
+            .showMonthPicker
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { [weak self] first, current, last in
-                self?.showMonthPicker(first: first, current: current, last: last)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, args in
+                vc.showMonthPicker(
+                    first: args.first,
+                    current: args.current,
+                    last: args.last
+                )
             })
             .disposed(by: bag)
         
-        output.monthChangedByPicker
+        output
+            .reloadSectionSet
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, index in
-                vc.collectionView.setContentOffset(CGPoint(x: Double(index)*vc.view.frame.width, y: 0), animated: false)
+            .subscribe(onNext: { vc, indexSet in
+                vc.collectionView.reloadSections(indexSet)
             })
             .disposed(by: bag)
         
@@ -164,32 +167,40 @@ final class MemberProfileViewController: UIViewController {
         
         headerView.nameLabel.text = output.memberName
         headerView.introduceLabel.text = output.memberDesc
-                
+        
         configureHeaderViewLayout(
             memberName: output.memberName,
             memberDesc: output.memberDesc
         )
     }
-    
-    func configureHeaderViewLayout(memberName: String?, memberDesc: String?) {
-        let mockView = MemberProfileHeaderView(
-            mockName: memberName,
-            mockDesc: memberDesc
-        )
-        let estimatedSize = mockView
-            .systemLayoutSizeFitting(CGSize(width: self.view.frame.width,
-                                            height: 111))
+}
 
-        self.headerViewInitialHeight = estimatedSize.height
-        
-        headerView.snp.makeConstraints {
-            $0.height.equalTo(estimatedSize.height)
-        }
-        
-        guard let headerViewHeightConstraint = headerView.constraints.first(where: { $0.firstAttribute == .height }) else { return }
-        self.headerViewHeightConstraint = headerViewHeightConstraint
+
+// MARK: - Move Actions
+private extension MemberProfileViewController {
+    func jumpToIndex(index: Int) {
+        observeScroll = false
+        collectionView.contentOffset = CGPoint(x: CGFloat(index) * view.frame.width, y: 0)
+        observeScroll = true
+        movedToIndex.accept(.jump(index))
     }
     
+    func initializeToIndex(centerIndex: Int) {
+        collectionView.performBatchUpdates({
+            collectionView.reloadData()
+        }, completion: { [weak self] _ in
+            guard let self else { return }
+            self.collectionView.contentOffset = CGPoint(x: CGFloat(centerIndex) * self.view.frame.width, y: 0)
+            self.collectionView.setAnimatedIsHidden(false, duration: 0.1)
+            
+            self.observeScroll = true
+            self.movedToIndex.accept(.initialized(centerIndex))
+        })
+    }
+}
+
+// MARK: - Configure
+private extension MemberProfileViewController {
     func configureView() {
         self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
 
@@ -221,8 +232,22 @@ final class MemberProfileViewController: UIViewController {
         headerView.isUserInteractionEnabled = true
         headerView.addGestureRecognizer(topViewPanGesture)
     }
+    
+    func configureHeaderViewLayout(memberName: String?, memberDesc: String?) {
+        let mockView = MemberProfileHeaderView(
+            mockName: memberName,
+            mockDesc: memberDesc
+        )
+        let estimatedSize = mockView.systemLayoutSizeFitting(CGSize(width: self.view.frame.width,height: 111))
+        let heightConstraint = headerView.heightAnchor.constraint(equalToConstant: estimatedSize.height)
+        heightConstraint.isActive = true
+
+        self.headerViewHeightConstraint = heightConstraint as NSLayoutConstraint
+        self.headerViewInitialHeight = estimatedSize.height
+    }
 }
 
+// MARK: - Show VC
 extension MemberProfileViewController {
     func showMonthPicker(first: Date, current: Date, last: Date) {
         let vc = MonthPickerViewController(firstYear: first, lastYear: last, currentDate: current) { [weak self] date in
@@ -242,8 +267,7 @@ extension MemberProfileViewController {
     }
 }
 
-
-
+// MARK: - CollectionView dataSource
 extension MemberProfileViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         viewModel?.mainDays.count ?? Int()
@@ -260,8 +284,9 @@ extension MemberProfileViewController: UICollectionViewDataSource, UICollectionV
             section: indexPath.section,
             viewModel: viewModel
         )
+        
         cell.fill(
-            isSingleSelected: isSingleSelected
+            itemSelected: itemSelected
         )
         
         cell.fill(
@@ -275,15 +300,14 @@ extension MemberProfileViewController: UICollectionViewDataSource, UICollectionV
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let floatedIndex = scrollView.contentOffset.x/scrollView.bounds.width
-        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && didInitialCalendarGenerated else { return }
-        indexChanged.accept(Int(round(floatedIndex)))
+        guard !(floatedIndex.isNaN || floatedIndex.isInfinite) && observeScroll else { return }
+        movedToIndex.accept(.scroll(Int(round(floatedIndex))))
     }
-    
-    
+
 }
 
-extension MemberProfileViewController {
-
+// MARK: - collectionView layout
+private extension MemberProfileViewController {
     private func createLayout() -> UICollectionViewLayout {
         
         let itemSize = NSCollectionLayoutSize(
@@ -312,10 +336,10 @@ extension MemberProfileViewController {
     
 }
 
+// MARK: HeaderView를 만져도 컬렉션뷰와 같이 스크롤 인식
 extension MemberProfileViewController {
     @objc 
     func topViewMoved(_ gesture: UIPanGestureRecognizer) {
-        
         var dragYDiff : CGFloat
 
         switch gesture.state {
@@ -342,6 +366,7 @@ extension MemberProfileViewController {
     }
 }
 
+// MARK: - HeaderView의 Stretch를 위한 NestedScrollableCellDelegate
 extension MemberProfileViewController: NestedScrollableCellDelegate {
     
     var currentHeaderHeight: CGFloat? {
@@ -373,20 +398,13 @@ extension MemberProfileViewController: NestedScrollableCellDelegate {
         guard let headerViewHeightConstraint else { return }
 
         let topViewCurrentHeight = headerView.frame.height
-
         let distanceToBeMoved = abs(topViewCurrentHeight - (headerViewInitialHeight ?? 0))
-
         var time = distanceToBeMoved / 500
-
-        if time < 0.2 {
-
-            time = 0.2
-        }
+        time = max(time, 0.2)
 
         headerViewHeightConstraint.constant = headerViewInitialHeight ?? 0
 
         UIView.animate(withDuration: TimeInterval(time), animations: {
-
             self.view.layoutIfNeeded()
         })
     }
@@ -395,20 +413,13 @@ extension MemberProfileViewController: NestedScrollableCellDelegate {
         guard let headerViewHeightConstraint else { return }
 
         let topViewCurrentHeight = headerView.frame.height
-
         let distanceToBeMoved = abs(topViewCurrentHeight - (headerViewFinalHeight ?? 0))
-
         var time = distanceToBeMoved / 500
-
-        if time < 0.2 {
-
-            time = 0.2
-        }
+        time = max(time, 0.2)
 
         headerViewHeightConstraint.constant = headerViewFinalHeight ?? 0
 
         UIView.animate(withDuration: TimeInterval(time), animations: {
-
             self.view.layoutIfNeeded()
         })
     }

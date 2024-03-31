@@ -165,28 +165,28 @@ extension NotificationViewController: UICollectionViewDataSource, UICollectionVi
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupJoinNotificationCell.reuseIdentifier, for: indexPath) as? GroupJoinNotificationCell else { return UICollectionViewCell() }
+        guard let viewModel,
+              let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GroupJoinNotificationCell.reuseIdentifier, for: indexPath) as? GroupJoinNotificationCell else { return UICollectionViewCell() }
         
         if nowLoading {
             cell.startSkeletonAnimation()
             return cell
         }
         
-        guard let item = viewModel?.joinAppliedList?[indexPath.item] else { return UICollectionViewCell() }
+        guard let item = viewModel.joinAppliedList?[indexPath.item] else { return UICollectionViewCell() }
         cell.stopSkeletonAnimation()
         
         let bag = DisposeBag()
-        cell.fill(bag: bag, indexPath: indexPath, isAllowTapped: didAllowBtnTappedAt, isDenyTapped: didDenyBtnTappedAt)
-        cell.fill(groupName: item.groupName, memberName: item.memberName, memberDesc: item.memberDescription)
+        cell.fill(indexPath: indexPath, isAllowTapped: didAllowBtnTappedAt, isDenyTapped: didDenyBtnTappedAt)
+        cell.fill(
+            bag: bag,
+            groupName: item.groupName,
+            memberName: item.memberName,
+            memberDesc: item.memberDescription,
+            memberImgFetcher: viewModel.fetchImage(key: item.memberProfileImageUrl ?? String())
+        )
+
         
-        if let url = item.memberProfileImageUrl {
-            viewModel?.fetchImage(key: url)
-                .observe(on: MainScheduler.asyncInstance)
-                .subscribe(onSuccess: { data in
-                    cell.fill(memberImage: UIImage(data: data))
-                })
-                .disposed(by: bag)
-        }
         
         return cell
     }

@@ -68,7 +68,7 @@ class MyGroupDetailPresentationAssembly: Assembly {
     func assembleMyGroupMemberEdit(container: Container) {
         container.register(MyGroupMemberEditViewModel.self) { (r, injectable: MyGroupMemberEditViewModel.Injectable) in
             return MyGroupMemberEditViewModel(
-                useCase: .init(
+                useCases: .init(
                     executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     fetchMyGroupMemberListUseCase: r.resolve(FetchMyGroupMemberListUseCase.self)!,
                     fetchImageUseCase: r.resolve(FetchImageUseCase.self)!,

@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class GroupCreateLoadViewModel: ViewModel {
+final class GroupCreateLoadViewModel: ViewModel {
     
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase

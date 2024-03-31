@@ -20,15 +20,13 @@ class DefaultRevokeAppleTokenUseCase: RevokeAppleTokenUseCase {
         socialAuthRepository
             .fetchAppleClientSecret(token: token.accessToken)
             .map { $0.data }
-            .flatMap { [weak self] secret -> Single<(AppleClientSecret, Token)> in
-                guard let self else { throw DefaultError.noCapturedSelf }
+            .flatMap { secret -> Single<(AppleClientSecret, Token)> in
                 return self.socialAuthRepository
                     .fetchAppleToken(clientID: self.clientId, clientSecret: secret.clientSecret, authorizationCode: authorizationCode)
                     .map { (secret, Token(accessToken: $0.access_token, refreshToken: $0.refresh_token)) }
             }
-            .flatMap { [weak self] args -> Single<Void> in
+            .flatMap { args -> Single<Void> in
                 let (clientSecret, token) = args
-                guard let self else { throw DefaultError.noCapturedSelf }
                 return self.socialAuthRepository
                     .revokeAppleToken(clientID: self.clientId, clientSecret: clientSecret.clientSecret, refreshToken: token.refreshToken)
             }

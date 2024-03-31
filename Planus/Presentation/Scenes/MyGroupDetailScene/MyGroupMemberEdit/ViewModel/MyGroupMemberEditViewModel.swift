@@ -57,10 +57,10 @@ final class MyGroupMemberEditViewModel: ViewModel {
     var showMessage = PublishSubject<Message>()
     
     init(
-        useCase: UseCases,
+        useCases: UseCases,
         injectable: Injectable
     ) {
-        self.useCases = useCase
+        self.useCases = useCases
         self.actions = injectable.actions
         
         self.groupId = injectable.args.groupId

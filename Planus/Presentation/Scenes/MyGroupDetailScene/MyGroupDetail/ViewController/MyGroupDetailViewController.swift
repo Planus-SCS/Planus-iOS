@@ -68,8 +68,8 @@ final class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDe
         cv.register(GroupIntroduceNoticeCell.self,
                     forCellWithReuseIdentifier: GroupIntroduceNoticeCell.reuseIdentifier)
         
-        cv.register(JoinedGroupMemberCell.self,
-                    forCellWithReuseIdentifier: JoinedGroupMemberCell.reuseIdentifier)
+        cv.register(MyGroupMemberCell.self,
+                    forCellWithReuseIdentifier: MyGroupMemberCell.reuseIdentifier)
         
         cv.register(GroupIntroduceDefaultHeaderView.self,
                     forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
@@ -80,7 +80,7 @@ final class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDe
                     withReuseIdentifier: MyGroupInfoHeaderView.reuseIdentifier)
         
         cv.register(CalendarDailyCell.self, forCellWithReuseIdentifier: CalendarDailyCell.identifier)
-        cv.register(JoinedGroupDetailCalendarHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier)
+        cv.register(MyGroupDetailCalendarHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: MyGroupDetailCalendarHeaderView.reuseIdentifier)
         
         
         cv.dataSource = self
@@ -155,7 +155,7 @@ extension MyGroupDetailViewController {
                 guard let view = vc.collectionView.supplementaryView(
                     forElementKind: UICollectionView.elementKindSectionHeader,
                     at: IndexPath(item: 0, section: MyGroupDetailPageAttribute.calendar.sectionIndex)
-                ) as? JoinedGroupDetailCalendarHeaderView else { return }
+                ) as? MyGroupDetailCalendarHeaderView else { return }
                 vc.showMonthPickerVC(sourceView: view.yearMonthButton)
             })
             .disposed(by: bag)
@@ -239,7 +239,7 @@ extension MyGroupDetailViewController {
                 }, completion: {
                     if vc.modeChanged {
                         vc.modeChanged = false
-                        vc.scrollToHeader(section: 1)
+                        vc.scrollToHeader(section: MyGroupDetailPageAttribute.notice.sectionIndex)
                     }
                 })
             })
@@ -594,7 +594,7 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
             cell.fill(notice: item)
             return cell
         case .member:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: JoinedGroupMemberCell.reuseIdentifier, for: indexPath) as? JoinedGroupMemberCell else { return UICollectionViewCell() }
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MyGroupMemberCell.reuseIdentifier, for: indexPath) as? MyGroupMemberCell else { return UICollectionViewCell() }
             if nowLoading {
                 cell.startSkeletonAnimation()
                 return cell
@@ -698,7 +698,7 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
             view.fill(title: mode.attributes[indexPath.section].headerTitle, description: mode.attributes[indexPath.section].headerMessage)
             return view
         case .calendar:
-            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: JoinedGroupDetailCalendarHeaderView.reuseIdentifier, for: indexPath) as? JoinedGroupDetailCalendarHeaderView else { return UICollectionReusableView() }
+            guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: MyGroupDetailCalendarHeaderView.reuseIdentifier, for: indexPath) as? MyGroupDetailCalendarHeaderView else { return UICollectionReusableView() }
             
             if nowLoading {
                 view.startSkeletonAnimation()
@@ -706,7 +706,7 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
             }
             
             view.stopSkeletonAnimation()
-            view.fill(title: viewModel.currentDateText ?? String(), btnTapped: didTappedYearMonthBtn)
+            view.fill(title: viewModel.dateTitle ?? String(), btnTapped: didTappedYearMonthBtn)
             
             return view
         }
