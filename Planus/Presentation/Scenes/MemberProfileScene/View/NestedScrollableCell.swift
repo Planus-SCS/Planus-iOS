@@ -73,3 +73,7 @@ protocol NestedScrollableCellDelegate: AnyObject {
     func innerTableViewDidScroll(withDistance scrollDistance: CGFloat)
     func innerTableViewScrollEnded(withScrollDirection scrollDirection: DragDirection)
 }
+
+enum DragDirection {
+    case Up, Down
+}
