@@ -1,5 +1,5 @@
 //
-//  JoinedGroupCalendarHeader.swift
+//  MyGroupDetailCalendarHeaderView.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/04/04.
@@ -9,8 +9,8 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class JoinedGroupDetailCalendarHeaderView: UICollectionReusableView {
-    static let reuseIdentifier = "joined-group-detail-calendar-header-view"
+class MyGroupDetailCalendarHeaderView: UICollectionReusableView {
+    static let reuseIdentifier = "my-group-detail-calendar-header-view"
     
     var bag: DisposeBag?
     

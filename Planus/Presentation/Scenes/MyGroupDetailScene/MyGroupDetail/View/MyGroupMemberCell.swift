@@ -1,5 +1,5 @@
 //
-//  JoinedGroupMemberCell.swift
+//  MyGroupMemberCell.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/05/12.
@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-class JoinedGroupMemberCell: GroupIntroduceMemberCell {
+class MyGroupMemberCell: GroupIntroduceMemberCell {
         
     override init(frame: CGRect) {
         super.init(frame: frame)
