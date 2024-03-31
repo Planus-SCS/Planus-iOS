@@ -239,7 +239,7 @@ extension MyGroupDetailViewController {
                 }, completion: {
                     if vc.modeChanged {
                         vc.modeChanged = false
-                        vc.scrollToHeader(section: 1)
+                        vc.scrollToHeader(section: MyGroupDetailPageAttribute.notice.sectionIndex)
                     }
                 })
             })
@@ -706,7 +706,7 @@ extension MyGroupDetailViewController: UICollectionViewDataSource, UICollectionV
             }
             
             view.stopSkeletonAnimation()
-            view.fill(title: viewModel.currentDateText ?? String(), btnTapped: didTappedYearMonthBtn)
+            view.fill(title: viewModel.dateTitle ?? String(), btnTapped: didTappedYearMonthBtn)
             
             return view
         }

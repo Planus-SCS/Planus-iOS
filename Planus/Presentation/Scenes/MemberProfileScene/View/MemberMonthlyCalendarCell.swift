@@ -16,7 +16,7 @@ final class MemberMonthlyCalendarCell: NestedScrollableCell {
     private var section: Int?
     private var viewModel: MemberProfileViewModel?
     
-    private var isSingleSelected: PublishRelay<IndexPath>?
+    private var itemSelected: PublishRelay<IndexPath>?
     
     private var bag: DisposeBag?
     
@@ -68,9 +68,9 @@ extension MemberMonthlyCalendarCell {
     }
     
     func fill(
-        isSingleSelected: PublishRelay<IndexPath>
+        itemSelected: PublishRelay<IndexPath>
     ) {
-        self.isSingleSelected = isSingleSelected
+        self.itemSelected = itemSelected
     }
 }
 
@@ -142,35 +142,8 @@ extension MemberMonthlyCalendarCell: UICollectionViewDataSource, UICollectionVie
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if let section {
-            isSingleSelected?.accept(IndexPath(item: indexPath.item, section: section))
+            itemSelected?.accept(IndexPath(item: indexPath.item, section: section))
         }
         return false
-    }
-}
-
-extension MemberMonthlyCalendarCell {
-    private func createLayout() -> UICollectionViewLayout {
-        
-        let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(Double(1)/Double(7)),
-            heightDimension: .estimated(110)
-        )
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(110)
-        )
-        
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
-        let section = NSCollectionLayoutSection(group: group)
-        
-        let configuration = UICollectionViewCompositionalLayoutConfiguration()
-        configuration.scrollDirection = .vertical
-        
-        let layout = UICollectionViewCompositionalLayout(section: section, configuration: configuration)
-        
-        return layout
     }
 }

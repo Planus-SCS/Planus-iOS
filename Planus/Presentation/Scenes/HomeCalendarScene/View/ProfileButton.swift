@@ -7,8 +7,8 @@
 
 import UIKit
 
-class ProfileButton: UIButton {
-    let profileImageView: UIImageView = {
+final class ProfileButton: UIButton {
+    private let profileImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.clipsToBounds = true
         imageView.layer.cornerCurve = .continuous
@@ -32,11 +32,11 @@ class ProfileButton: UIButton {
         profileImageView.layer.cornerRadius = profileImageView.bounds.height/2
     }
     
-    func configureView() {
+    private func configureView() {
         self.addSubview(profileImageView)
     }
     
-    func configureLayout() {
+    private func configureLayout() {
         profileImageView.snp.makeConstraints {
             $0.height.width.equalTo(30)
             $0.center.equalToSuperview()

@@ -82,6 +82,8 @@ class CalendarDailyCell: SpringableCollectionViewCell {
             stackView.removeArrangedSubview($0)
             $0.removeFromSuperview()
         }
+        
+        numberLabel.font = UIFont(name: "Pretendard-Regular", size: 10)
     }
     
     override func layoutSubviews() {

@@ -16,6 +16,10 @@ protocol ViewModel {
     var useCases: UseCases { get }
     var actions: Actions { get }
     
+    init(useCases: UseCases, injectable: Injectable)
+    
     associatedtype Input
     associatedtype Output
+    
+    func transform(input: Input) -> Output
 }

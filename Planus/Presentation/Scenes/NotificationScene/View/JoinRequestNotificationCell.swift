@@ -161,24 +161,30 @@ class GroupJoinNotificationCell: UICollectionViewCell {
     }
     
     func fill(
-        bag: DisposeBag,
         indexPath: IndexPath,
         isAllowTapped: PublishRelay<Int?>,
         isDenyTapped: PublishRelay<Int?>
     ) {
-        self.bag = bag
         self.indexPath = indexPath
         self.isAllowTapped = isAllowTapped
         self.isDenyTapped = isDenyTapped
     }
     
-    func fill(groupName: String, memberName: String, memberDesc: String?) {
-        groupTitleLabel.text = groupName
-        nameLabel.text = memberName
-        descLabel.text = memberDesc
+    func fill(bag: DisposeBag, groupName: String, memberName: String, memberDesc: String?, memberImgFetcher: Single<Data>) {
+        self.bag = bag
+        self.groupTitleLabel.text = groupName
+        self.nameLabel.text = memberName
+        self.descLabel.text = memberDesc
+        
+        memberImgFetcher
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] data in
+                self?.profileImageView.image = UIImage(data: data)
+            },
+            onFailure: { [weak self] _ in
+                self?.profileImageView.image = UIImage(named: "JoinNotificationProfile")
+            })
+            .disposed(by: bag)
     }
-    
-    func fill(memberImage: UIImage?) {
-        profileImageView.image = memberImage
-    }
+
 }
