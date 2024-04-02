@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultDenyGroupJoinUseCase: DenyGroupJoinUseCase {
+final class DefaultDenyGroupJoinUseCase: DenyGroupJoinUseCase {
     let myGroupRepository: MyGroupRepository
     
     init(myGroupRepository: MyGroupRepository) {

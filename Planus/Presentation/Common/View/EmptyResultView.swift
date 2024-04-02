@@ -19,7 +19,7 @@ class EmptyResultView: UIView {
     let label: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 16)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.sizeToFit()
         label.textAlignment = .center
         return label

@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultUpdateNoticeUseCase: UpdateNoticeUseCase {
-    static let shared = DefaultUpdateNoticeUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
+final class DefaultUpdateNoticeUseCase: UpdateNoticeUseCase {
+
     let myGroupRepository: MyGroupRepository
-    
-    var didUpdateNotice = PublishSubject<GroupNotice>()
+    let didUpdateNotice = PublishSubject<GroupNotice>()
     
     init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository
@@ -25,8 +24,10 @@ class DefaultUpdateNoticeUseCase: UpdateNoticeUseCase {
                 groupId: groupNotice.groupId,
                 notice: MyGroupNoticeEditRequestDTO(notice: groupNotice.notice)
             )
-            .map { [weak self] _ in
+            .do(onSuccess: { [weak self] _ in
                 self?.didUpdateNotice.onNext(groupNotice)
+            })
+            .map { _ in
                 return ()
             }
     }

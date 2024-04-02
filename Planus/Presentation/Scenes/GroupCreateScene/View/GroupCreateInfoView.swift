@@ -13,7 +13,7 @@ class GroupCreateInfoView: UIView {
     var groupIntroduceTitleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "그룹 소개를 입력해주세요"
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.font = UIFont(name: "Pretendard-SemiBold", size: 16)
         return label
     }()
@@ -21,7 +21,7 @@ class GroupCreateInfoView: UIView {
     var groupIntroduceDescLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "그룹 사진, 이름, 소개는 필수입력 정보입니다."
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         return label
     }()
@@ -30,7 +30,7 @@ class GroupCreateInfoView: UIView {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
         imageView.layer.borderWidth = 1
-        imageView.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
+        imageView.layer.borderColor = UIColor.planusDeepNavy.cgColor
         imageView.layer.cornerRadius = 10
         imageView.clipsToBounds = true
         imageView.image = UIImage(named: "GroupCreateDefaultImage")
@@ -45,18 +45,18 @@ class GroupCreateInfoView: UIView {
     
     lazy var groupNameField: UITextField = {
         let textField = UITextField(frame: .zero)
-        textField.textColor = .black
+        textField.textColor = .planusBlack
         textField.font = UIFont(name: "Pretendard-Regular", size: 16)
         
-        textField.backgroundColor = .white
+        textField.backgroundColor = .planusWhite
         textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
+        textField.layer.borderColor = UIColor.planusDeepNavy.cgColor
         textField.layer.cornerRadius = 10
         textField.clipsToBounds = true
         textField.addSidePadding(padding: 10)
         textField.attributedPlaceholder = NSAttributedString(
             string: "그룹 이름을 입력하세요",
-            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
+            attributes:[NSAttributedString.Key.foregroundColor: UIColor.planusPlaceholderColor]
         )
         textField.delegate = self
 
@@ -67,16 +67,16 @@ class GroupCreateInfoView: UIView {
         let textView = PlaceholderTextView(frame: .zero)
         textView.isScrollEnabled = true
         textView.placeholder = "간단한 그룹소개 및 공지사항을 입력해주세요"
-        textView.textColor = .black
-        textView.backgroundColor = .white
+        textView.textColor = .planusBlack
+        textView.backgroundColor = .planusWhite
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
         textView.textContainer.lineFragmentPadding = 0
         textView.textContainerInset = .init(top: 10, left: 10, bottom: 10, right: 10)
         
-        textView.placeholderColor = UIColor(hex: 0x7A7A7A)
-        textView.backgroundColor = .white
+        textView.placeholderColor = .planusPlaceholderColor
+        textView.backgroundColor = .planusWhite
         textView.layer.borderWidth = 1
-        textView.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
+        textView.layer.borderColor = UIColor.planusDeepNavy.cgColor
         textView.layer.cornerRadius = 10
         textView.clipsToBounds = true
         textView.delegate = self

@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultUpdateCategoryUseCase: UpdateCategoryUseCase {
-    static let shared: DefaultUpdateCategoryUseCase = .init(categoryRepository: DefaultCategoryRepository(apiProvider: NetworkManager()))
+final class DefaultUpdateCategoryUseCase: UpdateCategoryUseCase {
+
     let categoryRepository: CategoryRepository
-    
-    var didUpdateCategory = PublishSubject<Category>()
+    let didUpdateCategory = PublishSubject<Category>()
     
     init(
         categoryRepository: CategoryRepository
@@ -26,10 +25,10 @@ class DefaultUpdateCategoryUseCase: UpdateCategoryUseCase {
             id: id,
             category: category.toDTO()
         )
-        .map { [weak self] dto in
+        .map { $0.data.id }
+        .do(onSuccess: { [weak self] _ in
             self?.didUpdateCategory.onNext(category)
-            return dto.data.id
-        }
+        })
     }
 }
 

@@ -34,7 +34,7 @@ final class DayPickerView: UIView {
     
     lazy var dateLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.textColor = UIColor(hex: 0x000000)
+        label.textColor = .planusBlack
         label.font = UIFont(name: "Pretendard-SemiBold", size: 18)
         label.textAlignment = .center
         return label
@@ -71,11 +71,11 @@ final class DayPickerView: UIView {
         let label = UILabel(frame: .zero)
         switch weekDay {
         case "일":
-            label.textColor = UIColor(hex: 0xEA4335)
+            label.textColor = .planusTintRed
         case "토":
-            label.textColor = UIColor(hex: 0x6495F4)
+            label.textColor = .planusTintBlue
         default:
-            label.textColor = .black
+            label.textColor = .planusBlack
         }
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
         label.text = weekDay
@@ -85,7 +85,7 @@ final class DayPickerView: UIView {
     }
     
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         
         self.addSubview(dateLabel)
         self.addSubview(prevButton)

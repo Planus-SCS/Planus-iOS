@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultGroupCalendarRepository: GroupCalendarRepository {
+final class DefaultGroupCalendarRepository: GroupCalendarRepository {
     
     let apiProvider: APIProvider
     

@@ -15,7 +15,7 @@ class ToastView: UIView {
     
     var contentView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = .white
+        view.backgroundColor = .planusWhite
         view.clipsToBounds = true
         return view
     }()
@@ -76,7 +76,7 @@ class ToastView: UIView {
         self.label.text = message
         switch type {
         case .normal:
-            label.textColor = UIColor(hex: 0x6F81A9)
+            label.textColor = .planusDeepNavy
         case .warning:
             label.textColor = .systemPink
         }

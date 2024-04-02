@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultCreateGroupCategoryUseCase: CreateGroupCategoryUseCase {
+final class DefaultCreateGroupCategoryUseCase: CreateGroupCategoryUseCase {
     let categoryRepository: GroupCategoryRepository
         
     init(
@@ -23,7 +23,7 @@ class DefaultCreateGroupCategoryUseCase: CreateGroupCategoryUseCase {
             groupId: groupId,
             category: category.toDTO()
         )
-        .map { [weak self] dto in
+        .map { dto in
             return dto.data.id
         }
     }

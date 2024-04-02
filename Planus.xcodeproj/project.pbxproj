@@ -519,7 +519,6 @@
 		6AC078E22A0373F3007ACDB8 /* BaseURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078E12A0373F3007ACDB8 /* BaseURL.swift */; };
 		6AC078E52A037A7F007ACDB8 /* URLPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078E42A037A7F007ACDB8 /* URLPool.swift */; };
 		6AC078E82A0387FD007ACDB8 /* TowWayBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078E72A0387FD007ACDB8 /* TowWayBinding.swift */; };
-		6AC078FE2A0515C9007ACDB8 /* UIButton+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078FD2A0515C9007ACDB8 /* UIButton+Ext.swift */; };
 		6AC079002A053677007ACDB8 /* DailyCalendarEmptyTodoMockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC078FF2A053677007ACDB8 /* DailyCalendarEmptyTodoMockCell.swift */; };
 		6AC079022A07D464007ACDB8 /* TodoUpdateComparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079012A07D464007ACDB8 /* TodoUpdateComparator.swift */; };
 		6AC079042A07DC45007ACDB8 /* Array+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079032A07DC45007ACDB8 /* Array+Ext.swift */; };
@@ -589,6 +588,8 @@
 		6AC079A62A0B5FE7007ACDB8 /* MyGroupSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079A52A0B5FE7007ACDB8 /* MyGroupSummary.swift */; };
 		6AC079A82A0B639F007ACDB8 /* DefaultFetchMyGroupListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079A72A0B639F007ACDB8 /* DefaultFetchMyGroupListUseCase.swift */; };
 		6AC079AA2A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC079A92A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift */; };
+		6AC4F2DD2BBC93AD0036DA3A /* PrivacyList.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6AC4F2DC2BBC93AD0036DA3A /* PrivacyList.plist */; };
+		6AC4F2DF2BBC94060036DA3A /* Bundle+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC4F2DE2BBC94060036DA3A /* Bundle+Ext.swift */; };
 		6AD888C32A891E2D00F4B887 /* SocialAuthType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888C22A891E2D00F4B887 /* SocialAuthType.swift */; };
 		6AD888C52A891ED700F4B887 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888C42A891ED700F4B887 /* UserDefaultsManager.swift */; };
 		6AD888C82A891F9100F4B887 /* KeyValueStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD888C72A891F9100F4B887 /* KeyValueStorage.swift */; };
@@ -1175,7 +1176,6 @@
 		6AC078E12A0373F3007ACDB8 /* BaseURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseURL.swift; sourceTree = "<group>"; };
 		6AC078E42A037A7F007ACDB8 /* URLPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLPool.swift; sourceTree = "<group>"; };
 		6AC078E72A0387FD007ACDB8 /* TowWayBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TowWayBinding.swift; sourceTree = "<group>"; };
-		6AC078FD2A0515C9007ACDB8 /* UIButton+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Ext.swift"; sourceTree = "<group>"; };
 		6AC078FF2A053677007ACDB8 /* DailyCalendarEmptyTodoMockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyCalendarEmptyTodoMockCell.swift; sourceTree = "<group>"; };
 		6AC079012A07D464007ACDB8 /* TodoUpdateComparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoUpdateComparator.swift; sourceTree = "<group>"; };
 		6AC079032A07DC45007ACDB8 /* Array+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Ext.swift"; sourceTree = "<group>"; };
@@ -1245,6 +1245,8 @@
 		6AC079A52A0B5FE7007ACDB8 /* MyGroupSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyGroupSummary.swift; sourceTree = "<group>"; };
 		6AC079A72A0B639F007ACDB8 /* DefaultFetchMyGroupListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFetchMyGroupListUseCase.swift; sourceTree = "<group>"; };
 		6AC079A92A0B640A007ACDB8 /* FetchMyGroupListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMyGroupListUseCase.swift; sourceTree = "<group>"; };
+		6AC4F2DC2BBC93AD0036DA3A /* PrivacyList.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyList.plist; sourceTree = "<group>"; };
+		6AC4F2DE2BBC94060036DA3A /* Bundle+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Ext.swift"; sourceTree = "<group>"; };
 		6AD888C22A891E2D00F4B887 /* SocialAuthType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialAuthType.swift; sourceTree = "<group>"; };
 		6AD888C42A891ED700F4B887 /* UserDefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsManager.swift; sourceTree = "<group>"; };
 		6AD888C72A891F9100F4B887 /* KeyValueStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueStorage.swift; sourceTree = "<group>"; };
@@ -1674,6 +1676,7 @@
 				6A61C3CC2A69675500DCA088 /* HolidayPool.swift */,
 				6A21862C2A815148005CF505 /* AppleSignInNonce.swift */,
 				6A9191972A82780D006C3F80 /* Data+Ext.swift */,
+				6AC4F2DE2BBC94060036DA3A /* Bundle+Ext.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -2069,7 +2072,6 @@
 				6A08AD8F29C89761005947D2 /* UIColor+Ext.swift */,
 				6A95DFB829D4E286009017D8 /* UITextField+Ext.swift */,
 				6A95DFCF29D50053009017D8 /* UIImage+Ext.swift */,
-				6AC078FD2A0515C9007ACDB8 /* UIButton+Ext.swift */,
 				6A2C00AF2A6F4B0B003D6B95 /* Vibrate.swift */,
 				6A9B4FAD2A86536A00A04458 /* UITextView+Ext.swift */,
 				6AF078322A9DC8A00086692B /* UICollectionView+Ext.swift */,
@@ -2604,6 +2606,7 @@
 			children = (
 				6AF0788D2AA78C400086692B /* GoogleService-Info.plist */,
 				6A08AD5E29C87C63005947D2 /* Info.plist */,
+				6AC4F2DC2BBC93AD0036DA3A /* PrivacyList.plist */,
 			);
 			path = Info;
 			sourceTree = "<group>";
@@ -3401,6 +3404,7 @@
 				6A9AAAD729F80A0D002A6DAF /* todoMemo@2x.png in Resources */,
 				6A1B3F0F29D7192A00BFB3A6 /* onlineIcon@2x.png in Resources */,
 				6A24F8B329CE3F800000FD64 /* Pretendard-Medium.otf in Resources */,
+				6AC4F2DD2BBC93AD0036DA3A /* PrivacyList.plist in Resources */,
 				6A24F8B929CE3F800000FD64 /* Pretendard-ExtraBold.otf in Resources */,
 				6AF078172A98E90F0086692B /* menuShowBtn.png in Resources */,
 				6A08ADAF29C89DEE005947D2 /* appleBtn@2x.png in Resources */,
@@ -3858,7 +3862,6 @@
 				6A483DAA29CA238B003375BF /* RedirectionalWebViewController.swift in Sources */,
 				6A2C00DA2A713734003D6B95 /* FetchGroupTodoDetailUseCase.swift in Sources */,
 				6AF077FF2A98BB6F0086692B /* TodoDetailView.swift in Sources */,
-				6AC078FE2A0515C9007ACDB8 /* UIButton+Ext.swift in Sources */,
 				6AF0780B2A98BF010086692B /* TodoDetailVC+PickerView.swift in Sources */,
 				6A9A080C29D40CA40051AD43 /* CategoryCreateCell.swift in Sources */,
 				6A24F85429CB7ED10000FD64 /* CreateMonthlyCalendarUseCase.swift in Sources */,
@@ -4003,6 +4006,7 @@
 				6A9A07F329D40B5D0051AD43 /* DayPickerView.swift in Sources */,
 				6A0B762B2B9BCF69008BC571 /* GroupMemberCalendarDomainAssembly.swift in Sources */,
 				6A95DFB929D4E286009017D8 /* UITextField+Ext.swift in Sources */,
+				6AC4F2DF2BBC94060036DA3A /* Bundle+Ext.swift in Sources */,
 				6A9AAB2529FA588F002A6DAF /* DefaultUpdateCategoryUseCase.swift in Sources */,
 				6A0B76892BAC1225008BC571 /* SignInPresentationAssembly.swift in Sources */,
 				6A0B76972BAC1285008BC571 /* MemberProfilePresentationAssembly.swift in Sources */,

@@ -85,14 +85,14 @@ final class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDe
         
         cv.dataSource = self
         cv.delegate = self
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.backgroundColor = .planusBackgroundColor
         return cv
     }()
     
     let backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
@@ -120,14 +120,14 @@ final class MyGroupDetailViewController: UIViewController, UIGestureRecognizerDe
         let initialAppearance = UINavigationBarAppearance()
         let scrollingAppearance = UINavigationBarAppearance()
         scrollingAppearance.configureWithOpaqueBackground()
-        scrollingAppearance.backgroundColor = UIColor(hex: 0xF5F5FB)
+        scrollingAppearance.backgroundColor = .planusBackgroundColor
         let initialBarButtonAppearance = UIBarButtonItemAppearance()
-        initialBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white]
+        initialBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.planusWhite]
         initialAppearance.configureWithTransparentBackground()
         initialAppearance.buttonAppearance = initialBarButtonAppearance
         
         let scrollingBarButtonAppearance = UIBarButtonItemAppearance()
-        scrollingBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.black]
+        scrollingBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.planusBlack]
         scrollingAppearance.buttonAppearance = scrollingBarButtonAppearance
         self.navigationItem.standardAppearance = scrollingAppearance
         self.navigationItem.scrollEdgeAppearance = initialAppearance
@@ -459,7 +459,7 @@ private extension MyGroupDetailViewController {
 // MARK: configure VC
 private extension MyGroupDetailViewController {
     func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.backgroundColor = .planusBackgroundColor
         self.view.addSubview(collectionView)
         self.view.addSubview(dimmedView)
         self.view.addSubview(buttonsView)
@@ -765,7 +765,7 @@ private extension MyGroupDetailViewController {
         
         let menu = UIMenu(options: .displayInline, children: menuChild)
         item = UIBarButtonItem(image: image, menu: menu)
-        item.tintColor = UIColor(hex: 0x000000)
+        item.tintColor = .planusBlack
         navigationItem.setRightBarButton(item, animated: true)
     }
     

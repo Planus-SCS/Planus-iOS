@@ -28,7 +28,7 @@ class DailyCalendarCollectionView: UICollectionView {
     }
     
     private func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         
         self.register(DailyCalendarTodoCell.self, forCellWithReuseIdentifier: DailyCalendarTodoCell.reuseIdentifier)
         self.register(DailyCalendarEmptyTodoMockCell.self, forCellWithReuseIdentifier: DailyCalendarEmptyTodoMockCell.reuseIdentifier)

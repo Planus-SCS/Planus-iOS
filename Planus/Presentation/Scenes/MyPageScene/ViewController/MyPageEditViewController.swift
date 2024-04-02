@@ -13,13 +13,13 @@ import PhotosUI
 final class MyPageEditView: UIView {
     var contentView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = UIColor(hex: 0xB2CAFA)
+        view.backgroundColor = .planusBlueGroundColor
         return view
     }()
     
     var bottomView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        view.backgroundColor = .planusBackgroundColor
         view.layer.cornerRadius = 10
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         view.clipsToBounds = true
@@ -55,15 +55,15 @@ final class MyPageEditView: UIView {
     
     var nameField: UITextField = {
         let textField = UITextField(frame: .zero)
-        textField.textColor = .black
+        textField.textColor = .planusBlack
         textField.font = UIFont(name: "Pretendard-Regular", size: 16)
         textField.textAlignment = .left
         textField.layer.borderWidth = 1
         textField.layer.cornerRadius = 10
         textField.layer.cornerCurve = .continuous
-        textField.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
-        textField.backgroundColor = .white
-        textField.attributedPlaceholder = NSAttributedString(string: "이름을 입력하세요.", attributes: [NSAttributedString.Key.foregroundColor : UIColor(hex: 0xBFC7D7)])
+        textField.layer.borderColor = UIColor.planusDeepNavy.cgColor
+        textField.backgroundColor = .planusWhite
+        textField.attributedPlaceholder = NSAttributedString(string: "이름을 입력하세요.", attributes: [NSAttributedString.Key.foregroundColor : UIColor.planusLightGray])
 
         
         textField.addSidePadding(padding: 10)
@@ -76,14 +76,14 @@ final class MyPageEditView: UIView {
         textView.layer.cornerRadius = 10
         textView.layer.cornerCurve = .continuous
         textView.layer.borderWidth = 1
-        textView.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
+        textView.layer.borderColor = UIColor.planusDeepNavy.cgColor
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
         textView.placeholder = "자기소개를 입력하세요."
-        textView.placeholderColor = UIColor(hex: 0xBFC7D7)
+        textView.placeholderColor = .planusLightGray
         textView.textContainer.lineFragmentPadding = 0
         textView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
 
-        textView.textColor = .black
+        textView.textColor = .planusBlack
         return textView
     }()
     
@@ -102,7 +102,7 @@ final class MyPageEditView: UIView {
 // MARK: configure UI
 private extension MyPageEditView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(contentView)
         contentView.addSubview(bottomView)
         contentView.addSubview(profileImageShadowView)
@@ -164,13 +164,13 @@ final class MyPageEditViewController: UIViewController {
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
     lazy var saveButton: UIBarButtonItem = {
         let item = UIBarButtonItem(image: UIImage(named: "saveBarBtn"), style: .plain, target: nil, action: nil)
-        item.tintColor = UIColor(hex: 0x6495F4)
+        item.tintColor = .planusTintBlue
         return item
     }()
     
@@ -289,7 +289,7 @@ extension MyPageEditViewController {
             .asDriver(onErrorJustReturn: false)
             .drive(onNext: { [weak self] isEnabled in
                 self?.saveButton.isEnabled = isEnabled
-                self?.saveButton.tintColor = (isEnabled) ? UIColor(hex: 0x6495F4) : UIColor(hex: 0x6495F4).withAlphaComponent(0.5)
+                self?.saveButton.tintColor = (isEnabled) ? .planusTintBlue : .planusTintBlue.withAlphaComponent(0.5)
             })
             .disposed(by: bag)
         

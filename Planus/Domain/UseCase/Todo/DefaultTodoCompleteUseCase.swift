@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultTodoCompleteUseCase: TodoCompleteUseCase {
-    static let shared = DefaultTodoCompleteUseCase(todoRepository: TestTodoDetailRepository(apiProvider: NetworkManager()))
+final class DefaultTodoCompleteUseCase: TodoCompleteUseCase {
+
     let todoRepository: TodoRepository
-    
-    var didCompleteTodo = PublishSubject<Todo>()
+    let didCompleteTodo = PublishSubject<Todo>()
     
     init(todoRepository: TodoRepository) {
         self.todoRepository = todoRepository
@@ -24,17 +23,17 @@ class DefaultTodoCompleteUseCase: TodoCompleteUseCase {
         case .member:
             return todoRepository
                 .memberCompletion(token: token.accessToken, todoId: todo.id ?? Int())
-                .map { [weak self] _ in
+                .map { _ in return }
+                .do(onSuccess: { [weak self] _ in
                     self?.didCompleteTodo.onNext(todo)
-                    return
-                }
+                })
         case .group(let groupId):
             return todoRepository
                 .groupCompletion(token: token.accessToken, groupId: groupId, todoId: todo.id ?? Int())
-                .map { [weak self] _ in
+                .map { _ in return }
+                .do(onSuccess: { [weak self] _ in
                     self?.didCompleteTodo.onNext(todo)
-                    return
-                }
+                })
         }
     }
 }

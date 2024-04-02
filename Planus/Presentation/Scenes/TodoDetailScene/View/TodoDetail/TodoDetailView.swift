@@ -31,7 +31,7 @@ class TodoDetailView: UIView {
         let button = UIButton(frame: .zero)
         button.setTitle("삭제", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 16)
-        button.setTitleColor(UIColor(hex: 0xEB6955), for: .normal)
+        button.setTitleColor(.planusTintRed, for: .normal)
         button.sizeToFit()
         return button
     }()
@@ -40,7 +40,7 @@ class TodoDetailView: UIView {
         let button = UIButton(frame: .zero)
         button.setTitle("저장", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 16)
-        button.setTitleColor(UIColor(hex: 0x6495F4), for: .normal)
+        button.setTitleColor(.planusTintBlue, for: .normal)
         button.sizeToFit()
         return button
     }()
@@ -85,13 +85,13 @@ class TodoDetailView: UIView {
         case .new:
             removeButton.isHidden = true
             titleView.todoTitleField.becomeFirstResponder()
-        case .view: // 애의 경우 icnView가 deactivate을 하면 안된다...!
+        case .view:
         
             removeButton.isHidden = true
             saveButton.isHidden = true
             attributeViewGroup.forEach {
                 $0.isUserInteractionEnabled = false
-            } // 애를 달력이 못그리게해야함..!
+            }
             
             icnView.snp.remakeConstraints {
                 $0.leading.trailing.equalToSuperview()

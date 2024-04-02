@@ -16,7 +16,7 @@ final class MyPageMainSelectableCell: SpringableCollectionViewCell {
     private var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 16)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.sizeToFit()
         return label
     }()
@@ -43,7 +43,7 @@ final class MyPageMainSelectableCell: SpringableCollectionViewCell {
     }
     
     private func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(titleLabel)
         self.addSubview(symbolView)
     }

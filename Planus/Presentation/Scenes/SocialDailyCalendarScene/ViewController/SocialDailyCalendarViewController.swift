@@ -13,12 +13,12 @@ final class SocialDailyCalendarViewController: UIViewController {
     private var bag = DisposeBag()
     private var viewModel: SocialDailyCalendarViewModel?
         
-    private var spinner = UIActivityIndicatorView(style: .medium)
+    private let spinner = UIActivityIndicatorView(style: .medium)
     
     private lazy var dateTitleButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
-        button.setTitleColor(.black, for: .normal)
+        button.setTitleColor(.planusBlack, for: .normal)
         button.sizeToFit()
         return button
     }()
@@ -26,7 +26,7 @@ final class SocialDailyCalendarViewController: UIViewController {
     private lazy var addTodoButton: UIBarButtonItem = {
         let image = UIImage(named: "plusBtn")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
@@ -107,7 +107,7 @@ private extension SocialDailyCalendarViewController {
         case .member(let id):
             navigationItem.setRightBarButton(nil, animated: false)
         case .group(let isLeader):
-            navigationItem.setRightBarButton((isLeader ?? false) ? addTodoButton : nil, animated: false)
+            navigationItem.setRightBarButton((isLeader) ? addTodoButton : nil, animated: false)
         }
     }
 }
@@ -115,7 +115,7 @@ private extension SocialDailyCalendarViewController {
 // MARK: - Configure VC
 private extension SocialDailyCalendarViewController{
     func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.backgroundColor = .planusBackgroundColor
         self.view.addSubview(collectionView)
         self.view.addSubview(spinner)
     }
@@ -140,43 +140,25 @@ private extension SocialDailyCalendarViewController{
 // MARK: collection view
 extension SocialDailyCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch section {
-        case 0:
-            let count = viewModel?.scheduledTodoList?.count ?? 0
-            return count == 0 ? 1 : count
-        case 1:
-            let count = viewModel?.unscheduledTodoList?.count ?? 0
-            return count == 0 ? 1 : count
-        default:
-            return 0
-        }
+        return max(viewModel?.todos[section].count ?? 1, 1)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        var todoItem: SocialTodoDaily?
-        
-        switch indexPath.section {
-        case 0:
-            if let scheduledList = viewModel?.scheduledTodoList,
-               !scheduledList.isEmpty {
-                todoItem = scheduledList[indexPath.item]
-            } else {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarEmptyTodoMockCell.reuseIdentifier, for: indexPath)
-            }
-        case 1:
-            if let unscheduledList = viewModel?.unscheduledTodoList,
-               !unscheduledList.isEmpty {
-                todoItem = unscheduledList[indexPath.item]
-            } else {
-                return collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarEmptyTodoMockCell.reuseIdentifier, for: indexPath)
-            }
-        default: return UICollectionViewCell()
+        guard let viewModel else { return UICollectionViewCell() }
+
+        guard !viewModel.todos[indexPath.section].isEmpty else {
+            return collectionView.dequeueReusableCell(
+                withReuseIdentifier: DailyCalendarEmptyTodoMockCell.reuseIdentifier,
+                for: indexPath
+            )
         }
-        guard let todoItem else { return UICollectionViewCell() }
+        
+        let todoItem = viewModel.todos[indexPath.section][indexPath.item]
 
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DailyCalendarTodoCell.reuseIdentifier, for: indexPath) as? DailyCalendarTodoCell else {
             return UICollectionViewCell()
         }
+        
         cell.fill(
             title: todoItem.title,
             time: todoItem.startTime,
@@ -187,27 +169,19 @@ extension SocialDailyCalendarViewController: UICollectionViewDataSource, UIColle
             completion: todoItem.isCompleted,
             isOwner: false
         )
+        
         return cell
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        2
+        viewModel?.todos.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard let type = DailyCalendarTodoType(rawValue: indexPath.section),
+            let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: DailyCalendarCollectionView.headerKind, withReuseIdentifier: DailyCalendarSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? DailyCalendarSectionHeaderSupplementaryView else { return UICollectionReusableView() }
 
-        guard let headerview = collectionView.dequeueReusableSupplementaryView(ofKind: DailyCalendarCollectionView.headerKind, withReuseIdentifier: DailyCalendarSectionHeaderSupplementaryView.reuseIdentifier, for: indexPath) as? DailyCalendarSectionHeaderSupplementaryView else { return UICollectionReusableView() }
-        
-        var title: String
-        switch indexPath.section {
-        case 0:
-            title = "일정"
-        case 1:
-            title = "할일"
-        default:
-            return UICollectionReusableView()
-        }
-        headerview.fill(title: title)
+        headerview.fill(title: type.title)
      
         return headerview
     }

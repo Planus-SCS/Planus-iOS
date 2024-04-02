@@ -48,8 +48,8 @@ class SkeletonLayer: CALayer {
     }
     
     func configureLayer() {
-        self.name == "skeletonLayer"
-        self.backgroundColor = UIColor(hex: 0xF5F5FB).cgColor
+        self.name = "skeletonLayer"
+        self.backgroundColor = UIColor.planusBackgroundColor.cgColor
         self.addSublayer(gradientLayer)
         self.frame = UIScreen.main.bounds
         gradientLayer.frame = UIScreen.main.bounds

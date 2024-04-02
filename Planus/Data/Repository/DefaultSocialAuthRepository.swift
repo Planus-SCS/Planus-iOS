@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultSocialAuthRepository: SocialAuthRepository {
+final class DefaultSocialAuthRepository: SocialAuthRepository {
 
     let apiProvider: APIProvider
     let keyValueStorage: KeyValueStorage

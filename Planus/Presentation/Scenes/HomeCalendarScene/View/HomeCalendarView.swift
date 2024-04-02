@@ -16,8 +16,8 @@ final class HomeCalendarView: UIView {
         button.setImage(UIImage(named: "downButton"), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         button.imageEdgeInsets = .init(top: 0, left: 5, bottom: 0, right: -5)
-        button.tintColor = .black
-        button.setTitleColor(.black, for: .normal)
+        button.tintColor = .planusBlack
+        button.setTitleColor(.planusBlack, for: .normal)
 
         return button
     }()
@@ -39,16 +39,16 @@ final class HomeCalendarView: UIView {
             label.text = dayOfTheWeek[i]
             label.textAlignment = .center
             label.font = UIFont(name: "Pretendard-Regular", size: 12)
-            label.textColor = .black
+            label.textColor = .planusBlack
             stackView.addArrangedSubview(label)
         }
-        stackView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        stackView.backgroundColor = .planusBackgroundColor
         return stackView
     }()
     
     lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        collectionView.backgroundColor = .planusBackgroundColor
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.decelerationRate = .fast
         collectionView.isPagingEnabled = true
@@ -94,7 +94,7 @@ private extension HomeCalendarView {
     }
 
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(collectionView)
         self.addSubview(weekStackView)
     }

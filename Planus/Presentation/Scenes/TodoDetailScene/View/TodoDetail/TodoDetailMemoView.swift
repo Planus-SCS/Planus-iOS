@@ -36,10 +36,10 @@ class TodoDetailMemoView: UIView, TodoDetailAttributeView {
         textView.textContainer.lineFragmentPadding = 0
         textView.text = ""
         textView.placeholder = "메모를 입력하세요"
-        textView.placeholderColor = UIColor(hex: 0xBFC7D7)
+        textView.placeholderColor = .planusLightGray
         textView.textContainerInset = .init(top: 10, left: 10, bottom: 10, right: 10)
-        textView.textColor = .black
-        textView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        textView.textColor = .planusBlack
+        textView.backgroundColor = .planusBackgroundColor
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
         textView.layer.borderWidth = 1
         textView.layer.cornerCurve = .continuous
@@ -69,7 +69,7 @@ class TodoDetailMemoView: UIView, TodoDetailAttributeView {
             .compactMap { $0 }
             .subscribe(onNext: { text in
                 self.memoTextView.layer.borderColor = text.isEmpty ?
-                UIColor(hex: 0xBFC7D7).cgColor : UIColor(hex: 0xADC5F8).cgColor
+                UIColor.planusLightGray.cgColor : UIColor.planusMediumGray.cgColor
             })
             .disposed(by: bag)
     }

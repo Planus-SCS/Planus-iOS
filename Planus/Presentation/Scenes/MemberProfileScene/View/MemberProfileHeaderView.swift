@@ -10,7 +10,7 @@ import UIKit
 final class MemberProfileHeaderView: UIView {
     private let bottomView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        view.backgroundColor = .planusBackgroundColor
         view.layer.cornerRadius = 10
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         view.clipsToBounds = true
@@ -39,7 +39,7 @@ final class MemberProfileHeaderView: UIView {
     
     let nameLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.font = UIFont(name: "Pretendard-Bold", size: 16)
         label.textAlignment = .center
         return label
@@ -48,7 +48,7 @@ final class MemberProfileHeaderView: UIView {
     let introduceLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = UIColor.planusDeepNavy
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
@@ -56,7 +56,7 @@ final class MemberProfileHeaderView: UIView {
     
     private let separateView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = UIColor(hex: 0xBFC7D7)
+        view.backgroundColor = .planusLightGray
         view.layer.masksToBounds = false
         view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.2).cgColor
         view.layer.shadowOpacity = 10
@@ -96,7 +96,7 @@ final class MemberProfileHeaderView: UIView {
 // MARK: - configure
 private extension MemberProfileHeaderView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xB2CAFA)
+        self.backgroundColor = .planusBlueGroundColor
         self.addSubview(bottomView)
         self.addSubview(profileImageShadowView)
         profileImageShadowView.addSubview(profileImageView)

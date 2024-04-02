@@ -10,8 +10,8 @@ import UIKit
 class WideButtonView: UIView {
     var wideButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(hex: 0x6495F4)
+        button.setTitleColor(.planusWhite, for: .normal)
+        button.backgroundColor = .planusTintBlue
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
         button.layer.cornerRadius = 10
         button.layer.cornerCurve = .continuous

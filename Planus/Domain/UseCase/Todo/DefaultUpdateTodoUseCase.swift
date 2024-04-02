@@ -8,8 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultUpdateTodoUseCase: UpdateTodoUseCase {
-    static let shared: DefaultUpdateTodoUseCase = .init(todoRepository: TestTodoDetailRepository(apiProvider: NetworkManager()))
+final class DefaultUpdateTodoUseCase: UpdateTodoUseCase {
 
     let todoRepository: TodoRepository
         
@@ -22,9 +21,9 @@ class DefaultUpdateTodoUseCase: UpdateTodoUseCase {
     func execute(token: Token, todoUpdate: TodoUpdateComparator) -> Single<Void> {
         return todoRepository
             .updateTodo(token: token.accessToken, id: todoUpdate.after.id ?? Int(), todo: todoUpdate.after.toDTO())
-            .map { [weak self] _ in
+            .map { _ in return }
+            .do(onSuccess: { [weak self] _ in
                 self?.didUpdateTodo.onNext(todoUpdate)
-                return ()
-            }
+            })
     }
 }

@@ -91,7 +91,7 @@ final class SignInView: UIView {
 // MARK: Configure UI
 private extension SignInView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         
         self.addSubview(logoImageView)
         self.addSubview(greetingLabel)

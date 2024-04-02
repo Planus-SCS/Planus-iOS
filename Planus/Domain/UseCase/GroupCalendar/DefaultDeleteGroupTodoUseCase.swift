@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultDeleteGroupTodoUseCase: DeleteGroupTodoUseCase {
-    static let shared = DefaultDeleteGroupTodoUseCase(groupCalendarRepository: DefaultGroupCalendarRepository(apiProvider: NetworkManager()))
+final class DefaultDeleteGroupTodoUseCase: DeleteGroupTodoUseCase {
+
     let groupCalendarRepository: GroupCalendarRepository
-    
-    var didDeleteGroupTodoWithIds = PublishSubject<(groupId: Int, todoId: Int)>()
+    let didDeleteGroupTodoWithIds = PublishSubject<(groupId: Int, todoId: Int)>()
     
     init(groupCalendarRepository: GroupCalendarRepository) {
         self.groupCalendarRepository = groupCalendarRepository
@@ -21,8 +20,8 @@ class DefaultDeleteGroupTodoUseCase: DeleteGroupTodoUseCase {
     func execute(token: Token, groupId: Int, todoId: Int) -> Single<Void> {
         groupCalendarRepository
             .deleteTodo(token: token.accessToken, groupId: groupId, todoId: todoId)
-            .map { [weak self] in
+            .do(onSuccess: { [weak self] in
                 self?.didDeleteGroupTodoWithIds.onNext((groupId: groupId, todoId: todoId))
-            }
+            })
     }
 }

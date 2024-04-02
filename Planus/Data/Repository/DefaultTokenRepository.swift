@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultTokenRepository: TokenRepository {
+final class DefaultTokenRepository: TokenRepository {
     
     let apiProvider: APIProvider
     let keyValueStorage: KeyValueStorage
@@ -40,7 +40,7 @@ class DefaultTokenRepository: TokenRepository {
         )
     }
     
-    func get() -> Token? { //네트워킹 할때마다 사용됨
+    func get() -> Token? {
         guard let accessToken = keyValueStorage.get(key: "accessToken"),
               let refreshToken = keyValueStorage.get(key: "refreshToken") else {
             return nil
@@ -52,7 +52,7 @@ class DefaultTokenRepository: TokenRepository {
         return token
     }
     
-    func set(token: Token) { //최초, refreshToken 만료 시에만 사용됨
+    func set(token: Token) {
         keyValueStorage.set(
             key: "accessToken",
             value: token.accessToken.data(using: .utf8, allowLossyConversion: false) as Any

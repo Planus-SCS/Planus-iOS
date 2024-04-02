@@ -7,7 +7,7 @@
 
 import Foundation
 
-class DefaultCreateMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase {
+final class DefaultCreateMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase {
     var calendar: Calendar
     
     init() {
@@ -19,7 +19,7 @@ class DefaultCreateMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase {
         let currentMonthStartIndex = (calendar.startDayOfTheWeek(from: date) + 7 - 1)%7
         let followingMonthStartIndex = currentMonthStartIndex + calendar.endDateOfMonth(for: date)
         let totalDaysCount = followingMonthStartIndex + ((followingMonthStartIndex % 7 == 0) ? 0 : (7 - followingMonthStartIndex % 7))
-        var currentMonthStartDate = calendar.startDayOfMonth(date: date)
+        let currentMonthStartDate = calendar.startDayOfMonth(date: date)
         
         var dayList = [Day]()
         

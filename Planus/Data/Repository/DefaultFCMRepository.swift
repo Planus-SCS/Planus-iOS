@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultFCMRepository: FCMRepository {
+final class DefaultFCMRepository: FCMRepository {
     let apiProvider: APIProvider
     let keyValueStorage: KeyValueStorage
     

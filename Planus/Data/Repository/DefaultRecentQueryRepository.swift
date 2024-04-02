@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-class DefaultRecentQueryRepository: RecentQueryRepository {
+final class DefaultRecentQueryRepository: RecentQueryRepository {
     
     let maxStorageLimit: Int = 20
     let persistentContainer: NSPersistentContainer = {
@@ -54,7 +54,7 @@ class DefaultRecentQueryRepository: RecentQueryRepository {
         
         let request = RecentSearchKeyword.fetchRequest()
         
-        var result = try context.fetch(request)
+        let result = try context.fetch(request)
         result.filter({ $0.keyword == keyword }).forEach { context.delete($0) }
         try context.save()
     }
@@ -64,7 +64,7 @@ class DefaultRecentQueryRepository: RecentQueryRepository {
         
         let request = RecentSearchKeyword.fetchRequest()
         
-        var result = try context.fetch(request)
+        let result = try context.fetch(request)
         result.forEach { context.delete($0) }
         try context.save()
     }

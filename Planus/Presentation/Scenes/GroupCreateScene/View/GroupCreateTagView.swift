@@ -13,7 +13,7 @@ class GroupCreateTagView: UIView {
     var keyWordTitleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "그룹과 관련된 키워드를 입력하세요"
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.font = UIFont(name: "Pretendard-SemiBold", size: 16)
         return label
     }()
@@ -21,7 +21,7 @@ class GroupCreateTagView: UIView {
     var keyWordDescLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "박스 클릭 후 글자를 입력하세요"
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         return label
     }()
@@ -32,7 +32,7 @@ class GroupCreateTagView: UIView {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.register(GroupCreateTagCell.self, forCellWithReuseIdentifier: GroupCreateTagCell.reuseIdentifier)
         cv.register(GroupCreateTagAddCell.self, forCellWithReuseIdentifier: GroupCreateTagAddCell.reuseIdentifier)
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.backgroundColor = .planusBackgroundColor
         return cv
     }()
     
@@ -107,7 +107,7 @@ class GroupCreateTagView: UIView {
         let label = UILabel(frame: .zero)
         label.text = text
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         return label
     }
 }
@@ -127,17 +127,17 @@ class GroupTagInputViewController: UIViewController {
     
     var tagField: UITextField = {
         let textField = UITextField(frame: .zero)
-        textField.textColor = .black
+        textField.textColor = .planusBlack
         textField.font = UIFont(name: "Pretendard-Medium", size: 16)
         
-        textField.backgroundColor = .white
+        textField.backgroundColor = .planusWhite
         textField.layer.cornerRadius = 10
         textField.clipsToBounds = true
         textField.clearButtonMode = .whileEditing
         textField.addSidePadding(padding: 10)
         textField.attributedPlaceholder = NSAttributedString(
             string: "태그를 입력해 주세요.",
-            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
+            attributes:[NSAttributedString.Key.foregroundColor: UIColor.planusPlaceholderColor]
         )
 
         return textField
@@ -158,8 +158,8 @@ class GroupTagInputViewController: UIViewController {
         let button = SpringableButton(frame: .zero)
         button.setTitle("입력", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 16)
-        button.backgroundColor = UIColor(hex: 0x6495F4)
-        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .planusTintBlue
+        button.setTitleColor(.planusWhite, for: .normal)
         button.layer.cornerRadius = 10
         button.layer.cornerCurve = .continuous
         button.layer.masksToBounds = true
@@ -223,7 +223,7 @@ class GroupTagInputViewController: UIViewController {
     }
     
     func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.backgroundColor = .planusBackgroundColor
         self.view.addSubview(tagField)
         self.view.addSubview(enterButton)
         self.view.addSubview(infoButton)
@@ -285,7 +285,7 @@ class GroupTagInputViewController: UIViewController {
         let label = UILabel(frame: .zero)
         label.text = text
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         return label
     }
 }

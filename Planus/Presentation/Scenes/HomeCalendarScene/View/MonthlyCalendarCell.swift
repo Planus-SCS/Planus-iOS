@@ -54,7 +54,7 @@ final class MonthlyCalendarCell: UICollectionViewCell {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.dataSource = self
         cv.delegate = self
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.backgroundColor = .planusBackgroundColor
         cv.showsVerticalScrollIndicator = false
         cv.refreshControl = refreshControl
         cv.register(CalendarDailyCell.self, forCellWithReuseIdentifier: CalendarDailyCell.identifier)

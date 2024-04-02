@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultReadProfileUseCase: ReadProfileUseCase {
+final class DefaultReadProfileUseCase: ReadProfileUseCase {
     let profileRepository: ProfileRepository
     
     init(profileRepository: ProfileRepository) {

@@ -32,7 +32,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     private let captinNameLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.sizeToFit()
         return label
     }()
@@ -56,7 +56,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     private let memberCountLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.sizeToFit()
         return label
     }()
@@ -81,7 +81,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     private let titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 20)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.textAlignment = .center
         label.isSkeletonable = true
         return label
@@ -90,7 +90,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     private let tagLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "메모를 입력하세요"
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.font = UIFont(name: "Pretendard-Medium", size: 16)
         label.numberOfLines = 2
         label.textAlignment = .center
@@ -100,7 +100,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     
     let centerContentView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = .white
+        view.backgroundColor = .planusWhite
         view.layer.cornerRadius = 10
         view.layer.cornerCurve = .continuous
         view.layer.masksToBounds = false
@@ -123,7 +123,7 @@ class GroupIntroduceInfoHeaderView: UICollectionReusableView {
     }
     
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         
         self.addSubview(titleImageView)
         

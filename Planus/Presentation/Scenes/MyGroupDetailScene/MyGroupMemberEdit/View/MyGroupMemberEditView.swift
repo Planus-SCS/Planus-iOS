@@ -11,7 +11,7 @@ import RxSwift
 final class MyGroupMemberEditView: UIView {
     lazy var memberCollectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: createMemberSection())
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.backgroundColor = .planusBackgroundColor
         cv.register(MyGroupMemberEditCell.self, forCellWithReuseIdentifier: MyGroupMemberEditCell.reuseIdentifier)
         return cv
     }()
@@ -19,7 +19,7 @@ final class MyGroupMemberEditView: UIView {
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
@@ -37,7 +37,7 @@ final class MyGroupMemberEditView: UIView {
 
 private extension MyGroupMemberEditView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(memberCollectionView)
     }
     

@@ -51,9 +51,8 @@ final class SocialDailyCalendarViewModel: ViewModel {
     let group: GroupName
     let type: SocialDailyCalendarViewModelType
     let currentDate: Date
-    
-    var scheduledTodoList: [SocialTodoDaily]?
-    var unscheduledTodoList: [SocialTodoDaily]?
+
+    var todos = [[SocialTodoDaily]](repeating: [SocialTodoDaily](), count: DailyCalendarTodoType.allCases.count)
     
     var currentDateText: String?
     
@@ -142,30 +141,17 @@ final class SocialDailyCalendarViewModel: ViewModel {
 // MARK: - Actions
 private extension SocialDailyCalendarViewModel {
     func showTodoDetail(at indexPath: IndexPath) {
-        var todoId: Int?
-        switch indexPath.section {
-        case 0:
-            if scheduledTodoList?.count != 0 {
-                todoId = scheduledTodoList?[indexPath.item].todoId
-            }
-        case 1:
-            if unscheduledTodoList?.count != 0 {
-                todoId = unscheduledTodoList?[indexPath.item].todoId
-            }
-        default:
-            return
-        }
-        guard let todoId else { return }
-        
+        let todoId: Int = todos[indexPath.section][indexPath.item].todoId
+
         var args: SocialTodoDetailViewModel.Args
         switch type {
-        case .member(let id): //애는 무적권 조회만
+        case .member(let id): //조회용
             args = SocialTodoDetailViewModel.Args(
                 mode: .view,
                 info: SocialTodoInfo(group: group, memberId: id, todoId: todoId),
                 date: nil
             )
-        case .group(let isLeader): //애는 edit
+        case .group(let isLeader): //edit or 조회
             args = SocialTodoDetailViewModel.Args(
                 mode: isLeader ? .edit : .view,
                 info: SocialTodoInfo(group: group, todoId: todoId),
@@ -247,8 +233,7 @@ private extension SocialDailyCalendarViewModel {
                     .execute(token: token, groupId: self.group.groupId, memberId: memberId, date: self.currentDate)
             }
             .subscribe(onSuccess: { [weak self] list in
-                self?.scheduledTodoList = list[0]
-                self?.unscheduledTodoList = list[1]
+                self?.todos = list
                 self?.didFetchTodoList.onNext(())
             })
             .disposed(by: bag)
@@ -265,8 +250,7 @@ private extension SocialDailyCalendarViewModel {
                     .execute(token: token, groupId: self.group.groupId, date: self.currentDate)
             }
             .subscribe(onSuccess: { [weak self] list in
-                self?.scheduledTodoList = list[0]
-                self?.unscheduledTodoList = list[1]
+                self?.todos = list
                 self?.didFetchTodoList.onNext(())
             })
             .disposed(by: bag)

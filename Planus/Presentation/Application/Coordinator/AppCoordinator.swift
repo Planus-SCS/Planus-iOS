@@ -60,7 +60,7 @@ final class AppCoordinator: Coordinator {
             }, onFailure: { [weak self] error in
                 if let ne = error as? NetworkManagerError,
                    case NetworkManagerError.clientError(_, let string) = ne {
-                    print(string)
+                    print(string as Any)
                 }
                 self?.showSignInFlow()
             })

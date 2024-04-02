@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultUpdateGroupInfoUseCase: UpdateGroupInfoUseCase {
-    static let shared = DefaultUpdateGroupInfoUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
+final class DefaultUpdateGroupInfoUseCase: UpdateGroupInfoUseCase {
+
     let myGroupRepository: MyGroupRepository
-    
-    var didUpdateInfoWithId = PublishSubject<Int>()
+    let didUpdateInfoWithId = PublishSubject<Int>()
     
     init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository
@@ -32,10 +31,11 @@ class DefaultUpdateGroupInfoUseCase: UpdateGroupInfoUseCase {
                 editRequestDTO: MyGroupInfoEditRequestDTO(tagList: tagList.map { GroupTagRequestDTO(name: $0) }, limitCount: limit),
                 image: image
             )
-            .map { [weak self] _ in
+            .do(onSuccess: { [weak self] _ in
                 self?.didUpdateInfoWithId.onNext(groupId)
+            })
+            .map { _ in
                 return ()
-                
             }
     }
 }

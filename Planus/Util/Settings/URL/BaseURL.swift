@@ -8,6 +8,5 @@
 import Foundation
 
 struct BaseURL {
-    static let main = "https://planus.shop"
+    static let main = Bundle.main.baseURL
 }
-

@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultDeleteGroupCategoryUseCase: DeleteGroupCategoryUseCase {
+final class DefaultDeleteGroupCategoryUseCase: DeleteGroupCategoryUseCase {
     let categoryRepository: GroupCategoryRepository
         
     init(categoryRepository: GroupCategoryRepository) {
@@ -19,7 +19,7 @@ class DefaultDeleteGroupCategoryUseCase: DeleteGroupCategoryUseCase {
         let accessToken = token.accessToken
         return categoryRepository
             .delete(token: accessToken, groupId: groupId, categoryId: categoryId)
-            .map { [weak self] dto in
+            .map { dto in
                 return dto.data.id
             }
     }

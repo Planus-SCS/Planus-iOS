@@ -10,7 +10,7 @@ import UIKit
 class DailyCalendarSectionBackgroundDecorationView: UICollectionReusableView {
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = .white
+        self.backgroundColor = .planusWhite
         self.layer.cornerRadius = 10
         self.layer.cornerCurve = .continuous
     }

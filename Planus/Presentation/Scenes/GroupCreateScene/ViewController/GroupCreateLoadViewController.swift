@@ -26,7 +26,7 @@ final class GroupCreateLoadViewController: UIViewController {
     var messageLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "그룹을 생성 중이에요"
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.font = UIFont(name: "Pretendard-Bold", size: 22)
         label.textAlignment = .center
         return label
@@ -63,7 +63,7 @@ final class GroupCreateLoadViewController: UIViewController {
     }
     
     func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.backgroundColor = .planusBackgroundColor
         self.view.addSubview(logoImageView)
         self.view.addSubview(spinner)
         self.view.addSubview(messageLabel)

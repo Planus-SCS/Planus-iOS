@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class TestTodoDetailRepository: TodoRepository {
+final class DefaultTodoDetailRepository: TodoRepository {
     
     let apiProvider: APIProvider
     
@@ -16,7 +16,7 @@ class TestTodoDetailRepository: TodoRepository {
         self.apiProvider = apiProvider
     }
     
-    func createTodo(token: String, todo: TodoRequestDTO) -> Single<Int> {
+    func createTodo(token: String, todo: TodoRequestDTO) -> Single<ResponseDTO<TodoResponseDataDTO>> {
         let endPoint = APIEndPoint(
             url: URLPool.todo,
             requestType: .post,
@@ -32,12 +32,9 @@ class TestTodoDetailRepository: TodoRepository {
             endPoint: endPoint,
             type: ResponseDTO<TodoResponseDataDTO>.self
         )
-        .map {
-            $0.data.todoId
-        }
     }
     
-    func readTodo(token: String, from: Date, to: Date) -> Single<ResponseDTO<TodoListResponseDTO>> { //어케올지 모름!
+    func readTodo(token: String, from: Date, to: Date) -> Single<ResponseDTO<TodoListResponseDTO>> {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.timeZone = .current
@@ -61,7 +58,7 @@ class TestTodoDetailRepository: TodoRepository {
         )
     }
     
-    func updateTodo(token: String, id: Int, todo: TodoRequestDTO) -> Single<Int> {
+    func updateTodo(token: String, id: Int, todo: TodoRequestDTO) -> Single<ResponseDTO<TodoResponseDataDTO>> {
         let endPoint = APIEndPoint(
             url: URLPool.todo + "/\(id)",
             requestType: .patch,
@@ -77,9 +74,6 @@ class TestTodoDetailRepository: TodoRepository {
             endPoint: endPoint,
             type: ResponseDTO<TodoResponseDataDTO>.self
         )
-        .map {
-            $0.data.todoId
-        }
     }
     
     func deleteTodo(token: String, id: Int) -> Single<Void> {

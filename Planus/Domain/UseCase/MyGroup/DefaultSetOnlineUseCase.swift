@@ -8,8 +8,8 @@
 import Foundation
 import RxSwift
 
-class DefaultSetOnlineUseCase: SetOnlineUseCase {
-    static let shared = DefaultSetOnlineUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
+final class DefaultSetOnlineUseCase: SetOnlineUseCase {
+
     let myGroupRepository: MyGroupRepository
     
     var didChangeOnlineState = PublishSubject<(Int, Int)>()
@@ -21,8 +21,10 @@ class DefaultSetOnlineUseCase: SetOnlineUseCase {
     func execute(token: Token, groupId: Int) -> Single<Void> {
         myGroupRepository
             .changeOnlineState(token: token.accessToken, groupId: groupId)
-            .map { [weak self] dto in
+            .do(onSuccess: { [weak self] dto in
                 self?.didChangeOnlineState.onNext((groupId, dto.data.memberId))
+            })
+            .map { dto in
                 return ()
             }
     }
