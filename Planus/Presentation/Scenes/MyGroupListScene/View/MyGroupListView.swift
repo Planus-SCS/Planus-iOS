@@ -35,7 +35,7 @@ final class MyGroupListView: UIView {
     lazy var notificationButton: UIBarButtonItem = {
         let image = UIImage(named: "notificationIcon")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
@@ -54,7 +54,7 @@ final class MyGroupListView: UIView {
 // MARK: Configure UI
 private extension MyGroupListView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(emptyResultView)
         self.addSubview(resultCollectionView)
     }

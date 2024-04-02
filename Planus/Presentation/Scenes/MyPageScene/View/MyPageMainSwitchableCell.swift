@@ -16,7 +16,7 @@ final class MyPageMainSwitchableCell: UICollectionViewCell {
     private var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 16)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.sizeToFit()
         return label
     }()
@@ -24,10 +24,10 @@ final class MyPageMainSwitchableCell: UICollectionViewCell {
     lazy var onSwitch: UISwitch = {
         let swicth: UISwitch = UISwitch()
         swicth.isOn = false
-        swicth.onTintColor = UIColor(hex: 0x6495F4)
-        swicth.tintColor = UIColor(hex: 0x6F81A9)
+        swicth.onTintColor = .planusTintBlue
+        swicth.tintColor = .planusDeepNavy
         swicth.layer.cornerRadius = 14
-        swicth.backgroundColor = UIColor(hex: 0x6F81A9)
+        swicth.backgroundColor = .planusDeepNavy
         swicth.clipsToBounds = true
         
         return swicth
@@ -51,7 +51,7 @@ final class MyPageMainSwitchableCell: UICollectionViewCell {
     }
     
     private func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(titleLabel)
         self.addSubview(onSwitch)
     }

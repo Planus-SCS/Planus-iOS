@@ -13,7 +13,7 @@ final class CustomAlertViewController: UIViewController {
     
     private lazy var containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        view.backgroundColor = .planusBackgroundColor
         view.layer.cornerRadius = 12
         view.layer.masksToBounds = true
         view.layer.cornerCurve = .continuous
@@ -40,7 +40,7 @@ final class CustomAlertViewController: UIViewController {
         label.textAlignment = .center
         label.font = UIFont(name: "Pretendard-Bold", size: 16)
         label.numberOfLines = 0
-        label.textColor = .black.withAlphaComponent(0.9)
+        label.textColor = .planusBlack.withAlphaComponent(0.9)
         return label
     }()
     
@@ -49,7 +49,7 @@ final class CustomAlertViewController: UIViewController {
         label.text = messageText
         label.textAlignment = .center
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = .black.withAlphaComponent(0.9)
+        label.textColor = .planusBlack.withAlphaComponent(0.9)
         label.numberOfLines = 0
         return label
     }()
@@ -79,11 +79,11 @@ final class CustomAlertViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         containerView.alpha = 0.0
-        view.backgroundColor = .black.withAlphaComponent(0)
+        view.backgroundColor = .planusBlack.withAlphaComponent(0)
         containerView.isHidden = false
         UIView.animate(withDuration: 0.15, delay: 0.0, options: .curveEaseIn) { [weak self] in
             self?.containerView.alpha = 1.0
-            self?.view.backgroundColor = .black.withAlphaComponent(0.4)
+            self?.view.backgroundColor = .planusBlack.withAlphaComponent(0.4)
         }
     }
 
@@ -96,7 +96,7 @@ final class CustomAlertViewController: UIViewController {
             options: .curveEaseOut,
             animations: { [weak self] in
                 self?.containerView.alpha = 0.0
-                self?.view.backgroundColor = .black.withAlphaComponent(0)
+                self?.view.backgroundColor = .planusBlack.withAlphaComponent(0)
             },
             completion: { [weak self] _ in
                 self?.containerView.isHidden = true
@@ -136,7 +136,7 @@ final class CustomAlertViewController: UIViewController {
     
     // MARK: - methods
     public func addActionToButton(title: String? = nil,
-                                  titleColor: UIColor = .white,
+                                  titleColor: UIColor = .planusWhite,
                                   backgroundColor: UIColor,
                                   completion: (() -> Void)? = nil) {
         let button = SpringableButton(frame: .zero)

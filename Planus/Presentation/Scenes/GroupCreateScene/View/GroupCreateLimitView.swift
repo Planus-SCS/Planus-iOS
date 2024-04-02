@@ -13,7 +13,7 @@ class GroupCreateLimitView: UIView {
     var limitTitleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "그룹 인원을 설정하세요"
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.font = UIFont(name: "Pretendard-SemiBold", size: 16)
         return label
     }()
@@ -21,19 +21,19 @@ class GroupCreateLimitView: UIView {
     var limitDescLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "숫자를 클릭하여 입력하세요"
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
         return label
     }()
     
     lazy var limitField: UITextField = {
         let textField = UITextField(frame: .zero)
-        textField.textColor = .black
+        textField.textColor = .planusBlack
         textField.font = UIFont(name: "Pretendard-Regular", size: 16)
         
-        textField.backgroundColor = .white
+        textField.backgroundColor = .planusWhite
         textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor(hex: 0x6F81A9).cgColor
+        textField.layer.borderColor = UIColor.planusDeepNavy.cgColor
         textField.layer.cornerRadius = 10
         textField.clipsToBounds = true
         
@@ -42,7 +42,7 @@ class GroupCreateLimitView: UIView {
 
         textField.attributedPlaceholder = NSAttributedString(
             string: "50",
-            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
+            attributes:[NSAttributedString.Key.foregroundColor: UIColor.planusPlaceholderColor]
         )
         
         textField.keyboardType = .numberPad
@@ -54,7 +54,7 @@ class GroupCreateLimitView: UIView {
         let label = UILabel(frame: .zero)
         label.text = "명"
         label.font = UIFont(name: "Pretendard-Bold", size: 16)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         return label
     }()
     
@@ -62,7 +62,7 @@ class GroupCreateLimitView: UIView {
         let label = UILabel(frame: .zero)
         label.text = "최대 인원"
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         return label
     }()
     
@@ -70,7 +70,7 @@ class GroupCreateLimitView: UIView {
         let label = UILabel(frame: .zero)
         label.text = "50명"
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         return label
     }()
     

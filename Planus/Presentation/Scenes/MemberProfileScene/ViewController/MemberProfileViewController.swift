@@ -34,7 +34,7 @@ final class MemberProfileViewController: UIViewController {
     
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        collectionView.backgroundColor = .planusBackgroundColor
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.showsHorizontalScrollIndicator = false
@@ -48,7 +48,7 @@ final class MemberProfileViewController: UIViewController {
     private lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
@@ -202,7 +202,7 @@ private extension MemberProfileViewController {
 // MARK: - Configure
 private extension MemberProfileViewController {
     func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.backgroundColor = .planusBackgroundColor
 
         self.view.addSubview(headerView)
         self.view.addSubview(calendarHeaderView)

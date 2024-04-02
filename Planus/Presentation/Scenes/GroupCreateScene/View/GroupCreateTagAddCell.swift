@@ -27,7 +27,7 @@ class GroupCreateTagAddCell: SpringableCollectionViewCell {
     }
     
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0x6495F4)
+        self.backgroundColor = .planusTintBlue
         self.layer.cornerRadius = 10
         self.layer.cornerCurve = .continuous
         self.addSubview(imageView)

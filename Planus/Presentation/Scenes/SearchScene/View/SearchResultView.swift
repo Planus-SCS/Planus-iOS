@@ -31,14 +31,14 @@ final class SearchResultView: UIView {
     lazy var resultCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createSection())
         collectionView.register(SearchResultCell.self, forCellWithReuseIdentifier: SearchResultCell.reuseIdentifier)
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        collectionView.backgroundColor = .planusBackgroundColor
         collectionView.refreshControl = refreshControl
         return collectionView
     }()
     
     var headerView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        view.backgroundColor = .planusBackgroundColor
         view.layer.masksToBounds = false
         view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
         view.layer.shadowOpacity = 1
@@ -50,16 +50,16 @@ final class SearchResultView: UIView {
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
     lazy var searchBarField: UITextField = {
         let textField = UITextField(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 70, height: 40))
-        textField.textColor = .black
+        textField.textColor = .planusBlack
         textField.font = UIFont(name: "Pretendard-Medium", size: 12)
         
-        textField.backgroundColor = .white
+        textField.backgroundColor = .planusWhite
         textField.layer.cornerRadius = 10
         textField.clipsToBounds = true
         textField.clearButtonMode = .whileEditing
@@ -70,7 +70,7 @@ final class SearchResultView: UIView {
         textField.returnKeyType = .search
         textField.attributedPlaceholder = NSAttributedString(
             string: "그룹명 또는 태그를 검색해보세요.",
-            attributes:[NSAttributedString.Key.foregroundColor: UIColor(hex: 0x7A7A7A)]
+            attributes:[NSAttributedString.Key.foregroundColor: UIColor.planusPlaceholderColor]
         )
 
         return textField
@@ -105,7 +105,7 @@ final class SearchResultView: UIView {
 // MARK: Configure UI
 private extension SearchResultView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(resultCollectionView)
         self.addSubview(emptyResultView)
         self.addSubview(historyView)

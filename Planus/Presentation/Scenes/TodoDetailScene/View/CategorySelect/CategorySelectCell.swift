@@ -14,7 +14,7 @@ class CategorySelectCell: UITableViewCell {
         let label = UILabel(frame: .zero)
         label.sizeToFit()
         label.font = UIFont(name: "Pretendard-Medium", size: 16)
-        label.textColor = .black
+        label.textColor = .planusBlack
         return label
     }()
     
@@ -39,7 +39,7 @@ class CategorySelectCell: UITableViewCell {
     func configureView() {
         self.contentView.addSubview(nameLabel)
         self.contentView.addSubview(colorView)
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
     }
     
     func configureLayout() {

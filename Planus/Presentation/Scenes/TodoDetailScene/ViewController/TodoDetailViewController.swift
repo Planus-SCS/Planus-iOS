@@ -127,7 +127,7 @@ extension TodoDetailViewController {
                 vc.todoDetailView.memoView.memoTextView.text = text
                 
                 let memoAttrIndex = TodoDetailAttribute.memo.rawValue
-                vc.todoDetailView.icnView.buttonList[memoAttrIndex].tintColor = (text == nil) ? .gray : .black
+                vc.todoDetailView.icnView.buttonList[memoAttrIndex].tintColor = (text == nil) ? .gray : .planusBlack
                 if viewModel.mode == .view {
                     vc.todoDetailView.icnView.buttonList[memoAttrIndex].isUserInteractionEnabled = text != nil
                 }
@@ -148,7 +148,7 @@ extension TodoDetailViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, time in
                 let clockAttrIndex = TodoDetailAttribute.clock.rawValue
-                vc.todoDetailView.icnView.buttonList[clockAttrIndex].tintColor = (time == nil) ? .gray : .black
+                vc.todoDetailView.icnView.buttonList[clockAttrIndex].tintColor = (time == nil) ? .gray : .planusBlack
                 
                 if viewModel.mode == .view {
                     vc.todoDetailView.icnView.buttonList[clockAttrIndex].isUserInteractionEnabled = time != nil
@@ -171,11 +171,11 @@ extension TodoDetailViewController {
             .subscribe(onNext: { vc, category in
                 if let category {
                     vc.todoDetailView.titleView.categoryButton.categoryLabel.text = category.title
-                    vc.todoDetailView.titleView.categoryButton.categoryLabel.textColor = UIColor(hex: 0x000000)
+                    vc.todoDetailView.titleView.categoryButton.categoryLabel.textColor = .planusBlack
                     vc.todoDetailView.titleView.categoryButton.categoryColorView.backgroundColor = category.color.todoForCalendarColor
                 } else {
                     vc.todoDetailView.titleView.categoryButton.categoryLabel.text = "카테고리 선택"
-                    vc.todoDetailView.titleView.categoryButton.categoryLabel.textColor = UIColor(hex: 0xBFC7D7)
+                    vc.todoDetailView.titleView.categoryButton.categoryLabel.textColor = .planusLightGray
                     vc.todoDetailView.titleView.categoryButton.categoryColorView.backgroundColor = .gray
                 }
                 vc.moveFromSelectToAdd()
@@ -188,7 +188,7 @@ extension TodoDetailViewController {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { vc, groupName in
                 let groupAttrIndex = TodoDetailAttribute.group.rawValue
-                vc.todoDetailView.icnView.buttonList[groupAttrIndex].tintColor = (groupName == nil) ? .gray : .black
+                vc.todoDetailView.icnView.buttonList[groupAttrIndex].tintColor = (groupName == nil) ? .gray : .planusBlack
                 if viewModel.mode == .view {
                     vc.todoDetailView.icnView.buttonList[groupAttrIndex].isUserInteractionEnabled = groupName != nil
                 }
@@ -347,7 +347,7 @@ private extension TodoDetailViewController {
          todoDetailView.icnView,
          dayPickerViewController.view,
          todoDetailView.curtainView].forEach {
-            $0?.backgroundColor = UIColor(hex: 0xF5F5FB)
+            $0?.backgroundColor = .planusBackgroundColor
         }
         
         self.view.addSubview(categoryView)

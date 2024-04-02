@@ -51,7 +51,7 @@ final class TodoDetailIcnView: UIView {
             button.tag = attr.rawValue
             button.setImage(image, for: .normal)
             button.addTarget(self, action: #selector(btnTapped), for: .touchUpInside)
-            button.tintColor = (attr == .title || attr == .calendar) ? .black : .gray
+            button.tintColor = (attr == .title || attr == .calendar) ? .planusBlack : .gray
             return button
         }
     }()

@@ -28,7 +28,7 @@ final class GroupCreateView: UIView {
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
@@ -49,7 +49,7 @@ private extension GroupCreateView {
     func configureView() {
         createButtonView.wideButton.setTitle("그룹 생성하기", for: .normal)
 
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(scrollView)
         
         scrollView.addSubview(contentStackView)

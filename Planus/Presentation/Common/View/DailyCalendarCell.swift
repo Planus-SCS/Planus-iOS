@@ -135,7 +135,7 @@ extension CalendarDailyCell {
         numberLabel.text = day
         
         if isToday {
-            numberLabel.textColor = .white
+            numberLabel.textColor = .planusWhite
             numberLabel.font = UIFont(name: "Pretendard-Bold", size: 10)
             todayImageView.isHidden = false
         } else {
@@ -226,7 +226,7 @@ extension CalendarDailyCell {
             let label = UILabel(frame: .zero)
             label.font = UIFont(name: "Pretendard-SemiBold", size: 10)
             label.textAlignment = .center
-            label.textColor =  UIColor(hex: 0xEA4335, a: alpha)
+            label.textColor =  .planusTintRed.withAlphaComponent(alpha)
             return label
         }()
         titleLabel.text = title

@@ -25,7 +25,7 @@ class MyGroupMemberCell: GroupIntroduceMemberCell {
         super.fill(name: name, introduce: introduce, isCaptin: isCaptin, imgFetcher: imgFetcher)
         memberImageView.alpha = isOnline ? 1.0 : 0.5
         memberImageView.layer.borderColor
-        = isOnline ? UIColor(hex: 0x6495F4).cgColor : UIColor.gray.cgColor
+        = isOnline ? UIColor.planusTintBlue.cgColor : UIColor.gray.cgColor
 
     }
 }

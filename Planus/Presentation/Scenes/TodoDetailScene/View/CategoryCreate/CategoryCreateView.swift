@@ -25,7 +25,7 @@ class CategoryCreateView: UIView {
         let button = UIButton(frame: .zero)
         button.setTitle("저장", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 16)
-        button.setTitleColor(UIColor(hex: 0x6495F4), for: .normal)
+        button.setTitleColor(.planusTintBlue, for: .normal)
         button.sizeToFit()
         return button
     }()
@@ -66,7 +66,7 @@ class CategoryCreateView: UIView {
     lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
         cv.register(CategoryCreateCell.self, forCellWithReuseIdentifier: CategoryCreateCell.reuseIdentifier)
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.backgroundColor = .planusBackgroundColor
         return cv
     }()
     
@@ -81,7 +81,7 @@ class CategoryCreateView: UIView {
     }
     
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.layer.cornerRadius = 10
         self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         self.clipsToBounds = true

@@ -17,7 +17,7 @@ class TodoDetailTitleView: UIView, TodoDetailAttributeView {
     var todoTitleField: UITextField = {
         let textField = UITextField(frame: .zero)
         textField.font = UIFont(name: "Pretendard-Regular", size: 20)
-        textField.textColor = .black
+        textField.textColor = .planusBlack
         textField.placeholder = "일정을 입력하세요"
         textField.autocorrectionType = .no
         textField.spellCheckingType = .no

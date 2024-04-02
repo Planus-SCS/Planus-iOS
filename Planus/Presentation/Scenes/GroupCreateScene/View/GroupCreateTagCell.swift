@@ -15,7 +15,7 @@ class GroupCreateTagCell: SpringableCollectionViewCell {
     var label: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 14)
-        label.textColor = .white
+        label.textColor = .planusWhite
         return label
     }()
     
@@ -39,7 +39,7 @@ class GroupCreateTagCell: SpringableCollectionViewCell {
     }
     
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0x6495F4)
+        self.backgroundColor = .planusTintBlue
         self.layer.cornerRadius = 10
         self.layer.cornerCurve = .continuous
         

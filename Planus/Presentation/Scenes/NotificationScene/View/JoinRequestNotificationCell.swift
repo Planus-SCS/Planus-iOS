@@ -30,7 +30,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
     var groupTitleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 12)
-        label.textColor = UIColor(hex: 0x6495F4)
+        label.textColor = .planusTintBlue
         label.isSkeletonable = true
         return label
     }()
@@ -38,7 +38,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
     var nameLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-SemiBold", size: 16)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.isSkeletonable = true
         return label
     }()
@@ -46,7 +46,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
     var descLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.isSkeletonable = true
         return label
     }()
@@ -54,7 +54,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
     lazy var allowButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
         button.setTitle("수락", for: .normal)
-        button.setTitleColor(UIColor(hex: 0x6495F4), for: .normal)
+        button.setTitleColor(.planusTintBlue, for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 14)
         button.backgroundColor = UIColor(hex: 0xD2E6F6)
         button.layer.cornerRadius = 10
@@ -89,7 +89,7 @@ class GroupJoinNotificationCell: UICollectionViewCell {
     }
     
     func configureView() {
-        self.backgroundColor = .white
+        self.backgroundColor = .planusWhite
         self.layer.cornerRadius = 10
         self.layer.cornerCurve = .continuous
         self.layer.masksToBounds = false

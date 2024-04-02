@@ -30,13 +30,13 @@ final class MyGroupNoticeEditView: UIView {
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
     lazy var saveButton: UIBarButtonItem = {
         let item = UIBarButtonItem(image: UIImage(named: "saveBarBtn"), style: .plain, target: nil, action: nil)
-        item.tintColor = UIColor(hex: 0x6495F4)
+        item.tintColor = .planusTintBlue
         return item
     }()
     
@@ -54,7 +54,7 @@ final class MyGroupNoticeEditView: UIView {
 
 private extension MyGroupNoticeEditView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(noticeTextView)
     }
     

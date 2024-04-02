@@ -96,7 +96,7 @@ private extension GroupCreateViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
                 groupCreateView.infoView.groupNameField.layer.borderColor
-                = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
+                = filled ? UIColor.planusDeepNavy.cgColor : UIColor.planusTintRed.cgColor
             })
             .disposed(by: bag)
         
@@ -107,7 +107,7 @@ private extension GroupCreateViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
                 groupCreateView.infoView.groupNoticeTextView.layer.borderColor
-                = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
+                = filled ? UIColor.planusDeepNavy.cgColor : UIColor.planusTintRed.cgColor
             })
             .disposed(by: bag)
         
@@ -118,7 +118,7 @@ private extension GroupCreateViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
                 groupCreateView.infoView.groupNoticeTextView.layer.borderColor
-                = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
+                = filled ? UIColor.planusDeepNavy.cgColor : UIColor.planusTintRed.cgColor
             })
             .disposed(by: bag)
         
@@ -129,7 +129,7 @@ private extension GroupCreateViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
                 groupCreateView.limitView.limitField.layer.borderColor
-                = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
+                = filled ? UIColor.planusDeepNavy.cgColor : UIColor.planusTintRed.cgColor
             })
             .disposed(by: bag)
         

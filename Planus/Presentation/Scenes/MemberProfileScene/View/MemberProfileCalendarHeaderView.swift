@@ -15,8 +15,8 @@ final class MemberProfileCalendarHeaderView: UIView {
         button.setImage(UIImage(named: "downButton"), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         button.imageEdgeInsets = .init(top: 0, left: 5, bottom: 0, right: -5)
-        button.tintColor = .black
-        button.setTitleColor(.black, for: .normal)
+        button.tintColor = .planusBlack
+        button.setTitleColor(.planusBlack, for: .normal)
         
         return button
     }()
@@ -50,7 +50,7 @@ final class MemberProfileCalendarHeaderView: UIView {
 // MARK: - configure
 private extension MemberProfileCalendarHeaderView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(yearMonthButton)
         self.addSubview(weekStackView)
     }

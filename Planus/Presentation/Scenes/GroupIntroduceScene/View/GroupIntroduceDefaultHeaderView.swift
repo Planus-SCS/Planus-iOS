@@ -15,7 +15,7 @@ final class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
     
     var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.textColor = UIColor(hex: 0x6495F4)
+        label.textColor = .planusTintBlue
         label.font = UIFont(name: "Pretendard-Medium", size: 16)
         label.isSkeletonable = true
         return label
@@ -23,7 +23,7 @@ final class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
     
     var descLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.font = UIFont(name: "Pretendard-SemiBold", size: 18)
         label.isSkeletonable = true
         return label
@@ -48,7 +48,7 @@ final class GroupIntroduceDefaultHeaderView: UICollectionReusableView {
 // MARK: - configure
 private extension GroupIntroduceDefaultHeaderView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(titleLabel)
         self.addSubview(descLabel)
     }

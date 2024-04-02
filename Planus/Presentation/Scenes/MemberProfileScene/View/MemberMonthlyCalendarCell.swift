@@ -30,7 +30,7 @@ final class MemberMonthlyCalendarCell: NestedScrollableCell {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.dataSource = self
         cv.delegate = self
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.backgroundColor = .planusBackgroundColor
         cv.showsVerticalScrollIndicator = false
         cv.alwaysBounceVertical = true
         cv.register(CalendarDailyCell.self, forCellWithReuseIdentifier: CalendarDailyCell.identifier)

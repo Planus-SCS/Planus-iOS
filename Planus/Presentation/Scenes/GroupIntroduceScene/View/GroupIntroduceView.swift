@@ -27,13 +27,13 @@ final class GroupIntroduceView: UIView {
         cv.register(GroupIntroduceInfoHeaderView.self,
                     forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
                     withReuseIdentifier: GroupIntroduceInfoHeaderView.reuseIdentifier)
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.backgroundColor = .planusBackgroundColor
         return cv
     }()
     
     var stickyFooterView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        view.backgroundColor = .planusBackgroundColor
         view.layer.masksToBounds = false
         view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
         view.layer.shadowOpacity = 1
@@ -45,8 +45,8 @@ final class GroupIntroduceView: UIView {
     var joinButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
         button.setTitle("로딩중", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(hex: 0x6495F4)
+        button.setTitleColor(.planusWhite, for: .normal)
+        button.backgroundColor = .planusTintBlue
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
         button.layer.cornerRadius = 10
         button.layer.cornerCurve = .continuous
@@ -61,14 +61,14 @@ final class GroupIntroduceView: UIView {
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
     lazy var shareButton: UIBarButtonItem = {
         let image = UIImage(named: "share")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
@@ -87,7 +87,7 @@ final class GroupIntroduceView: UIView {
 // MARK: Configure View
 private extension GroupIntroduceView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         
         self.addSubview(collectionView)
         self.addSubview(stickyFooterView)

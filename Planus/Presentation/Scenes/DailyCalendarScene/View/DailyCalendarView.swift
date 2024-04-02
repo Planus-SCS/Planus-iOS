@@ -12,14 +12,14 @@ final class DailyCalendarView: UIView {
     lazy var addTodoButton: UIBarButtonItem = {
         let image = UIImage(named: "plusBtn")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
     lazy var dateTitleButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
         button.titleLabel?.font = UIFont(name: "Pretendard-Bold", size: 18)
-        button.setTitleColor(.black, for: .normal)
+        button.setTitleColor(.planusBlack, for: .normal)
         button.sizeToFit()
         return button
     }()
@@ -44,7 +44,7 @@ final class DailyCalendarView: UIView {
 // MARK: configure UI
 extension DailyCalendarView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(collectionView)
     }
     
