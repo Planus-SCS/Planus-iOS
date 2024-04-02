@@ -7,7 +7,7 @@
 
 import Foundation
 
-class DefaultRemoveTokenUseCase: RemoveTokenUseCase {
+final class DefaultRemoveTokenUseCase: RemoveTokenUseCase {
     let tokenRepository: TokenRepository
     
     init(tokenRepository: TokenRepository) {

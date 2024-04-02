@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultDeleteGroupUseCase: DeleteGroupUseCase {
+final class DefaultDeleteGroupUseCase: DeleteGroupUseCase {
 
     let myGroupRepository: MyGroupRepository
-    
-    var didDeleteGroupWithId = PublishSubject<Int>()
+    let didDeleteGroupWithId = PublishSubject<Int>()
     
     init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository
@@ -21,8 +20,10 @@ class DefaultDeleteGroupUseCase: DeleteGroupUseCase {
     func execute(token: Token, groupId: Int) -> Single<Void> {
         myGroupRepository
             .removeGroup(token: token.accessToken, groupId: groupId)
-            .map { [weak self] _ in
+            .do(onSuccess: { [weak self] _ in
                 self?.didDeleteGroupWithId.onNext(groupId)
+            })
+            .map { _ in
                 return
             }
     }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-class DefaultSetTokenUseCase: SetTokenUseCase {
+final class DefaultSetTokenUseCase: SetTokenUseCase {
     let tokenRepository: TokenRepository
     
     init(tokenRepository: TokenRepository) {

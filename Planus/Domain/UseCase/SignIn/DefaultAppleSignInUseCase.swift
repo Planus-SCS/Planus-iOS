@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultAppleSignInUseCase: AppleSignInUseCase {
+final class DefaultAppleSignInUseCase: AppleSignInUseCase {
     let socialAuthRepository: SocialAuthRepository
     
     init(

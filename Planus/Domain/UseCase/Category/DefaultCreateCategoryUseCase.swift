@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
+final class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
 
     let categoryRepository: CategoryRepository
-    
-    var didCreateCategory = PublishSubject<Category>()
+    let didCreateCategory = PublishSubject<Category>()
     
     init(
         categoryRepository: CategoryRepository
@@ -25,11 +24,11 @@ class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
             token: token.accessToken,
             category: category.toDTO()
         )
-        .map { [weak self] dto in
+        .map { $0.data.id }
+        .do(onSuccess: { [weak self] id in
             var categoryWithId = category
-            categoryWithId.id = dto.data.id
+            categoryWithId.id = id
             self?.didCreateCategory.onNext(categoryWithId)
-            return dto.data.id
-        }
+        })
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-class DefaultDateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase {
+final class DefaultDateFormatYYYYMMUseCase: DateFormatYYYYMMUseCase {
     
     lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()

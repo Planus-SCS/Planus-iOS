@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase {
+final class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase {
 
     let categoryRepository: GroupCategoryRepository
-    
-    var didUpdateCategoryWithGroupId = PublishSubject<(groupId: Int, category: Category)>()
+    let didUpdateCategoryWithGroupId = PublishSubject<(groupId: Int, category: Category)>()
     
     init(
         categoryRepository: GroupCategoryRepository
@@ -27,8 +26,10 @@ class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase {
             categoryId: categoryId,
             category: category.toDTO()
         )
-        .map { [weak self] dto in
+        .do(onSuccess: { [weak self] _ in
             self?.didUpdateCategoryWithGroupId.onNext((groupId: groupId, category: category))
+        })
+        .map { dto in
             return dto.data.id
         }
     }

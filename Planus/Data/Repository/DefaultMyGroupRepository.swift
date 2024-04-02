@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultMyGroupRepository: MyGroupRepository {
+final class DefaultMyGroupRepository: MyGroupRepository {
     let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {

@@ -149,7 +149,7 @@ final class CustomAlertViewController: UIViewController {
         button.layer.cornerCurve = .continuous
         button.layer.masksToBounds = true
         
-        let action = UIAction { [weak self] _ in
+        let action = UIAction { _ in
             completion?()
         }
         button.addAction(action, for: .touchUpInside)

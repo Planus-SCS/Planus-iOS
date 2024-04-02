@@ -18,7 +18,7 @@ public struct DataAssembly: Assembly {
         
         container.register(TodoRepository.self) { r in
             let apiProvider = r.resolve(APIProvider.self)!
-            return TestTodoDetailRepository(apiProvider: apiProvider)
+            return DefaultTodoDetailRepository(apiProvider: apiProvider)
         }
         
         container.register(CategoryRepository.self) { r in

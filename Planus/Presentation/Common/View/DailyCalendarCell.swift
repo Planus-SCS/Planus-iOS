@@ -176,7 +176,7 @@ extension CalendarDailyCell {
     func fillAndFit(periodTodoList: [(Int, TodoSummaryViewModel)], singleTodoList: [(Int, TodoSummaryViewModel)], holiday: (Int, String)?) -> CGFloat {
         fill(periodTodoList: periodTodoList, singleTodoList: singleTodoList, holiday: holiday)
         remakeStackConstForMock()
-        var targetHeight: CGFloat = 100
+
         let estimatedSize = self.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
 
         let estimatedHeight = estimatedSize.height
@@ -212,7 +212,7 @@ extension CalendarDailyCell {
     
     func stackSmallTodoView(title: String, color: CategoryColor, startDate: Date, endDate: Date, isComplete: Bool? = nil) {
         let diff = (Calendar.current.dateComponents([.day], from: startDate, to: endDate).day ?? 0) + 1
-        var todoView = SmallTodoView(title: title, categoryColor: color, isComplete: isComplete)
+        let todoView = SmallTodoView(title: title, categoryColor: color, isComplete: isComplete)
 
         todoView.snp.makeConstraints {
             $0.width.equalTo(UIScreen.main.bounds.width * Double(1)/Double(7) * Double(diff) - 6)

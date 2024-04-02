@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultWithdrawGroupUseCase: WithdrawGroupUseCase {
+final class DefaultWithdrawGroupUseCase: WithdrawGroupUseCase {
 
     let myGroupRepository: MyGroupRepository
-    
-    var didWithdrawGroup = PublishSubject<Int>()
+    let didWithdrawGroup = PublishSubject<Int>()
     
     init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository
@@ -21,8 +20,10 @@ class DefaultWithdrawGroupUseCase: WithdrawGroupUseCase {
     func execute(token: Token, groupId: Int) -> Single<Void> {
         myGroupRepository
             .withdrawGroup(token: token.accessToken, groupId: groupId)
-            .map { [weak self] _ in
+            .do(onSuccess: { [weak self] _ in
                 self?.didWithdrawGroup.onNext(groupId)
+            })
+            .map { _ in
                 return ()
             }
     }

@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultGoogleSignInUseCase: GoogleSignInUseCase {
+final class DefaultGoogleSignInUseCase: GoogleSignInUseCase {
     
     let socialAuthRepository: SocialAuthRepository
     

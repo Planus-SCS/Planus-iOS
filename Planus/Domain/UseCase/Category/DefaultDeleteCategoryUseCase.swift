@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
+final class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
 
     let categoryRepository: CategoryRepository
     
@@ -22,9 +22,9 @@ class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
         let accessToken = token.accessToken
         return categoryRepository
             .delete(token: accessToken, id: id)
-            .map { [weak self] _ in
+            .map { _ in return }
+            .do(onSuccess: { [weak self] _ in
                 self?.didDeleteCategory.onNext(id)
-                return ()
-            }
+            })
     }
 }

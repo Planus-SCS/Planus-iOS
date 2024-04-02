@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultDeleteTodoUseCase: DeleteTodoUseCase {
+final class DefaultDeleteTodoUseCase: DeleteTodoUseCase {
 
     let todoRepository: TodoRepository
 
@@ -18,12 +18,11 @@ class DefaultDeleteTodoUseCase: DeleteTodoUseCase {
         self.todoRepository = todoRepository
     }
     
-    func execute(token: Token, todo: Todo) -> Single<Void> { //id만 담아서 보내면 되나? 아니! 보낼때는 id만 담되, 제거할땐 투두 자체를 뿌리자
+    func execute(token: Token, todo: Todo) -> Single<Void> {
         return todoRepository
             .deleteTodo(token: token.accessToken, id: todo.id ?? Int())
-            .map { [weak self] in
+            .do(onSuccess: { [weak self] in
                 self?.didDeleteTodo.onNext(todo)
-                return $0
-            }
+            })
     }
 }

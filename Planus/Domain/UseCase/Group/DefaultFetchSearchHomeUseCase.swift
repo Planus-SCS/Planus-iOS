@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultFetchSearchHomeUseCase: FetchSearchHomeUseCase {
+final class DefaultFetchSearchHomeUseCase: FetchSearchHomeUseCase {
     let groupRepository: GroupRepository
     
     init(groupRepository: GroupRepository) {

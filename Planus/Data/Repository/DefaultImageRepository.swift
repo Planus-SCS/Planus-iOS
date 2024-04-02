@@ -16,7 +16,7 @@ class CacheWrapper<T>: NSObject {
     }
 }
 
-class DefaultImageRepository: ImageRepository {
+final class DefaultImageRepository: ImageRepository {
 
     let memoryCache = NSCache<NSString, CacheWrapper<Data>>()
     let apiProvider: APIProvider

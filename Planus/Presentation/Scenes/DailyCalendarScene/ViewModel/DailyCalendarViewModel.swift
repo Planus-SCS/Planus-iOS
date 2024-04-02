@@ -345,7 +345,7 @@ private extension DailyCalendarViewModel {
 private extension DailyCalendarViewModel {
     func todoItemSelected(at indexPath: IndexPath) {
         guard !todos[indexPath.section].isEmpty else { return }
-        var item = todos[indexPath.section][indexPath.item]
+        let item = todos[indexPath.section][indexPath.item]
 
         let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
         let groupName: GroupName? = {
@@ -381,7 +381,7 @@ private extension DailyCalendarViewModel {
             }
             .subscribe(onFailure: { [weak self] error in
                 guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let _, let message) = error,
+                      case NetworkManagerError.clientError(_, let message) = error,
                       let message = message else { return }
                 self?.showAlert.onNext(Message(text: message, state: .warning))
             })

@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultSetOnlineUseCase: SetOnlineUseCase {
+final class DefaultSetOnlineUseCase: SetOnlineUseCase {
 
     let myGroupRepository: MyGroupRepository
     
@@ -21,8 +21,10 @@ class DefaultSetOnlineUseCase: SetOnlineUseCase {
     func execute(token: Token, groupId: Int) -> Single<Void> {
         myGroupRepository
             .changeOnlineState(token: token.accessToken, groupId: groupId)
-            .map { [weak self] dto in
+            .do(onSuccess: { [weak self] dto in
                 self?.didChangeOnlineState.onNext((groupId, dto.data.memberId))
+            })
+            .map { dto in
                 return ()
             }
     }

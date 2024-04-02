@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultCategoryRepository: CategoryRepository { //읽어온 다음에 메모리 캐시에 존재할 경우 메모리를 이용하도록 하자..!
+final class DefaultCategoryRepository: CategoryRepository {
     let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {
