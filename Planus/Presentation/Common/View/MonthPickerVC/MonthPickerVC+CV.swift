@@ -69,7 +69,7 @@ extension MonthPickerViewController: UICollectionViewDelegate, UICollectionViewD
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let index = Double(scrollView.contentOffset.x)/Double(290)
         if index < 1 && ceil(index) == 0 {
-            scrollView.setContentOffset(CGPoint(x: 290, y: 0), animated: false) //이때 앞으로 전진한거임. year를 하나 앞으로 바꾸고 리로드해야함
+            scrollView.setContentOffset(CGPoint(x: 290, y: 0), animated: false)
             centeredYear?-=1
             yearLabel.text = "\(centeredYear ?? 0)년"
             collectionView.reloadData()

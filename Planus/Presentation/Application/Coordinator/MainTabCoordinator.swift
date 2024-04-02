@@ -99,7 +99,7 @@ final class MainTabCoordinator: NSObject, Coordinator {
             tag: page.rawValue
         )
 
-        // 각 코디네이터 생성 후 추가 예정
+
         switch page {
         case .calendar:
             let homeCalendarCoordinator = HomeCalendarCoordinator(

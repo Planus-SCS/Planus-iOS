@@ -280,7 +280,7 @@ extension SearchResultViewModel {
                     self.result += list
                     self.didFetchAdditionalResult.onNext((self.page * self.size..<self.page * self.size+list.count))
                 }
-                if list.count != self.size { //이럼 끝에 달한거임. 막아야함..!
+                if list.count != self.size {
                     self.resultEnded.onNext(())
                 }
                 self.page += 1

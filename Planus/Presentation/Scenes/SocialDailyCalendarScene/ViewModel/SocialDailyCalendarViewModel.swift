@@ -145,13 +145,13 @@ private extension SocialDailyCalendarViewModel {
 
         var args: SocialTodoDetailViewModel.Args
         switch type {
-        case .member(let id): //조회용
+        case .member(let id):
             args = SocialTodoDetailViewModel.Args(
                 mode: .view,
                 info: SocialTodoInfo(group: group, memberId: id, todoId: todoId),
                 date: nil
             )
-        case .group(let isLeader): //edit or 조회
+        case .group(let isLeader):
             args = SocialTodoDetailViewModel.Args(
                 mode: isLeader ? .edit : .view,
                 info: SocialTodoInfo(group: group, todoId: todoId),

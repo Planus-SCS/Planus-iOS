@@ -110,7 +110,7 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
         )
     }
     
-    func setGroup(groupList: [GroupName]) { //애도 원래 이럼 안되고 fetch해와야함!
+    func setGroup(groupList: [GroupName]) {
         self.groups = groupList
     }
     

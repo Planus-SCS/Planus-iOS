@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-struct SocialTodoInfo { //그룹투두 또한 조회만 되기도 하고 주인장은 수정이 되기도 한다,,,
+struct SocialTodoInfo {
     var group: GroupName
     var memberId: Int?
     var todoId: Int?

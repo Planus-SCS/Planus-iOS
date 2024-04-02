@@ -11,7 +11,6 @@ import RxCocoa
 
 final class SearchResultViewController: UIViewController {
     
-    // 필요한거 화면에 뿌려줄 컬렉션 뷰, 근데 검색 결과를 보여줄 땐 한 뎁스를 타고 들어가야 한다!
     private var bag = DisposeBag()
     
     private var viewModel: SearchResultViewModel?
@@ -176,7 +175,7 @@ private extension SearchResultViewController {
 // MARK: Actions
 private extension SearchResultViewController {
     @objc func keyboardEvent(notification: Notification) {
-        if notification.name == UIResponder.keyboardWillShowNotification { // 여기서 히스토리 받아오기
+        if notification.name == UIResponder.keyboardWillShowNotification { // 히스토리 받아오기
             if let searchResultView,
                searchResultView.historyView.isHidden {
                 searchResultView.historyView.setAnimatedIsHidden(false, duration: 0.1, onCompletion: { [weak self] in
