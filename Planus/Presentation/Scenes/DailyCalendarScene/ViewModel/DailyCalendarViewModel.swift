@@ -77,17 +77,15 @@ final class DailyCalendarViewModel: ViewModel {
     struct Output {
         var currentDateText: String?
         var needInsertItem: Observable<IndexPath>
-        var needReloadItem: Observable<IndexPath>
         var needDeleteItem: Observable<IndexPath>
         var needReloadData: Observable<Void>
-        var needMoveItem: Observable<(IndexPath, IndexPath)>
+        var needUpdateItem: Observable<(removed: IndexPath, created: IndexPath)>
     }
     
     var needInsertItem = PublishSubject<IndexPath>()
-    var needReloadItem = PublishSubject<IndexPath>()
     var needDeleteItem = PublishSubject<IndexPath>()
     var needReloadData = PublishSubject<Void>()
-    var needMoveItem = PublishSubject<(IndexPath, IndexPath)>()
+    var needUpdateItem = PublishSubject<(removed: IndexPath, created: IndexPath)>()
     
 
     init(
@@ -156,10 +154,9 @@ final class DailyCalendarViewModel: ViewModel {
         return Output(
             currentDateText: currentDateText,
             needInsertItem: needInsertItem.asObservable(),
-            needReloadItem: needReloadItem.asObservable(),
             needDeleteItem: needDeleteItem.asObservable(),
             needReloadData: needReloadData.asObservable(),
-            needMoveItem: needMoveItem.asObservable()
+            needUpdateItem: needUpdateItem.asObservable()
         )
     }
 }
@@ -236,32 +233,26 @@ private extension DailyCalendarViewModel {
     }
     
     private func setTodoListSorted(todoList: [Todo]) {
-        var scheduled = [Todo]()
-        var unscheduled = [Todo]()
-        todoList.forEach { todo in
-            if let _ = todo.startTime {
-                scheduled.append(todo)
-            } else {
-                unscheduled.append(todo)
-            }
-        }
-        if let filteringGroupId {
-            scheduled = scheduled.filter { $0.groupId == filteringGroupId }
-            unscheduled = unscheduled.filter { $0.groupId == filteringGroupId }
+        // 필터링 그룹 ID에 따라 투두 필터링
+        let filteredTodoList = todoList.filter { todo in
+            guard let filteringGroupId = filteringGroupId else { return true }
+            return todo.groupId == filteringGroupId
         }
         
-        let idComparator: ((Todo, Todo) -> Bool) = { $0.id ?? Int() < $1.id ?? Int() }
-        let timeComparator: ((Todo, Todo) -> Bool) = { $0.startTime ?? String() < $1.startTime ?? String() }
-        scheduled
-        = scheduled.filter { $0.isGroupTodo }.sorted(by: timeComparator)
-        + scheduled.filter { !$0.isGroupTodo }.sorted(by: timeComparator)
+        // 일정과 투두를 분리
+        let scheduledTodos = filteredTodoList.filter { $0.startTime != nil }
+        let unscheduledTodos = filteredTodoList.filter { $0.startTime == nil }
         
-        unscheduled
-        = unscheduled.filter { $0.isGroupTodo }.sorted(by: idComparator)
-        + unscheduled.filter { !$0.isGroupTodo }.sorted(by: idComparator)
+        // 정렬 방식 정의
+        let timeComparator: ((Todo, Todo) -> Bool) = { $0.startTime ?? "" < $1.startTime ?? "" }
+        let idComparator: ((Todo, Todo) -> Bool) = { $0.id ?? 0 < $1.id ?? 0 }
         
-        self.scheduledTodoList = scheduled
-        self.unscheduledTodoList = unscheduled
+        let sortedScheduledTodos = scheduledTodos.sorted(by: timeComparator)
+        let sortedUnscheduledTodos = unscheduledTodos.sorted(by: idComparator)
+        
+        // 정렬된 할 일 목록을 설정합니다.
+        self.scheduledTodoList = sortedScheduledTodos
+        self.unscheduledTodoList = sortedUnscheduledTodos
     }
 }
 
@@ -277,29 +268,35 @@ private extension DailyCalendarViewModel {
             return
         }
         
-        createTodoData(todo: todo)
+        let indexPath = createTodoData(todo: todo)
+        needInsertItem.onNext(indexPath)
     }
     
     func notifiedTodoRemoved(todo: Todo) {
-        removeTodoData(todo: todo)
+        let indexPath = removeTodoData(todo: todo)
+        needDeleteItem.onNext(indexPath)
     }
     
     func notifiedTodoUpdated(before: Todo, after: Todo) {
         guard let currentDate else { return }
-        
+
         if after.startDate > currentDate || after.endDate < currentDate { //날짜 변경 시 제거
-            removeTodoData(todo: before)
+            let removedIndexPath = removeTodoData(todo: before)
+            needDeleteItem.onNext(removedIndexPath)
         }
         else if let filteringGroupId = filteringGroupId,
                 after.groupId != filteringGroupId { //만약 필터링 중인데 그룹이 바뀐 경우 제거
-            removeTodoData(todo: before)
+            let removedIndexPath = removeTodoData(todo: before)
+            needDeleteItem.onNext(removedIndexPath)
         }
         else {
-            updateTodoData(todoBeforeUpdate: before, todoAfterUpdate: after)
+            let removedIndexPath = removeTodoData(todo: before)
+            let createdIndexPath = createTodoData(todo: after)
+            needUpdateItem.onNext((removed: removedIndexPath, created: createdIndexPath))
         }
     }
     
-    func createTodoData(todo: Todo) {
+    func createTodoData(todo: Todo) -> IndexPath {
         var section: Int
         var item: Int
         if let _ = todo.startTime {
@@ -317,10 +314,10 @@ private extension DailyCalendarViewModel {
             section = 1
             item = (unscheduledTodoList?.count ?? Int()) - 1
         }
-        needInsertItem.onNext(IndexPath(item: item, section: section))
+        return IndexPath(item: item, section: section)
     }
     
-    func removeTodoData(todo: Todo) {
+    func removeTodoData(todo: Todo) -> IndexPath {
         var section: Int
         var item: Int
         
@@ -333,75 +330,8 @@ private extension DailyCalendarViewModel {
             item = unscheduledTodoList?.firstIndex(where: { $0.id == todo.id && !$0.isGroupTodo }) ?? 0
             unscheduledTodoList?.remove(at: item)
         }
-        needDeleteItem.onNext(IndexPath(item: item, section: section))
-    }
-    
-    func updateTodoData(todoBeforeUpdate: Todo, todoAfterUpdate: Todo) {
-        switch (todoBeforeUpdate.startTime, todoAfterUpdate.startTime) {
-        case (nil, nil): //시간 업데이트 x
-            let section = 1
-            let item = unscheduledTodoList?.firstIndex(where: { $0.id == todoAfterUpdate.id && !$0.isGroupTodo }) ?? 0
-            unscheduledTodoList?[item] = todoAfterUpdate
-            needReloadItem.onNext(IndexPath(item: item, section: section))
-        case (_, nil): //시간 제거
-            let beforeSection = 0
-            let beforeItem = scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
-            scheduledTodoList?.remove(at: beforeItem)
-            
-            let afterSection = 1
-            
-            let memberTodoList = unscheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
-            
-            let innerIndex = memberTodoList?.insertionIndexOf(
-                (Int(), todoAfterUpdate),
-                isOrderedBefore: { $0.1.id ?? Int() < $1.1.id ?? Int() }
-             ) ?? 0
-            
-            let afterItem = (innerIndex == memberTodoList?.count ? unscheduledTodoList?.count ?? 0 : memberTodoList?[innerIndex].0) ?? 0
-
-            unscheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
-            needMoveItem.onNext((IndexPath(item: beforeItem, section: beforeSection), IndexPath(item: afterItem, section: afterSection)))
-        case (nil, _): //시간이 생김
-            let beforeSection = 1
-            let beforeItem = unscheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
-            unscheduledTodoList?.remove(at: beforeItem)
-            
-            let afterSection = 0
-            
-            let memberTodoList = scheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
-            let innerIndex = memberTodoList?.insertionIndexOf(
-                (Int(), todoAfterUpdate),
-                isOrderedBefore: { $0.1.startTime ?? String() < $1.1.startTime ?? String() }
-             ) ?? 0
-            
-            let afterItem = (innerIndex == memberTodoList?.count ? scheduledTodoList?.count : memberTodoList?[innerIndex].0) ?? 0
-
-            scheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
-            needMoveItem.onNext((IndexPath(item: beforeItem, section: beforeSection), IndexPath(item: afterItem, section: afterSection)))
-        case (let beforeTime, let afterTime):
-            if beforeTime == afterTime { //시간이 변경 x
-                let section = 0
-                let item = scheduledTodoList?.firstIndex(where: { $0.id == todoAfterUpdate.id && !$0.isGroupTodo }) ?? 0
-                scheduledTodoList?[item] = todoAfterUpdate
-                needReloadItem.onNext(IndexPath(item: item, section: section))
-            } else { //시간 변경
-                let section = 0
-                let beforeItem = scheduledTodoList?.firstIndex(where: { $0.id == todoBeforeUpdate.id && !$0.isGroupTodo }) ?? 0
-                scheduledTodoList?.remove(at: beforeItem)
-                
-                let memberTodoList = scheduledTodoList?.enumerated().filter { !$1.isGroupTodo }
-                
-                let innerIndex = memberTodoList?.insertionIndexOf(
-                    (Int(), todoAfterUpdate),
-                    isOrderedBefore: { $0.1.startTime ?? String() < $1.1.startTime ?? String() }
-                 ) ?? 0
-                
-                let afterItem = (innerIndex == memberTodoList?.count ? scheduledTodoList?.count : memberTodoList?[innerIndex].0) ?? 0
-                
-                scheduledTodoList?.insert(todoAfterUpdate, at: afterItem)
-                needMoveItem.onNext((IndexPath(item: beforeItem, section: section), IndexPath(item: afterItem, section: section)))
-            }
-        }
+        
+        return IndexPath(item: item, section: section)
     }
     
     func completeTodoDataAt(indexPath: IndexPath) {

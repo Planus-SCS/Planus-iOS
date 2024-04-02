@@ -65,14 +65,14 @@ extension DailyCalendarViewController {
         
         dailyCalendarView.dateTitleButton.setTitle(output.currentDateText, for: .normal)
         
-        output
-            .needReloadItem
-            .observe(on: MainScheduler.asyncInstance)
-            .withUnretained(self)
-            .subscribe(onNext: { vm, indexPath in
-                vm.dailyCalendarView?.collectionView.reloadItems(at: [indexPath])
-            })
-            .disposed(by: bag)
+//        output
+//            .needReloadItem
+//            .observe(on: MainScheduler.asyncInstance)
+//            .withUnretained(self)
+//            .subscribe(onNext: { vm, indexPath in
+//                vm.dailyCalendarView?.collectionView.reloadItems(at: [indexPath])
+//            })
+//            .disposed(by: bag)
         
         output
             .needInsertItem
@@ -102,13 +102,13 @@ extension DailyCalendarViewController {
             .disposed(by: bag)
         
         output
-            .needMoveItem
+            .needUpdateItem
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, args in
-                let (from, to) = args
-
-                vc.moveTodo(from: from, to: to)
+                let (removed, created) = args
+                
+                vc.updateTodo(removed: removed, created: created)
             })
             .disposed(by: bag)
         
@@ -144,33 +144,38 @@ extension DailyCalendarViewController {
         }
     }
     
-    func moveTodo(from: IndexPath, to: IndexPath) {
+    func updateTodo(removed: IndexPath, created: IndexPath) {
         guard let viewModel else { return }
         
+        if removed == created {
+            dailyCalendarView?.collectionView.reloadItems(at: [created])
+            return
+        }
+        
         dailyCalendarView?.collectionView.performBatchUpdates {
-            if (from.section == 0 &&
+            if (removed.section == 0 &&
                 viewModel.scheduledTodoList?.count == 0) ||
-                (from.section == 1 &&
+                (removed.section == 1 &&
                  viewModel.unscheduledTodoList?.count == 0) {
-                dailyCalendarView?.collectionView.reloadItems(at: [from])
-                if (to.section == 0 &&
+                dailyCalendarView?.collectionView.reloadItems(at: [removed])
+                if (created.section == 0 &&
                     viewModel.scheduledTodoList?.count == 1) ||
-                    (to.section == 1 &&
+                    (created.section == 1 &&
                      viewModel.unscheduledTodoList?.count == 1) {
-                    dailyCalendarView?.collectionView.reloadItems(at: [to])
+                    dailyCalendarView?.collectionView.reloadItems(at: [created])
                 } else {
-                    dailyCalendarView?.collectionView.insertItems(at: [to])
+                    dailyCalendarView?.collectionView.insertItems(at: [created])
                 }
             } else {
-                if (to.section == 0 &&
+                if (created.section == 0 &&
                     viewModel.scheduledTodoList?.count == 1) ||
-                    (to.section == 1 &&
+                    (created.section == 1 &&
                      viewModel.unscheduledTodoList?.count == 1) {
-                    dailyCalendarView?.collectionView.deleteItems(at: [from])
-                    dailyCalendarView?.collectionView.reloadItems(at: [to])
+                    dailyCalendarView?.collectionView.deleteItems(at: [removed])
+                    dailyCalendarView?.collectionView.reloadItems(at: [created])
                 } else {
-                    dailyCalendarView?.collectionView.deleteItems(at: [from])
-                    dailyCalendarView?.collectionView.insertItems(at: [to])
+                    dailyCalendarView?.collectionView.deleteItems(at: [removed])
+                    dailyCalendarView?.collectionView.insertItems(at: [created])
                 }
             }
         }
@@ -278,12 +283,6 @@ extension DailyCalendarViewController: UICollectionViewDataSource, UICollectionV
 //    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {        
 //        return false
 //    }
-}
-
-extension DailyCalendarViewController {
-    func showTodoDetail(item: Todo) {
-        
-    }
 }
 
 extension DailyCalendarViewController: UIPopoverPresentationControllerDelegate {
