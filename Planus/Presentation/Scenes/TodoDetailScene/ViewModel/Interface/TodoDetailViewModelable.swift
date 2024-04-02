@@ -58,8 +58,6 @@ struct TodoDetailViewModelableInput {
     var newCategorySaveBtnTapped: Observable<Void>
     var categorySelectPageBackBtnTapped: Observable<Void>
     var categoryCreatePageBackBtnTapped: Observable<Void>
-    
-    // 여기서 모드도 전달을 할 수 있어야함......!!!
 }
 
 struct TodoDetailViewModelableOutput {
@@ -123,7 +121,7 @@ protocol TodoDetailViewModelable: AnyObject {
     var showMessage: PublishSubject<Message> { get }
     var showSaveConstMessagePopUp: PublishSubject<Void> { get }
     
-    // 메서드는 뭐가있을까..? 카테고리 패치랑 그룹 패치
+
     func initFetch()
     func saveDetail()
     func removeDetail()

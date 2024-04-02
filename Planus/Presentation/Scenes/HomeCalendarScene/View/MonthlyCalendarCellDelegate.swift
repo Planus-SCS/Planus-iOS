@@ -7,7 +7,6 @@
 
 import UIKit
 
-// 내부의 콜렉션뷰를 위해 델리게이트로 뷰컨쪽에서 정보 받아오기
 protocol MonthlyCalendarCellDelegate: NSObject {
     func monthlyCalendarCell(_ monthlyCalendarCell: MonthlyCalendarCell, at indexPath: IndexPath) -> Day?
     func monthlyCalendarCell(_ monthlyCalendarCell: MonthlyCalendarCell, maxCountOfTodoInWeek indexPath: IndexPath) -> Day?

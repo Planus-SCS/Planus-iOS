@@ -87,7 +87,7 @@ final class TodoDetailIcnView: UIView {
             $0.top.bottom.equalToSuperview().inset(5)
         }
     }
-    // 이렇게 말고 데이터 바인딩해서 activate을 해야할듯..? 여기선 이동하고 deactivate 하는것만..!
+
     @objc func btnTapped(_ sender: UIButton) {
         let index = sender.tag
         guard let mode,

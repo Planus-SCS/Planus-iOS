@@ -201,7 +201,7 @@ final class MyGroupListViewModel: ViewModel {
                 return self?.useCases.setOnlineUseCase
                     .execute(token: token, groupId: group.groupId)
             }
-            .subscribe(onFailure: { [weak self] _ in //이경우 다시 바꿔주고 바꾸기
+            .subscribe(onFailure: { [weak self] _ in
                 self?.didSuccessOnlineStateChange.onNext((index, false))
                 self?.showMessage.onNext("\(group.groupName) 그룹 \(group.isOnline ? "온" : "오프")라인으로 전환에 실패하였습니다.")
             })

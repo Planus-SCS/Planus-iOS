@@ -156,7 +156,7 @@ class DailyCalendarTodoCell: SpringableCollectionViewCell {
         self.timeLabel.textColor = category.todoThickColor
         
         groupSymbol.isHidden = !isGroup
-        periodSymbol.isHidden = !isScheduled // FIXME: 이거 기간투두임 이름 period로 바꾸자
+        periodSymbol.isHidden = !isScheduled
         memoSymbol.isHidden = !isMemo
         
         groupSymbol.tintColor = category.todoThickColor
