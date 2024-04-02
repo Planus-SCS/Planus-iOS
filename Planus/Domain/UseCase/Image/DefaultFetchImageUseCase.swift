@@ -12,7 +12,7 @@ class DefaultFetchImageUseCase: FetchImageUseCase {
     let imageRepository: ImageRepository
     
     init(imageRepository: ImageRepository) {
-        self.imageRepository = DefaultImageRepository.shared
+        self.imageRepository = imageRepository
     }
     
     func execute(key: String) -> Single<Data> {

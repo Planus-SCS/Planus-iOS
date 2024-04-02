@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 class DefaultMemberKickOutUseCase: MemberKickOutUseCase {
-    static let shared = DefaultMemberKickOutUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
+
     let myGroupRepository: MyGroupRepository
     
     var didKickOutMemberAt = PublishSubject<(Int, Int)>()

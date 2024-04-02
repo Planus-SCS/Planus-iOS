@@ -10,7 +10,6 @@ import RxSwift
 
 class DefaultGroupCreateUseCase: GroupCreateUseCase {
     
-    static let shared = DefaultGroupCreateUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
     let myGroupRepository: MyGroupRepository
     
     var didCreateGroup = PublishSubject<Void>()

@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 class DefaultDeleteGroupUseCase: DeleteGroupUseCase {
-    static let shared = DefaultDeleteGroupUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
+
     let myGroupRepository: MyGroupRepository
     
     var didDeleteGroupWithId = PublishSubject<Int>()

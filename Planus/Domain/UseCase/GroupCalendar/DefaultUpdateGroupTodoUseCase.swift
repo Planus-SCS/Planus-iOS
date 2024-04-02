@@ -9,7 +9,6 @@ import Foundation
 import RxSwift
 
 class DefaultUpdateGroupTodoUseCase: UpdateGroupTodoUseCase {
-    static let shared = DefaultUpdateGroupTodoUseCase(groupCalendarRepository: DefaultGroupCalendarRepository(apiProvider: NetworkManager()))
     
     let groupCalendarRepository: GroupCalendarRepository
     var didUpdateGroupTodo = PublishSubject<Todo>()

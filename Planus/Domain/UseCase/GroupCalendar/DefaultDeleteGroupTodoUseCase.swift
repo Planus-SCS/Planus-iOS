@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 class DefaultDeleteGroupTodoUseCase: DeleteGroupTodoUseCase {
-    static let shared = DefaultDeleteGroupTodoUseCase(groupCalendarRepository: DefaultGroupCalendarRepository(apiProvider: NetworkManager()))
+
     let groupCalendarRepository: GroupCalendarRepository
     
     var didDeleteGroupTodoWithIds = PublishSubject<(groupId: Int, todoId: Int)>()

@@ -8,8 +8,8 @@
 import Foundation
 import RxSwift
 
-class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase { //이건 받아서 다시 fetch 해야함!
-    static let shared: DefaultUpdateGroupCategoryUseCase = .init(categoryRepository: DefaultGroupCategoryRepository(apiProvider: NetworkManager()))
+class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase {
+
     let categoryRepository: GroupCategoryRepository
     
     var didUpdateCategoryWithGroupId = PublishSubject<(groupId: Int, category: Category)>()

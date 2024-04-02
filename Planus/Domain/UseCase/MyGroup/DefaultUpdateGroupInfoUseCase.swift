@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 class DefaultUpdateGroupInfoUseCase: UpdateGroupInfoUseCase {
-    static let shared = DefaultUpdateGroupInfoUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
+
     let myGroupRepository: MyGroupRepository
     
     var didUpdateInfoWithId = PublishSubject<Int>()

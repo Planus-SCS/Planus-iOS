@@ -9,7 +9,6 @@ import Foundation
 import RxSwift
 
 class DefaultDeleteTodoUseCase: DeleteTodoUseCase {
-    static let shared: DefaultDeleteTodoUseCase = .init(todoRepository: TestTodoDetailRepository(apiProvider: NetworkManager()))
 
     let todoRepository: TodoRepository
 

@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 class DefaultTodoCompleteUseCase: TodoCompleteUseCase {
-    static let shared = DefaultTodoCompleteUseCase(todoRepository: TestTodoDetailRepository(apiProvider: NetworkManager()))
+
     let todoRepository: TodoRepository
     
     var didCompleteTodo = PublishSubject<Todo>()

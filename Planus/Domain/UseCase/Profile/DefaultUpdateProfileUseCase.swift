@@ -10,8 +10,6 @@ import RxSwift
 
 class DefaultUpdateProfileUseCase: UpdateProfileUseCase {
     
-    static let shared = DefaultUpdateProfileUseCase(profileRepository: DefaultProfileRepository(apiProvider: NetworkManager()))
-    
     let profileRepository: ProfileRepository
     
     var didUpdateProfile = PublishSubject<Profile>()

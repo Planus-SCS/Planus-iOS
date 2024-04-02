@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 class DefaultWithdrawGroupUseCase: WithdrawGroupUseCase {
-    static let shared = DefaultWithdrawGroupUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
+    static let shared = DefaultWithdrawGroupUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: 
     let myGroupRepository: MyGroupRepository
     
     var didWithdrawGroup = PublishSubject<Int>()

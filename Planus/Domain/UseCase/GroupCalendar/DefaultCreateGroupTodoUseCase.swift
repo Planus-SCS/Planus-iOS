@@ -9,7 +9,6 @@ import Foundation
 import RxSwift
 
 class DefaultCreateGroupTodoUseCase: CreateGroupTodoUseCase {
-    static let shared = DefaultCreateGroupTodoUseCase(groupCalendarRepository: DefaultGroupCalendarRepository(apiProvider: NetworkManager()))
     
     let groupCalendarRepository: GroupCalendarRepository
     
