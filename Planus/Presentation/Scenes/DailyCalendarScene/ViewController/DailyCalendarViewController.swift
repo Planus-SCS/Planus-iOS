@@ -11,12 +11,12 @@ import RxCocoa
 
 final class DailyCalendarViewController: UIViewController {
     
-    private var bag = DisposeBag()
+    private let bag = DisposeBag()
     private var viewModel: DailyCalendarViewModel?
     private var dailyCalendarView: DailyCalendarView?
     
-    private var didTappedCompletionBtnAt = PublishRelay<IndexPath>()
-    private var didDeleteTodoAt = PublishRelay<IndexPath>()
+    private let didTappedCompletionBtnAt = PublishRelay<IndexPath>()
+    private let didDeleteTodoAt = PublishRelay<IndexPath>()
     
     convenience init(viewModel: DailyCalendarViewModel) {
         self.init(nibName: nil, bundle: nil)
@@ -49,7 +49,7 @@ final class DailyCalendarViewController: UIViewController {
 }
 
 // MARK: - bind viewModel
-extension DailyCalendarViewController {
+private extension DailyCalendarViewController {
     func bind() {
         guard let viewModel,
               let dailyCalendarView else { return }
@@ -114,7 +114,7 @@ extension DailyCalendarViewController {
 }
 
 // MARK: Actions
-extension DailyCalendarViewController {
+private extension DailyCalendarViewController {
     func insertTodoAt(indexPath: IndexPath) {
         guard let viewModel else { return }
         
