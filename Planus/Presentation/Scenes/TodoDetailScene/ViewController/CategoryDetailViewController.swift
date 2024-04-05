@@ -97,7 +97,7 @@ extension CategoryDetailViewController {
                 vc.categoryCreateView.saveButton.alpha = isEnabled ? 1.0 : 0.5
             })
             .disposed(by: bag)
-        print(output.categoryTitleValue)
+
         categoryCreateView.nameField.text = output.categoryTitleValue
         
         guard let categoryIndex = output.categoryColorIndexValue else { return }

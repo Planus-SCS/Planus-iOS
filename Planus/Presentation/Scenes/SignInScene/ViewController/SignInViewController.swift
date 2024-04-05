@@ -229,6 +229,7 @@ extension SignInViewController: ASAuthorizationControllerDelegate {
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         print(error)
+        showToast(message: "잠시 후 다시 시도해 주세요.", type: .warning)
     }
 }
 

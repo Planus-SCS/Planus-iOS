@@ -243,7 +243,6 @@ final class MyTodoDetailViewModel: TodoDetailViewModelable {
         categorySelected
             .withUnretained(self)
             .subscribe(onNext: { vm, category in
-                print(category)
                 vm.todoCategory.onNext(category)
             })
             .disposed(by: bag)
