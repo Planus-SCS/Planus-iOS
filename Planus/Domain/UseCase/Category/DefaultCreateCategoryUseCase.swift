@@ -19,16 +19,18 @@ final class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
         self.categoryRepository = categoryRepository
     }
     
-    func execute(token: Token, category: Category) -> Single<Int> {
+    func execute(token: Token, category: Category) -> Single<Category> {
         return categoryRepository.create(
             token: token.accessToken,
             category: category.toDTO()
         )
-        .map { $0.data.id }
-        .do(onSuccess: { [weak self] id in
+        .map { dto in
             var categoryWithId = category
-            categoryWithId.id = id
-            self?.didCreateCategory.onNext(categoryWithId)
+            categoryWithId.id = dto.data.id
+            return categoryWithId
+        }
+        .do(onSuccess: { [weak self] newCategory in
+            self?.didCreateCategory.onNext(newCategory)
         })
     }
 }

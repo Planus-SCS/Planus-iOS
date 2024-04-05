@@ -1,5 +1,5 @@
 //
-//  DailyCalendarViewModel.swift
+//  MyDailyCalendarViewModel.swift
 //  Planus
 //
 //  Created by Sangmin Lee on 2023/04/06.
@@ -8,21 +8,7 @@
 import Foundation
 import RxSwift
 
-enum DailyCalendarTodoType: Int, CaseIterable {
-    case scheduled = 0
-    case unscheduled = 1
-    
-    var title: String {
-        switch self {
-        case .scheduled:
-            "일정"
-        case .unscheduled:
-            "할일"
-        }
-    }
-}
-
-final class DailyCalendarViewModel: ViewModel {
+final class MyDailyCalendarViewModel: DailyCalendarViewModelable {
     
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase
@@ -40,7 +26,7 @@ final class DailyCalendarViewModel: ViewModel {
     }
     
     struct Actions {
-        var showTodoDetailPage: ((MemberTodoDetailViewModel.Args, (() -> Void)?) -> Void)?
+        var showTodoDetailPage: ((MyTodoDetailViewModel.Args, (() -> Void)?) -> Void)?
         var finishScene: (() -> Void)?
     }
     
@@ -63,6 +49,7 @@ final class DailyCalendarViewModel: ViewModel {
     let actions: Actions
 
     var todos: [[Todo]] = [[Todo]](repeating: [Todo](), count: DailyCalendarTodoType.allCases.count)
+    var todoViewModels = [[TodoDailyViewModel]](repeating: [TodoDailyViewModel](), count: DailyCalendarTodoType.allCases.count)
     
     var categoryDict: [Int: Category] = [:]
     var groupCategoryDict: [Int: Category] = [:]
@@ -79,25 +66,9 @@ final class DailyCalendarViewModel: ViewModel {
         return dateFormatter
     }()
     
-    struct Input {
-        var addTodoTapped: Observable<Void>
-        var todoSelectedAt: Observable<IndexPath>
-        var deleteTodoAt: Observable<IndexPath>
-        var completeTodoAt: Observable<IndexPath>
-    }
-    
-    struct Output {
-        var currentDateText: String?
-        var needInsertItem: Observable<IndexPath>
-        var needDeleteItem: Observable<IndexPath>
-        var needReloadData: Observable<Void>
-        var needUpdateItem: Observable<(removed: IndexPath, created: IndexPath)>
-        var showAlert: Observable<Message>
-    }
-    
     var needInsertItem = PublishSubject<IndexPath>()
     var needDeleteItem = PublishSubject<IndexPath>()
-    var needReloadData = PublishSubject<Void>()
+    var needReloadData = PublishSubject<Void?>()
     var needUpdateItem = PublishSubject<(removed: IndexPath, created: IndexPath)>()
     var showAlert = PublishSubject<Message>()
     
@@ -131,15 +102,11 @@ final class DailyCalendarViewModel: ViewModel {
                 let groupName = vm.filteringGroupId.flatMap { vm.groupDict[$0] }
                 
                 vm.actions.showTodoDetailPage?(
-                    MemberTodoDetailViewModel.Args(
+                    MyTodoDetailViewModel.Args(
                         groupList: groupList,
-                        mode: .new,
-                        todo: nil,
-                        category: nil,
-                        groupName: groupName,
-                        start: vm.currentDate,
-                        end: nil
-                    ), nil
+                        type: .new(date: DateRange(start: vm.currentDate, end: nil), group: groupName)
+                    ),
+                    nil
                 )
             })
             .disposed(by: bag)
@@ -160,19 +127,28 @@ final class DailyCalendarViewModel: ViewModel {
             })
             .disposed(by: bag)
         
+        input
+            .viewDidDismissed
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.finishScene?()
+            })
+            .disposed(by: bag)
+        
         return Output(
             currentDateText: currentDateText,
             needInsertItem: needInsertItem.asObservable(),
             needDeleteItem: needDeleteItem.asObservable(),
             needReloadData: needReloadData.asObservable(),
             needUpdateItem: needUpdateItem.asObservable(),
-            showAlert: showAlert.asObservable()
-        )
+            showAlert: showAlert.asObservable(),
+            mode: .interactable
+        )        
     }
 }
 
 // MARK: bind useCase
-private extension DailyCalendarViewModel {
+private extension MyDailyCalendarViewModel {
     func bindTodoUseCase() {
         useCases.createTodoUseCase
             .didCreateTodo
@@ -223,8 +199,8 @@ private extension DailyCalendarViewModel {
     }
 }
 
-// MARK: - set
-private extension DailyCalendarViewModel {
+// MARK: - settings
+private extension MyDailyCalendarViewModel {
     func setDate(currentDate: Date) {
         self.currentDate = currentDate
         self.currentDateText = dateFormatter.string(from: currentDate)
@@ -263,11 +239,44 @@ private extension DailyCalendarViewModel {
         // 정렬된 할 일 목록을 설정합니다.
         self.todos[DailyCalendarTodoType.scheduled.rawValue] = sortedScheduledTodos
         self.todos[DailyCalendarTodoType.unscheduled.rawValue] = sortedUnscheduledTodos
+        
+        // 뷰모델 생성
+        let indexPaths = todos.enumerated().flatMap { (section, todoList) in
+            todoList.enumerated().map { (item, todo) in
+                IndexPath(item: item, section: section)
+            }
+        }
+        createViewModel(at: indexPaths)
+    }
+}
+
+// MARK: - ViewModel Actions
+extension MyDailyCalendarViewModel {
+    func createViewModel(at indexPaths: [IndexPath]) {
+        indexPaths.forEach { indexPath in
+            let todo = self.todos[indexPath.section][indexPath.item]
+            let category = todo.isGroupTodo ? self.groupCategoryDict[todo.categoryId] : self.categoryDict[todo.categoryId]
+            self.todoViewModels[indexPath.section].insert(todo.toDailyViewModel(color: category?.color ?? .none), at: indexPath.item)
+        }
+    }
+    
+    func updateViewModel(at indexPaths: [IndexPath]) {
+        indexPaths.forEach { indexPath in
+            let todo = self.todos[indexPath.section][indexPath.item]
+            let category = todo.isGroupTodo ? self.groupCategoryDict[todo.categoryId] : self.categoryDict[todo.categoryId]
+            self.todoViewModels[indexPath.section][indexPath.row] = todo.toDailyViewModel(color: category?.color ?? .none)
+        }
+    }
+    
+    func removeViewModel(at indexPaths: [IndexPath]) {
+        indexPaths.forEach { indexPath in
+            self.todoViewModels[indexPath.section].remove(at: indexPath.item)
+        }
     }
 }
 
 // MARK: Notified from useCases
-private extension DailyCalendarViewModel {
+private extension MyDailyCalendarViewModel {
     func notifiedTodoCreated(todo: Todo) {
         guard let currentDate,
               todo.startDate <= currentDate,
@@ -279,11 +288,13 @@ private extension DailyCalendarViewModel {
         }
         
         let indexPath = createTodoData(todo: todo)
+        createViewModel(at: [indexPath])
         needInsertItem.onNext(indexPath)
     }
     
     func notifiedTodoRemoved(todo: Todo) {
         let indexPath = removeTodoData(todo: todo)
+        removeViewModel(at: [indexPath])
         needDeleteItem.onNext(indexPath)
     }
     
@@ -292,22 +303,26 @@ private extension DailyCalendarViewModel {
         
         if after.startDate > currentDate || after.endDate < currentDate { //날짜 변경 시 제거
             let removedIndexPath = removeTodoData(todo: before)
+            removeViewModel(at: [removedIndexPath])
             needDeleteItem.onNext(removedIndexPath)
         }
         else if let filteringGroupId = filteringGroupId,
                 after.groupId != filteringGroupId { //그룹 필터링 중에 그룹이 바뀐 경우 제거
             let removedIndexPath = removeTodoData(todo: before)
+            removeViewModel(at: [removedIndexPath])
             needDeleteItem.onNext(removedIndexPath)
         } else {
             let removedIndexPath = removeTodoData(todo: before)
             let createdIndexPath = createTodoData(todo: after)
+            removeViewModel(at: [removedIndexPath])
+            createViewModel(at: [createdIndexPath])
             needUpdateItem.onNext((removed: removedIndexPath, created: createdIndexPath))
         }
     }
 }
 
 // MARK: - Todo Actions
-private extension DailyCalendarViewModel {
+private extension MyDailyCalendarViewModel {
     func createTodoData(todo: Todo) -> IndexPath {
         let section = todo.startTime != nil ? DailyCalendarTodoType.scheduled.rawValue : DailyCalendarTodoType.unscheduled.rawValue
 
@@ -338,40 +353,39 @@ private extension DailyCalendarViewModel {
         isCompleted = !isCompleted
         todo.isCompleted = isCompleted
         todos[indexPath.section][indexPath.item] = todo
+        
+        updateViewModel(at: [indexPath])
         sendCompletionState(todo: todo)
     }
 }
 
-private extension DailyCalendarViewModel {
+private extension MyDailyCalendarViewModel {
     func todoItemSelected(at indexPath: IndexPath) {
         guard !todos[indexPath.section].isEmpty else { return }
         let item = todos[indexPath.section][indexPath.item]
+        let todoDetail = item.toDetail(groups: groupDict, categories: item.isGroupTodo ? groupCategoryDict : categoryDict)
 
         let groupList = Array(groupDict.values).sorted(by: { $0.groupId < $1.groupId })
-        let groupName: GroupName? = {
-            guard let groupId = item.groupId else { return nil }
-            return groupDict[groupId]
-        }()
-        let mode: TodoDetailSceneMode = item.isGroupTodo ? .view : .edit
-        let category: Category? = item.isGroupTodo ? groupCategoryDict[item.categoryId] : categoryDict[item.categoryId]
-
+        
+        var type: MyTodoDetailViewModel.`Type`
+        if item.isGroupTodo {
+            type = .view(todoDetail)
+        } else {
+            type = .edit(todoDetail)
+        }
 
         actions.showTodoDetailPage?(
-            MemberTodoDetailViewModel.Args(
+            MyTodoDetailViewModel.Args(
                 groupList: groupList,
-                mode: mode,
-                todo: item,
-                category: category,
-                groupName: groupName,
-                start: currentDate,
-                end: nil
-            ), nil
+                type: type
+            ),
+            nil
         )
     }
 }
 
 // MARK: API
-private extension DailyCalendarViewModel {
+private extension MyDailyCalendarViewModel {
     func sendCompletionState(todo: Todo) {
         useCases
             .executeWithTokenUseCase

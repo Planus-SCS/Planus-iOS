@@ -75,31 +75,6 @@ class TodoDetailView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setMode(mode: TodoDetailSceneMode) {
-        icnView.setMode(mode: mode)
-        
-        switch mode {
-        case .edit:
-            removeButton.isHidden = false
-            titleView.todoTitleField.becomeFirstResponder()
-        case .new:
-            removeButton.isHidden = true
-            titleView.todoTitleField.becomeFirstResponder()
-        case .view:
-        
-            removeButton.isHidden = true
-            saveButton.isHidden = true
-            attributeViewGroup.forEach {
-                $0.isUserInteractionEnabled = false
-            }
-            
-            icnView.snp.remakeConstraints {
-                $0.leading.trailing.equalToSuperview()
-                $0.bottom.equalToSuperview().inset(34) // homeIndicator height
-            }
-        }
-    }
-    
     func configureView() {
         self.addSubview(curtainView)
         

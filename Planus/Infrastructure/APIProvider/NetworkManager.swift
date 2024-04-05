@@ -47,7 +47,7 @@ class NetworkManager: APIProvider {
                     emitter(.failure(NetworkManagerError.nilDataError))
                     return
                 }
-
+                
                 guard let httpResponse = response as? HTTPURLResponse else { return }
                 switch httpResponse.statusCode {
                 case (200..<300):

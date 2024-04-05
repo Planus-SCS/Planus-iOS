@@ -51,10 +51,10 @@ final class MyGroupDetailCoordinator: Coordinator {
         dependency.navigationController.pushViewController(vc, animated: true)
     }
     
-    lazy var showDailyCalendar: (SocialDailyCalendarViewModel.Args) -> Void = { [weak self] args in
+    lazy var showDailyCalendar: (GroupDailyCalendarViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
-        let coordinator = SocialDailyCalendarCoordinator(
-            dependency: SocialDailyCalendarCoordinator.Dependency(
+        let coordinator = GroupDailyCalendarCoordinator(
+            dependency: GroupDailyCalendarCoordinator.Dependency(
                 navigationController: self.dependency.navigationController,
                 injector: self.dependency.injector
             )

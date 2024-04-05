@@ -1,25 +1,19 @@
 //
-//  SocialTodoDailyViewModel.swift
+//  GroupDailyCalendarViewModel.swift
 //  Planus
 //
-//  Created by Sangmin Lee on 2023/05/26.
+//  Created by Sangmin Lee on 4/6/24.
 //
 
 import Foundation
 import RxSwift
 
-enum SocialDailyCalendarViewModelType {
-    case member(id: Int)
-    case group(isLeader: Bool)
-}
-
-final class SocialDailyCalendarViewModel: ViewModel {
+final class GroupDailyCalendarViewModel: DailyCalendarViewModelable {
     
     struct UseCases {
         var executeWithTokenUseCase: ExecuteWithTokenUseCase
         
         var fetchGroupDailyTodoListUseCase: FetchGroupDailyCalendarUseCase
-        var fetchMemberDailyCalendarUseCase: FetchGroupMemberDailyCalendarUseCase
         
         let createGroupTodoUseCase: CreateGroupTodoUseCase
         let updateGroupTodoUseCase: UpdateGroupTodoUseCase
@@ -28,13 +22,13 @@ final class SocialDailyCalendarViewModel: ViewModel {
     }
     
     struct Actions {
-        let showSocialTodoDetail: ((SocialTodoDetailViewModel.Args) -> Void)?
+        let showTodoDetail: ((GroupTodoDetailViewModel.Args) -> Void)?
         let finishScene: (() -> Void)?
     }
     
     struct Args {
         let group: GroupName
-        let type: SocialDailyCalendarViewModelType
+        let isLeader: Bool
         let date: Date
     }
     
@@ -49,10 +43,11 @@ final class SocialDailyCalendarViewModel: ViewModel {
     let actions: Actions
     
     let group: GroupName
-    let type: SocialDailyCalendarViewModelType
+    let isLeader: Bool
     let currentDate: Date
 
     var todos = [[SocialTodoDaily]](repeating: [SocialTodoDaily](), count: DailyCalendarTodoType.allCases.count)
+    var todoViewModels = [[TodoDailyViewModel]](repeating: [TodoDailyViewModel](), count: DailyCalendarTodoType.allCases.count)
     
     var currentDateText: String?
     
@@ -62,21 +57,9 @@ final class SocialDailyCalendarViewModel: ViewModel {
         return dateFormatter
     }()
     
-    struct Input {
-        var viewDidLoad: Observable<Void>
-        var addTodoTapped: Observable<Void>
-        var didSelectTodoAt: Observable<IndexPath>
-    }
-    
-    struct Output {
-        var currentDateText: String?
-        var socialType: SocialDailyCalendarViewModelType?
-        var nowFetchLoading: Observable<Void?>
-        var didFetchTodoList: Observable<Void?>
-    }
-    
-    private var nowFetchLoading = BehaviorSubject<Void?>(value: nil)
-    private var didFetchTodoList = BehaviorSubject<Void?>(value: nil)
+    private let nowFetchLoading = BehaviorSubject<Void?>(value: nil)
+    private let didFetchTodoList = BehaviorSubject<Void?>(value: nil)
+    private let showAlert = PublishSubject<Message>()
     
     init(
         useCases: UseCases,
@@ -86,24 +69,20 @@ final class SocialDailyCalendarViewModel: ViewModel {
         self.actions = injectable.actions
         
         self.group = injectable.args.group
-        self.type = injectable.args.type
+        self.isLeader = injectable.args.isLeader
         self.currentDate = injectable.args.date
         
         self.currentDateText = dateFormatter.string(from: currentDate)
     }
     
     func transform(input: Input) -> Output {
-        
-        if case .group(isLeader: let isLeader) = type,
-           isLeader {
-            bindUseCase()
-        }
+        bindUseCase()
         
         input
             .viewDidLoad
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.fetchTodoList()
+                vm.fetchGroupTodoList()
             })
             .disposed(by: bag)
         
@@ -111,60 +90,46 @@ final class SocialDailyCalendarViewModel: ViewModel {
             .addTodoTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.actions.showSocialTodoDetail?(
-                    SocialTodoDetailViewModel.Args(
-                        mode: .new,
-                        info: SocialTodoInfo(group: vm.group),
-                        date: vm.currentDate
+                vm.actions.showTodoDetail?(
+                    GroupTodoDetailViewModel.Args(
+                        type: .new(vm.currentDate),
+                        group: vm.group
                     )
                 )
             })
             .disposed(by: bag)
         
         input
-            .didSelectTodoAt
+            .todoSelectedAt
             .withUnretained(self)
             .subscribe(onNext: { vm, indexPath in
-                vm.showTodoDetail(at: indexPath)
+                let todoId: Int = vm.todoViewModels[indexPath.section][indexPath.item].todoId
+                let args = GroupTodoDetailViewModel.Args(type: vm.isLeader ? .edit(todoId) : .view(todoId), group: vm.group)
+                
+                vm.actions.showTodoDetail?(args)
+            })
+            .disposed(by: bag)
+        
+        input
+            .viewDidDismissed
+            .withUnretained(self)
+            .subscribe(onNext: { vm, _ in
+                vm.actions.finishScene?()
             })
             .disposed(by: bag)
         
         return Output(
             currentDateText: currentDateText,
-            socialType: type,
-            nowFetchLoading: nowFetchLoading.asObservable(),
-            didFetchTodoList: didFetchTodoList.asObservable()
+            nowLoading: nowFetchLoading.asObservable(),
+            needReloadData: didFetchTodoList.asObservable(),
+            showAlert: showAlert.asObservable(),
+            mode: isLeader ? .editable : .viewable
         )
     }
 }
 
-// MARK: - Actions
-private extension SocialDailyCalendarViewModel {
-    func showTodoDetail(at indexPath: IndexPath) {
-        let todoId: Int = todos[indexPath.section][indexPath.item].todoId
-
-        var args: SocialTodoDetailViewModel.Args
-        switch type {
-        case .member(let id):
-            args = SocialTodoDetailViewModel.Args(
-                mode: .view,
-                info: SocialTodoInfo(group: group, memberId: id, todoId: todoId),
-                date: nil
-            )
-        case .group(let isLeader):
-            args = SocialTodoDetailViewModel.Args(
-                mode: isLeader ? .edit : .view,
-                info: SocialTodoInfo(group: group, todoId: todoId),
-                date: nil
-            )
-        }
-        
-        actions.showSocialTodoDetail?(args)
-    }
-}
-
 // MARK: - bind useCases
-private extension SocialDailyCalendarViewModel {
+private extension GroupDailyCalendarViewModel {
     func bindUseCase() {
         useCases
             .createGroupTodoUseCase
@@ -172,7 +137,7 @@ private extension SocialDailyCalendarViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
                 guard vm.group.groupId == todo.groupId else { return }
-                vm.fetchTodoList()
+                vm.fetchGroupTodoList()
             })
             .disposed(by: bag)
         
@@ -182,7 +147,7 @@ private extension SocialDailyCalendarViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, todo in
                 guard vm.group.groupId == todo.groupId else { return }
-                vm.fetchTodoList()
+                vm.fetchGroupTodoList()
             })
             .disposed(by: bag)
         
@@ -192,7 +157,7 @@ private extension SocialDailyCalendarViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, ids in
                 guard vm.group.groupId == ids.groupId else { return }
-                vm.fetchTodoList()
+                vm.fetchGroupTodoList()
             })
             .disposed(by: bag)
         
@@ -202,43 +167,14 @@ private extension SocialDailyCalendarViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, categoryWithGroupId in
                 guard vm.group.groupId == categoryWithGroupId.groupId else { return }
-                vm.fetchTodoList()
+                vm.fetchGroupTodoList()
             })
             .disposed(by: bag)
         
     }
 }
 
-// MARK: - fetch
-private extension SocialDailyCalendarViewModel {
-    func fetchTodoList() {
-        switch type {
-        case .group(let _):
-            fetchGroupTodoList()
-            return
-        case .member(let id):
-            fetchMemberTodoList(memberId: id)
-            return
-        }
-    }
-    
-    func fetchMemberTodoList(memberId: Int) {
-        nowFetchLoading.onNext(())
-
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token -> Single<[[SocialTodoDaily]]>? in
-                guard let self else { return nil }
-                return self.useCases.fetchMemberDailyCalendarUseCase
-                    .execute(token: token, groupId: self.group.groupId, memberId: memberId, date: self.currentDate)
-            }
-            .subscribe(onSuccess: { [weak self] list in
-                self?.todos = list
-                self?.didFetchTodoList.onNext(())
-            })
-            .disposed(by: bag)
-    }
-    
+private extension GroupDailyCalendarViewModel {
     func fetchGroupTodoList() {
         nowFetchLoading.onNext(())
 
@@ -251,9 +187,18 @@ private extension SocialDailyCalendarViewModel {
             }
             .subscribe(onSuccess: { [weak self] list in
                 self?.todos = list
+                self?.prepareViewModel(todos: list)
                 self?.didFetchTodoList.onNext(())
             })
             .disposed(by: bag)
+    }
+    
+    func prepareViewModel(todos: [[SocialTodoDaily]]) {
+        self.todoViewModels = todos.map { list in
+            return list.map { item in
+                return item.toViewModel()
+            }
+        }
     }
 
 }

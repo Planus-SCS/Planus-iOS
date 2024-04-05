@@ -9,5 +9,5 @@ import Foundation
 import RxSwift
 
 protocol CreateGroupCategoryUseCase {
-    func execute(token: Token, groupId: Int, category: Category) -> Single<Int>
+    func execute(token: Token, groupId: Int, category: Category) -> Single<Category>
 }

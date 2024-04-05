@@ -10,32 +10,25 @@ import RxSwift
 import RxCocoa
 
 final class TodoDetailViewController: UIViewController {
-    var keyboardBag: DisposeBag?
-    var bag = DisposeBag()
+    let bag = DisposeBag()
+    var viewModel: (any TodoDetailViewModelable)?
     
-    var pageDismissCompletionHandler: (() -> Void)?
     var isFirstAppear = true
+    var currentKeyboardHeight: CGFloat = 0
+    var mode: SceneAuthority?
     
     // MARK: UI Event
-    var didSelectCategoryAt = PublishRelay<Int?>()
-    var didRequestEditCategoryAt = PublishRelay<Int>()
     var didSelectedDateRange = PublishRelay<DateRange>()
     var didSelectedGroupAt = PublishRelay<Int?>()
-    var didChangednewCategoryColor = PublishRelay<CategoryColor?>()
-    var didDeleteCategoryId = PublishRelay<Int>()
     var didChangedTimeValue = PublishRelay<String?>()
-    
-    var pageType: TodoDetailViewControllerPageType = .todoDetail
-    
-    var viewModel: TodoDetailViewModelable?
-    
+    var needDismiss = PublishRelay<Void>()
+    var showMessage = PublishRelay<Message>()
+            
     // MARK: Child ViewController
     var dayPickerViewController = DayPickerViewController(nibName: nil, bundle: nil)
     
     // MARK: Child View
     var todoDetailView = TodoDetailView(frame: .zero)
-    var categoryView = CategorySelectView(frame: .zero)
-    var categoryCreateView = CategoryCreateView(frame: .zero)
     
     // MARK: Background
     let dimmedView: UIView = {
@@ -44,7 +37,7 @@ final class TodoDetailViewController: UIViewController {
         return view
     }()
     
-    convenience init(viewModel: TodoDetailViewModelable) {
+    convenience init(viewModel: any TodoDetailViewModelable) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
@@ -77,13 +70,12 @@ final class TodoDetailViewController: UIViewController {
         super.viewDidAppear(animated)
         
         if isFirstAppear {
-            self.firstAppear()
+            self.animateFirstAppearance()
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        pageDismissCompletionHandler?()
     }
 }
 
@@ -92,27 +84,21 @@ extension TodoDetailViewController {
     func bind() {
         guard let viewModel else { return }
 
-        let input = TodoDetailViewModelableInput(
+        let input = (any TodoDetailViewModelable).Input(
             titleTextChanged: todoDetailView.titleView.todoTitleField.rx.text.skip(1).asObservable(),
-            categorySelectedAt: didSelectCategoryAt.asObservable(),
             dayRange: didSelectedDateRange.distinctUntilChanged().asObservable(),
             timeFieldChanged: didChangedTimeValue.asObservable(),
             groupSelectedAt: didSelectedGroupAt.distinctUntilChanged().asObservable(),
             memoTextChanged: todoDetailView.memoView.memoObservable,
-            creatingCategoryNameTextChanged: categoryCreateView.nameField.rx.text.asObservable(),
-            creatingCategoryColorChanged: didChangednewCategoryColor.asObservable(),
-            didRemoveCategory: didDeleteCategoryId.asObservable(),
-            categoryEditRequested: didRequestEditCategoryAt.asObservable(),
-            categorySelectBtnTapped: todoDetailView.titleView.categoryButton.rx.tap.asObservable(),
+            categoryBtnTapped: todoDetailView.titleView.categoryButton.rx.tap.asObservable(),
             todoSaveBtnTapped: todoDetailView.saveButton.rx.tap.throttle(.seconds(1), scheduler: MainScheduler.asyncInstance).asObservable(),
             todoRemoveBtnTapped: todoDetailView.removeButton.rx.tap.throttle(.seconds(1), scheduler: MainScheduler.asyncInstance).asObservable(),
-            newCategoryAddBtnTapped: categoryView.addNewItemButton.rx.tap.asObservable(),
-            newCategorySaveBtnTapped: categoryCreateView.saveButton.rx.tap.throttle(.seconds(1), scheduler: MainScheduler.asyncInstance).asObservable(),
-            categorySelectPageBackBtnTapped: categoryView.backButton.rx.tap.asObservable(),
-            categoryCreatePageBackBtnTapped: categoryCreateView.backButton.rx.tap.asObservable()
+            needDismiss: needDismiss.asObservable()
         )
         
         let output = viewModel.transform(input: input)
+        
+        setMode(mode: output.mode)
         
         output
             .titleValueChanged
@@ -125,10 +111,9 @@ extension TodoDetailViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, text in
                 vc.todoDetailView.memoView.memoTextView.text = text
-                
                 let memoAttrIndex = TodoDetailAttribute.memo.rawValue
                 vc.todoDetailView.icnView.buttonList[memoAttrIndex].tintColor = (text == nil) ? .gray : .planusBlack
-                if viewModel.mode == .view {
+                if vc.mode == .viewable {
                     vc.todoDetailView.icnView.buttonList[memoAttrIndex].isUserInteractionEnabled = text != nil
                 }
             })
@@ -149,8 +134,7 @@ extension TodoDetailViewController {
             .subscribe(onNext: { vc, time in
                 let clockAttrIndex = TodoDetailAttribute.clock.rawValue
                 vc.todoDetailView.icnView.buttonList[clockAttrIndex].tintColor = (time == nil) ? .gray : .planusBlack
-                
-                if viewModel.mode == .view {
+                if vc.mode == .viewable {
                     vc.todoDetailView.icnView.buttonList[clockAttrIndex].isUserInteractionEnabled = time != nil
                 }
 
@@ -178,101 +162,32 @@ extension TodoDetailViewController {
                     vc.todoDetailView.titleView.categoryButton.categoryLabel.textColor = .planusLightGray
                     vc.todoDetailView.titleView.categoryButton.categoryColorView.backgroundColor = .gray
                 }
-                vc.moveFromSelectToAdd()
             })
             .disposed(by: bag)
         
         output
-            .groupChanged
+            .groupChangedToIndex
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { vc, groupName in
+            .subscribe(onNext: { vc, index in
                 let groupAttrIndex = TodoDetailAttribute.group.rawValue
-                vc.todoDetailView.icnView.buttonList[groupAttrIndex].tintColor = (groupName == nil) ? .gray : .planusBlack
-                if viewModel.mode == .view {
-                    vc.todoDetailView.icnView.buttonList[groupAttrIndex].isUserInteractionEnabled = groupName != nil
+                vc.todoDetailView.icnView.buttonList[groupAttrIndex].tintColor = (index == nil) ? .gray : .planusBlack
+                if vc.mode == .viewable {
+                    vc.todoDetailView.icnView.buttonList[groupAttrIndex].isUserInteractionEnabled = index != nil
                 }
 
-                if let groupName {
-                    let index = viewModel.groups.firstIndex(of: groupName) ?? 0
+                if let index {
                     vc.todoDetailView.groupView.groupPickerView.selectRow(index, inComponent: 0, animated: false)
                 }
             })
             .disposed(by: bag)
         
         output
-            .newCategorySaveBtnEnabled
-            .observe(on: MainScheduler.instance)
+            .showMessage
+            .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
-            .subscribe(onNext: { vc, isEnabled in
-                vc.categoryCreateView.saveButton.isEnabled = isEnabled
-                vc.categoryCreateView.saveButton.alpha = isEnabled ? 1.0 : 0.5
-            })
-            .disposed(by: bag)
-        
-        output
-            .newCategorySaved
-            .withUnretained(self)
-            .observe(on: MainScheduler.instance)
-            .subscribe { vc, _ in
-                vc.categoryView.tableView.reloadData()
-            }
-            .disposed(by: bag)
-        
-        output
-            .moveFromAddToSelect
-            .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.moveFromAddToSelect()
-            })
-            .disposed(by: bag)
-        
-        output
-            .moveFromSelectToCreate
-            .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.moveFromSelectToCreate()
-            })
-            .disposed(by: bag)
-        
-        output
-            .moveFromCreateToSelect
-            .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.moveFromCreateToSelect()
-                vc.categoryCreateView.nameField.text = nil
-                guard let index = vc.categoryCreateView.collectionView.indexPathsForSelectedItems?.first else { return }
-                vc.categoryCreateView.collectionView.deselectItem(at: index, animated: false)
-            })
-            .disposed(by: bag)
-        
-        output
-            .moveFromSelectToAdd
-            .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.moveFromSelectToAdd()
-            })
-            .disposed(by: bag)
-        
-        output
-            .removeKeyboard
-            .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                vc.view.endEditing(true)
-            })
-            .disposed(by: bag)
-        
-        output
-            .needDismiss
-            .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .subscribe(onNext: { vc, _ in
-                viewModel.actions.close?()
+            .subscribe(onNext: { vc, message in
+                vc.showToast(message: message.text, type: Message.toToastType(state: message.state), fromBotton: vc.currentKeyboardHeight + 30)
             })
             .disposed(by: bag)
         
@@ -288,15 +203,46 @@ extension TodoDetailViewController {
                 )
             })
             .disposed(by: bag)
-                        
-        todoDetailView.setMode(mode: viewModel.mode)
-        switch viewModel.mode {
-        case .view:
-            dayPickerViewController.view.isHidden = true
-        default: break
-        }
+        
+        output
+            .dismissRequired
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                vc.animateDismiss()
+            })
+            .disposed(by: bag)
 
-        viewModel.initFetch()
+        viewModel.fetch()
+    }
+    
+    func setMode(mode: SceneAuthority) {
+        self.mode = mode
+        self.todoDetailView.icnView.setMode(mode: mode)
+        
+        switch mode {
+        case .editable:
+            todoDetailView.removeButton.isHidden = false
+            todoDetailView.titleView.todoTitleField.becomeFirstResponder()
+        case .new:
+            todoDetailView.removeButton.isHidden = true
+            todoDetailView.titleView.todoTitleField.becomeFirstResponder()
+        case .viewable:
+            todoDetailView.removeButton.isHidden = true
+            todoDetailView.saveButton.isHidden = true
+            dayPickerViewController.view.isHidden = true
+            
+            todoDetailView.attributeViewGroup.forEach {
+                $0.isUserInteractionEnabled = false
+            }
+            
+            todoDetailView.icnView.snp.remakeConstraints {
+                $0.leading.trailing.equalToSuperview()
+                $0.bottom.equalToSuperview().inset(34) // homeIndicator height
+            }
+        default:
+            return
+        }
     }
 }
 
@@ -308,10 +254,6 @@ private extension TodoDetailViewController {
         let dateStr = dateFormatter.string(from: sender.date)
         
         didChangedTimeValue.accept(dateStr)
-    }
-    
-    @objc private func dimmedViewTapped(_ tapRecognizer: UITapGestureRecognizer) {
-        hideBottomSheetAndGoBack()
     }
 }
 
@@ -329,16 +271,6 @@ private extension TodoDetailViewController {
         todoDetailView.addSubview(dayPickerViewController.view)
     }
     
-    func configureSelectCategoryView() {
-        categoryView.tableView.dataSource = self
-        categoryView.tableView.delegate = self
-    }
-    
-    func configureCreateCategoryView() {
-        categoryCreateView.collectionView.dataSource = self
-        categoryCreateView.collectionView.delegate = self
-    }
-    
     func configureView() {
         self.view.addSubview(dimmedView)
         self.view.addSubview(todoDetailView)
@@ -349,13 +281,8 @@ private extension TodoDetailViewController {
          todoDetailView.curtainView].forEach {
             $0?.backgroundColor = .planusBackgroundColor
         }
-        
-        self.view.addSubview(categoryView)
-        self.view.addSubview(categoryCreateView)
-        
+
         configureAddTodoView()
-        configureSelectCategoryView()
-        configureCreateCategoryView()
         
         let dimmedTap = UITapGestureRecognizer(target: self, action: #selector(dimmedViewTapped(_:)))
         dimmedView.addGestureRecognizer(dimmedTap)
@@ -368,26 +295,11 @@ private extension TodoDetailViewController {
         }
         
         todoDetailView.snp.makeConstraints {
-            $0.width.equalToSuperview()
-            $0.leading.equalToSuperview()
+            $0.leading.trailing.equalToSuperview()
             $0.top.equalTo(self.view.snp.bottom)
             $0.height.lessThanOrEqualTo(700)
         }
-        
-        categoryView.snp.makeConstraints {
-            $0.width.equalToSuperview()
-            $0.leading.equalTo(self.view.snp.trailing)
-            $0.height.equalTo(400)
-            $0.bottom.equalToSuperview()
-        }
-        
-        categoryCreateView.snp.makeConstraints {
-            $0.width.equalToSuperview()
-            $0.leading.equalTo(self.view.snp.trailing)
-            $0.height.lessThanOrEqualTo(800)
-            $0.bottom.equalToSuperview()
-        }
-        
+
         dayPickerViewController.view.snp.makeConstraints {
             $0.top.equalTo(todoDetailView.icnView.snp.bottom)
             $0.leading.trailing.equalToSuperview().inset(10)
@@ -395,7 +307,6 @@ private extension TodoDetailViewController {
             $0.bottom.equalToSuperview()
         }
         
-        self.view.layoutIfNeeded()
     }
 }
 
@@ -409,9 +320,7 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
         case .clock:
             didChangedTimeValue.accept(nil)
         case .group:
-            if viewModel?.type == .memberTodo {
-                didSelectedGroupAt.accept(nil)
-            }
+            didSelectedGroupAt.accept(nil)
         case .memo:
             todoDetailView.memoView.isMemoActive.accept(false)
             todoDetailView.memoView.memoTextView.text = nil
@@ -448,7 +357,7 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
             })
         }
         
-        if viewModel?.mode != .view {
+        if self.mode != .viewable {
             switch to {
             case .title:
                 todoDetailView.titleView.todoTitleField.becomeFirstResponder()
@@ -466,5 +375,115 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
                 todoDetailView.memoView.memoTextView.becomeFirstResponder()
             }
         }
+    }
+}
+
+private extension TodoDetailViewController {
+    @objc
+    func dimmedViewTapped(_ sender: UITapGestureRecognizer) {
+        animateDismiss()
+    }
+    
+    func animateDismiss() {
+        self.view.endEditing(true)
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+            self.dimmedView.alpha = 0.0
+            self.todoDetailView.snp.remakeConstraints {
+                $0.leading.trailing.equalToSuperview()
+                $0.top.equalTo(self.dimmedView.snp.bottom)
+                $0.height.lessThanOrEqualTo(700)
+            }
+            self.view.layoutIfNeeded()
+        }, completion: { [weak self] _ in
+            self?.needDismiss.accept(())
+        })
+    }
+}
+
+extension TodoDetailViewController {
+    func animateFirstAppearance() {
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseInOut, animations: {
+            self.todoDetailView.snp.remakeConstraints {
+                $0.bottom.leading.trailing.equalToSuperview()
+                $0.height.lessThanOrEqualTo(700)
+            }
+            self.dimmedView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
+            self.view.layoutIfNeeded()
+        }, completion: nil)
+        isFirstAppear = false
+    }
+}
+
+extension TodoDetailViewController {
+    @objc func keyboardWillShow(_ notification:NSNotification) {
+        if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keyboardRectangle.height
+
+            currentKeyboardHeight = keyboardHeight
+            
+            dayPickerViewController.view.snp.remakeConstraints {
+                $0.top.equalTo(todoDetailView.icnView.snp.bottom)
+                $0.leading.trailing.equalToSuperview().inset(10)
+                $0.height.equalTo(keyboardHeight)
+                $0.bottom.equalToSuperview()
+            }
+            
+            UIView.animate(withDuration: 0.2, delay: 0, animations: {
+                self.view.layoutIfNeeded()
+            })
+        }
+    }
+
+    @objc func keyboardWillHide(_ notification:NSNotification) {
+        currentKeyboardHeight = 0
+        
+        UIView.animate(withDuration: 0.2, delay: 0, animations: {
+            self.view.layoutIfNeeded()
+        })
+        
+    }
+}
+
+extension TodoDetailViewController: DayPickerViewControllerDelegate {
+    func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDate: Date) {
+        todoDetailView.dateView.setDate(startDate: dayPickerViewController.dateFormatter2.string(from: didSelectDate))
+        didSelectedDateRange.accept(DateRange(start: didSelectDate))
+    }
+    
+    func unHighlightAllItem(_ dayPickerViewController: DayPickerViewController) {
+        todoDetailView.dateView.setDate()
+        didSelectedDateRange.accept(DateRange())
+    }
+    
+    func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDateInRange: (Date, Date)) {
+        let (a, b) = didSelectDateInRange
+        
+        let min = min(a, b)
+        let max = max(a, b)
+        todoDetailView.dateView.setDate(
+            startDate: dayPickerViewController.dateFormatter2.string(from: min),
+            endDate: dayPickerViewController.dateFormatter2.string(from: max)
+        )
+
+        didSelectedDateRange.accept(DateRange(start: min, end: max))
+    }
+}
+
+extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return viewModel?.groups.count ?? 0
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return viewModel?.groups[row].groupName
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        didSelectedGroupAt.accept(row)
     }
 }

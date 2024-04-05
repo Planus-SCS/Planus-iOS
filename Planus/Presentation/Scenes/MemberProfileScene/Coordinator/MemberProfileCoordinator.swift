@@ -47,10 +47,10 @@ final class MemberProfileCoordinator: Coordinator {
         
     }
     
-    lazy var showSocialDailyCalendar: ((SocialDailyCalendarViewModel.Args) -> Void) = { [weak self] args in
+    lazy var showSocialDailyCalendar: ((MemberDailyCalendarViewModel.Args) -> Void) = { [weak self] args in
         guard let self else { return }
-        let coordinator = SocialDailyCalendarCoordinator(
-            dependency: SocialDailyCalendarCoordinator.Dependency(
+        let coordinator = MemberDailyCalendarCoordinator(
+            dependency: MemberDailyCalendarCoordinator.Dependency(
                 navigationController: self.dependency.navigationController,
                 injector: self.dependency.injector
             )

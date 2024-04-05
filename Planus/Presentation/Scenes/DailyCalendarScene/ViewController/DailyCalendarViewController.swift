@@ -12,13 +12,15 @@ import RxCocoa
 final class DailyCalendarViewController: UIViewController {
     
     private let bag = DisposeBag()
-    private var viewModel: DailyCalendarViewModel?
+    private var viewModel: (any DailyCalendarViewModelable)?
     private var dailyCalendarView: DailyCalendarView?
     
     private let didTappedCompletionBtnAt = PublishRelay<IndexPath>()
     private let didDeleteTodoAt = PublishRelay<IndexPath>()
+    private let viewDidDismissed = PublishRelay<Void>()
+    private var isInteractable: Bool = true
     
-    convenience init(viewModel: DailyCalendarViewModel) {
+    convenience init(viewModel: any DailyCalendarViewModelable) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
     }
@@ -34,17 +36,33 @@ final class DailyCalendarViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        dailyCalendarView?.collectionView.dataSource = self
-        dailyCalendarView?.collectionView.delegate = self
-        
+        configureVC()
         bind()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationItem.titleView = dailyCalendarView?.dateTitleButton
-        navigationItem.setRightBarButton(dailyCalendarView?.addTodoButton, animated: false)
         navigationController?.presentationController?.delegate = self
+    }
+}
+
+// MARK: - Configure
+private extension DailyCalendarViewController {
+    func configureVC() {
+        dailyCalendarView?.collectionView.dataSource = self
+        dailyCalendarView?.collectionView.delegate = self
+    }
+    
+    func configureMode(mode: SceneAuthority) {
+        switch mode {
+        case .editable, .interactable:
+            navigationItem.setRightBarButton(dailyCalendarView?.addTodoButton, animated: false)
+        default:
+            return
+        }
+    
+        isInteractable = mode == .interactable
     }
 }
 
@@ -53,8 +71,10 @@ private extension DailyCalendarViewController {
     func bind() {
         guard let viewModel,
               let dailyCalendarView else { return }
-        
-        let input = DailyCalendarViewModel.Input(
+
+        let input = (any DailyCalendarViewModelable).Input(
+            viewDidLoad: Observable.just(()),
+            viewDidDismissed: viewDidDismissed.asObservable(),
             addTodoTapped: dailyCalendarView.addTodoButton.rx.tap.asObservable(),
             todoSelectedAt: dailyCalendarView.collectionView.rx.itemSelected.asObservable(),
             deleteTodoAt: didDeleteTodoAt.asObservable(),
@@ -63,10 +83,24 @@ private extension DailyCalendarViewController {
         
         let output = viewModel.transform(input: input)
         
+        configureMode(mode: output.mode)
+        
         dailyCalendarView.dateTitleButton.setTitle(output.currentDateText, for: .normal)
+        
+        output
+            .nowLoading?
+            .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { vc, _ in
+                dailyCalendarView.spinner.isHidden = false
+                dailyCalendarView.spinner.startAnimating()
+                dailyCalendarView.collectionView.isHidden = true
+            })
+            .disposed(by: bag)
 
         output
-            .needInsertItem
+            .needInsertItem?
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, indexPath in
@@ -75,7 +109,7 @@ private extension DailyCalendarViewController {
             .disposed(by: bag)
             
         output
-            .needDeleteItem
+            .needDeleteItem?
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, indexPath in
@@ -84,16 +118,24 @@ private extension DailyCalendarViewController {
             .disposed(by: bag)
         
         output
-            .needReloadData
+            .needReloadData?
+            .compactMap { $0 }
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, _ in
-                dailyCalendarView.collectionView.reloadSections(IndexSet(0...1))
+                dailyCalendarView.collectionView.reloadData()
+                
+                if dailyCalendarView.spinner.isAnimating {
+                    dailyCalendarView.spinner.setAnimatedIsHidden(true, duration: 0.2, onCompletion: {
+                        dailyCalendarView.spinner.stopAnimating()
+                        dailyCalendarView.collectionView.setAnimatedIsHidden(false, duration: 0.2)
+                    })
+                }
             })
             .disposed(by: bag)
         
         output
-            .needUpdateItem
+            .needUpdateItem?
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, args in
@@ -109,7 +151,9 @@ private extension DailyCalendarViewController {
             .subscribe(onNext: { vc, message in
                 vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
             })
-            .disposed(by: bag)        
+            .disposed(by: bag)
+        
+        
     }
 }
 
@@ -118,7 +162,7 @@ private extension DailyCalendarViewController {
     func insertTodoAt(indexPath: IndexPath) {
         guard let viewModel else { return }
         
-        if viewModel.todos[indexPath.section].count == 1 {
+        if viewModel.todoViewModels[indexPath.section].count == 1 {
             dailyCalendarView?.collectionView.reloadItems(at: [indexPath])
         } else {
             dailyCalendarView?.collectionView.insertItems(at: [indexPath])
@@ -128,7 +172,7 @@ private extension DailyCalendarViewController {
     func deleteTodoAt(indexPath: IndexPath) {
         guard let viewModel else { return }
         
-        if viewModel.todos[indexPath.section].count == 0 {
+        if viewModel.todoViewModels[indexPath.section].count == 0 {
             dailyCalendarView?.collectionView.reloadItems(at: [indexPath])
         } else {
             dailyCalendarView?.collectionView.deleteItems(at: [indexPath])
@@ -151,44 +195,42 @@ private extension DailyCalendarViewController {
 // MARK: - modal dismiss handler
 extension DailyCalendarViewController: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        viewModel?.actions.finishScene?()
+        viewDidDismissed.accept(())
     }
 }
 
 // MARK: - collection View
 extension DailyCalendarViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return max(viewModel?.todos[section].count ?? 1, 1)
+        return max(viewModel?.todoViewModels[section].count ?? 1, 1)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let viewModel else { return UICollectionViewCell() }
         
-        guard !viewModel.todos[indexPath.section].isEmpty else {
+        guard !viewModel.todoViewModels[indexPath.section].isEmpty else {
             return collectionView.dequeueReusableCell(
                 withReuseIdentifier: DailyCalendarEmptyTodoMockCell.reuseIdentifier,
                 for: indexPath
             )
         }
         
-        let todoItem = viewModel.todos[indexPath.section][indexPath.item]
-
-        guard let category = todoItem.isGroupTodo ?
-                viewModel.groupCategoryDict[todoItem.categoryId] : viewModel.categoryDict[todoItem.categoryId],
-              let cell = collectionView.dequeueReusableCell(
+        guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: DailyCalendarTodoCell.reuseIdentifier,
                 for: indexPath
               ) as? DailyCalendarTodoCell else { return UICollectionViewCell() }
         
+        let todoItem = viewModel.todoViewModels[indexPath.section][indexPath.item]
+
         cell.fill(
             title: todoItem.title,
             time: todoItem.startTime,
-            category: category.color,
+            category: todoItem.categoryColor,
             isGroup: todoItem.isGroupTodo,
-            isScheduled: todoItem.startDate != todoItem.endDate,
-            isMemo: !(todoItem.memo ?? "").isEmpty,
+            isPeriod: todoItem.isPeriodTodo,
+            isMemo: todoItem.hasDescription,
             completion: todoItem.isCompleted,
-            isOwner: true
+            isInteractable: isInteractable
         )
         
         cell.fill { [weak self] in
@@ -202,7 +244,7 @@ extension DailyCalendarViewController: UICollectionViewDataSource, UICollectionV
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        viewModel?.todos.count ?? 0
+        viewModel?.todoViewModels.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {

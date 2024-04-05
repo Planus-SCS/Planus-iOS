@@ -49,7 +49,7 @@ final class MyGroupDetailViewModel: ViewModel {
     }
     
     struct Actions {
-        let showDailyCalendar: ((SocialDailyCalendarViewModel.Args) -> Void)?
+        let showDailyCalendar: ((GroupDailyCalendarViewModel.Args) -> Void)?
         let showMemberProfile: ((MemberProfileViewModel.Args) -> Void)?
         let editInfo: ((MyGroupInfoEditViewModel.Args) -> Void)?
         let editMember: ((MyGroupMemberEditViewModel.Args) -> Void)?
@@ -239,9 +239,9 @@ final class MyGroupDetailViewModel: ViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 vm.actions.showDailyCalendar?(
-                    SocialDailyCalendarViewModel.Args(
+                    GroupDailyCalendarViewModel.Args(
                         group: GroupName(groupId: vm.groupId, groupName: vm.groupTitle ?? String()),
-                        type: .group(isLeader: vm.isLeader ?? Bool()),
+                        isLeader: vm.isLeader ?? Bool(),
                         date: vm.mainDays[index].date
                     )
                 )

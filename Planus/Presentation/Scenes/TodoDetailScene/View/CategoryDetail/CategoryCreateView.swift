@@ -56,7 +56,7 @@ class CategoryCreateView: UIView {
     
     var descLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.text = "카테고리 색상을 선택택하세요"
+        label.text = "카테고리 색상을 선택하세요"
         label.textAlignment = .center
         label.font = UIFont(name: "Pretendard-Medium", size: 14)
         label.textColor = UIColor(red: 0.749, green: 0.78, blue: 0.843, alpha: 1)

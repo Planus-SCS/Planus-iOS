@@ -33,7 +33,7 @@ enum TodoDetailAttribute: Int, CaseIterable {
 final class TodoDetailIcnView: UIView {
     weak var delegate: TodoDetailIcnViewDelegate?
     
-    private var mode: TodoDetailSceneMode?
+    private var mode: SceneAuthority?
     var viewingAttr: TodoDetailAttribute = .title
     
     var stackView: UIStackView = {
@@ -67,7 +67,7 @@ final class TodoDetailIcnView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func setMode(mode: TodoDetailSceneMode) {
+    public func setMode(mode: SceneAuthority) {
         self.mode = mode
     }
     
@@ -93,7 +93,7 @@ final class TodoDetailIcnView: UIView {
         guard let mode,
               var selectedAttr = TodoDetailAttribute(rawValue: index) else { return }
         
-        if selectedAttr == viewingAttr && (selectedAttr != .title && selectedAttr != .calendar) && mode != .view  {
+        if selectedAttr == viewingAttr && (selectedAttr != .title && selectedAttr != .calendar) && mode != .viewable  {
             delegate?.deactivate(attr: selectedAttr)
             selectedAttr = .title
         }

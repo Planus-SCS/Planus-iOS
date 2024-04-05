@@ -17,14 +17,16 @@ final class DefaultCreateGroupCategoryUseCase: CreateGroupCategoryUseCase {
         self.categoryRepository = categoryRepository
     }
     
-    func execute(token: Token, groupId: Int, category: Category) -> Single<Int> {
+    func execute(token: Token, groupId: Int, category: Category) -> Single<Category> {
         return categoryRepository.create(
             token: token.accessToken,
             groupId: groupId,
             category: category.toDTO()
         )
         .map { dto in
-            return dto.data.id
+            var newValue = category
+            newValue.id = dto.data.id
+            return newValue
         }
     }
 }

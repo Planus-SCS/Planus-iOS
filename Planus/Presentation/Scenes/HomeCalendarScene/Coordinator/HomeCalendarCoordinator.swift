@@ -48,11 +48,11 @@ final class HomeCalendarCoordinator: Coordinator {
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }
     
-    lazy var showDailyCalendarPage: (DailyCalendarViewModel.Args) -> Void = { [weak self] args in
+    lazy var showDailyCalendarPage: (MyDailyCalendarViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
         
-        let coordinator = DailyCalendarCoordinator(
-            dependency: DailyCalendarCoordinator.Dependency(
+        let coordinator = MyDailyCalendarCoordinator(
+            dependency: MyDailyCalendarCoordinator.Dependency(
                 navigationController: self.dependency.navigationController,
                 injector: self.dependency.injector
             )
@@ -62,11 +62,11 @@ final class HomeCalendarCoordinator: Coordinator {
         coordinator.start(args: args)
     }
     
-    lazy var showTodoDetailPage: (MemberTodoDetailViewModel.Args, (() -> Void)?) -> Void = { [weak self] args, closeHandler in
+    lazy var showTodoDetailPage: (MyTodoDetailViewModel.Args, (() -> Void)?) -> Void = { [weak self] args, closeHandler in
         guard let self else { return }
 
-        let coordinator = TodoDetailCoordinator(
-            dependency: TodoDetailCoordinator.Dependency(
+        let coordinator = MyTodoDetailCoordinator(
+            dependency: MyTodoDetailCoordinator.Dependency(
                 navigationController: self.dependency.navigationController,
                 injector: self.dependency.injector,
                 closeHandler: closeHandler
@@ -74,7 +74,7 @@ final class HomeCalendarCoordinator: Coordinator {
         )
         coordinator.finishDelegate = self
         self.childCoordinators.append(coordinator)
-        coordinator.startMember(args: args)
+        coordinator.start(args: args)
     }
     
     lazy var showMyPage: (Profile) -> Void = { [weak self] profile in

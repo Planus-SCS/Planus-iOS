@@ -1,14 +1,14 @@
 //
-//  SocialDailyCalendarCoordinator.swift
+//  MyDailyCalendarCoordinator.swift
 //  Planus
 //
-//  Created by Sangmin Lee on 3/21/24.
+//  Created by Sangmin Lee on 2023/04/06.
 //
 
 import UIKit
 import RxSwift
 
-final class SocialDailyCalendarCoordinator: Coordinator {
+final class MyDailyCalendarCoordinator: Coordinator {
     
     struct Dependency {
         let navigationController: UINavigationController
@@ -20,7 +20,7 @@ final class SocialDailyCalendarCoordinator: Coordinator {
     
     var childCoordinators: [Coordinator] = []
     
-    var type: CoordinatorType = .socialDailyCalendar
+    var type: CoordinatorType = .myDailyCalendar
     
     var modalNavigationVC: UINavigationController?
     
@@ -28,24 +28,26 @@ final class SocialDailyCalendarCoordinator: Coordinator {
         self.dependency = dependency
     }
     
-    func start(args: SocialDailyCalendarViewModel.Args) {
+    func start(args: MyDailyCalendarViewModel.Args) {
         showDailyCalendarPage(args)
     }
     
-    lazy var showDailyCalendarPage: (SocialDailyCalendarViewModel.Args) -> Void = { [weak self] args in
+    lazy var showDailyCalendarPage: (MyDailyCalendarViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
-        let viewController = self.dependency.injector.resolve(
-            SocialDailyCalendarViewController.self,
-            argument: SocialDailyCalendarViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            MyDailyCalendarViewModel.self,
+            injectable: MyDailyCalendarViewModel.Injectable(
                 actions: .init(
-                    showSocialTodoDetail: showSocialTodoDetail,
+                    showTodoDetailPage: showTodoDetailPage,
                     finishScene: finishScene
                 ),
                 args: args
             )
         )
         
-        let nav = UINavigationController(rootViewController: viewController)
+        let vc = DailyCalendarViewController(viewModel: vm)
+        
+        let nav = UINavigationController(rootViewController: vc)
         nav.modalPresentationStyle = .pageSheet
         if let sheet = nav.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
@@ -55,20 +57,20 @@ final class SocialDailyCalendarCoordinator: Coordinator {
         self.modalNavigationVC = nav
     }
     
-    lazy var showSocialTodoDetail: (SocialTodoDetailViewModel.Args) -> Void = { [weak self] args in
+    lazy var showTodoDetailPage: (MyTodoDetailViewModel.Args, (() -> Void)?) -> Void = { [weak self] args, closeHandler in
         guard let self,
               let modalNavigationVC else { return }
 
-        let coordinator = TodoDetailCoordinator(
-            dependency: TodoDetailCoordinator.Dependency(
+        let coordinator = MyTodoDetailCoordinator(
+            dependency: MyTodoDetailCoordinator.Dependency(
                 navigationController: modalNavigationVC,
                 injector: self.dependency.injector,
-                closeHandler: nil
+                closeHandler: closeHandler
             )
         )
         coordinator.finishDelegate = self
         self.childCoordinators.append(coordinator)
-        coordinator.startSocial(args: args)
+        coordinator.start(args: args)
     }
     
     lazy var finishScene: (() -> Void)? = { [weak self] in
@@ -77,7 +79,7 @@ final class SocialDailyCalendarCoordinator: Coordinator {
 
 }
 
-extension SocialDailyCalendarCoordinator: CoordinatorFinishDelegate {
+extension MyDailyCalendarCoordinator: CoordinatorFinishDelegate {
     func coordinatorDidFinish(childCoordinator: Coordinator) {
         childCoordinators = childCoordinators.filter {
             $0.type != childCoordinator.type
