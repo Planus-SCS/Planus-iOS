@@ -99,13 +99,14 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
             dismissRequired: dismissRequired.asObservable()
         )
     }
+    
+    func fetch() {
+        fetchGroupMemberTodoDetail(groupId: group.groupId, memberId: memberId, todoId: todoId)
+    }
 }
 
 // MARK: - Initial Fetch
 private extension MemberTodoDetailViewModel {
-    func fetch() {
-        fetchGroupMemberTodoDetail(groupId: group.groupId, memberId: memberId, todoId: todoId)
-    }
     
     func fetchGroupMemberTodoDetail(groupId: Int, memberId: Int, todoId: Int) {
         useCases

@@ -10,21 +10,20 @@ import RxSwift
 import RxCocoa
 
 final class CategoryDetailViewController: UIViewController {
-    var bag = DisposeBag()
-    
-    var currentKeyboardHeight: CGFloat = 0
+    private let bag = DisposeBag()
+    private var currentKeyboardHeight: CGFloat = 0
 
     // MARK: UI Event
-    var categoryColorSelected = PublishRelay<CategoryColor?>()
-    var needDismiss = PublishRelay<Void>()
+    private let categoryColorSelected = PublishRelay<CategoryColor?>()
+    private let needDismiss = PublishRelay<Void>()
         
-    var viewModel: (any CategoryDetailViewModelable)?
+    private var viewModel: (any CategoryDetailViewModelable)?
     
     // MARK: Child View
-    var categoryCreateView = CategoryCreateView(frame: .zero)
+    private let categoryCreateView = CategoryCreateView(frame: .zero)
     
     // MARK: Background
-    let dimmedView: UIView = {
+    private let dimmedView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
         return view
@@ -33,14 +32,6 @@ final class CategoryDetailViewController: UIViewController {
     convenience init(viewModel: any CategoryDetailViewModelable) {
         self.init(nibName: nil, bundle: nil)
         self.viewModel = viewModel
-    }
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
@@ -54,13 +45,12 @@ final class CategoryDetailViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        configureKeyboard()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         categoryCreateView.nameField.becomeFirstResponder()
-
     }
 }
 
@@ -109,11 +99,21 @@ extension CategoryDetailViewController {
     }
 }
 
-// MARK: Generate UI
+// MARK: Configure VC
 private extension CategoryDetailViewController {
     func configureCreateCategoryView() {
         categoryCreateView.collectionView.dataSource = self
         categoryCreateView.collectionView.delegate = self
+    }
+    
+    func configureDimmedView() {
+        let dimmedTap = UITapGestureRecognizer(target: self, action: #selector(dimmedViewTapped(_:)))
+        dimmedView.addGestureRecognizer(dimmedTap)
+        dimmedView.isUserInteractionEnabled = true
+    }
+    
+    func configureKeyboard() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
     }
     
     func configureView() {
@@ -121,10 +121,6 @@ private extension CategoryDetailViewController {
         self.view.addSubview(categoryCreateView)
 
         configureCreateCategoryView()
-        
-        let dimmedTap = UITapGestureRecognizer(target: self, action: #selector(dimmedViewTapped(_:)))
-        dimmedView.addGestureRecognizer(dimmedTap)
-        dimmedView.isUserInteractionEnabled = true
     }
     
     func configureLayout() {
@@ -140,6 +136,7 @@ private extension CategoryDetailViewController {
     }
 }
 
+// MARK: - DimmedView Tap Animation
 private extension CategoryDetailViewController {
     @objc
     func dimmedViewTapped(_ sender: UITapGestureRecognizer) {
@@ -164,6 +161,7 @@ private extension CategoryDetailViewController {
 }
 
 
+// MARK: - collectionView
 extension CategoryDetailViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
@@ -188,7 +186,8 @@ extension CategoryDetailViewController: UICollectionViewDataSource, UICollection
     }
 }
 
-extension CategoryDetailViewController {
+// MARK: - Keyboard Actions
+private extension CategoryDetailViewController {
     @objc
     func keyboardWillShow(_ notification:NSNotification) {
         if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
@@ -196,7 +195,6 @@ extension CategoryDetailViewController {
             let keyboardHeight = keyboardRectangle.height
             
             currentKeyboardHeight = keyboardHeight
-
             categoryCreateView.descLabel.snp.remakeConstraints {
                 $0.top.equalTo(categoryCreateView.collectionView.snp.bottom)
                 $0.centerX.equalToSuperview()

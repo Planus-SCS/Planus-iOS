@@ -34,18 +34,9 @@ final class CategorySelectViewController: UIViewController {
         self.viewModel = viewModel
     }
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureVC()
         configureView()
         configureLayout()
         
@@ -119,10 +110,6 @@ private extension CategorySelectViewController {
 
 // MARK: - configure
 private extension CategorySelectViewController {
-    func configureVC() {
-        configureSelectCategoryView()
-        configureDimmedView()
-    }
     func configureSelectCategoryView() {
         categoryView.tableView.dataSource = self
         categoryView.tableView.delegate = self
@@ -137,6 +124,9 @@ private extension CategorySelectViewController {
     func configureView() {
         self.view.addSubview(dimmedView)
         self.view.addSubview(categoryView)
+        
+        configureSelectCategoryView()
+        configureDimmedView()
     }
     
     func configureLayout() {

@@ -221,10 +221,7 @@ final class GroupTodoDetailViewModel: TodoDetailViewModelable {
             dismissRequired: dismissRequired.asObservable()
         )
     }
-}
-
-// MARK: - Initial Fetch
-private extension GroupTodoDetailViewModel {
+    
     func fetch() {
         switch type {
         case .new(let date):
@@ -238,6 +235,10 @@ private extension GroupTodoDetailViewModel {
             fetchGroupTodoDetail(groupId: group.groupId, todoId: todoId)
         }
     }
+}
+
+// MARK: - Initial Fetch
+private extension GroupTodoDetailViewModel {
     
     func fetchGroupTodoDetail(groupId: Int, todoId: Int) {
         useCases

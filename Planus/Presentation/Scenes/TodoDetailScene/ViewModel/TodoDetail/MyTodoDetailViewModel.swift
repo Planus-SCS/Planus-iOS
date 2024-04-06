@@ -228,13 +228,14 @@ final class MyTodoDetailViewModel: TodoDetailViewModelable {
             dismissRequired: dismissRequired.asObservable()
         )
     }
+    
+    func fetch() {
+        fetchCategoryList()
+    }
 }
 
 // MARK: - Initail Fetch
 private extension MyTodoDetailViewModel {
-    func fetch() {
-        fetchCategoryList()
-    }
     
     func fetchCategoryList() {
         useCases.executeWithTokenUseCase

@@ -38,21 +38,21 @@ final class GroupCategoryDetailViewModel: CategoryDetailViewModelable {
         let args: Args
     }
     
-    let bag = DisposeBag()
+    private let bag = DisposeBag()
     let useCases: UseCases
     let actions: Actions
     
     let categoryColorList: [CategoryColor] = CategoryColor.allCases
     
-    let categoryTitle = BehaviorSubject<String?>(value: nil)
-    let categoryColor = BehaviorSubject<CategoryColor?>(value: nil)
-    let type: `Type`
-    let groupId: Int
+    private let categoryTitle = BehaviorSubject<String?>(value: nil)
+    private let categoryColor = BehaviorSubject<CategoryColor?>(value: nil)
+    private let type: `Type`
+    private let groupId: Int
     
-    let categoryCreated: RxSwift.PublishSubject<Category>
-    let categoryUpdated: RxSwift.PublishSubject<Category>
+    private let categoryCreated: RxSwift.PublishSubject<Category>
+    private let categoryUpdated: RxSwift.PublishSubject<Category>
     
-    let showMessage = PublishSubject<Message>()
+    private let showMessage = PublishSubject<Message>()
     
     init(useCases: UseCases, injectable: Injectable) {
         self.useCases = useCases
@@ -69,59 +69,6 @@ final class GroupCategoryDetailViewModel: CategoryDetailViewModelable {
         default:
             return
         }
-    }
-    
-    func saveCategory() {
-        guard let title = try? categoryTitle.value(),
-              let color = try? categoryColor.value() else { return }
-        var category = Category(title: title, color: color)
-        switch type {
-        case .new:
-            createCategory(category: category)
-        case .edit(let oldValue):
-            guard let id = oldValue.id else { return }
-            updateCategory(id: id, category: category)
-        }
-    }
-    
-    func createCategory(category: Category) {
-        useCases
-            .executeTokenUseCase
-            .execute { [weak self] token -> Single<Category>? in
-                guard let self else { return nil }
-                return self.useCases
-                    .createGroupCategoryUseCase
-                    .execute(token: token, groupId: self.groupId, category: category)
-            }
-            .subscribe(onSuccess: { [weak self] newCategory in
-                self?.categoryCreated.onNext(newCategory)
-                self?.pop()
-            })
-            .disposed(by: bag)
-    }
-    
-    func updateCategory(id: Int, category: Category) {
-        useCases
-            .executeTokenUseCase
-            .execute { [weak self] token -> Single<Category>? in
-                guard let self else { return nil }
-                return self.useCases
-                    .updateGroupCategoryUseCase
-                    .execute(token: token, groupId: self.groupId, categoryId: id, category: category)
-            }
-            .subscribe(onSuccess: { [weak self] newCategory in
-                self?.categoryUpdated.onNext(newCategory)
-                self?.pop()
-            })
-            .disposed(by: bag)
-    }
-    
-    func pop() {
-        actions.pop?()
-    }
-    
-    func dismiss() {
-        actions.dismiss?()
     }
     
     func transform(input: Input) -> Output {
@@ -147,7 +94,7 @@ final class GroupCategoryDetailViewModel: CategoryDetailViewModelable {
             .backBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.pop()
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         
@@ -177,5 +124,58 @@ final class GroupCategoryDetailViewModel: CategoryDetailViewModelable {
             saveBtnEnabled: newCategorySaveBtnEnabled,
             showMessage: showMessage.asObservable()
         )
+    }
+}
+
+// MARK: - Button Actions
+private extension GroupCategoryDetailViewModel {
+    func saveCategory() {
+        guard let title = try? categoryTitle.value(),
+              let color = try? categoryColor.value() else { return }
+        var category = Category(title: title, color: color)
+        switch type {
+        case .new:
+            createCategory(category: category)
+        case .edit(let oldValue):
+            guard let id = oldValue.id else { return }
+            updateCategory(id: id, category: category)
+        }
+    }
+}
+
+// MARK: - API
+private extension GroupCategoryDetailViewModel {
+    func createCategory(category: Category) {
+        useCases
+            .executeTokenUseCase
+            .execute { [weak self] token -> Single<Category>? in
+                guard let self else { return nil }
+                return self.useCases
+                    .createGroupCategoryUseCase
+                    .execute(token: token, groupId: self.groupId, category: category)
+            }
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] newCategory in
+                self?.categoryCreated.onNext(newCategory)
+                self?.actions.pop?()
+            })
+            .disposed(by: bag)
+    }
+    
+    func updateCategory(id: Int, category: Category) {
+        useCases
+            .executeTokenUseCase
+            .execute { [weak self] token -> Single<Category>? in
+                guard let self else { return nil }
+                return self.useCases
+                    .updateGroupCategoryUseCase
+                    .execute(token: token, groupId: self.groupId, categoryId: id, category: category)
+            }
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] newCategory in
+                self?.categoryUpdated.onNext(newCategory)
+                self?.actions.pop?()
+            })
+            .disposed(by: bag)
     }
 }

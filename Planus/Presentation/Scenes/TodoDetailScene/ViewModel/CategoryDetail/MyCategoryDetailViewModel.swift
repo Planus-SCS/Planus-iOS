@@ -37,18 +37,19 @@ final class MyCategoryDetailViewModel: CategoryDetailViewModelable {
         let args: Args
     }
     
-    let bag = DisposeBag()
+    private let bag = DisposeBag()
     let useCases: UseCases
     let actions: Actions
     
     let categoryColorList: [CategoryColor] = CategoryColor.allCases
     
-    let categoryTitle = BehaviorSubject<String?>(value: nil)
-    let categoryColor = BehaviorSubject<CategoryColor?>(value: nil)
-    let type: `Type`
+    private let categoryTitle = BehaviorSubject<String?>(value: nil)
+    private let categoryColor = BehaviorSubject<CategoryColor?>(value: nil)
+    private let type: `Type`
     
-    let categoryCreated: PublishSubject<Category>
-    let categoryUpdated: PublishSubject<Category>
+    // MARK: - Injected RxSubject
+    private let categoryCreated: PublishSubject<Category>
+    private let categoryUpdated: PublishSubject<Category>
     
     let showMessage = PublishSubject<Message>()
     
@@ -57,7 +58,7 @@ final class MyCategoryDetailViewModel: CategoryDetailViewModelable {
         self.actions = injectable.actions
         self.categoryCreated = injectable.args.categoryCreated
         self.categoryUpdated = injectable.args.categoryUpdated
-
+        
         self.type = injectable.args.type
         switch injectable.args.type {
         case .edit(let category):
@@ -66,69 +67,6 @@ final class MyCategoryDetailViewModel: CategoryDetailViewModelable {
         default:
             return
         }
-    }
-    
-    func saveCategory() {
-        guard let title = try? categoryTitle.value(),
-              let color = try? categoryColor.value() else { return }
-        var category = Category(title: title, color: color)
-        switch type {
-        case .new:
-            createCategory(category: category)
-        case .edit(let oldValue):
-            guard let id = oldValue.id else { return }
-            updateCategory(id: id, category: category)
-        }
-    }
-    
-    func createCategory(category: Category) {
-        useCases
-            .executeTokenUseCase
-            .execute { [weak self] token -> Single<Category>? in
-                self?.useCases
-                    .createCategoryUseCase
-                    .execute(token: token, category: category)
-            }
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onSuccess: { [weak self] newCategory in
-                self?.categoryCreated.onNext(newCategory)
-                self?.pop()
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-            })
-            .disposed(by: bag)
-    }
-    
-    func updateCategory(id: Int, category: Category) {
-        useCases
-            .executeTokenUseCase
-            .execute { [weak self] token -> Single<Category>? in
-                self?.useCases
-                    .updateCategoryUseCase
-                    .execute(token: token, id: id, category: category)
-            }
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onSuccess: { [weak self] newCategory in
-                self?.categoryUpdated.onNext(newCategory)
-                self?.pop()
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-            })
-            .disposed(by: bag)
-    }
-    
-    func pop() {
-        actions.pop?()
-    }
-    
-    func dismiss() {
-        actions.dismiss?()
     }
     
     func transform(input: Input) -> Output {
@@ -154,7 +92,7 @@ final class MyCategoryDetailViewModel: CategoryDetailViewModelable {
             .backBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.pop()
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         
@@ -184,5 +122,66 @@ final class MyCategoryDetailViewModel: CategoryDetailViewModelable {
             saveBtnEnabled: newCategorySaveBtnEnabled,
             showMessage: showMessage.asObservable()
         )
+    }
+}
+
+// MARK: - Button Action
+private extension MyCategoryDetailViewModel {
+    func saveCategory() {
+        guard let title = try? categoryTitle.value(),
+              let color = try? categoryColor.value() else { return }
+        var category = Category(title: title, color: color)
+        switch type {
+        case .new:
+            createCategory(category: category)
+        case .edit(let oldValue):
+            guard let id = oldValue.id else { return }
+            updateCategory(id: id, category: category)
+        }
+    }
+}
+
+// MARK: - API
+private extension MyCategoryDetailViewModel {
+    func createCategory(category: Category) {
+        useCases
+            .executeTokenUseCase
+            .execute { [weak self] token -> Single<Category>? in
+                self?.useCases
+                    .createCategoryUseCase
+                    .execute(token: token, category: category)
+            }
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] newCategory in
+                self?.categoryCreated.onNext(newCategory)
+                self?.actions.pop?()
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
+    }
+    
+    func updateCategory(id: Int, category: Category) {
+        useCases
+            .executeTokenUseCase
+            .execute { [weak self] token -> Single<Category>? in
+                self?.useCases
+                    .updateCategoryUseCase
+                    .execute(token: token, id: id, category: category)
+            }
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onSuccess: { [weak self] newCategory in
+                self?.categoryUpdated.onNext(newCategory)
+                self?.actions.pop?()
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
     }
 }

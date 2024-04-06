@@ -47,5 +47,7 @@ protocol TodoDetailViewModelable: AnyObject, ViewModel {
     typealias Input = TodoDetailViewModelableInput
     typealias Output = TodoDetailViewModelableOutput
     
-    var groups: [GroupName] { get set }    
+    var groups: [GroupName] { get set }
+    
+    func fetch()
 }

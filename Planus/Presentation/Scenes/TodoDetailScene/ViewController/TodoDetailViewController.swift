@@ -42,14 +42,6 @@ final class TodoDetailViewController: UIViewController {
         self.viewModel = viewModel
     }
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -274,6 +266,12 @@ private extension TodoDetailViewController {
         todoDetailView.addSubview(dayPickerViewController.view)
     }
     
+    func configureDimmmedView() {
+        let dimmedTap = UITapGestureRecognizer(target: self, action: #selector(dimmedViewTapped(_:)))
+        dimmedView.addGestureRecognizer(dimmedTap)
+        dimmedView.isUserInteractionEnabled = true
+    }
+    
     func configureView() {
         self.view.addSubview(dimmedView)
         self.view.addSubview(todoDetailView)
@@ -286,10 +284,7 @@ private extension TodoDetailViewController {
         }
 
         configureAddTodoView()
-        
-        let dimmedTap = UITapGestureRecognizer(target: self, action: #selector(dimmedViewTapped(_:)))
-        dimmedView.addGestureRecognizer(dimmedTap)
-        dimmedView.isUserInteractionEnabled = true
+        configureDimmmedView()
     }
     
     func configureLayout() {
@@ -337,35 +332,12 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
     }
     
     func move(from: TodoDetailAttribute, to: TodoDetailAttribute) {
-        if from != to {
-            if to != .title {
-                todoDetailView.titleView.set1line()
-            } else {
-                todoDetailView.titleView.set2lines()
-            }
-            
-            if from != .title {
-                self.todoDetailView.attributeViewGroup[from.rawValue].bottomConstraint.isActive = false
-            }
-            if to != .title {
-                let newAnchor = self.todoDetailView.attributeViewGroup[to.rawValue].bottomAnchor.constraint(equalTo: self.todoDetailView.contentView.bottomAnchor)
-                self.todoDetailView.attributeViewGroup[to.rawValue].bottomConstraint = newAnchor
-                newAnchor.isActive = true
-            }
-            
-            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-                if from != .title {
-                    self.todoDetailView.attributeViewGroup[from.rawValue].alpha = 0
-                }
-                if to != .title {
-                    self.todoDetailView.attributeViewGroup[to.rawValue].alpha = 1
-                }
-            })
-            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-                self.todoDetailView.upperView.layoutIfNeeded()
-            })
-        }
-        
+        guard from != to else { return }
+
+        // Attribute 변경에 따른 애니메이션 처리
+        animateAttributeChange(from: from, to: to)
+
+        // 모드에 따라서 추가 동작 수행
         if self.mode != .viewable {
             switch to {
             case .title:
@@ -384,6 +356,33 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
                 todoDetailView.memoView.memoTextView.becomeFirstResponder()
             }
         }
+    }
+
+    private func animateAttributeChange(from: TodoDetailAttribute, to: TodoDetailAttribute) {
+        if to != .title {
+            todoDetailView.titleView.set1line()
+        } else {
+            todoDetailView.titleView.set2lines()
+        }
+
+        if from != .title {
+            self.todoDetailView.attributeViewGroup[from.rawValue].bottomConstraint.isActive = false
+        }
+        if to != .title {
+            let newAnchor = self.todoDetailView.attributeViewGroup[to.rawValue].bottomAnchor.constraint(equalTo: self.todoDetailView.contentView.bottomAnchor)
+            self.todoDetailView.attributeViewGroup[to.rawValue].bottomConstraint = newAnchor
+            newAnchor.isActive = true
+        }
+
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+            if from != .title {
+                self.todoDetailView.attributeViewGroup[from.rawValue].alpha = 0
+            }
+            if to != .title {
+                self.todoDetailView.attributeViewGroup[to.rawValue].alpha = 1
+            }
+            self.todoDetailView.upperView.layoutIfNeeded()
+        })
     }
 }
 
