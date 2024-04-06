@@ -47,7 +47,5 @@ protocol TodoDetailViewModelable: AnyObject, ViewModel {
     typealias Input = TodoDetailViewModelableInput
     typealias Output = TodoDetailViewModelableOutput
     
-    var groups: [GroupName] { get set }
-    
-    func transform(input: Input) -> Output
+    var groups: [GroupName] { get set }    
 }

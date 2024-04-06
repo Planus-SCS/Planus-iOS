@@ -28,7 +28,5 @@ protocol CategorySelectViewModelable: AnyObject, ViewModel {
     typealias Input = CategorySelectViewModelInput
     typealias Output = CategorySelectViewModelOutput
     
-    var categories: [Category] { get set }
-    
-    func transform(input: Input) -> Output
+    var categories: [Category] { get set }    
 }

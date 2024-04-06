@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class MyCategorySelectViewModel: CategorySelectViewModelable {
-
+    
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let deleteCategoryUseCase: DeleteCategoryUseCase
@@ -34,22 +34,22 @@ final class MyCategorySelectViewModel: CategorySelectViewModelable {
         let args: Args
     }
     
-    let bag = DisposeBag()
+    private let bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
-
-    let insertCategoryAt = PublishSubject<Int>()
-    let reloadCategoryAt = PublishSubject<Int>()
-    let removeCategoryAt = PublishSubject<Int>()
     
-    let categoryCreated: PublishSubject<Category>
-    let categoryUpdated: PublishSubject<Category>
-    let categoryRemovedWithId: PublishSubject<Int>
+    private let insertCategoryAt = PublishSubject<Int>()
+    private let reloadCategoryAt = PublishSubject<Int>()
+    private let removeCategoryAt = PublishSubject<Int>()
     
-    let showAlert = PublishSubject<Message>()
+    // MARK: - Injected RxSubject
+    private let categoryCreated: PublishSubject<Category>
+    private let categoryUpdated: PublishSubject<Category>
+    private let categoryRemovedWithId: PublishSubject<Int>
     
-    let categorySelected: PublishSubject<Category>
+    private let showAlert = PublishSubject<Message>()
+    private let categorySelected: PublishSubject<Category>
     
     var categories: [Category]
     
@@ -102,7 +102,7 @@ final class MyCategorySelectViewModel: CategorySelectViewModelable {
             .backBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.pop()
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         
@@ -122,7 +122,10 @@ final class MyCategorySelectViewModel: CategorySelectViewModelable {
             showMessage: showAlert.asObservable()
         )
     }
-    
+}
+
+// MARK: - bind
+private extension MyCategorySelectViewModel {
     func bind() {
         categoryCreated
             .withUnretained(self)
@@ -142,7 +145,10 @@ final class MyCategorySelectViewModel: CategorySelectViewModelable {
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: - 화면전환 Actions
+private extension MyCategorySelectViewModel {
     func showCategoryCreate() {
         actions.showCategoryCreate?(MyCategoryDetailViewModel.Args(
             type: .new,
@@ -165,7 +171,10 @@ final class MyCategorySelectViewModel: CategorySelectViewModelable {
             categoryUpdated: categoryUpdated
         ))
     }
-    
+}
+
+// MARK: - API
+private extension MyCategorySelectViewModel {
     func removeCategory(id: Int) {
         guard let index = categories.firstIndex(where: { $0.id == id }) else { return }
         categories.remove(at: index)
@@ -186,13 +195,5 @@ final class MyCategorySelectViewModel: CategorySelectViewModelable {
                 self?.showAlert.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
-    }
-    
-    func pop() {
-        actions.pop?()
-    }
-    
-    func dismiss() {
-        actions.dismiss?()
     }
 }

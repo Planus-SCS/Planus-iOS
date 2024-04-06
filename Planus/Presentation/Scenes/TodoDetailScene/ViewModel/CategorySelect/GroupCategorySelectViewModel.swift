@@ -8,8 +8,8 @@
 import Foundation
 import RxSwift
 
-class GroupCategorySelectViewModel: CategorySelectViewModelable {
-
+final class GroupCategorySelectViewModel: CategorySelectViewModelable {
+    
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let deleteGroupCategoryUseCase: DeleteGroupCategoryUseCase
@@ -35,27 +35,24 @@ class GroupCategorySelectViewModel: CategorySelectViewModelable {
         let args: Args
     }
     
-    typealias Input = CategorySelectViewModelInput
-    typealias Output = CategorySelectViewModelOutput
-    
-    let bag = DisposeBag()
+    private let bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
-
-    let insertCategoryAt = PublishSubject<Int>()
-    let reloadCategoryAt = PublishSubject<Int>()
-    let removeCategoryAt = PublishSubject<Int>()
     
-    let categoryCreated: PublishSubject<Category>
-    let categoryUpdated: PublishSubject<Category>
-    let categoryRemovedWithId: PublishSubject<Int>
+    private let insertCategoryAt = PublishSubject<Int>()
+    private let reloadCategoryAt = PublishSubject<Int>()
+    private let removeCategoryAt = PublishSubject<Int>()
     
-    let showAlert = PublishSubject<Message>()
+    // MARK: - Injected RxSubject
+    private let categoryCreated: PublishSubject<Category>
+    private let categoryUpdated: PublishSubject<Category>
+    private let categoryRemovedWithId: PublishSubject<Int>
     
-    let categorySelected: PublishSubject<Category>
+    private let showAlert = PublishSubject<Message>()
+    private let categorySelected: PublishSubject<Category>
     
-    let groupId: Int
+    private let groupId: Int
     var categories: [Category]
     
     required init(useCases: UseCases, injectable: Injectable) {
@@ -109,7 +106,7 @@ class GroupCategorySelectViewModel: CategorySelectViewModelable {
             .backBtnTapped
             .withUnretained(self)
             .subscribe(onNext: { vm, _ in
-                vm.pop()
+                vm.actions.pop?()
             })
             .disposed(by: bag)
         
@@ -129,7 +126,10 @@ class GroupCategorySelectViewModel: CategorySelectViewModelable {
             showMessage: showAlert.asObservable()
         )
     }
-    
+}
+
+// MARK: - bind
+private extension GroupCategorySelectViewModel {
     func bind() {
         categoryCreated
             .withUnretained(self)
@@ -149,7 +149,10 @@ class GroupCategorySelectViewModel: CategorySelectViewModelable {
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: - 화면전환 Actions
+private extension GroupCategorySelectViewModel {
     func showCategoryCreate() {
         actions.showCategoryCreate?(
             GroupCategoryDetailViewModel.Args(
@@ -178,7 +181,10 @@ class GroupCategorySelectViewModel: CategorySelectViewModelable {
             )
         )
     }
-    
+}
+
+// MARK: - API
+private extension GroupCategorySelectViewModel {
     func removeCategory(id: Int) {
         guard let index = categories.firstIndex(where: { $0.id == id }) else { return }
         categories.remove(at: index)
@@ -200,13 +206,5 @@ class GroupCategorySelectViewModel: CategorySelectViewModelable {
                 self?.showAlert.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
-    }
-    
-    func pop() {
-        actions.pop?()
-    }
-    
-    func dismiss() {
-        actions.dismiss?()
     }
 }

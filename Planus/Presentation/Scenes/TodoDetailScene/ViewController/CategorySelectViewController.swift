@@ -10,20 +10,20 @@ import RxSwift
 import RxCocoa
 
 final class CategorySelectViewController: UIViewController {
-    var bag = DisposeBag()
-    var viewModel: (any CategorySelectViewModelable)?
+    private let bag = DisposeBag()
+    private var viewModel: (any CategorySelectViewModelable)?
     
     // MARK: UI Event
-    var categorySelectedAt = PublishRelay<Int>()
-    var categoryEditRequiredWithId = PublishRelay<Int>()
-    var categoryRemoveRequiredWithId = PublishRelay<Int>()
-    var needDismiss = PublishRelay<Void>()
+    private let categorySelectedAt = PublishRelay<Int>()
+    private let categoryEditRequiredWithId = PublishRelay<Int>()
+    private let categoryRemoveRequiredWithId = PublishRelay<Int>()
+    private let needDismiss = PublishRelay<Void>()
 
     // MARK: Child View
-    var categoryView = CategorySelectView(frame: .zero)
+    private let categoryView = CategorySelectView(frame: .zero)
     
     // MARK: Background
-    let dimmedView: UIView = {
+    private let dimmedView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.darkGray.withAlphaComponent(0.7)
         return view
@@ -45,6 +45,7 @@ final class CategorySelectViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureVC()
         configureView()
         configureLayout()
         
@@ -62,7 +63,7 @@ final class CategorySelectViewController: UIViewController {
 }
 
 // MARK: - bind viewModel
-extension CategorySelectViewController {
+private extension CategorySelectViewController {
     func bind() {
         guard let viewModel else { return }
         
@@ -116,8 +117,12 @@ extension CategorySelectViewController {
     }
 }
 
-// MARK: Generate UI
+// MARK: - configure
 private extension CategorySelectViewController {
+    func configureVC() {
+        configureSelectCategoryView()
+        configureDimmedView()
+    }
     func configureSelectCategoryView() {
         categoryView.tableView.dataSource = self
         categoryView.tableView.delegate = self
@@ -128,13 +133,10 @@ private extension CategorySelectViewController {
         dimmedView.addGestureRecognizer(dimmedTap)
         dimmedView.isUserInteractionEnabled = true
     }
-
+    
     func configureView() {
         self.view.addSubview(dimmedView)
         self.view.addSubview(categoryView)
-        
-        configureSelectCategoryView()
-        configureDimmedView()
     }
     
     func configureLayout() {
@@ -171,7 +173,7 @@ private extension CategorySelectViewController {
     }
 }
 
-
+// MARK: - TableView
 extension CategorySelectViewController: UITableViewDataSource, UITableViewDelegate {
     func numberOfSections(in tableView: UITableView) -> Int {
         1
