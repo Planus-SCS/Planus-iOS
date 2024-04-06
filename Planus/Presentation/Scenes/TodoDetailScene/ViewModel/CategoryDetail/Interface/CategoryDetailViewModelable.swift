@@ -27,7 +27,5 @@ protocol CategoryDetailViewModelable: AnyObject, ViewModel {
     typealias Input = CategoryDetailViewModelInput
     typealias Output = CategoryDetailViewModelOutput
     
-    var categoryColorList: [CategoryColor] { get }
-    
-    func transform(input: Input) -> Output
+    var categoryColorList: [CategoryColor] { get }    
 }

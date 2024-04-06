@@ -44,33 +44,34 @@ final class MyDailyCalendarViewModel: DailyCalendarViewModelable {
         let args: Args
     }
     
-    let bag = DisposeBag()
+    private let bag = DisposeBag()
     let useCases: UseCases
     let actions: Actions
 
-    var todos: [[Todo]] = [[Todo]](repeating: [Todo](), count: DailyCalendarTodoType.allCases.count)
+    private var todos: [[Todo]] = [[Todo]](repeating: [Todo](), count: DailyCalendarTodoType.allCases.count)
+    private var categoryDict: [Int: Category] = [:]
+    private var groupCategoryDict: [Int: Category] = [:]
+    private var groupDict: [Int: GroupName] = [:]
+    
+    // MARK: - ViewModel
     var todoViewModels = [[TodoDailyViewModel]](repeating: [TodoDailyViewModel](), count: DailyCalendarTodoType.allCases.count)
     
-    var categoryDict: [Int: Category] = [:]
-    var groupCategoryDict: [Int: Category] = [:]
-    var groupDict: [Int: GroupName] = [:]
-    
-    var filteringGroupId: Int?
+    private var filteringGroupId: Int?
 
-    var currentDate: Date?
-    var currentDateText: String?
+    private var currentDate: Date?
+    private var currentDateText: String?
     
-    lazy var dateFormatter: DateFormatter = {
+    private lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy년 MM월 dd일"
         return dateFormatter
     }()
     
-    var needInsertItem = PublishSubject<IndexPath>()
-    var needDeleteItem = PublishSubject<IndexPath>()
-    var needReloadData = PublishSubject<Void?>()
-    var needUpdateItem = PublishSubject<(removed: IndexPath, created: IndexPath)>()
-    var showAlert = PublishSubject<Message>()
+    private let needInsertItem = PublishSubject<IndexPath>()
+    private let needDeleteItem = PublishSubject<IndexPath>()
+    private let needReloadData = PublishSubject<Void?>()
+    private let needUpdateItem = PublishSubject<(removed: IndexPath, created: IndexPath)>()
+    private let showAlert = PublishSubject<Message>()
     
 
     init(
@@ -250,7 +251,7 @@ private extension MyDailyCalendarViewModel {
     }
 }
 
-// MARK: - ViewModel Actions
+// MARK: - prepare ViewModel
 extension MyDailyCalendarViewModel {
     func createViewModel(at indexPaths: [IndexPath]) {
         indexPaths.forEach { indexPath in
@@ -275,7 +276,7 @@ extension MyDailyCalendarViewModel {
     }
 }
 
-// MARK: Notified from useCases
+// MARK: Notified from UseCases
 private extension MyDailyCalendarViewModel {
     func notifiedTodoCreated(todo: Todo) {
         guard let currentDate,
@@ -321,7 +322,7 @@ private extension MyDailyCalendarViewModel {
     }
 }
 
-// MARK: - Todo Actions
+// MARK: - Todo Model Actions
 private extension MyDailyCalendarViewModel {
     func createTodoData(todo: Todo) -> IndexPath {
         let section = todo.startTime != nil ? DailyCalendarTodoType.scheduled.rawValue : DailyCalendarTodoType.unscheduled.rawValue
@@ -359,6 +360,7 @@ private extension MyDailyCalendarViewModel {
     }
 }
 
+// MARK: - UI Actions
 private extension MyDailyCalendarViewModel {
     func todoItemSelected(at indexPath: IndexPath) {
         guard !todos[indexPath.section].isEmpty else { return }

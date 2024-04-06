@@ -35,8 +35,6 @@ protocol DailyCalendarViewModelable: ViewModel {
     typealias Output = DailyCalendarViewModelableOutput
     
     var todoViewModels: [[TodoDailyViewModel]] { get set }
-
-    func transform(input: Input) -> Output
 }
 
 

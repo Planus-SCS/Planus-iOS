@@ -37,21 +37,23 @@ final class GroupDailyCalendarViewModel: DailyCalendarViewModelable {
         let args: Args
     }
     
-    private var bag = DisposeBag()
+    private let bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
     
-    let group: GroupName
-    let isLeader: Bool
-    let currentDate: Date
+    private let group: GroupName
+    private let isLeader: Bool
+    private let currentDate: Date
 
-    var todos = [[SocialTodoDaily]](repeating: [SocialTodoDaily](), count: DailyCalendarTodoType.allCases.count)
+    private var todos = [[SocialTodoDaily]](repeating: [SocialTodoDaily](), count: DailyCalendarTodoType.allCases.count)
+    
+    // MARK: - ViewModel
     var todoViewModels = [[TodoDailyViewModel]](repeating: [TodoDailyViewModel](), count: DailyCalendarTodoType.allCases.count)
     
-    var currentDateText: String?
+    private var currentDateText: String?
     
-    lazy var dateFormatter: DateFormatter = {
+    private lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy년 MM월 dd일"
         return dateFormatter
@@ -174,10 +176,11 @@ private extension GroupDailyCalendarViewModel {
     }
 }
 
+// MARK: - API
 private extension GroupDailyCalendarViewModel {
     func fetchGroupTodoList() {
         nowFetchLoading.onNext(())
-
+        
         useCases
             .executeWithTokenUseCase
             .execute() { [weak self] token -> Single<[[SocialTodoDaily]]>? in
@@ -192,7 +195,10 @@ private extension GroupDailyCalendarViewModel {
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: - Prepare ViewModel
+private extension GroupDailyCalendarViewModel {
     func prepareViewModel(todos: [[SocialTodoDaily]]) {
         self.todoViewModels = todos.map { list in
             return list.map { item in

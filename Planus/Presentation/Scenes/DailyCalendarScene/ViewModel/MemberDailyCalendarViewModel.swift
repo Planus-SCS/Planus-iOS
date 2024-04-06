@@ -42,11 +42,12 @@ final class MemberDailyCalendarViewModel: DailyCalendarViewModelable {
 
     private var todos = [[SocialTodoDaily]](repeating: [SocialTodoDaily](), count: DailyCalendarTodoType.allCases.count)
     
+    // MARK: - ViewModel
     var todoViewModels = [[TodoDailyViewModel]](repeating: [TodoDailyViewModel](), count: DailyCalendarTodoType.allCases.count)
     
     private var currentDateText: String?
     
-    lazy var dateFormatter: DateFormatter = {
+    private lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy년 MM월 dd일"
         return dateFormatter
@@ -112,7 +113,7 @@ final class MemberDailyCalendarViewModel: DailyCalendarViewModelable {
 private extension MemberDailyCalendarViewModel {
     func fetchMemberTodoList(memberId: Int) {
         nowFetchLoading.onNext(())
-
+        
         useCases
             .executeWithTokenUseCase
             .execute() { [weak self] token -> Single<[[SocialTodoDaily]]>? in
@@ -127,7 +128,10 @@ private extension MemberDailyCalendarViewModel {
             })
             .disposed(by: bag)
     }
-    
+}
+
+// MARK: - prepare ViewModel
+private extension MemberDailyCalendarViewModel {
     func prepareViewModel(todos: [[SocialTodoDaily]]) {
         self.todoViewModels = todos.map { list in
             return list.map { item in
