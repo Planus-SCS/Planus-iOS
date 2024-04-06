@@ -8,8 +8,7 @@
 import Foundation
 import RxSwift
 
-final class MyTodoDetailViewModel: TodoDetailViewModelable {    
-    
+extension MyTodoDetailViewModel {
     enum `Type` {
         case new(date: DateRange, group: GroupName?)
         case edit(TodoDetail)
@@ -23,7 +22,10 @@ final class MyTodoDetailViewModel: TodoDetailViewModelable {
             }
         }
     }
-    
+}
+
+final class MyTodoDetailViewModel: TodoDetailViewModelable {
+        
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase
         
@@ -52,34 +54,34 @@ final class MyTodoDetailViewModel: TodoDetailViewModelable {
     let useCases: UseCases
     let actions: Actions
     
-    let type: `Type`
-    let mode: SceneAuthority
-
-    let bag = DisposeBag()
-            
+    private let type: `Type`
+    private let mode: SceneAuthority
+    
+    private let bag = DisposeBag()
+    
     var categorys: [Category] = []
     var groups: [GroupName] = []
     
-    let todoTitle = BehaviorSubject<String?>(value: nil)
-    let todoCategory = BehaviorSubject<Category?>(value: nil)
-    let todoDayRange = BehaviorSubject<DateRange>(value: DateRange())
-    let todoTime = BehaviorSubject<String?>(value: nil)
-    let todoGroup = BehaviorSubject<GroupName?>(value: nil)
-    let todoMemo = BehaviorSubject<String?>(value: nil)
+    private let todoTitle = BehaviorSubject<String?>(value: nil)
+    private let todoCategory = BehaviorSubject<Category?>(value: nil)
+    private let todoDayRange = BehaviorSubject<DateRange>(value: DateRange())
+    private let todoTime = BehaviorSubject<String?>(value: nil)
+    private let todoGroup = BehaviorSubject<GroupName?>(value: nil)
+    private let todoMemo = BehaviorSubject<String?>(value: nil)
     
-    let categoryCreated = PublishSubject<Category>()
-    let categorySelected = PublishSubject<Category>()
-    let categoryUpdated = PublishSubject<Category>()
-    let categoryRemovedWithId = PublishSubject<Int>()
+    private let categoryCreated = PublishSubject<Category>()
+    private let categorySelected = PublishSubject<Category>()
+    private let categoryUpdated = PublishSubject<Category>()
+    private let categoryRemovedWithId = PublishSubject<Int>()
     
-    let dismissRequired = PublishSubject<Void>()
-
-    let groupListChanged = PublishSubject<Void>()
-    let showMessage = PublishSubject<Message>()
-    let showSaveConstMessagePopUp = PublishSubject<Void>()
+    private let dismissRequired = PublishSubject<Void>()
     
-    var nowSaving: Bool = false
-    var isSaveEnabled: Bool?
+    private let groupListChanged = PublishSubject<Void>()
+    private let showMessage = PublishSubject<Message>()
+    private let showSaveConstMessagePopUp = PublishSubject<Void>()
+    
+    private var nowSaving: Bool = false
+    private var isSaveEnabled: Bool?
     
     init(useCases: UseCases, injectable: Injectable) {
         self.useCases = useCases
@@ -89,7 +91,7 @@ final class MyTodoDetailViewModel: TodoDetailViewModelable {
         self.mode = injectable.args.type.mode
         
         self.groups = injectable.args.groupList
-                
+        
         switch injectable.args.type {
         case .new(let dateRange, let group):
             self.todoDayRange.onNext(DateRange(start: dateRange.start, end: (dateRange.start != dateRange.end) ? dateRange.end : nil))
@@ -104,178 +106,6 @@ final class MyTodoDetailViewModel: TodoDetailViewModelable {
         }
     }
     
-    func groupSelectedAt(index: Int?) {
-        if let index {
-            todoGroup.onNext(groups[index])
-        } else {
-            todoGroup.onNext(nil)
-        }
-    }
-
-    func fetch() {
-        fetchCategoryList()
-    }
-    
-    func fetchCategoryList() {
-        useCases.executeWithTokenUseCase
-            .execute() { [weak self] token in
-                return self?.useCases.readCategoryUseCase
-                    .execute(token: token)
-            }
-            .subscribe(onSuccess: { [weak self] list in
-                self?.categorys = list.filter { $0.status == .active }
-            })
-            .disposed(by: bag)
-    }
-        
-    func saveDetail() {
-        guard let title = try? todoTitle.value(),
-              let dayRange = try? todoDayRange.value(),
-              let startDate = dayRange.start,
-              let categoryId = (try? todoCategory.value())?.id else { return }
-        
-        var endDate = startDate
-        if let todoEndDay = dayRange.end {
-            endDate = todoEndDay
-        }
-        let memo = try? todoMemo.value()
-        let time = try? todoTime.value()
-        let groupName = try? todoGroup.value()
-        var todo = Todo(
-            id: nil,
-            title: title,
-            startDate: startDate,
-            endDate: endDate,
-            memo: (memo?.isEmpty ?? true) ? nil : memo,
-            groupId: groupName?.groupId,
-            categoryId: categoryId,
-            startTime: ((time?.isEmpty) ?? true) ? nil : time,
-            isCompleted: nil,
-            isGroupTodo: false
-        )
-        
-
-        switch type {
-        case .new:
-            createTodo(todo: todo)
-        case .edit(let oldValue):
-            todo.id = oldValue.id
-            todo.isCompleted = oldValue.isCompleted
-            todo.isGroupTodo = oldValue.isGroupTodo
-            updateTodo(todoUpdate: TodoUpdateComparator(before: oldValue.toTodo(), after: todo))
-        default:
-            return
-        }
-    }
-    
-    func removeDetail() {
-        switch type {
-        case .edit(let oldValue):
-            deleteTodo(todo: oldValue.toTodo())
-        default:
-            return
-        }
-    }
-    
-    func createTodo(todo: Todo) {
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token in
-                return self?.useCases.createTodoUseCase
-                    .execute(token: token, todo: todo)
-            }
-            .subscribe(onSuccess: { [weak self] id in
-                var todoWithId = todo
-                todoWithId.id = id
-                self?.nowSaving = false
-                self?.dismissRequired.onNext(())
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-                self?.nowSaving = false
-            })
-            .disposed(by: bag)
-    }
-    
-    func updateTodo(todoUpdate: TodoUpdateComparator) {
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token in
-                return self?.useCases.updateTodoUseCase
-                    .execute(token: token, todoUpdate: todoUpdate)
-            }
-            .subscribe(onSuccess: { [weak self] _ in
-                self?.nowSaving = false
-                self?.dismissRequired.onNext(())
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.nowSaving = false
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-            })
-            .disposed(by: bag)
-    }
-    
-    func deleteTodo(todo: Todo) {
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token in
-                return self?.useCases.deleteTodoUseCase
-                    .execute(token: token, todo: todo)
-            }
-            .subscribe(onSuccess: { [weak self] _ in
-                self?.nowSaving = false
-                self?.dismissRequired.onNext(())
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.nowSaving = false
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-            })
-            .disposed(by: bag)
-    }
-    
-    func bind() {
-        categorySelected
-            .withUnretained(self)
-            .subscribe(onNext: { vm, category in
-                vm.todoCategory.onNext(category)
-            })
-            .disposed(by: bag)
-        
-        categoryCreated
-            .withUnretained(self)
-            .subscribe(onNext: { vm, category in
-                vm.categorys.append(category)
-            })
-            .disposed(by: bag)
-        
-        categoryUpdated
-            .withUnretained(self)
-            .subscribe(onNext: { vm, category in
-                guard let index = vm.categorys.firstIndex(where: { $0.id == category.id }) else { return }
-                vm.categorys[index] = category
-            })
-            .disposed(by: bag)
-        
-        categoryRemovedWithId
-            .withUnretained(self)
-            .subscribe(onNext: { vm, id in
-                vm.categorys.removeAll(where: { $0.id == id })
-            })
-            .disposed(by: bag)
-    }
-    
-    func dismiss() {
-        actions.dismiss?()
-    }
-}
-
-extension MyTodoDetailViewModel {
     func transform(input: Input) -> Output {
         bind()
         
@@ -298,7 +128,8 @@ extension MyTodoDetailViewModel {
             .groupSelectedAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                vm.groupSelectedAt(index: index)
+                let group = index.map({ vm.groups[$0] })
+                vm.todoGroup.onNext(group)
             })
             .disposed(by: bag)
         
@@ -396,5 +227,175 @@ extension MyTodoDetailViewModel {
             showSaveConstMessagePopUp: showSaveConstMessagePopUp.asObservable(),
             dismissRequired: dismissRequired.asObservable()
         )
+    }
+}
+
+// MARK: - Initail Fetch
+private extension MyTodoDetailViewModel {
+    func fetch() {
+        fetchCategoryList()
+    }
+    
+    func fetchCategoryList() {
+        useCases.executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.readCategoryUseCase
+                    .execute(token: token)
+            }
+            .subscribe(onSuccess: { [weak self] list in
+                self?.categorys = list.filter { $0.status == .active }
+            })
+            .disposed(by: bag)
+    }
+}
+
+// MARK: - Button Actions
+private extension MyTodoDetailViewModel {
+    func saveDetail() {
+        guard let title = try? todoTitle.value(),
+              let dayRange = try? todoDayRange.value(),
+              let startDate = dayRange.start,
+              let categoryId = (try? todoCategory.value())?.id else { return }
+        
+        var endDate = startDate
+        if let todoEndDay = dayRange.end {
+            endDate = todoEndDay
+        }
+        let memo = try? todoMemo.value()
+        let time = try? todoTime.value()
+        let groupName = try? todoGroup.value()
+        var todo = Todo(
+            id: nil,
+            title: title,
+            startDate: startDate,
+            endDate: endDate,
+            memo: (memo?.isEmpty ?? true) ? nil : memo,
+            groupId: groupName?.groupId,
+            categoryId: categoryId,
+            startTime: ((time?.isEmpty) ?? true) ? nil : time,
+            isCompleted: nil,
+            isGroupTodo: false
+        )
+        
+        
+        switch type {
+        case .new:
+            createTodo(todo: todo)
+        case .edit(let oldValue):
+            todo.id = oldValue.id
+            todo.isCompleted = oldValue.isCompleted
+            todo.isGroupTodo = oldValue.isGroupTodo
+            updateTodo(todoUpdate: TodoUpdateComparator(before: oldValue.toTodo(), after: todo))
+        default:
+            return
+        }
+    }
+    
+    func removeDetail() {
+        switch type {
+        case .edit(let oldValue):
+            deleteTodo(todo: oldValue.toTodo())
+        default:
+            return
+        }
+    }
+}
+
+// MARK: - API
+private extension MyTodoDetailViewModel {
+    func createTodo(todo: Todo) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.createTodoUseCase
+                    .execute(token: token, todo: todo)
+            }
+            .subscribe(onSuccess: { [weak self] id in
+                var todoWithId = todo
+                todoWithId.id = id
+                self?.nowSaving = false
+                self?.dismissRequired.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+                self?.nowSaving = false
+            })
+            .disposed(by: bag)
+    }
+    
+    func updateTodo(todoUpdate: TodoUpdateComparator) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.updateTodoUseCase
+                    .execute(token: token, todoUpdate: todoUpdate)
+            }
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.nowSaving = false
+                self?.dismissRequired.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.nowSaving = false
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
+    }
+    
+    func deleteTodo(todo: Todo) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.deleteTodoUseCase
+                    .execute(token: token, todo: todo)
+            }
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.nowSaving = false
+                self?.dismissRequired.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.nowSaving = false
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
+    }
+}
+
+// MARK: - bind
+private extension MyTodoDetailViewModel {
+    func bind() {
+        categorySelected
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                vm.todoCategory.onNext(category)
+            })
+            .disposed(by: bag)
+        
+        categoryCreated
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                vm.categorys.append(category)
+            })
+            .disposed(by: bag)
+        
+        categoryUpdated
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                guard let index = vm.categorys.firstIndex(where: { $0.id == category.id }) else { return }
+                vm.categorys[index] = category
+            })
+            .disposed(by: bag)
+        
+        categoryRemovedWithId
+            .withUnretained(self)
+            .subscribe(onNext: { vm, id in
+                vm.categorys.removeAll(where: { $0.id == id })
+            })
+            .disposed(by: bag)
     }
 }

@@ -25,10 +25,10 @@ extension GroupTodoDetailViewModel {
 }
 
 final class GroupTodoDetailViewModel: TodoDetailViewModelable {
-
+    
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase
-                
+        
         let fetchGroupTodoDetailUseCase: FetchGroupTodoDetailUseCase
         let createGroupTodoUseCase: CreateGroupTodoUseCase
         let updateGroupTodoUseCase: UpdateGroupTodoUseCase
@@ -55,35 +55,35 @@ final class GroupTodoDetailViewModel: TodoDetailViewModelable {
     let useCases: UseCases
     let actions: Actions
     
-    let mode: SceneAuthority
-    let type: `Type`
-    let group: GroupName
-        
-    let bag = DisposeBag()
-            
+    private let mode: SceneAuthority
+    private let type: `Type`
+    private let group: GroupName
+    
+    private let bag = DisposeBag()
+    
     var categorys: [Category] = []
     var groups: [GroupName] = []
-        
-    let todoTitle = BehaviorSubject<String?>(value: nil)
-    let todoCategory = BehaviorSubject<Category?>(value: nil)
-    let todoDayRange = BehaviorSubject<DateRange>(value: DateRange())
-    let todoTime = BehaviorSubject<String?>(value: nil)
-    let todoGroup = BehaviorSubject<GroupName?>(value: nil)
-    let todoMemo = BehaviorSubject<String?>(value: nil)
     
-    let categoryCreated = PublishSubject<Category>()
-    let categorySelected = PublishSubject<Category>()
-    let categoryUpdated = PublishSubject<Category>()
-    let categoryRemovedWithId = PublishSubject<Int>()
+    private let todoTitle = BehaviorSubject<String?>(value: nil)
+    private let todoCategory = BehaviorSubject<Category?>(value: nil)
+    private let todoDayRange = BehaviorSubject<DateRange>(value: DateRange())
+    private let todoTime = BehaviorSubject<String?>(value: nil)
+    private let todoGroup = BehaviorSubject<GroupName?>(value: nil)
+    private let todoMemo = BehaviorSubject<String?>(value: nil)
     
-    let dismissRequired = PublishSubject<Void>()
-
-    let groupListChanged = PublishSubject<Void>()
-    let showMessage = PublishSubject<Message>()
-    let showSaveConstMessagePopUp = PublishSubject<Void>()
-
-    var nowSaving: Bool = false
-    var isSaveEnabled: Bool?
+    private let categoryCreated = PublishSubject<Category>()
+    private let categorySelected = PublishSubject<Category>()
+    private let categoryUpdated = PublishSubject<Category>()
+    private let categoryRemovedWithId = PublishSubject<Int>()
+    
+    private let dismissRequired = PublishSubject<Void>()
+    
+    private let groupListChanged = PublishSubject<Void>()
+    private let showMessage = PublishSubject<Message>()
+    private let showSaveConstMessagePopUp = PublishSubject<Void>()
+    
+    private var nowSaving: Bool = false
+    private var isSaveEnabled: Bool?
     
     init(
         useCases: UseCases,
@@ -98,208 +98,6 @@ final class GroupTodoDetailViewModel: TodoDetailViewModelable {
         self.groups.append(injectable.args.group)
     }
     
-    func groupSelectedAt(index: Int?) { }
-    
-    func fetch() {
-        switch type {
-        case .new(let date):
-            self.todoGroup.onNext(group)
-            self.todoDayRange.onNext(DateRange(start: date))
-            fetchCategoryList(groupId: group.groupId)
-        case .edit(let todoId):
-            fetchGroupTodoDetail(groupId: group.groupId, todoId: todoId)
-            fetchCategoryList(groupId: group.groupId)
-        case .view(let todoId):
-            fetchGroupTodoDetail(groupId: group.groupId, todoId: todoId)
-        }
-    }
-    
-    func fetchGroupTodoDetail(groupId: Int, todoId: Int) {
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token in
-                return self?.useCases.fetchGroupTodoDetailUseCase
-                    .execute(token: token, groupId: groupId, todoId: todoId)
-            }
-            .subscribe(onSuccess: { [weak self] todo in
-                self?.todoTitle.onNext(todo.title)
-                self?.todoCategory.onNext(Category(id: todo.todoCategory.id, title: todo.todoCategory.name, color: todo.todoCategory.color))
-                self?.todoDayRange.onNext(DateRange(start: todo.startDate, end: (todo.startDate != todo.endDate) ? todo.endDate : nil))
-                self?.todoTime.onNext(todo.startTime)
-                self?.todoGroup.onNext(GroupName(groupId: groupId, groupName: todo.groupName))
-                self?.todoMemo.onNext(todo.description)
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-            })
-            .disposed(by: bag)
-    }
-    
-    func fetchCategoryList(groupId: Int) {
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token in
-                return self?.useCases.fetchGroupCategorysUseCase
-                    .execute(token: token, groupId: groupId)
-            }
-            .subscribe(onSuccess: { [weak self] list in
-                self?.categorys = list.filter { $0.status == .active }
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-            })
-            .disposed(by: bag)
-    }
-
-    func saveDetail() {
-        guard let title = try? todoTitle.value(),
-              let dateRange = try? todoDayRange.value(),
-              let startDate = dateRange.start,
-              let categoryId = (try? todoCategory.value())?.id else { return }
-        
-        var endDate = startDate
-        if let todoEndDay = dateRange.end {
-            endDate = todoEndDay
-        }
-        let memo = try? todoMemo.value()
-        let time = try? todoTime.value()
-        let groupName = try? todoGroup.value()
-        var todo = Todo(
-            id: nil,
-            title: title,
-            startDate: startDate,
-            endDate: endDate,
-            memo: memo,
-            groupId: groupName?.groupId,
-            categoryId: categoryId,
-            startTime: ((time?.isEmpty) ?? true) ? nil : time,
-            isCompleted: nil,
-            isGroupTodo: false
-        )
-                        
-        switch type {
-        case .new:
-            createTodo(groupId: group.groupId, todo: todo)
-        case .edit(let todoId):
-            todo.id = todoId
-            updateTodo(groupId: group.groupId, todoId: todoId, todo: todo)
-        default:
-            return
-        }
-    }
-    
-    func removeDetail() {
-        switch type {
-        case .edit(let todoId):
-            deleteTodo(groupId: group.groupId, todoId: todoId)
-        default:
-            return
-        }
-    }
-    
-    func createTodo(groupId: Int, todo: Todo) {
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token in
-                return self?.useCases.createGroupTodoUseCase
-                    .execute(token: token, groupId: groupId, todo: todo)
-            }
-            .subscribe(onSuccess: { [weak self] id in
-                var todoWithId = todo
-                todoWithId.id = id
-                self?.nowSaving = false
-                self?.dismissRequired.onNext(())
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.nowSaving = false
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-            })
-            .disposed(by: bag)
-    }
-    
-    func updateTodo(groupId: Int, todoId: Int, todo: Todo) {
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token in
-                return self?.useCases.updateGroupTodoUseCase
-                    .execute(token: token, groupId: groupId, todoId: todoId, todo: todo)
-            }
-            .subscribe(onSuccess: { [weak self] _ in
-                self?.nowSaving = false
-                self?.dismissRequired.onNext(())
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.nowSaving = false
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-            })
-            .disposed(by: bag)
-    }
-    
-    func deleteTodo(groupId: Int, todoId: Int) {
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token in
-                return self?.useCases.deleteGroupTodoUseCase
-                    .execute(token: token, groupId: groupId, todoId: todoId)
-            }
-            .subscribe(onSuccess: { [weak self] _ in
-                self?.nowSaving = false
-                self?.dismissRequired.onNext(())
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.nowSaving = false
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-            })
-            .disposed(by: bag)
-    }
-
-    func bind() {
-        categorySelected
-            .withUnretained(self)
-            .subscribe(onNext: { vm, category in
-                vm.todoCategory.onNext(category)
-            })
-            .disposed(by: bag)
-        
-        categoryCreated
-            .withUnretained(self)
-            .subscribe(onNext: { vm, category in
-                vm.categorys.append(category)
-            })
-            .disposed(by: bag)
-        
-        categoryUpdated
-            .withUnretained(self)
-            .subscribe(onNext: { vm, category in
-                guard let index = vm.categorys.firstIndex(where: { $0.id == category.id }) else { return }
-                vm.categorys[index] = category
-            })
-            .disposed(by: bag)
-        
-        categoryRemovedWithId
-            .withUnretained(self)
-            .subscribe(onNext: { vm, id in
-                vm.categorys.removeAll(where: { $0.id == id })
-            })
-            .disposed(by: bag)
-    }
-
-    func dismiss() {
-        actions.dismiss?()
-    }
-}
-
-extension GroupTodoDetailViewModel {
     func transform(input: Input) -> Output {
         bind()
 
@@ -322,7 +120,8 @@ extension GroupTodoDetailViewModel {
             .groupSelectedAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                vm.groupSelectedAt(index: index)
+                let group = index.map({ vm.groups[$0] })
+                vm.todoGroup.onNext(group)
             })
             .disposed(by: bag)
         
@@ -421,5 +220,211 @@ extension GroupTodoDetailViewModel {
             showSaveConstMessagePopUp: showSaveConstMessagePopUp.asObservable(),
             dismissRequired: dismissRequired.asObservable()
         )
+    }
+}
+
+// MARK: - Initial Fetch
+private extension GroupTodoDetailViewModel {
+    func fetch() {
+        switch type {
+        case .new(let date):
+            self.todoGroup.onNext(group)
+            self.todoDayRange.onNext(DateRange(start: date))
+            fetchCategoryList(groupId: group.groupId)
+        case .edit(let todoId):
+            fetchGroupTodoDetail(groupId: group.groupId, todoId: todoId)
+            fetchCategoryList(groupId: group.groupId)
+        case .view(let todoId):
+            fetchGroupTodoDetail(groupId: group.groupId, todoId: todoId)
+        }
+    }
+    
+    func fetchGroupTodoDetail(groupId: Int, todoId: Int) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchGroupTodoDetailUseCase
+                    .execute(token: token, groupId: groupId, todoId: todoId)
+            }
+            .subscribe(onSuccess: { [weak self] todo in
+                self?.todoTitle.onNext(todo.title)
+                self?.todoCategory.onNext(Category(id: todo.todoCategory.id, title: todo.todoCategory.name, color: todo.todoCategory.color))
+                self?.todoDayRange.onNext(DateRange(start: todo.startDate, end: (todo.startDate != todo.endDate) ? todo.endDate : nil))
+                self?.todoTime.onNext(todo.startTime)
+                self?.todoGroup.onNext(GroupName(groupId: groupId, groupName: todo.groupName))
+                self?.todoMemo.onNext(todo.description)
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
+    }
+    
+    func fetchCategoryList(groupId: Int) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchGroupCategorysUseCase
+                    .execute(token: token, groupId: groupId)
+            }
+            .subscribe(onSuccess: { [weak self] list in
+                self?.categorys = list.filter { $0.status == .active }
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
+    }
+}
+
+// MARK: - Button Actions
+private extension GroupTodoDetailViewModel {
+    func saveDetail() {
+        guard let title = try? todoTitle.value(),
+              let dateRange = try? todoDayRange.value(),
+              let startDate = dateRange.start,
+              let categoryId = (try? todoCategory.value())?.id else { return }
+        
+        var endDate = startDate
+        if let todoEndDay = dateRange.end {
+            endDate = todoEndDay
+        }
+        let memo = try? todoMemo.value()
+        let time = try? todoTime.value()
+        let groupName = try? todoGroup.value()
+        var todo = Todo(
+            id: nil,
+            title: title,
+            startDate: startDate,
+            endDate: endDate,
+            memo: memo,
+            groupId: groupName?.groupId,
+            categoryId: categoryId,
+            startTime: ((time?.isEmpty) ?? true) ? nil : time,
+            isCompleted: nil,
+            isGroupTodo: false
+        )
+        
+        switch type {
+        case .new:
+            createTodo(groupId: group.groupId, todo: todo)
+        case .edit(let todoId):
+            todo.id = todoId
+            updateTodo(groupId: group.groupId, todoId: todoId, todo: todo)
+        default:
+            return
+        }
+    }
+    
+    func removeDetail() {
+        switch type {
+        case .edit(let todoId):
+            deleteTodo(groupId: group.groupId, todoId: todoId)
+        default:
+            return
+        }
+    }
+}
+
+// MARK: - API
+private extension GroupTodoDetailViewModel {
+    func createTodo(groupId: Int, todo: Todo) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.createGroupTodoUseCase
+                    .execute(token: token, groupId: groupId, todo: todo)
+            }
+            .subscribe(onSuccess: { [weak self] id in
+                var todoWithId = todo
+                todoWithId.id = id
+                self?.nowSaving = false
+                self?.dismissRequired.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.nowSaving = false
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
+    }
+    
+    func updateTodo(groupId: Int, todoId: Int, todo: Todo) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.updateGroupTodoUseCase
+                    .execute(token: token, groupId: groupId, todoId: todoId, todo: todo)
+            }
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.nowSaving = false
+                self?.dismissRequired.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.nowSaving = false
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
+    }
+    
+    func deleteTodo(groupId: Int, todoId: Int) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.deleteGroupTodoUseCase
+                    .execute(token: token, groupId: groupId, todoId: todoId)
+            }
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.nowSaving = false
+                self?.dismissRequired.onNext(())
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.nowSaving = false
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
+    }
+}
+
+// MARK: - Bind
+private extension GroupTodoDetailViewModel {
+    func bind() {
+        categorySelected
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                vm.todoCategory.onNext(category)
+            })
+            .disposed(by: bag)
+        
+        categoryCreated
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                vm.categorys.append(category)
+            })
+            .disposed(by: bag)
+        
+        categoryUpdated
+            .withUnretained(self)
+            .subscribe(onNext: { vm, category in
+                guard let index = vm.categorys.firstIndex(where: { $0.id == category.id }) else { return }
+                vm.categorys[index] = category
+            })
+            .disposed(by: bag)
+        
+        categoryRemovedWithId
+            .withUnretained(self)
+            .subscribe(onNext: { vm, id in
+                vm.categorys.removeAll(where: { $0.id == id })
+            })
+            .disposed(by: bag)
     }
 }

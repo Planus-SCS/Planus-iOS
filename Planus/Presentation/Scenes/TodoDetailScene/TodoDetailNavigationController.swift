@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TodoDetailNavigationController: UINavigationController, UINavigationControllerDelegate {
+final class TodoDetailNavigationController: UINavigationController, UINavigationControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.delegate = self
@@ -28,7 +28,7 @@ class TodoDetailNavigationController: UINavigationController, UINavigationContro
     }
 }
 
-class TodoDetailScenePushAnimation: NSObject, UIViewControllerAnimatedTransitioning {
+final class TodoDetailScenePushAnimation: NSObject, UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return 0.2
     }
@@ -56,7 +56,7 @@ class TodoDetailScenePushAnimation: NSObject, UIViewControllerAnimatedTransition
     }
 }
 
-class TodoDetailScenePopAnimation: NSObject, UIViewControllerAnimatedTransitioning {
+final class TodoDetailScenePopAnimation: NSObject, UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return 0.2
     }

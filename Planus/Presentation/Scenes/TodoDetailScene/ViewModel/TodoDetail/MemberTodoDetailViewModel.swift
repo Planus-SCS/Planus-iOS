@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class MemberTodoDetailViewModel: TodoDetailViewModelable {
-
+    
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let fetchGroupMemberTodoDetailUseCase: FetchGroupMemberTodoDetailUseCase
@@ -32,27 +32,27 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
     
     let useCases: UseCases
     let actions: Actions
-        
-    let group: GroupName
-    let memberId: Int
-    let todoId: Int
-        
-    let bag = DisposeBag()
-            
+    
+    private let group: GroupName
+    private let memberId: Int
+    private let todoId: Int
+    
+    private let bag = DisposeBag()
+    
     var groups: [GroupName] = []
-        
-    var todoTitle = BehaviorSubject<String?>(value: nil)
-    var todoCategory = BehaviorSubject<Category?>(value: nil)
-    var todoDayRange = BehaviorSubject<DateRange>(value: DateRange())
-    var todoTime = BehaviorSubject<String?>(value: nil)
-    var todoGroup = BehaviorSubject<GroupName?>(value: nil)
-    var todoMemo = BehaviorSubject<String?>(value: nil)
     
-    var dismissRequired = PublishSubject<Void>()
+    private let todoTitle = BehaviorSubject<String?>(value: nil)
+    private let todoCategory = BehaviorSubject<Category?>(value: nil)
+    private let todoDayRange = BehaviorSubject<DateRange>(value: DateRange())
+    private let todoTime = BehaviorSubject<String?>(value: nil)
+    private let todoGroup = BehaviorSubject<GroupName?>(value: nil)
+    private let todoMemo = BehaviorSubject<String?>(value: nil)
     
-    var groupListChanged = PublishSubject<Void>()
-    var showMessage = PublishSubject<Message>()
-    var showSaveConstMessagePopUp = PublishSubject<Void>()
+    private let dismissRequired = PublishSubject<Void>()
+    
+    private let groupListChanged = PublishSubject<Void>()
+    private let showMessage = PublishSubject<Message>()
+    private let showSaveConstMessagePopUp = PublishSubject<Void>()
     
     init(
         useCases: UseCases,
@@ -67,38 +67,6 @@ final class MemberTodoDetailViewModel: TodoDetailViewModelable {
         self.groups.append(injectable.args.group)
     }
     
-    func fetch() {
-        fetchGroupMemberTodoDetail(groupId: group.groupId, memberId: memberId, todoId: todoId)
-    }
-    
-    func fetchGroupMemberTodoDetail(groupId: Int, memberId: Int, todoId: Int) {
-        useCases
-            .executeWithTokenUseCase
-            .execute() { [weak self] token in
-                return self?.useCases.fetchGroupMemberTodoDetailUseCase
-                    .execute(token: token, groupId: groupId, memberId: memberId, todoId: todoId)
-            }
-            .subscribe(onSuccess: { [weak self] todo in
-                self?.todoTitle.onNext(todo.title)
-                self?.todoCategory.onNext(Category(id: todo.todoCategory.id, title: todo.todoCategory.name, color: todo.todoCategory.color))
-                self?.todoDayRange.onNext(DateRange(start: todo.startDate, end: (todo.startDate != todo.endDate) ? todo.endDate : nil))
-                self?.todoGroup.onNext(GroupName(groupId: groupId, groupName: todo.groupName))
-                self?.todoMemo.onNext(todo.description)
-            }, onFailure: { [weak self] error in
-                guard let error = error as? NetworkManagerError,
-                      case NetworkManagerError.clientError(let status, let message) = error,
-                      let message = message else { return }
-                self?.showMessage.onNext(Message(text: message, state: .warning))
-            })
-            .disposed(by: bag)
-    }
-
-    func dismiss() {
-        actions.dismiss?()
-    }
-}
-
-extension MemberTodoDetailViewModel {
     func transform(input: Input) -> Output {
         
         let groupChangedToIndex = todoGroup
@@ -130,5 +98,34 @@ extension MemberTodoDetailViewModel {
             showSaveConstMessagePopUp: showSaveConstMessagePopUp.asObservable(),
             dismissRequired: dismissRequired.asObservable()
         )
+    }
+}
+
+// MARK: - Initial Fetch
+private extension MemberTodoDetailViewModel {
+    func fetch() {
+        fetchGroupMemberTodoDetail(groupId: group.groupId, memberId: memberId, todoId: todoId)
+    }
+    
+    func fetchGroupMemberTodoDetail(groupId: Int, memberId: Int, todoId: Int) {
+        useCases
+            .executeWithTokenUseCase
+            .execute() { [weak self] token in
+                return self?.useCases.fetchGroupMemberTodoDetailUseCase
+                    .execute(token: token, groupId: groupId, memberId: memberId, todoId: todoId)
+            }
+            .subscribe(onSuccess: { [weak self] todo in
+                self?.todoTitle.onNext(todo.title)
+                self?.todoCategory.onNext(Category(id: todo.todoCategory.id, title: todo.todoCategory.name, color: todo.todoCategory.color))
+                self?.todoDayRange.onNext(DateRange(start: todo.startDate, end: (todo.startDate != todo.endDate) ? todo.endDate : nil))
+                self?.todoGroup.onNext(GroupName(groupId: groupId, groupName: todo.groupName))
+                self?.todoMemo.onNext(todo.description)
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
+            })
+            .disposed(by: bag)
     }
 }

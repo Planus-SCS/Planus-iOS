@@ -10,28 +10,28 @@ import RxSwift
 import RxCocoa
 
 final class TodoDetailViewController: UIViewController {
-    let bag = DisposeBag()
-    var viewModel: (any TodoDetailViewModelable)?
+    private let bag = DisposeBag()
+    private var viewModel: (any TodoDetailViewModelable)?
     
-    var isFirstAppear = true
-    var currentKeyboardHeight: CGFloat = 0
-    var mode: SceneAuthority?
+    private var isFirstAppear = true
+    private var currentKeyboardHeight: CGFloat = 0
+    private var mode: SceneAuthority?
     
     // MARK: UI Event
-    var didSelectedDateRange = PublishRelay<DateRange>()
-    var didSelectedGroupAt = PublishRelay<Int?>()
-    var didChangedTimeValue = PublishRelay<String?>()
-    var needDismiss = PublishRelay<Void>()
-    var showMessage = PublishRelay<Message>()
+    private let didSelectedDateRange = PublishRelay<DateRange>()
+    private let didSelectedGroupAt = PublishRelay<Int?>()
+    private let didChangedTimeValue = PublishRelay<String?>()
+    private let needDismiss = PublishRelay<Void>()
+    private let showMessage = PublishRelay<Message>()
             
     // MARK: Child ViewController
-    var dayPickerViewController = DayPickerViewController(nibName: nil, bundle: nil)
+    private let dayPickerViewController = DayPickerViewController(nibName: nil, bundle: nil)
     
     // MARK: Child View
-    var todoDetailView = TodoDetailView(frame: .zero)
+    private let todoDetailView = TodoDetailView(frame: .zero)
     
     // MARK: Background
-    let dimmedView: UIView = {
+    private let dimmedView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.darkGray.withAlphaComponent(0)
         return view
@@ -61,9 +61,8 @@ final class TodoDetailViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    
+        configureKeyboard()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -73,17 +72,13 @@ final class TodoDetailViewController: UIViewController {
             self.animateFirstAppearance()
         }
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-    }
 }
 
 // MARK: - bind viewModel
-extension TodoDetailViewController {
+private extension TodoDetailViewController {
     func bind() {
         guard let viewModel else { return }
-
+        
         let input = (any TodoDetailViewModelable).Input(
             titleTextChanged: todoDetailView.titleView.todoTitleField.rx.text.skip(1).asObservable(),
             dayRange: didSelectedDateRange.distinctUntilChanged().asObservable(),
@@ -110,12 +105,7 @@ extension TodoDetailViewController {
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .subscribe(onNext: { vc, text in
-                vc.todoDetailView.memoView.memoTextView.text = text
-                let memoAttrIndex = TodoDetailAttribute.memo.rawValue
-                vc.todoDetailView.icnView.buttonList[memoAttrIndex].tintColor = (text == nil) ? .gray : .planusBlack
-                if vc.mode == .viewable {
-                    vc.todoDetailView.icnView.buttonList[memoAttrIndex].isUserInteractionEnabled = text != nil
-                }
+                vc.setMemoValue(text: text)
             })
             .disposed(by: bag)
         
@@ -132,19 +122,7 @@ extension TodoDetailViewController {
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .subscribe(onNext: { vc, time in
-                let clockAttrIndex = TodoDetailAttribute.clock.rawValue
-                vc.todoDetailView.icnView.buttonList[clockAttrIndex].tintColor = (time == nil) ? .gray : .planusBlack
-                if vc.mode == .viewable {
-                    vc.todoDetailView.icnView.buttonList[clockAttrIndex].isUserInteractionEnabled = time != nil
-                }
-
-                guard let time else { return }
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat =  "HH:mm"
-                
-                let date = dateFormatter.date(from: time)!
-                
-                vc.todoDetailView.clockView.timePicker.date = date
+                vc.setTimeValue(time: time)
             })
             .disposed(by: bag)
         
@@ -153,15 +131,7 @@ extension TodoDetailViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { vc, category in
-                if let category {
-                    vc.todoDetailView.titleView.categoryButton.categoryLabel.text = category.title
-                    vc.todoDetailView.titleView.categoryButton.categoryLabel.textColor = .planusBlack
-                    vc.todoDetailView.titleView.categoryButton.categoryColorView.backgroundColor = category.color.todoForCalendarColor
-                } else {
-                    vc.todoDetailView.titleView.categoryButton.categoryLabel.text = "카테고리 선택"
-                    vc.todoDetailView.titleView.categoryButton.categoryLabel.textColor = .planusLightGray
-                    vc.todoDetailView.titleView.categoryButton.categoryColorView.backgroundColor = .gray
-                }
+                vc.setCategory(category: category)
             })
             .disposed(by: bag)
         
@@ -170,15 +140,7 @@ extension TodoDetailViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { vc, index in
-                let groupAttrIndex = TodoDetailAttribute.group.rawValue
-                vc.todoDetailView.icnView.buttonList[groupAttrIndex].tintColor = (index == nil) ? .gray : .planusBlack
-                if vc.mode == .viewable {
-                    vc.todoDetailView.icnView.buttonList[groupAttrIndex].isUserInteractionEnabled = index != nil
-                }
-
-                if let index {
-                    vc.todoDetailView.groupView.groupPickerView.selectRow(index, inComponent: 0, animated: false)
-                }
+                vc.setGroup(at: index)
             })
             .disposed(by: bag)
         
@@ -212,10 +174,13 @@ extension TodoDetailViewController {
                 vc.animateDismiss()
             })
             .disposed(by: bag)
-
+        
         viewModel.fetch()
     }
-    
+}
+
+// MARK: - Set View Components
+private extension TodoDetailViewController {
     func setMode(mode: SceneAuthority) {
         self.mode = mode
         self.todoDetailView.icnView.setMode(mode: mode)
@@ -244,20 +209,58 @@ extension TodoDetailViewController {
             return
         }
     }
-}
-
-// MARK: Actions
-private extension TodoDetailViewController {
-    @objc func didChangeTime(_ sender: UIDatePicker) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm"
-        let dateStr = dateFormatter.string(from: sender.date)
+    
+    func setMemoValue(text: String?) {
+        let memoAttrIndex = TodoDetailAttribute.memo.rawValue
+        todoDetailView.icnView.buttonList[memoAttrIndex].tintColor = (text == nil) ? .gray : .planusBlack
+        if mode == .viewable {
+            todoDetailView.icnView.buttonList[memoAttrIndex].isUserInteractionEnabled = text != nil
+        }
         
-        didChangedTimeValue.accept(dateStr)
+        todoDetailView.memoView.memoTextView.text = text
+    }
+    
+    func setTimeValue(time: String?) {
+        let clockAttrIndex = TodoDetailAttribute.clock.rawValue
+        todoDetailView.icnView.buttonList[clockAttrIndex].tintColor = (time == nil) ? .gray : .planusBlack
+        if mode == .viewable {
+            todoDetailView.icnView.buttonList[clockAttrIndex].isUserInteractionEnabled = time != nil
+        }
+
+        guard let time else { return }
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat =  "HH:mm"
+        
+        let date = dateFormatter.date(from: time)!
+        
+        todoDetailView.clockView.timePicker.date = date
+    }
+    
+    func setCategory(category: Category?) {
+        if let category {
+            todoDetailView.titleView.categoryButton.categoryLabel.text = category.title
+            todoDetailView.titleView.categoryButton.categoryLabel.textColor = .planusBlack
+            todoDetailView.titleView.categoryButton.categoryColorView.backgroundColor = category.color.todoForCalendarColor
+        } else {
+            todoDetailView.titleView.categoryButton.categoryLabel.text = "카테고리 선택"
+            todoDetailView.titleView.categoryButton.categoryLabel.textColor = .planusLightGray
+            todoDetailView.titleView.categoryButton.categoryColorView.backgroundColor = .gray
+        }
+    }
+    
+    func setGroup(at index: Int?) {
+        let groupAttrIndex = TodoDetailAttribute.group.rawValue
+        todoDetailView.icnView.buttonList[groupAttrIndex].tintColor = (index == nil) ? .gray : .planusBlack
+        if mode == .viewable {
+            todoDetailView.icnView.buttonList[groupAttrIndex].isUserInteractionEnabled = index != nil
+        }
+
+        guard let index else { return }
+        todoDetailView.groupView.groupPickerView.selectRow(index, inComponent: 0, animated: false)
     }
 }
 
-// MARK: Generate UI
+// MARK: configure VC
 private extension TodoDetailViewController {
     func configureAddTodoView() {
         dayPickerViewController.delegate = self
@@ -308,8 +311,14 @@ private extension TodoDetailViewController {
         }
         
     }
+    
+    func configureKeyboard() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
 }
 
+// MARK: - Attribute Icn Views Actions
 extension TodoDetailViewController: TodoDetailIcnViewDelegate {
     func deactivate(attr: TodoDetailAttribute) {
         switch attr {
@@ -378,6 +387,7 @@ extension TodoDetailViewController: TodoDetailIcnViewDelegate {
     }
 }
 
+// MARK: - dimmed View Tap animation
 private extension TodoDetailViewController {
     @objc
     func dimmedViewTapped(_ sender: UITapGestureRecognizer) {
@@ -400,7 +410,8 @@ private extension TodoDetailViewController {
     }
 }
 
-extension TodoDetailViewController {
+// MARK: - View first Appearance Animation
+private extension TodoDetailViewController {
     func animateFirstAppearance() {
         UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseInOut, animations: {
             self.todoDetailView.snp.remakeConstraints {
@@ -414,7 +425,8 @@ extension TodoDetailViewController {
     }
 }
 
-extension TodoDetailViewController {
+// MARK: - Keyboard Notification Actions
+private extension TodoDetailViewController {
     @objc func keyboardWillShow(_ notification:NSNotification) {
         if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardRectangle = keyboardFrame.cgRectValue
@@ -445,6 +457,7 @@ extension TodoDetailViewController {
     }
 }
 
+// MARK: - DayPickerVC Delegate (Date)
 extension TodoDetailViewController: DayPickerViewControllerDelegate {
     func dayPickerViewController(_ dayPickerViewController: DayPickerViewController, didSelectDate: Date) {
         todoDetailView.dateView.setDate(startDate: dayPickerViewController.dateFormatter2.string(from: didSelectDate))
@@ -470,6 +483,7 @@ extension TodoDetailViewController: DayPickerViewControllerDelegate {
     }
 }
 
+// MARK: - Picker DataSource, Delegate (group)
 extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         1
@@ -485,5 +499,16 @@ extension TodoDetailViewController: UIPickerViewDataSource, UIPickerViewDelegate
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         didSelectedGroupAt.accept(row)
+    }
+}
+
+// MARK: Date Picker (time)
+private extension TodoDetailViewController {
+    @objc func didChangeTime(_ sender: UIDatePicker) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        let dateStr = dateFormatter.string(from: sender.date)
+        
+        didChangedTimeValue.accept(dateStr)
     }
 }

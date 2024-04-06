@@ -50,5 +50,4 @@ protocol TodoDetailViewModelable: AnyObject, ViewModel {
     var groups: [GroupName] { get set }
     
     func transform(input: Input) -> Output
-    func fetch()
 }
