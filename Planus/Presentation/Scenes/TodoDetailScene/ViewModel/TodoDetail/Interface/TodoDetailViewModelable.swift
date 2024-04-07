@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-enum SceneAuthority {
+enum TodoDetailSceneAuthority {
     case new
     case editable
     case viewable
-    case interactable
 }
 
 struct TodoDetailViewModelableInput {
@@ -31,7 +30,7 @@ struct TodoDetailViewModelableInput {
 }
 
 struct TodoDetailViewModelableOutput {
-    var mode: SceneAuthority
+    var mode: TodoDetailSceneAuthority
     var titleValueChanged: Observable<String?>
     var categoryChanged: Observable<Category?>
     var dayRangeChanged: Observable<DateRange>

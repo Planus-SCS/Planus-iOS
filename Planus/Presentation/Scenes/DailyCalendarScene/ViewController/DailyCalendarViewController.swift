@@ -54,15 +54,15 @@ private extension DailyCalendarViewController {
         dailyCalendarView?.collectionView.delegate = self
     }
     
-    func configureMode(mode: SceneAuthority) {
+    func configureMode(mode: DailyCalendarSceneAuthority) {
+        isInteractable = mode == .interactable
+        
         switch mode {
         case .editable, .interactable:
             navigationItem.setRightBarButton(dailyCalendarView?.addTodoButton, animated: false)
         default:
             return
         }
-    
-        isInteractable = mode == .interactable
     }
 }
 

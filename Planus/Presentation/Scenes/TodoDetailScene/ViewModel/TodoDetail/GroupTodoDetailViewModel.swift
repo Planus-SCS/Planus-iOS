@@ -14,7 +14,7 @@ extension GroupTodoDetailViewModel {
         case edit(Int) // todoId
         case view(Int) // todoId
         
-        var mode: SceneAuthority {
+        var mode: TodoDetailSceneAuthority {
             switch self {
             case .new: return .new
             case .edit: return .editable
@@ -55,7 +55,6 @@ final class GroupTodoDetailViewModel: TodoDetailViewModelable {
     let useCases: UseCases
     let actions: Actions
     
-    private let mode: SceneAuthority
     private let type: `Type`
     private let group: GroupName
     
@@ -93,7 +92,6 @@ final class GroupTodoDetailViewModel: TodoDetailViewModelable {
         self.actions = injectable.actions
         
         self.type = injectable.args.type
-        self.mode = injectable.args.type.mode
         self.group = injectable.args.group
         self.groups.append(injectable.args.group)
     }
@@ -209,7 +207,7 @@ final class GroupTodoDetailViewModel: TodoDetailViewModelable {
             }
         
         return Output(
-            mode: mode,
+            mode: self.type.mode,
             titleValueChanged: todoTitle.distinctUntilChanged().asObservable(),
             categoryChanged: todoCategory.asObservable(),
             dayRangeChanged: todoDayRange.distinctUntilChanged().asObservable(),
@@ -340,6 +338,7 @@ private extension GroupTodoDetailViewModel {
                 return self?.useCases.createGroupTodoUseCase
                     .execute(token: token, groupId: groupId, todo: todo)
             }
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] id in
                 var todoWithId = todo
                 todoWithId.id = id
@@ -362,6 +361,7 @@ private extension GroupTodoDetailViewModel {
                 return self?.useCases.updateGroupTodoUseCase
                     .execute(token: token, groupId: groupId, todoId: todoId, todo: todo)
             }
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
                 self?.dismissRequired.onNext(())
@@ -382,6 +382,7 @@ private extension GroupTodoDetailViewModel {
                 return self?.useCases.deleteGroupTodoUseCase
                     .execute(token: token, groupId: groupId, todoId: todoId)
             }
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
                 self?.dismissRequired.onNext(())

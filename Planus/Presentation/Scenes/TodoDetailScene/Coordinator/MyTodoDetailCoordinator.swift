@@ -94,8 +94,8 @@ final class MyTodoDetailCoordinator: Coordinator {
     
     lazy var close: () -> Void = { [weak self] in
         guard let self else { return }
-        self.modalNavigation?.dismiss(animated: false) { [weak self] in
-            self?.dependency.closeHandler?()
+        self.modalNavigation?.dismiss(animated: false) {
+            self.dependency.closeHandler?()
         }
         self.finish()
     }

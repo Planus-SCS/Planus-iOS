@@ -27,7 +27,8 @@ extension SocialTodoDaily {
             startTime: startTime,
             isGroupTodo: isGroupTodo,
             isPeriodTodo: isPeriodTodo,
-            hasDescription: hasDescription
+            hasDescription: hasDescription,
+            isCompleted: isCompleted
         )
     }
 }
@@ -41,7 +42,8 @@ extension Todo {
             startTime: self.startTime,
             isGroupTodo: self.isGroupTodo,
             isPeriodTodo: self.startDate != self.endDate,
-            hasDescription: self.memo != nil
+            hasDescription: self.memo != nil,
+            isCompleted: self.isCompleted
         )
     }
 }

@@ -201,7 +201,7 @@ private extension CategoryDetailViewController {
                 $0.bottom.equalToSuperview().inset(keyboardHeight+20)
             }
             
-            UIView.animate(withDuration: 0.2, delay: 0, animations: {
+            UIView.animate(withDuration: 0.1, delay: 0, animations: {
                 self.view.layoutIfNeeded()
             })
         }

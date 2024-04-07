@@ -15,7 +15,7 @@ final class TodoDetailViewController: UIViewController {
     
     private var isFirstAppear = true
     private var currentKeyboardHeight: CGFloat = 0
-    private var mode: SceneAuthority?
+    private var mode: TodoDetailSceneAuthority?
     
     // MARK: UI Event
     private let didSelectedDateRange = PublishRelay<DateRange>()
@@ -173,7 +173,7 @@ private extension TodoDetailViewController {
 
 // MARK: - Set View Components
 private extension TodoDetailViewController {
-    func setMode(mode: SceneAuthority) {
+    func setMode(mode: TodoDetailSceneAuthority) {
         self.mode = mode
         self.todoDetailView.icnView.setMode(mode: mode)
         

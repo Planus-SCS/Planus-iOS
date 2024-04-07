@@ -8,6 +8,12 @@
 import Foundation
 import RxSwift
 
+enum DailyCalendarSceneAuthority {
+    case editable //그룹장인 경우
+    case viewable //그룹장 아닌 경우, 멤버 투두 (체크표시는 그냥 nil 아니면 보여주기)
+    case interactable //내 투두
+}
+
 struct DailyCalendarViewModelableInput {
     var viewDidLoad: Observable<Void>
     var viewDidDismissed: Observable<Void>
@@ -27,7 +33,7 @@ struct DailyCalendarViewModelableOutput {
     var needUpdateItem: Observable<(removed: IndexPath, created: IndexPath)>?
     
     var showAlert: Observable<Message>
-    var mode: SceneAuthority
+    var mode: DailyCalendarSceneAuthority
 }
 
 protocol DailyCalendarViewModelable: ViewModel {

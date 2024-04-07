@@ -14,7 +14,7 @@ extension MyTodoDetailViewModel {
         case edit(TodoDetail)
         case view(TodoDetail)
         
-        var mode: SceneAuthority {
+        var mode: TodoDetailSceneAuthority {
             switch self {
             case .new: return .new
             case .edit: return .editable
@@ -55,7 +55,6 @@ final class MyTodoDetailViewModel: TodoDetailViewModelable {
     let actions: Actions
     
     private let type: `Type`
-    private let mode: SceneAuthority
     
     private let bag = DisposeBag()
     
@@ -88,7 +87,6 @@ final class MyTodoDetailViewModel: TodoDetailViewModelable {
         self.actions = injectable.actions
         
         self.type = injectable.args.type
-        self.mode = injectable.args.type.mode
         
         self.groups = injectable.args.groupList
         
@@ -216,7 +214,7 @@ final class MyTodoDetailViewModel: TodoDetailViewModelable {
             }
         
         return Output(
-            mode: mode,
+            mode: self.type.mode,
             titleValueChanged: todoTitle.distinctUntilChanged().asObservable(),
             categoryChanged: todoCategory.asObservable(),
             dayRangeChanged: todoDayRange.distinctUntilChanged().asObservable(),
@@ -311,6 +309,7 @@ private extension MyTodoDetailViewModel {
                 return self?.useCases.createTodoUseCase
                     .execute(token: token, todo: todo)
             }
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] id in
                 var todoWithId = todo
                 todoWithId.id = id
@@ -333,6 +332,7 @@ private extension MyTodoDetailViewModel {
                 return self?.useCases.updateTodoUseCase
                     .execute(token: token, todoUpdate: todoUpdate)
             }
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
                 self?.dismissRequired.onNext(())
@@ -353,6 +353,7 @@ private extension MyTodoDetailViewModel {
                 return self?.useCases.deleteTodoUseCase
                     .execute(token: token, todo: todo)
             }
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.nowSaving = false
                 self?.dismissRequired.onNext(())
