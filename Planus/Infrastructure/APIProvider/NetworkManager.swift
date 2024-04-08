@@ -9,6 +9,17 @@ import Foundation
 import RxSwift
 
 class NetworkManager: APIProvider {
+    private let urlSession: URLSession
+    
+    init() {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForResource = 30
+        config.shouldUseExtendedBackgroundIdleMode = true
+        self.urlSession = URLSession(configuration: config)
+    }
+}
+
+extension NetworkManager {
     
     func requestCodable<T: Codable>(endPoint: APIEndPoint, type: T.Type) -> Single<T> {
         return requestData(endPoint: endPoint).map { data in
@@ -30,14 +41,16 @@ class NetworkManager: APIProvider {
         let request = try! createMultiPartRequest(endPoint: endPoint)
         return self.request(request: request)
     }
-    
+}
+
+private extension NetworkManager {
     func request(request: URLRequest) -> Single<Data> {
         return Single<Data>.create { [weak self] emitter -> Disposable in
             guard let self else {
                 return Disposables.create()
             }
             
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            let task = urlSession.dataTask(with: request) { data, response, error in
                 if let error = error {
                     emitter(.failure(error))
                     return

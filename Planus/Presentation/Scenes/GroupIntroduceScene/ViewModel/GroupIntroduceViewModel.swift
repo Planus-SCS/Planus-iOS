@@ -186,7 +186,6 @@ private extension GroupIntroduceViewModel {
             self?.memberList = memberList
             self?.didGroupMemberFetched.onNext(())
         }, onFailure: { [weak self] error in
-            print(error)
             guard let error = error as? NetworkManagerError,
                   case NetworkManagerError.clientError(let status, let message) = error,
                   let message = message else { return }
