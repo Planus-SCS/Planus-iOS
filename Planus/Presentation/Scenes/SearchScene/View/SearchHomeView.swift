@@ -56,8 +56,7 @@ final class SearchHomeView: UIView {
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        print("fatal error")
+        fatalError("init(coder:) has not been implemented")
     }
 }
 

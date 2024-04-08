@@ -27,7 +27,7 @@ final class MemberProfileViewModel: ViewModel {
     }
     
     struct Actions {
-        let showSocialDailyCalendar: ((SocialDailyCalendarViewModel.Args) -> Void)?
+        let showSocialDailyCalendar: ((MemberDailyCalendarViewModel.Args) -> Void)?
         let pop: (() -> Void)?
         let finishScene: (() -> Void)?
     }
@@ -170,9 +170,9 @@ final class MemberProfileViewModel: ViewModel {
             .withUnretained(self)
             .subscribe { vm, indexPath in
                 vm.actions.showSocialDailyCalendar?(
-                    SocialDailyCalendarViewModel.Args(
+                    MemberDailyCalendarViewModel.Args(
                         group: vm.group,
-                        type: .member(id: vm.member.memberId),
+                        memberId: vm.member.memberId,
                         date: vm.mainDays[indexPath.section][indexPath.item].date
                     )
                 )

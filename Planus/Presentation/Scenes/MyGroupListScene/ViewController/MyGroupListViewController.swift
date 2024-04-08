@@ -94,13 +94,13 @@ private extension MyGroupListViewController {
                 myGroupListView.resultCollectionView.performBatchUpdates({
                     myGroupListView.resultCollectionView.reloadSections(IndexSet(integer: 0))
                 })
-                myGroupListView.emptyResultView.isHidden = !((viewModel.groupList?.count == 0) ?? true)
+                myGroupListView.emptyResultView.isHidden = !((viewModel.groupList?.count == 0))
 
                 switch type {
                 case .refresh:
-                    vc.showToast(message: "새로고침을 성공하였습니다.", type: .normal)
+                    vc.showToast(message: Message(text: "새로고침을 성공하였습니다.", state: .normal))
                 case .remove(let message):
-                    vc.showToast(message: message, type: .normal)
+                    vc.showToast(message: Message(text: message, state: .normal))
                 default:
                     return
                 }
@@ -135,7 +135,7 @@ private extension MyGroupListViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
-                vc.showToast(message: message, type: .normal)
+                vc.showToast(message: message)
             })
             .disposed(by: bag)
         

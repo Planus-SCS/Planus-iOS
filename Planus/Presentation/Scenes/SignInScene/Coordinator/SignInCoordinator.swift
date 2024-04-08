@@ -31,9 +31,9 @@ final class SignInCoordinator: Coordinator {
     lazy var showSignInPage: () -> Void = { [weak self] in
         guard let self else { return }
         
-        let vc = self.dependency.injector.resolve(
-            SignInViewController.self,
-            argument: SignInViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            SignInViewModel.self,
+            injectable: SignInViewModel.Injectable(
                 actions: .init(
                     showWebViewSignInPage: self.showWebViewSignInPage,
                     showMainTabFlow: self.showMainTabFlow
@@ -42,18 +42,23 @@ final class SignInCoordinator: Coordinator {
             )
         )
         
+        let vc = SignInViewController(viewModel: vm)
+        
         dependency.navigationController.pushViewController(vc, animated: true)
     }
     
     lazy var showWebViewSignInPage: (SocialRedirectionType, @escaping (String) -> Void) -> Void = { [weak self] type, completion in
         guard let self else { return }
-        let vc = self.dependency.injector.resolve(
-            RedirectionalWebViewController.self,
-            argument: RedirectionalWebViewModel.Injectable(
+        
+        let vm = self.dependency.injector.resolve(
+            RedirectionalWebViewModel.self,
+            injectable: RedirectionalWebViewModel.Injectable(
                 actions: .init(dismissWithOutAuth: nil),
                 args: .init(type: type, completion: completion)
             )
         )
+        
+        let vc = RedirectionalWebViewController(viewModel: vm)
         
         self.dependency.navigationController.present(vc, animated: true)
     }

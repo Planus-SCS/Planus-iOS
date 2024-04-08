@@ -19,7 +19,7 @@ final class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase {
         self.categoryRepository = categoryRepository
     }
     
-    func execute(token: Token, groupId: Int, categoryId: Int, category: Category) -> Single<Int> {
+    func execute(token: Token, groupId: Int, categoryId: Int, category: Category) -> Single<Category> {
         return categoryRepository.update(
             token: token.accessToken,
             groupId: groupId,
@@ -30,7 +30,9 @@ final class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase {
             self?.didUpdateCategoryWithGroupId.onNext((groupId: groupId, category: category))
         })
         .map { dto in
-            return dto.data.id
+            var newValue = category
+            newValue.id = categoryId
+            return newValue
         }
     }
 }

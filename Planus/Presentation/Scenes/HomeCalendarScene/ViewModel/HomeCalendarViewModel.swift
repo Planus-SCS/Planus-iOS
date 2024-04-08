@@ -52,8 +52,8 @@ final class HomeCalendarViewModel: ViewModel {
     }
     
     struct Actions {
-        var showDailyCalendarPage: ((DailyCalendarViewModel.Args) -> Void)?
-        var showCreatePeriodTodoPage: ((MemberTodoDetailViewModel.Args, (() -> Void)?) -> Void)?
+        var showDailyCalendarPage: ((MyDailyCalendarViewModel.Args) -> Void)?
+        var showCreatePeriodTodoPage: ((MyTodoDetailViewModel.Args, (() -> Void)?) -> Void)?
         var showMyPage: ((Profile) -> Void)?
     }
     
@@ -179,7 +179,7 @@ final class HomeCalendarViewModel: ViewModel {
             .withUnretained(self)
             .subscribe { vm, indexPath in
                 let day = vm.mainDays[indexPath.section][indexPath.item]
-                vm.actions.showDailyCalendarPage?(DailyCalendarViewModel.Args(
+                vm.actions.showDailyCalendarPage?(MyDailyCalendarViewModel.Args(
                     currentDate: day.date,
                     todoList: vm.todos[day.date] ?? [],
                     categoryDict: vm.memberCategories ,
@@ -512,16 +512,14 @@ private extension HomeCalendarViewModel {
 
         let groupList = Array(groups.values).sorted(by: { $0.groupId < $1.groupId })
         let groupName = try? filteredGroupId.value().flatMap { groups[$0] }
-        
+
         actions.showCreatePeriodTodoPage?(
-            MemberTodoDetailViewModel.Args(
+            MyTodoDetailViewModel.Args(
                 groupList: groupList,
-                mode: .new,
-                todo: nil,
-                category: nil,
-                groupName: groupName,
-                start: startDate,
-                end: endDate
+                type: .new(
+                    date: DateRange(start: startDate, end: endDate),
+                    group: groupName
+                )
             )
         ) { [weak self] in
             self?.createPeriodTodoCompletionHandler?(IndexPath(item: 0, section: a.section))

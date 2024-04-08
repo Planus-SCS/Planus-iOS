@@ -17,7 +17,7 @@ final class GroupCreateLoadViewModel: ViewModel {
     
     struct Actions {
         let showCreatedGroupPage: ((Int) -> Void)?
-        let backWithCreateFailure: ((String) -> Void)?
+        let backWithCreateFailure: ((Message) -> Void)?
     }
     
     struct Args {
@@ -91,7 +91,7 @@ final class GroupCreateLoadViewModel: ViewModel {
                 guard let error = error as? NetworkManagerError,
                       case NetworkManagerError.clientError(let status, let message) = error,
                       let message = message else { return }
-                self?.actions.backWithCreateFailure?(message)
+                self?.actions.backWithCreateFailure?(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }

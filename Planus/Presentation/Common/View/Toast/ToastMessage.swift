@@ -21,14 +21,3 @@ struct Message {
         self.state = state
     }
 }
-
-extension Message {
-    static func toToastType(state: MessageState) -> ToastView.ToastType {
-        switch state {
-        case .warning:
-            return .warning
-        case .normal:
-            return .normal
-        }
-    }
-}

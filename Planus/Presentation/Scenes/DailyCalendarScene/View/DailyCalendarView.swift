@@ -24,6 +24,12 @@ final class DailyCalendarView: UIView {
         return button
     }()
     
+    let spinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.isHidden = true
+        return spinner
+    }()
+    
     lazy var collectionView: DailyCalendarCollectionView = {
         let cv = DailyCalendarCollectionView(frame: .zero)
         return cv
@@ -46,6 +52,7 @@ extension DailyCalendarView {
     func configureView() {
         self.backgroundColor = .planusBackgroundColor
         self.addSubview(collectionView)
+        self.addSubview(spinner)
     }
     
     func configureLayout() {
@@ -56,6 +63,11 @@ extension DailyCalendarView {
         collectionView.snp.makeConstraints {
             $0.top.equalTo(self.safeAreaLayoutGuide)
             $0.leading.trailing.bottom.equalToSuperview()
+        }
+        
+        spinner.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview().inset(50)
         }
     }
 }

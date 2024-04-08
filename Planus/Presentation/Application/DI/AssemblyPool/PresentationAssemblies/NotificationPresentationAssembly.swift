@@ -23,9 +23,5 @@ class NotificationPresentationAssembly: Assembly {
                 injectable: injectable
             )
         }
-        
-        container.register(NotificationViewController.self) { (r, injectable: NotificationViewModel.Injectable) in
-            return NotificationViewController(viewModel: r.resolve(NotificationViewModel.self, argument: injectable)!)
-        }
     }
 }

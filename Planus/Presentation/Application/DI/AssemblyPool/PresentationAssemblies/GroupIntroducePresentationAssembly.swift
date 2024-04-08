@@ -24,9 +24,5 @@ class GroupIntroducePresentationAssembly: Assembly {
                 injectable: injectable
             )
         }
-        
-        container.register(GroupIntroduceViewController.self) { (r, injectable: GroupIntroduceViewModel.Injectable) in
-            return GroupIntroduceViewController(viewModel: r.resolve(GroupIntroduceViewModel.self, argument: injectable)!)
-        }
     }
 }

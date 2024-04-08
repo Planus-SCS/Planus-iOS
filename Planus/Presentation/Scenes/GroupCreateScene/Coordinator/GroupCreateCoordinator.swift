@@ -31,9 +31,9 @@ final class GroupCreateCoordinator: Coordinator {
     
     lazy var showGroupCreatePage: () -> Void = { [weak self] in
         guard let self else { return }
-        let vc = dependency.injector.resolve(
-            GroupCreateViewController.self,
-            argument: GroupCreateViewModel.Injectable(
+        let vm = dependency.injector.resolve(
+            GroupCreateViewModel.self,
+            injectable: GroupCreateViewModel.Injectable(
                 actions: .init(
                     showGroupCreateLoadPage: self.showGroupCreateLoadPage,
                     pop: pop,
@@ -43,6 +43,8 @@ final class GroupCreateCoordinator: Coordinator {
             )
         )
         
+        let vc = GroupCreateViewController(viewModel: vm)
+        
         vc.hidesBottomBarWhenPushed = true
 
         self.dependency.navigationController.pushViewController(vc, animated: true)
@@ -50,9 +52,9 @@ final class GroupCreateCoordinator: Coordinator {
     
     lazy var showGroupCreateLoadPage: (MyGroupCreationInfo, ImageFile) -> Void = { [weak self] (info, image) in
         guard let self else { return }
-        let vc = dependency.injector.resolve(
-            GroupCreateLoadViewController.self,
-            argument: GroupCreateLoadViewModel.Injectable(
+        let vm = dependency.injector.resolve(
+            GroupCreateLoadViewModel.self,
+            injectable: GroupCreateLoadViewModel.Injectable(
                 actions: .init(
                     showCreatedGroupPage: self.showCreatedGroupPage,
                     backWithCreateFailure: self.backWithCreateFailure
@@ -63,6 +65,8 @@ final class GroupCreateCoordinator: Coordinator {
                 )
             )
         )
+        
+        let vc = GroupCreateLoadViewController(viewModel: vm)
 
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }
@@ -92,7 +96,7 @@ final class GroupCreateCoordinator: Coordinator {
         }
     }
     
-    lazy var backWithCreateFailure: (String) -> Void = { [weak self] message in
+    lazy var backWithCreateFailure: (Message) -> Void = { [weak self] message in
         guard let self else { return }
         self.pop()
         
@@ -100,7 +104,7 @@ final class GroupCreateCoordinator: Coordinator {
         exVC.viewModel?.nowSaving = false
         exVC.view.endEditing(true)
 
-        dependency.navigationController.showToast(message: message, type: .warning)
+        dependency.navigationController.showToast(message: message)
     }
 
     lazy var pop: () -> Void = { [weak self] in
