@@ -25,9 +25,5 @@ class MyGroupListPresentationAssembly: Assembly {
                 injectable: injectable
             )
         }
-        
-        container.register(MyGroupListViewController.self) { (r, injectable: MyGroupListViewModel.Injectable) in
-            return MyGroupListViewController(viewModel: r.resolve(MyGroupListViewModel.self, argument: injectable)!)
-        }
     }
 }

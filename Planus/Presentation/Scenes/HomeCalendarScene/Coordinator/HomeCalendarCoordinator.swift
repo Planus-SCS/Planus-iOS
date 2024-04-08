@@ -34,9 +34,9 @@ final class HomeCalendarCoordinator: Coordinator {
     
     lazy var showHomeCalendarPage: () -> Void = { [weak self] in
         guard let self else { return }
-        let vc = self.dependency.injector.resolve(
-            HomeCalendarViewController.self,
-            argument: HomeCalendarViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            HomeCalendarViewModel.self,
+            injectable: HomeCalendarViewModel.Injectable(
                 actions: .init(
                     showDailyCalendarPage: self.showDailyCalendarPage,
                     showCreatePeriodTodoPage: self.showTodoDetailPage,
@@ -45,6 +45,9 @@ final class HomeCalendarCoordinator: Coordinator {
                 args: .init()
             )
         )
+        
+        let vc = HomeCalendarViewController(viewModel: vm)
+        
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }
     

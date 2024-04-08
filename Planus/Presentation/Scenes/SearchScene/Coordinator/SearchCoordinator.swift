@@ -30,9 +30,9 @@ final class SearchCoordinator: Coordinator {
     lazy var showInitialSearchPage: () -> Void = { [weak self] in
         guard let self else { return }
         
-        let vc = dependency.injector.resolve(
-            SearchHomeViewController.self,
-            argument: SearchHomeViewModel.Injectable(
+        let vm = dependency.injector.resolve(
+            SearchHomeViewModel.self,
+            injectable: SearchHomeViewModel.Injectable(
                 actions: .init(
                     showSearchResultPage: self.showSearchResultPage,
                     showGroupIntroducePage: self.showGroupIntroducePage,
@@ -42,15 +42,17 @@ final class SearchCoordinator: Coordinator {
             )
         )
         
+        let vc = SearchHomeViewController(viewModel: vm)
+        
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }
 
     lazy var showSearchResultPage: () -> Void = { [weak self] in
         guard let self else { return }
         
-        let vc = dependency.injector.resolve(
-            SearchResultViewController.self,
-            argument: SearchResultViewModel.Injectable(
+        let vm = dependency.injector.resolve(
+            SearchResultViewModel.self,
+            injectable: SearchResultViewModel.Injectable(
                 actions: .init(
                     pop: self.popCurrentPage,
                     showGroupIntroducePage: self.showGroupIntroducePage,
@@ -59,6 +61,8 @@ final class SearchCoordinator: Coordinator {
                 args: .init()
             )
         )
+        
+        let vc = SearchResultViewController(viewModel: vm)
 
         self.dependency.navigationController.pushViewController(vc, animated: false)
     }

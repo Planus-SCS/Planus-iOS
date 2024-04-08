@@ -41,10 +41,6 @@ class MyGroupDetailPresentationAssembly: Assembly {
                 injectable: injectable
             )
         }
-        
-        container.register(MyGroupDetailViewController.self) { (r, injectable: MyGroupDetailViewModel.Injectable) in
-            return MyGroupDetailViewController(viewModel: r.resolve(MyGroupDetailViewModel.self, argument: injectable)!)
-        }
     }
     
     func assembleMyGroupInfoEdit(container: Container) {
@@ -58,10 +54,6 @@ class MyGroupDetailPresentationAssembly: Assembly {
                 ),
                 injectable: injectable
             )
-        }
-        
-        container.register(MyGroupInfoEditViewController.self) { (r, injectable: MyGroupInfoEditViewModel.Injectable) in
-            return MyGroupInfoEditViewController(viewModel: r.resolve(MyGroupInfoEditViewModel.self, argument: injectable)!)
         }
     }
     
@@ -77,10 +69,6 @@ class MyGroupDetailPresentationAssembly: Assembly {
                 injectable: injectable
             )
         }
-        
-        container.register(MyGroupMemberEditViewController.self) { (r, injectable: MyGroupMemberEditViewModel.Injectable) in
-            return MyGroupMemberEditViewController(viewModel: r.resolve(MyGroupMemberEditViewModel.self, argument: injectable)!)
-        }
     }
     
     func assembleMyGroupNoticeEdit(container: Container) {
@@ -92,10 +80,6 @@ class MyGroupDetailPresentationAssembly: Assembly {
                 ),
                 injectable: injectable
             )
-        }
-        
-        container.register(MyGroupNoticeEditViewController.self) { (r, injectable: MyGroupNoticeEditViewModel.Injectable) in
-            return MyGroupNoticeEditViewController(viewModel: r.resolve(MyGroupNoticeEditViewModel.self, argument: injectable)!)
         }
     }
     

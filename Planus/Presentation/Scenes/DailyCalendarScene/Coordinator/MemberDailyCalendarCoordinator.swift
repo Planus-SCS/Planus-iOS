@@ -36,7 +36,7 @@ final class MemberDailyCalendarCoordinator: Coordinator {
         guard let self else { return }
         let vm = self.dependency.injector.resolve(
             MemberDailyCalendarViewModel.self,
-            argument: MemberDailyCalendarViewModel.Injectable(
+            injectable: MemberDailyCalendarViewModel.Injectable(
                 actions: .init(
                     showTodoDetail: showTodoDetailPage,
                     finishScene: finishScene

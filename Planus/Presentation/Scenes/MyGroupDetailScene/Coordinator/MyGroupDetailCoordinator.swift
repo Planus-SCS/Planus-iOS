@@ -31,9 +31,9 @@ final class MyGroupDetailCoordinator: Coordinator {
     lazy var showMyGroupDetail: (Int) -> Void = { [weak self] groupId in
         guard let self else { return }
         
-        let vc = self.dependency.injector.resolve(
-            MyGroupDetailViewController.self,
-            argument: MyGroupDetailViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            MyGroupDetailViewModel.self,
+            injectable: MyGroupDetailViewModel.Injectable(
                 actions: .init(
                     showDailyCalendar: self.showDailyCalendar,
                     showMemberProfile: self.showMemberProfile,
@@ -46,6 +46,8 @@ final class MyGroupDetailCoordinator: Coordinator {
                 args: .init(groupId: groupId)
             )
         )
+        
+        let vc = MyGroupDetailViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
         
         dependency.navigationController.pushViewController(vc, animated: true)
@@ -80,9 +82,9 @@ final class MyGroupDetailCoordinator: Coordinator {
     lazy var showEditInfo: (MyGroupInfoEditViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
         
-        let vc = self.dependency.injector.resolve(
-            MyGroupInfoEditViewController.self,
-            argument: MyGroupInfoEditViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            MyGroupInfoEditViewModel.self,
+            injectable: MyGroupInfoEditViewModel.Injectable(
                 actions: .init(
                     popDetailScene: self.popDetailScene,
                     pop: self.pop
@@ -91,33 +93,38 @@ final class MyGroupDetailCoordinator: Coordinator {
             )
         )
         
+        let vc = MyGroupInfoEditViewController(viewModel: vm)
+        
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }
     
     lazy var showEditMember: (MyGroupMemberEditViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
         
-        let vc = self.dependency.injector.resolve(
-            MyGroupMemberEditViewController.self,
-            argument: MyGroupMemberEditViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            MyGroupMemberEditViewModel.self,
+            injectable: MyGroupMemberEditViewModel.Injectable(
                 actions: .init(pop: self.pop),
                 args: args
             )
         )
         
+        let vc = MyGroupMemberEditViewController(viewModel: vm)
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }
     
     lazy var showEditNotice: (MyGroupNoticeEditViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
         
-        let vc = self.dependency.injector.resolve(
-            MyGroupNoticeEditViewController.self,
-            argument: MyGroupNoticeEditViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            MyGroupNoticeEditViewModel.self,
+            injectable: MyGroupNoticeEditViewModel.Injectable(
                 actions: .init(pop: self.pop),
                 args: args
             )
         )
+        
+        let vc = MyGroupNoticeEditViewController(viewModel: vm)
         
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }

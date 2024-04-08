@@ -24,10 +24,6 @@ class GroupCreatePresentationAssembly: Assembly {
                 injectable: injectable
             )
         }
-        
-        container.register(GroupCreateViewController.self) { (r, injectable: GroupCreateViewModel.Injectable) in
-            return GroupCreateViewController(viewModel: r.resolve(GroupCreateViewModel.self, argument: injectable)!)
-        }
     }
     
     func assembleGroupCreateLoading(container: Container) {
@@ -39,10 +35,6 @@ class GroupCreatePresentationAssembly: Assembly {
                 ),
                 injectable: injectable
             )
-        }
-        
-        container.register(GroupCreateLoadViewController.self) { (r, injectable: GroupCreateLoadViewModel.Injectable) in
-            return GroupCreateLoadViewController(viewModel: r.resolve(GroupCreateLoadViewModel.self, argument: injectable)!)
         }
     }
     

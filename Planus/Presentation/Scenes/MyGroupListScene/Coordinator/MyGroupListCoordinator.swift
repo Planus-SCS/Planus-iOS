@@ -31,9 +31,9 @@ final class MyGroupListCoordinator: Coordinator {
     lazy var showGroupListPage: () -> Void = { [weak self] in
         guard let self else { return }
         
-        let vc = self.dependency.injector.resolve(
-            MyGroupListViewController.self,
-            argument: MyGroupListViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            MyGroupListViewModel.self,
+            injectable: MyGroupListViewModel.Injectable(
                 actions: .init(
                     showGroupDetailPage: self.showGroupDetailPage,
                     showNotificationPage: self.showNotificationPage
@@ -41,6 +41,8 @@ final class MyGroupListCoordinator: Coordinator {
                 args: .init()
             )
         )
+        
+        let vc = MyGroupListViewController(viewModel: vm)
         
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }
