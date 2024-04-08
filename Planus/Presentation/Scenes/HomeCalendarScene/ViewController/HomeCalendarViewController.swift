@@ -177,7 +177,7 @@ private extension HomeCalendarViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
-                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+                vc.showToast(message: message)
             })
             .disposed(by: bag)
         
@@ -242,7 +242,7 @@ private extension HomeCalendarViewController {
         let buttonMenu = UIMenu(options: .displayInline, children: [allAction] + groupActions)
         
         let item = UIBarButtonItem(image: image, menu: buttonMenu)
-        item.tintColor = UIColor(hex: 0x000000)
+        item.tintColor = .planusBlack
         navigationItem.setLeftBarButton(item, animated: true)
         homeCalendarView?.groupListButton = item
     }

@@ -18,8 +18,8 @@ final class MyGroupCell: SearchResultCell {
     private let chatButton: SpringableButton = {
         let button = SpringableButton(frame: .zero)
         button.setTitle("바로가기", for: .normal)
-        button.backgroundColor = UIColor(hex: 0x000000, a: 0.7)
-        button.setTitleColor(UIColor(hex: 0xFFFFFF), for: .normal)
+        button.backgroundColor = .planusBlack.withAlphaComponent(0.7)
+        button.setTitleColor(.planusWhite, for: .normal)
         button.setImage(UIImage(named: "messageIcon"), for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 12)
         button.imageEdgeInsets = .init(top: 0, left: -4, bottom: 0, right: 4)
@@ -33,8 +33,8 @@ final class MyGroupCell: SearchResultCell {
     let onlineButton: UIButton = {
         let button = UIButton(frame: .zero)
         button.setTitle("3", for: .normal)
-        button.backgroundColor = UIColor(hex: 0x000000, a: 0.7)
-        button.setTitleColor(UIColor(hex: 0xFFFFFF), for: .normal)
+        button.backgroundColor = .planusBlack.withAlphaComponent(0.7)
+        button.setTitleColor(.planusWhite, for: .normal)
         button.setImage(UIImage(named: "onlineIcon"), for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 12)
         button.imageEdgeInsets = .init(top: 0, left: -4, bottom: 0, right: 4)
@@ -50,10 +50,10 @@ final class MyGroupCell: SearchResultCell {
         swicth.tintColor = UIColor.orange
         swicth.isOn = false
 
-        swicth.onTintColor = UIColor(hex: 0x6495F4)
-        swicth.tintColor = UIColor(hex: 0x6F81A9)
+        swicth.onTintColor = .planusTintBlue
+        swicth.tintColor = .planusDeepNavy
         swicth.layer.cornerRadius = 14
-        swicth.backgroundColor = UIColor(hex: 0x6F81A9)
+        swicth.backgroundColor = .planusDeepNavy
         swicth.clipsToBounds = true
         swicth.isSkeletonable = true
         return swicth

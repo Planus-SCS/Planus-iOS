@@ -62,7 +62,7 @@ final class MyGroupInfoEditViewController: UIViewController {
         self.navigationItem.setLeftBarButton(myGroupInfoEditView.backButton, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         self.navigationItem.setRightBarButton(myGroupInfoEditView.saveButton, animated: false)
-        self.navigationItem.rightBarButtonItem?.tintColor = .black
+        self.navigationItem.rightBarButtonItem?.tintColor = .planusBlack
         self.navigationItem.title = "그룹 편집"
         
         addKeyboardNotifications()
@@ -127,7 +127,7 @@ private extension MyGroupInfoEditViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, filled in
                 myGroupInfoEditView.limitView.limitField.layer.borderColor
-                = filled ? UIColor(hex: 0x6F81A9).cgColor : UIColor(hex: 0xEA4335).cgColor
+                = filled ? UIColor.planusDeepNavy.cgColor : UIColor.planusTintRed.cgColor
             })
             .disposed(by: bag)
         
@@ -192,7 +192,7 @@ private extension MyGroupInfoEditViewController {
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
                 vc.view.endEditing(true)
-                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+                vc.showToast(message: message)
             })
             .disposed(by: bag)
         

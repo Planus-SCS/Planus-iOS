@@ -16,7 +16,7 @@ class SearchHistoryCell: SpringableCollectionViewCell {
     var label: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
-        label.textColor = .black
+        label.textColor = .planusBlack
         return label
     }()
     
@@ -24,7 +24,7 @@ class SearchHistoryCell: SpringableCollectionViewCell {
         let image = UIImage(named: "removeBtn")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
         let button = UIButton(frame: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
         button.setImage(image, for: .normal)
-        button.tintColor = .black
+        button.tintColor = .planusBlack
         button.addTarget(self, action: #selector(removeBtnTapped), for: .touchUpInside)
         return button
     }()

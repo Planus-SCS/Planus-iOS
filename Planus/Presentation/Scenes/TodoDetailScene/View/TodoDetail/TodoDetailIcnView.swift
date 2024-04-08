@@ -33,7 +33,7 @@ enum TodoDetailAttribute: Int, CaseIterable {
 final class TodoDetailIcnView: UIView {
     weak var delegate: TodoDetailIcnViewDelegate?
     
-    private var mode: TodoDetailSceneMode?
+    private var mode: TodoDetailSceneAuthority?
     var viewingAttr: TodoDetailAttribute = .title
     
     var stackView: UIStackView = {
@@ -51,7 +51,7 @@ final class TodoDetailIcnView: UIView {
             button.tag = attr.rawValue
             button.setImage(image, for: .normal)
             button.addTarget(self, action: #selector(btnTapped), for: .touchUpInside)
-            button.tintColor = (attr == .title || attr == .calendar) ? .black : .gray
+            button.tintColor = (attr == .title || attr == .calendar) ? .planusBlack : .gray
             return button
         }
     }()
@@ -67,7 +67,7 @@ final class TodoDetailIcnView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func setMode(mode: TodoDetailSceneMode) {
+    public func setMode(mode: TodoDetailSceneAuthority) {
         self.mode = mode
     }
     
@@ -87,13 +87,13 @@ final class TodoDetailIcnView: UIView {
             $0.top.bottom.equalToSuperview().inset(5)
         }
     }
-    // 이렇게 말고 데이터 바인딩해서 activate을 해야할듯..? 여기선 이동하고 deactivate 하는것만..!
+
     @objc func btnTapped(_ sender: UIButton) {
         let index = sender.tag
         guard let mode,
               var selectedAttr = TodoDetailAttribute(rawValue: index) else { return }
         
-        if selectedAttr == viewingAttr && (selectedAttr != .title && selectedAttr != .calendar) && mode != .view  {
+        if selectedAttr == viewingAttr && (selectedAttr != .title && selectedAttr != .calendar) && mode != .viewable  {
             delegate?.deactivate(attr: selectedAttr)
             selectedAttr = .title
         }

@@ -34,9 +34,9 @@ final class NotificationCoordinator: Coordinator {
     
     lazy var showNotificationPage: () -> Void = { [weak self] in
         guard let self else { return }
-        let vc = self.dependency.injector.resolve(
-            NotificationViewController.self,
-            argument: NotificationViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            NotificationViewModel.self,
+            injectable: NotificationViewModel.Injectable(
                 actions: .init(
                     pop: self.pop,
                     finishScene: self.finishScene
@@ -44,6 +44,8 @@ final class NotificationCoordinator: Coordinator {
                 args: .init()
             )
         )
+        
+        let vc = NotificationViewController(viewModel: vm)
         
         self.dependency.navigationController.pushViewController(vc, animated: true)
     }

@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
-    static let shared: DefaultCreateCategoryUseCase = .init(categoryRepository: DefaultCategoryRepository(apiProvider: NetworkManager()))
+final class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
+
     let categoryRepository: CategoryRepository
-    
-    var didCreateCategory = PublishSubject<Category>()
+    let didCreateCategory = PublishSubject<Category>()
     
     init(
         categoryRepository: CategoryRepository
@@ -20,16 +19,18 @@ class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
         self.categoryRepository = categoryRepository
     }
     
-    func execute(token: Token, category: Category) -> Single<Int> {
+    func execute(token: Token, category: Category) -> Single<Category> {
         return categoryRepository.create(
             token: token.accessToken,
             category: category.toDTO()
         )
-        .map { [weak self] dto in
+        .map { dto in
             var categoryWithId = category
             categoryWithId.id = dto.data.id
-            self?.didCreateCategory.onNext(categoryWithId)
-            return dto.data.id
+            return categoryWithId
         }
+        .do(onSuccess: { [weak self] newCategory in
+            self?.didCreateCategory.onNext(newCategory)
+        })
     }
 }

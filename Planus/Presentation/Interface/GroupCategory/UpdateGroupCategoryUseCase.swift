@@ -10,5 +10,5 @@ import RxSwift
 
 protocol UpdateGroupCategoryUseCase {
     var didUpdateCategoryWithGroupId: PublishSubject<(groupId: Int, category: Category)> { get }
-    func execute(token: Token, groupId: Int, categoryId: Int, category: Category) -> Single<Int>
+    func execute(token: Token, groupId: Int, categoryId: Int, category: Category) -> Single<Category>
 }

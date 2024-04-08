@@ -15,8 +15,8 @@ class CategorySelectView: UIView {
         button.setTitle("새 카테고리 추가", for: .normal)
         button.titleLabel?.font = UIFont(name: "Pretendard-Medium", size: 16)
         button.imageEdgeInsets = .init(top: 0, left: -5, bottom: 0, right: 5)
-        button.tintColor = .black
-        button.setTitleColor(.black, for: .normal)
+        button.tintColor = .planusBlack
+        button.setTitleColor(.planusBlack, for: .normal)
         button.contentHorizontalAlignment = .leading
         return button
     }()
@@ -43,7 +43,7 @@ class CategorySelectView: UIView {
     
     var tableView: UITableView = {
         let tableView = UITableView(frame: .zero)
-        tableView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        tableView.backgroundColor = .planusBackgroundColor
         tableView.register(CategorySelectCell.self, forCellReuseIdentifier: CategorySelectCell.reuseIdentifier)
         tableView.separatorInset.left = 16
         tableView.separatorInset.right = 16
@@ -62,7 +62,7 @@ class CategorySelectView: UIView {
     }
     
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
 
         self.layer.cornerRadius = 10
         self.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]

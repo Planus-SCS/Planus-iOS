@@ -14,7 +14,7 @@ class SearchHistoryHeaderView: UICollectionReusableView {
     var label: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-SemiBold", size: 14)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.text = "최근 검색어"
         return label
     }()

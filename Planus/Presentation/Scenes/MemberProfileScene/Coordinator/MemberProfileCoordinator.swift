@@ -31,9 +31,9 @@ final class MemberProfileCoordinator: Coordinator {
     lazy var showMemberProfilePage: (MemberProfileViewModel.Args) -> Void = { [weak self] args in
         guard let self else { return }
         
-        let vc = self.dependency.injector.resolve(
-            MemberProfileViewController.self,
-            argument: MemberProfileViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            MemberProfileViewModel.self,
+            injectable: MemberProfileViewModel.Injectable(
                 actions: .init(
                     showSocialDailyCalendar: self.showSocialDailyCalendar,
                     pop: self.pop,
@@ -42,15 +42,17 @@ final class MemberProfileCoordinator: Coordinator {
                 args: args
             )
         )
+        
+        let vc = MemberProfileViewController(viewModel: vm)
         vc.hidesBottomBarWhenPushed = true
         self.dependency.navigationController.pushViewController(vc, animated: true)
         
     }
     
-    lazy var showSocialDailyCalendar: ((SocialDailyCalendarViewModel.Args) -> Void) = { [weak self] args in
+    lazy var showSocialDailyCalendar: ((MemberDailyCalendarViewModel.Args) -> Void) = { [weak self] args in
         guard let self else { return }
-        let coordinator = SocialDailyCalendarCoordinator(
-            dependency: SocialDailyCalendarCoordinator.Dependency(
+        let coordinator = MemberDailyCalendarCoordinator(
+            dependency: MemberDailyCalendarCoordinator.Dependency(
                 navigationController: self.dependency.navigationController,
                 injector: self.dependency.injector
             )

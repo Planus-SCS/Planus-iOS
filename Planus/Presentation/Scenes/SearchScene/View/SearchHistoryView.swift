@@ -18,7 +18,7 @@ class SearchHistoryView: UIView {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: self.createLayout())
         cv.register(SearchHistoryCell.self, forCellWithReuseIdentifier: SearchHistoryCell.reuseIdentifier)
         cv.register(SearchHistoryHeaderView.self, forSupplementaryViewOfKind: Self.headerElementKind, withReuseIdentifier: SearchHistoryHeaderView.reuseIdentifier)
-        cv.backgroundColor = UIColor(hex: 0xF5F5F5)
+        cv.backgroundColor = .planusBackgroundColor
         return cv
     }()
     

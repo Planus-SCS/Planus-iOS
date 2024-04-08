@@ -138,7 +138,7 @@ class DayPickerViewController: UIViewController {
         }
     }
     
-    internal func scrolledTo(index: Int) { // 일정 부분까지 오면 받아서 캐싱해뒀다가 마지막 인덱스를 탁 쳤을때 더하고 보여주기?
+    internal func scrolledTo(index: Int) {
         let diff = index - currentIndex
 
         guard let previousDate = currentMonth,
@@ -210,7 +210,7 @@ class DayPickerViewController: UIViewController {
         let indexOfCurrentStart = (self.calendar.startDayOfTheWeek(from: calendarDate) + 7 - 1)%7 //기준달의 시작 요일
         let indexOfFollowingStart = indexOfCurrentStart + self.calendar.endDateOfMonth(for: calendarDate) // 다음달의 시작 인덱스
         let totalDaysToShow = indexOfFollowingStart + ((indexOfFollowingStart % 7 == 0) ? 0 : (7 - indexOfFollowingStart % 7)) //총 포문 돌 갯수
-        var startDayOfMonth = self.calendar.startDayOfMonth(date: calendarDate)
+        let startDayOfMonth = self.calendar.startDayOfMonth(date: calendarDate)
         
         var dayList = [DayPickerModel]()
         for day in Int()..<totalDaysToShow {

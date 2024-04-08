@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultFetchMyGroupDetailUseCase: FetchMyGroupDetailUseCase {
+final class DefaultFetchMyGroupDetailUseCase: FetchMyGroupDetailUseCase {
     let myGroupRepository: MyGroupRepository
     
     init(myGroupRepository: MyGroupRepository) {

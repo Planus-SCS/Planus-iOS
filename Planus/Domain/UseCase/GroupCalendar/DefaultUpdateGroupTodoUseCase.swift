@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultUpdateGroupTodoUseCase: UpdateGroupTodoUseCase {
-    static let shared = DefaultUpdateGroupTodoUseCase(groupCalendarRepository: DefaultGroupCalendarRepository(apiProvider: NetworkManager()))
+final class DefaultUpdateGroupTodoUseCase: UpdateGroupTodoUseCase {
     
     let groupCalendarRepository: GroupCalendarRepository
-    var didUpdateGroupTodo = PublishSubject<Todo>()
+    let didUpdateGroupTodo = PublishSubject<Todo>()
     
     init(groupCalendarRepository: GroupCalendarRepository) {
         self.groupCalendarRepository = groupCalendarRepository
@@ -21,9 +20,8 @@ class DefaultUpdateGroupTodoUseCase: UpdateGroupTodoUseCase {
     func execute(token: Token, groupId: Int, todoId: Int, todo: Todo) -> Single<Int> {
         groupCalendarRepository
             .updateTodo(token: token.accessToken, groupId: groupId, todoId: todoId, todo: todo.toDTO())
-            .map { [weak self] in
+            .do(onSuccess: { [weak self] _ in
                 self?.didUpdateGroupTodo.onNext(todo)
-                return $0
-            }
+            })
     }
 }

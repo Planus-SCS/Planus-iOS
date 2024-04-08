@@ -11,7 +11,7 @@ class InitialViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        view.backgroundColor = .planusBackgroundColor
     }
 
 

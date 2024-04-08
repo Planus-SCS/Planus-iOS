@@ -37,9 +37,5 @@ class HomeCalendarPresentationAssembly: Assembly {
                 injectable: injectable
             )
         }
-        
-        container.register(HomeCalendarViewController.self) { (r, injectable: HomeCalendarViewModel.Injectable) in
-            return HomeCalendarViewController(viewModel: r.resolve(HomeCalendarViewModel.self, argument: injectable)!)
-        }
     }
 }

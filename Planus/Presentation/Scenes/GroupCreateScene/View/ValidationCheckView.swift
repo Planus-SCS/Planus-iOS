@@ -13,7 +13,7 @@ class ValidationCheckImageView: UIImageView {
         
         self.init(frame: CGRect(x: 0, y: 0, width: checkImage?.size.width ?? 0, height: checkImage?.size.height ?? 0))
         self.image = checkImage
-        self.tintColor = UIColor(hex: 0x6F81A9)
+        self.tintColor = .planusDeepNavy
     }
     private override init(frame: CGRect) {
         super.init(frame: frame)
@@ -32,6 +32,6 @@ class ValidationCheckImageView: UIImageView {
     }
     
     public func isValid(_ isValid: Bool) {
-        self.tintColor = isValid ? UIColor(hex: 0x99F370) : UIColor(hex: 0x6F81A9)
+        self.tintColor = isValid ? UIColor(hex: 0x99F370) : .planusDeepNavy
     }
 }

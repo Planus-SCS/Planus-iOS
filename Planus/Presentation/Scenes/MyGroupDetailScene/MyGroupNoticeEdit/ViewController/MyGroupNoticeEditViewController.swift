@@ -70,9 +70,9 @@ private extension MyGroupNoticeEditViewController {
             .subscribe(onNext: { isEnabled in
                 myGroupNoticeEditView.saveButton.isEnabled = isEnabled
                 if isEnabled {
-                    myGroupNoticeEditView.saveButton.tintColor = UIColor(hex: 0x6495F4)
+                    myGroupNoticeEditView.saveButton.tintColor = .planusTintBlue
                 } else {
-                    myGroupNoticeEditView.saveButton.tintColor = UIColor(hex: 0x6495F4).withAlphaComponent(0.5)
+                    myGroupNoticeEditView.saveButton.tintColor = .planusTintBlue.withAlphaComponent(0.5)
                 }
             })
             .disposed(by: bag)

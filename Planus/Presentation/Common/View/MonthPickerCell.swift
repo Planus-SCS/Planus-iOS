@@ -14,7 +14,7 @@ final class MonthPickerCell: SpringableCollectionViewCell {
     private let monthLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.textAlignment = .center
         return label
     }()
@@ -34,14 +34,14 @@ final class MonthPickerCell: SpringableCollectionViewCell {
         super.prepareForReuse()
         
         monthLabel.text = nil
-        monthLabel.textColor = .black
+        monthLabel.textColor = .planusBlack
         self.layer.borderWidth = 0
     }
     
     private func configureView() {
         self.layer.cornerRadius = 17
         self.layer.cornerCurve = .continuous
-        self.layer.borderColor = UIColor(hex: 0x6495F4).cgColor
+        self.layer.borderColor = UIColor.planusTintBlue.cgColor
         self.addSubview(monthLabel)
     }
     
@@ -55,7 +55,7 @@ final class MonthPickerCell: SpringableCollectionViewCell {
         monthLabel.text = month
         if isCurrent {
             self.layer.borderWidth = 1
-            self.monthLabel.textColor = UIColor(hex: 0x6495F4)
+            self.monthLabel.textColor = .planusTintBlue
         }
         
         if !isValid {

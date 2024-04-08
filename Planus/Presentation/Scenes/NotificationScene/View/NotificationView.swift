@@ -33,7 +33,7 @@ final class NotificationView: UIView {
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
@@ -51,7 +51,7 @@ final class NotificationView: UIView {
 
 private extension NotificationView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(emptyResultView)
         self.addSubview(resultCollectionView)
     }

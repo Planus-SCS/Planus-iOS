@@ -37,13 +37,13 @@ class MonthPickerViewController: UIViewController {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.register(MonthPickerCell.self, forCellWithReuseIdentifier: MonthPickerCell.reuseIdentifier)
         
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        collectionView.backgroundColor = .planusBackgroundColor
         return collectionView
     }()
     
     var yearLabel: UILabel = {
         let label = UILabel(frame: .zero)
-        label.textColor = UIColor(hex: 0x000000)
+        label.textColor = .planusBlack
         label.font = UIFont(name: "Pretendard-SemiBold", size: 14)
         return label
     }()
@@ -115,7 +115,7 @@ class MonthPickerViewController: UIViewController {
     }
     
     func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.backgroundColor = .planusBackgroundColor
         self.view.addSubview(yearLabel)
         self.view.addSubview(prevButton)
         self.view.addSubview(nextButton)

@@ -32,7 +32,7 @@ class SearchResultCell: SpringableCollectionViewCell {
     var captinNameLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.sizeToFit()
         return label
     }()
@@ -55,7 +55,7 @@ class SearchResultCell: SpringableCollectionViewCell {
     var memberCountLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.sizeToFit()
         return label
     }()
@@ -81,7 +81,7 @@ class SearchResultCell: SpringableCollectionViewCell {
     
     var bottomContentsView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = .white
+        view.backgroundColor = .planusWhite
         view.layer.cornerRadius = 10
         view.layer.cornerCurve = .continuous
         
@@ -96,7 +96,7 @@ class SearchResultCell: SpringableCollectionViewCell {
     var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 14)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.isSkeletonable = true
         return label
     }()
@@ -104,7 +104,7 @@ class SearchResultCell: SpringableCollectionViewCell {
     var tagLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = "메모를 입력하세요"
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.font = UIFont(name: "Pretendard-Medium", size: 12)
         label.numberOfLines = 2
         label.isSkeletonable = true

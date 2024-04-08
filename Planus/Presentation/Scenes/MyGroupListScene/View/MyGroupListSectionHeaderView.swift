@@ -13,7 +13,7 @@ class MyGroupListSectionHeaderView: UICollectionReusableView {
     var titleLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 12)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.isSkeletonable = true
         return label
     }()

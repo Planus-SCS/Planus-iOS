@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultAcceptGroupJoinUseCase: AcceptGroupJoinUseCase {
+final class DefaultAcceptGroupJoinUseCase: AcceptGroupJoinUseCase {
     let myGroupRepository: MyGroupRepository
     
     init(myGroupRepository: MyGroupRepository) {

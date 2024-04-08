@@ -10,8 +10,8 @@ import Swinject
 
 class DailyCalendarPresentationAssembly: Assembly {
     func assemble(container: Swinject.Container) {
-        container.register(DailyCalendarViewModel.self) { (r, injectable: DailyCalendarViewModel.Injectable) in
-            return DailyCalendarViewModel(
+        container.register(MyDailyCalendarViewModel.self) { (r, injectable: MyDailyCalendarViewModel.Injectable) in
+            return MyDailyCalendarViewModel(
                 useCases: .init(
                     executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
                     createTodoUseCase: r.resolve(CreateTodoUseCase.self)!,
@@ -27,8 +27,29 @@ class DailyCalendarPresentationAssembly: Assembly {
             )
         }
         
-        container.register(DailyCalendarViewController.self) { (r, injectable: DailyCalendarViewModel.Injectable) in
-            return DailyCalendarViewController(viewModel: r.resolve(DailyCalendarViewModel.self, argument: injectable)!)
+        container.register(GroupDailyCalendarViewModel.self) { (r, injectable: GroupDailyCalendarViewModel.Injectable) in
+            return GroupDailyCalendarViewModel(
+                useCases: .init(
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
+                    fetchGroupDailyTodoListUseCase: r.resolve(FetchGroupDailyCalendarUseCase.self)!,
+                    createGroupTodoUseCase: r.resolve(CreateGroupTodoUseCase.self)!,
+                    updateGroupTodoUseCase: r.resolve(UpdateGroupTodoUseCase.self)!,
+                    deleteGroupTodoUseCase: r.resolve(DeleteGroupTodoUseCase.self)!,
+                    updateGroupCategoryUseCase: r.resolve(UpdateGroupCategoryUseCase.self)!
+                ),
+                injectable: injectable
+            )
         }
+        
+        container.register(MemberDailyCalendarViewModel.self) { (r, injectable: MemberDailyCalendarViewModel.Injectable) in
+            return MemberDailyCalendarViewModel(
+                useCases: .init(
+                    executeWithTokenUseCase: r.resolve(ExecuteWithTokenUseCase.self)!,
+                    fetchMemberDailyCalendarUseCase: r.resolve(FetchGroupMemberDailyCalendarUseCase.self)!
+                ),
+                injectable: injectable
+            )
+        }
+        
     }
 }

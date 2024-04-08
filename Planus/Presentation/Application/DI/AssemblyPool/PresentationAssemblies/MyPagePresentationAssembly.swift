@@ -31,10 +31,6 @@ class MyPagePresentationAssembly: Assembly {
                 injectable: injectable
             )
         }
-        
-        container.register(MyPageMainViewController.self) { (r, injectable: MyPageMainViewModel.Injectable) in
-            return MyPageMainViewController(viewModel: r.resolve(MyPageMainViewModel.self, argument: injectable)!)
-        }
     }
     
     func assembleMyPageReadableViewModel(container: Container) {
@@ -43,10 +39,6 @@ class MyPagePresentationAssembly: Assembly {
                 useCases: .init(),
                 injectable: injectable
             )
-        }
-        
-        container.register(MyPageReadableViewController.self) { (r, injectable: MyPageReadableViewModel.Injectable) in
-            return MyPageReadableViewController(viewModel: r.resolve(MyPageReadableViewModel.self, argument: injectable)!)
         }
     }
     
@@ -61,10 +53,6 @@ class MyPagePresentationAssembly: Assembly {
                 ),
                 injectable: injectable
             )
-        }
-        
-        container.register(MyPageEditViewController.self) { (r, injectable: MyPageEditViewModel.Injectable) in
-            return MyPageEditViewController(viewModel: r.resolve(MyPageEditViewModel.self, argument: injectable)!)
         }
     }
     

@@ -8,11 +8,11 @@
 import Foundation
 import RxSwift
 
-class DefaultMemberKickOutUseCase: MemberKickOutUseCase {
-    static let shared = DefaultMemberKickOutUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
+final class DefaultMemberKickOutUseCase: MemberKickOutUseCase {
+
     let myGroupRepository: MyGroupRepository
+    let didKickOutMemberAt = PublishSubject<(Int, Int)>()
     
-    var didKickOutMemberAt = PublishSubject<(Int, Int)>()
     init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository
     }
@@ -20,8 +20,10 @@ class DefaultMemberKickOutUseCase: MemberKickOutUseCase {
     func execute(token: Token, groupId: Int, memberId: Int) -> Single<Void> {
         myGroupRepository
             .kickOutMember(token: token.accessToken, groupId: groupId, memberId: memberId)
-            .map { [weak self] _ in
+            .do(onSuccess: { [weak self] _ in
                 self?.didKickOutMemberAt.onNext((groupId, memberId))
+            })
+            .map { _ in
                 return ()
             }
     }

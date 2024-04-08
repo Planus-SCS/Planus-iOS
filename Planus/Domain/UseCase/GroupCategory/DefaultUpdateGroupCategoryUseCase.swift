@@ -8,11 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase { //이건 받아서 다시 fetch 해야함!
-    static let shared: DefaultUpdateGroupCategoryUseCase = .init(categoryRepository: DefaultGroupCategoryRepository(apiProvider: NetworkManager()))
+final class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase {
+
     let categoryRepository: GroupCategoryRepository
-    
-    var didUpdateCategoryWithGroupId = PublishSubject<(groupId: Int, category: Category)>()
+    let didUpdateCategoryWithGroupId = PublishSubject<(groupId: Int, category: Category)>()
     
     init(
         categoryRepository: GroupCategoryRepository
@@ -20,16 +19,20 @@ class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase { //이건 �
         self.categoryRepository = categoryRepository
     }
     
-    func execute(token: Token, groupId: Int, categoryId: Int, category: Category) -> Single<Int> {
+    func execute(token: Token, groupId: Int, categoryId: Int, category: Category) -> Single<Category> {
         return categoryRepository.update(
             token: token.accessToken,
             groupId: groupId,
             categoryId: categoryId,
             category: category.toDTO()
         )
-        .map { [weak self] dto in
+        .do(onSuccess: { [weak self] _ in
             self?.didUpdateCategoryWithGroupId.onNext((groupId: groupId, category: category))
-            return dto.data.id
+        })
+        .map { dto in
+            var newValue = category
+            newValue.id = categoryId
+            return newValue
         }
     }
 }

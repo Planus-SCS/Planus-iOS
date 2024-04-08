@@ -73,19 +73,19 @@ final class MainTabCoordinator: NSObject, Coordinator {
         tabBarController.selectedIndex = TabBarPage.calendar.rawValue
         
         tabBarController.tabBar.layer.masksToBounds = false
-        tabBarController.tabBar.layer.shadowColor = UIColor.black.cgColor
+        tabBarController.tabBar.layer.shadowColor = UIColor.planusBlack.cgColor
         tabBarController.tabBar.layer.shadowOpacity = 0.6
         tabBarController.tabBar.layer.shadowOffset = CGSize(width: 0, height: 2)
         tabBarController.tabBar.layer.shadowRadius = 5
         
-        tabBarController.tabBar.barTintColor = .white
+        tabBarController.tabBar.barTintColor = .planusWhite
         tabBarController.tabBar.isTranslucent = false
         tabBarController.delegate = self
         
-        self.tabBarController.tabBar.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.tabBarController.tabBar.backgroundColor = .planusBackgroundColor
 
-        self.tabBarController.tabBar.tintColor = UIColor(hex: 0x000000)
-        self.tabBarController.tabBar.unselectedItemTintColor = UIColor(hex: 0xBFC7D7)
+        self.tabBarController.tabBar.tintColor = .planusBlack
+        self.tabBarController.tabBar.unselectedItemTintColor = .planusLightGray
         
         dependency.navigationController.viewControllers = [tabBarController]
     }
@@ -99,7 +99,7 @@ final class MainTabCoordinator: NSObject, Coordinator {
             tag: page.rawValue
         )
 
-        // 각 코디네이터 생성 후 추가 예정
+
         switch page {
         case .calendar:
             let homeCalendarCoordinator = HomeCalendarCoordinator(

@@ -91,7 +91,7 @@ final class SignInView: UIView {
 // MARK: Configure UI
 private extension SignInView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         
         self.addSubview(logoImageView)
         self.addSubview(greetingLabel)
@@ -195,7 +195,7 @@ private extension SignInViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
-                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+                vc.showToast(message: message)
             })
             .disposed(by: bag)
     }
@@ -229,6 +229,7 @@ extension SignInViewController: ASAuthorizationControllerDelegate {
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         print(error)
+        showToast(message: Message(text: "잠시 후 다시 시도해 주세요.", state: .warning))
     }
 }
 

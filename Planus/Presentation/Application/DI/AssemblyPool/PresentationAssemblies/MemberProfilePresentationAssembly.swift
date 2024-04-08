@@ -22,9 +22,5 @@ class MemberProfilePresentationAssembly: Assembly {
                 injectable: injectable
             )
         }
-        
-        container.register(MemberProfileViewController.self) { (r, injectable: MemberProfileViewModel.Injectable) in
-            return MemberProfileViewController(viewModel: r.resolve(MemberProfileViewModel.self, argument: injectable)!)
-        }
     }
 }

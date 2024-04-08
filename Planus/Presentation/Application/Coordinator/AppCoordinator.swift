@@ -60,7 +60,7 @@ final class AppCoordinator: Coordinator {
             }, onFailure: { [weak self] error in
                 if let ne = error as? NetworkManagerError,
                    case NetworkManagerError.clientError(_, let string) = ne {
-                    print(string)
+                    print(string as Any)
                 }
                 self?.showSignInFlow()
             })
@@ -121,7 +121,7 @@ final class AppCoordinator: Coordinator {
         case "groups":
 
             guard let groupIdString = components.queryItems?.first(where: { $0.name == "groupID"})?.value,
-            let groupId = Int(groupIdString) else { return } //잘못된 링크
+            let groupId = Int(groupIdString) else { return }
             let mainTabCoordinator = childCoordinators.first(where: { $0 is MainTabCoordinator }) as? MainTabCoordinator
             mainTabCoordinator?.setTabBarControllerPage(page: .search)
             let searchCoordinator = mainTabCoordinator?.childCoordinators.first(where: { $0 is SearchCoordinator }) as? SearchCoordinator

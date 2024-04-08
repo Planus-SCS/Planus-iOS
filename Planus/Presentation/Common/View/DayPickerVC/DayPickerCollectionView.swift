@@ -25,7 +25,7 @@ final class DayPickerCollectionView: UICollectionView {
     }
     
     private func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.isPagingEnabled = true
         self.showsHorizontalScrollIndicator = false
         self.register(DayPickerCollectionViewCell.self, forCellWithReuseIdentifier: DayPickerCollectionViewCell.reuseIdentifier)

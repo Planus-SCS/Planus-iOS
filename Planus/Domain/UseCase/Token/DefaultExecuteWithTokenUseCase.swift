@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
+final class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
     
     let tokenRepository: TokenRepository
     

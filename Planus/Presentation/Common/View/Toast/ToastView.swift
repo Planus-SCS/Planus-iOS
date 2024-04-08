@@ -8,14 +8,10 @@
 import UIKit
 
 class ToastView: UIView {
-    enum ToastType {
-        case normal
-        case warning
-    }
-    
+
     var contentView: UIView = {
         let view = UIView(frame: .zero)
-        view.backgroundColor = .white
+        view.backgroundColor = .planusWhite
         view.clipsToBounds = true
         return view
     }()
@@ -28,9 +24,9 @@ class ToastView: UIView {
         return label
     }()
     
-    convenience init(message: String, type: ToastType) {
+    convenience init(message: Message) {
         self.init(frame: .zero)
-        self.setMessage(message: message, type: type)
+        self.setMessage(message: message)
     }
     
     override init(frame: CGRect) {
@@ -72,11 +68,11 @@ class ToastView: UIView {
         }
     }
     
-    func setMessage(message: String, type: ToastType) {
-        self.label.text = message
-        switch type {
+    func setMessage(message: Message) {
+        self.label.text = message.text
+        switch message.state {
         case .normal:
-            label.textColor = UIColor(hex: 0x6F81A9)
+            label.textColor = .planusDeepNavy
         case .warning:
             label.textColor = .systemPink
         }
@@ -84,15 +80,15 @@ class ToastView: UIView {
 }
 
 extension UIViewController {
-    func showToast(message: String, type: ToastView.ToastType, fromBotton: CGFloat? = nil) {
-        let toast = ToastView(message: message, type: type)
-        self.view.addSubview(toast)
+    func showToast(message: Message, fromBotton: CGFloat? = nil) {
+        let toast = ToastView(message: message)
+        self.navigationController?.view.addSubview(toast)
         toast.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).inset(fromBotton == nil ? 100 : fromBotton!)
             $0.width.lessThanOrEqualToSuperview().inset(50)
         }
-        UIView.animate(withDuration: 1.5, delay: 2.0, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 1, delay: 2.0, options: .curveEaseOut, animations: {
             toast.alpha = 0.0
         }, completion: { _ in
             toast.removeFromSuperview()

@@ -21,11 +21,8 @@ Pods/
 build/
 DerivedData/
 
-## URL
-Planus/Util/URL/BaseURL.swift
-
-## Nonce
-Planus/Util/AppleSignInNonce.swift
+## Privacy
+Planus/Util/Info/PrivacyList.plist
 
 ## Various settings
 *.pbxuser

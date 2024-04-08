@@ -29,19 +29,11 @@ class SignInPresentationAssembly: Assembly {
                 injectable: injectable
             )
         }
-        
-        container.register(SignInViewController.self) { (r, injectable: SignInViewModel.Injectable) in
-            return SignInViewController(viewModel: r.resolve(SignInViewModel.self, argument: injectable)!)
-        }
     }
     
     func assembleRedirectionalWeb(container: Container) {
         container.register(RedirectionalWebViewModel.self) { (r, injectable: RedirectionalWebViewModel.Injectable) in
             return RedirectionalWebViewModel(useCases: .init(), injectable: injectable)
-        }
-        
-        container.register(RedirectionalWebViewController.self) { (r, injectable: RedirectionalWebViewModel.Injectable) in
-            return RedirectionalWebViewController(viewModel: r.resolve(RedirectionalWebViewModel.self, argument: injectable)!)
         }
     }
 }

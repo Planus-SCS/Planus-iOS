@@ -21,8 +21,8 @@ class MyGroupDetailCalendarHeaderView: UICollectionReusableView {
         button.setImage(UIImage(named: "downButton"), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         button.imageEdgeInsets = .init(top: 0, left: 5, bottom: 0, right: -5)
-        button.tintColor = .black
-        button.setTitleColor(.black, for: .normal)
+        button.tintColor = .planusBlack
+        button.setTitleColor(.planusBlack, for: .normal)
         button.layer.cornerRadius = 3
         button.layer.cornerCurve = .continuous
         button.isSkeletonable = true

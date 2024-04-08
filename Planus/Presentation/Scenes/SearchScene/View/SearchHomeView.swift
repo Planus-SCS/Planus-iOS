@@ -16,7 +16,7 @@ final class SearchHomeView: UIView {
     lazy var resultCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createSection())
         collectionView.register(SearchResultCell.self, forCellWithReuseIdentifier: SearchResultCell.reuseIdentifier)
-        collectionView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        collectionView.backgroundColor = .planusBackgroundColor
         collectionView.refreshControl = refreshControl
         return collectionView
     }()
@@ -24,7 +24,7 @@ final class SearchHomeView: UIView {
     lazy var searchButton: UIBarButtonItem = {
         let image = UIImage(named: "searchBarIcon")?.withRenderingMode(.alwaysTemplate)
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
@@ -56,8 +56,7 @@ final class SearchHomeView: UIView {
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        print("fatal error")
+        fatalError("init(coder:) has not been implemented")
     }
 }
 
@@ -65,7 +64,7 @@ final class SearchHomeView: UIView {
 // MARK: configure UI
 private extension SearchHomeView {
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(resultCollectionView)
         self.addSubview(createGroupButton)
     }

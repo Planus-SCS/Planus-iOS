@@ -96,8 +96,6 @@ final class GroupCreateViewModel: ViewModel {
             .tagRemovedAt
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
-                print(vm.tagList)
-                print(index)
                 vm.tagList.remove(at: index)
                 vm.checkTagValidation()
                 removeAt.onNext(index)

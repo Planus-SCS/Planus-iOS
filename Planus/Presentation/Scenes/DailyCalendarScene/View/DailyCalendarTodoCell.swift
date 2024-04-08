@@ -137,10 +137,10 @@ class DailyCalendarTodoCell: SpringableCollectionViewCell {
         time: String?,
         category: CategoryColor,
         isGroup: Bool,
-        isScheduled: Bool,
+        isPeriod: Bool,
         isMemo: Bool,
         completion: Bool?,
-        isOwner: Bool
+        isInteractable: Bool
     ) {
 
         if let time = time {
@@ -156,7 +156,7 @@ class DailyCalendarTodoCell: SpringableCollectionViewCell {
         self.timeLabel.textColor = category.todoThickColor
         
         groupSymbol.isHidden = !isGroup
-        periodSymbol.isHidden = !isScheduled // FIXME: 이거 기간투두임 이름 period로 바꾸자
+        periodSymbol.isHidden = !isPeriod
         memoSymbol.isHidden = !isMemo
         
         groupSymbol.tintColor = category.todoThickColor
@@ -171,6 +171,6 @@ class DailyCalendarTodoCell: SpringableCollectionViewCell {
         } else {
             checkButton.isHidden = true
         }
-        checkButton.isUserInteractionEnabled = isOwner
+        checkButton.isUserInteractionEnabled = isInteractable
     }
 }

@@ -34,9 +34,10 @@ final class MyPageCoordinator: Coordinator {
     
     lazy var showMyPageMain: (Profile) -> Void = { [weak self] profile in
         guard let self else { return }
-        let vc = self.dependency.injector.resolve(
-            MyPageMainViewController.self,
-            argument: MyPageMainViewModel.Injectable(
+
+        let vm = self.dependency.injector.resolve(
+            MyPageMainViewModel.self,
+            injectable: MyPageMainViewModel.Injectable(
                 actions: .init(
                     editProfile: self.editProfile,
                     showTermsOfUse: self.showTermsOfUse,
@@ -48,34 +49,43 @@ final class MyPageCoordinator: Coordinator {
                 args: .init(profile: profile)
             )
         )
+        
+        let vc = MyPageMainViewController(viewModel: vm)
+        
         vc.hidesBottomBarWhenPushed = true
         dependency.navigationController.pushViewController(vc, animated: true)
     }
     
     lazy var editProfile: () -> Void = { [weak self] in
         guard let self else { return }
-        let vc = self.dependency.injector.resolve(
-            MyPageEditViewController.self,
-            argument: MyPageEditViewModel.Injectable(
+
+        let vm = self.dependency.injector.resolve(
+            MyPageEditViewModel.self,
+            injectable: MyPageEditViewModel.Injectable(
                 actions: .init(
                     goBack: self.goBack
                 ),
                 args: .init()
             )
         )
+        
+        let vc = MyPageEditViewController(viewModel: vm)
+        
         dependency.navigationController.pushViewController(vc, animated: true)
     }
     
     lazy var showTermsOfUse: (() -> Void)? = { [weak self] in
         guard let self else { return }
         
-        let vc = dependency.injector.resolve(
-            MyPageReadableViewController.self,
-            argument: MyPageReadableViewModel.Injectable(
+        let vm = dependency.injector.resolve(
+            MyPageReadableViewModel.self,
+            injectable: MyPageReadableViewModel.Injectable(
                 actions: .init(goBack: self.goBack),
                 args: .init(type: .serviceTerms)
             )
         )
+        
+        let vc = MyPageReadableViewController(viewModel: vm)
         
         dependency.navigationController.pushViewController(vc, animated: true)
     }
@@ -83,13 +93,15 @@ final class MyPageCoordinator: Coordinator {
     lazy var showPrivacyPolicy: (() -> Void)? = { [weak self] in
         guard let self else { return }
         
-        let vc = dependency.injector.resolve(
-            MyPageReadableViewController.self,
-            argument: MyPageReadableViewModel.Injectable(
+        let vm = dependency.injector.resolve(
+            MyPageReadableViewModel.self,
+            injectable: MyPageReadableViewModel.Injectable(
                 actions: .init(goBack: self.goBack),
                 args: .init(type: .privacyPolicy)
             )
         )
+        
+        let vc = MyPageReadableViewController(viewModel: vm)
         
         dependency.navigationController.pushViewController(vc, animated: true)
     }

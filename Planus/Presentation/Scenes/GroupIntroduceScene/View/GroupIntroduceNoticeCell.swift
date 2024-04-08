@@ -13,11 +13,11 @@ final class GroupIntroduceNoticeCell: SpringableCollectionViewCell {
     private let noticeTextView: UITextView = {
         let textView = UITextView(frame: .zero)
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
-        textView.textColor = .black
+        textView.textColor = .planusBlack
         textView.textAlignment = NSTextAlignment.left
         textView.isEditable = false
         textView.isScrollEnabled = false
-        textView.backgroundColor = UIColor(hex: 0xF5F5FB)
+        textView.backgroundColor = .planusBackgroundColor
         let style = NSMutableParagraphStyle()
         style.lineSpacing = 19
 
@@ -48,7 +48,7 @@ final class GroupIntroduceNoticeCell: SpringableCollectionViewCell {
     
     private func configureView() {
         self.addSubview(noticeTextView)
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
     }
     
     private func configureLayout() {

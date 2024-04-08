@@ -49,7 +49,7 @@ final class MyGroupDetailViewModel: ViewModel {
     }
     
     struct Actions {
-        let showDailyCalendar: ((SocialDailyCalendarViewModel.Args) -> Void)?
+        let showDailyCalendar: ((GroupDailyCalendarViewModel.Args) -> Void)?
         let showMemberProfile: ((MemberProfileViewModel.Args) -> Void)?
         let editInfo: ((MyGroupInfoEditViewModel.Args) -> Void)?
         let editMember: ((MyGroupMemberEditViewModel.Args) -> Void)?
@@ -239,9 +239,9 @@ final class MyGroupDetailViewModel: ViewModel {
             .withUnretained(self)
             .subscribe(onNext: { vm, index in
                 vm.actions.showDailyCalendar?(
-                    SocialDailyCalendarViewModel.Args(
+                    GroupDailyCalendarViewModel.Args(
                         group: GroupName(groupId: vm.groupId, groupName: vm.groupTitle ?? String()),
-                        type: .group(isLeader: vm.isLeader ?? Bool()),
+                        isLeader: vm.isLeader ?? Bool(),
                         date: vm.mainDays[index].date
                     )
                 )
@@ -629,8 +629,11 @@ extension MyGroupDetailViewModel {
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onSuccess: { [weak self] _ in
                 self?.actions.pop?()
-            }, onError: {
-                print($0)
+            }, onFailure: { [weak self] error in
+                guard let error = error as? NetworkManagerError,
+                      case NetworkManagerError.clientError(let status, let message) = error,
+                      let message = message else { return }
+                self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
     }

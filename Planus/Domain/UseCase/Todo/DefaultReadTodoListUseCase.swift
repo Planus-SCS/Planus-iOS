@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultReadTodoListUseCase: ReadTodoListUseCase {
+final class DefaultReadTodoListUseCase: ReadTodoListUseCase {
     
     let todoRepository: TodoRepository
     

@@ -25,7 +25,7 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
     let memberNameLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-SemiBold", size: 16)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.isSkeletonable = true
         return label
     }()
@@ -42,7 +42,7 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
     let memberIntroduceLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Regular", size: 14)
-        label.textColor = UIColor(hex: 0x6F81A9)
+        label.textColor = .planusDeepNavy
         label.isSkeletonable = true
         return label
     }()
@@ -65,7 +65,7 @@ class GroupIntroduceMemberCell: SpringableCollectionViewCell {
     }
     
     func configureView() {
-        self.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.backgroundColor = .planusBackgroundColor
         self.addSubview(memberImageView)
         self.addSubview(memberNameLabel)
         self.addSubview(memberIntroduceLabel)

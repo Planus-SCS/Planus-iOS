@@ -7,7 +7,7 @@
 
 import Foundation
 
-class DefaultGenerateGroupLinkUseCase: GenerateGroupLinkUseCase {
+final class DefaultGenerateGroupLinkUseCase: GenerateGroupLinkUseCase {
     func execute(groupId: Int) -> String {
         return BaseURL.main + "/groups?groupID=\(groupId)"
     }

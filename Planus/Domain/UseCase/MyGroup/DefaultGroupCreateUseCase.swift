@@ -8,12 +8,10 @@
 import Foundation
 import RxSwift
 
-class DefaultGroupCreateUseCase: GroupCreateUseCase {
+final class DefaultGroupCreateUseCase: GroupCreateUseCase {
     
-    static let shared = DefaultGroupCreateUseCase(myGroupRepository: DefaultMyGroupRepository(apiProvider: NetworkManager()))
     let myGroupRepository: MyGroupRepository
-    
-    var didCreateGroup = PublishSubject<Void>()
+    let didCreateGroup = PublishSubject<Void>()
     
     init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository
@@ -24,8 +22,11 @@ class DefaultGroupCreateUseCase: GroupCreateUseCase {
             token: token.accessToken,
             groupCreateRequestDTO: groupCreate.toDTO(),
             image: image
-        ).map { [weak self] dto in
+        )
+        .do(onSuccess: { [weak self] _ in
             self?.didCreateGroup.onNext(())
+        })
+        .map { dto in
             return dto.data.groupId
         }
     }

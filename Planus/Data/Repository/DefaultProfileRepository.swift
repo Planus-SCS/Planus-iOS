@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultProfileRepository: ProfileRepository {
+final class DefaultProfileRepository: ProfileRepository {
     let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {

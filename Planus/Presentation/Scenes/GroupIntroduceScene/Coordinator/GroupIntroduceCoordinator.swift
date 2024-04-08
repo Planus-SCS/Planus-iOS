@@ -30,9 +30,9 @@ final class GroupIntroduceCoordinator: Coordinator {
     
     lazy var showGroupIntroducePage: (Int) -> Void = { [weak self] groupId in
         guard let self else { return }
-        let vc = self.dependency.injector.resolve(
-            GroupIntroduceViewController.self,
-            argument: GroupIntroduceViewModel.Injectable(
+        let vm = self.dependency.injector.resolve(
+            GroupIntroduceViewModel.self,
+            injectable: GroupIntroduceViewModel.Injectable(
                 actions: .init(
                     showMyGroupDetailPage: showMyGroupDetailPage,
                     pop: pop,
@@ -41,6 +41,8 @@ final class GroupIntroduceCoordinator: Coordinator {
                 args: .init(groupId: groupId)
             )
         )
+        
+        let vc = GroupIntroduceViewController(viewModel: vm)
         
         vc.hidesBottomBarWhenPushed = true
 
@@ -58,11 +60,6 @@ final class GroupIntroduceCoordinator: Coordinator {
         coordinator.finishDelegate = self
         self.childCoordinators.append(coordinator)
         coordinator.start(groupId: groupId)
-    }
-    
-    lazy var fetchFailed: (String) -> Void = { [weak self] message in
-        self?.pop()
-        self?.dependency.navigationController.topViewController?.showToast(message: message, type: .warning)
     }
 
     lazy var pop: () -> Void = { [weak self] in

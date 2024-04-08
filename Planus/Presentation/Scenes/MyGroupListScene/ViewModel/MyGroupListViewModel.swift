@@ -44,7 +44,7 @@ final class MyGroupListViewModel: ViewModel {
     var didFetchGroupList = BehaviorSubject<FetchType?>(value: nil)
     var needReloadItemAt = PublishSubject<Int>()
     var didSuccessOnlineStateChange = PublishSubject<(Int, Bool)>() //index, isSuccess
-    var showMessage = PublishSubject<String>()
+    var showMessage = PublishSubject<Message>()
     
     struct Input {
         var viewDidLoad: Observable<Void>
@@ -59,7 +59,7 @@ final class MyGroupListViewModel: ViewModel {
         var didStartFetching: Observable<Void?>
         var didFetchJoinedGroup: Observable<FetchType?>
         var needReloadItemAt: Observable<Int>
-        var showMessage: Observable<String>
+        var showMessage: Observable<Message>
         var didSuccessOnlineStateChange: Observable<(Int, Bool)>
     }
     
@@ -156,7 +156,7 @@ final class MyGroupListViewModel: ViewModel {
                 vm.groupList?[index] = group
                 
                 vm.didSuccessOnlineStateChange.onNext((index, true))
-                vm.showMessage.onNext("\(group.groupName) 그룹을 \(group.isOnline ? "온" : "오프")라인으로 전환하였습니다.")
+                vm.showMessage.onNext(Message(text: "\(group.groupName) 그룹을 \(group.isOnline ? "온" : "오프")라인으로 전환하였습니다.", state: .normal))
             })
             .disposed(by: bag)
         
@@ -201,9 +201,9 @@ final class MyGroupListViewModel: ViewModel {
                 return self?.useCases.setOnlineUseCase
                     .execute(token: token, groupId: group.groupId)
             }
-            .subscribe(onFailure: { [weak self] _ in //이경우 다시 바꿔주고 바꾸기
+            .subscribe(onFailure: { [weak self] _ in
                 self?.didSuccessOnlineStateChange.onNext((index, false))
-                self?.showMessage.onNext("\(group.groupName) 그룹 \(group.isOnline ? "온" : "오프")라인으로 전환에 실패하였습니다.")
+                self?.showMessage.onNext(Message(text: "\(group.groupName) 그룹 \(group.isOnline ? "온" : "오프")라인으로 전환에 실패하였습니다.", state: .normal))
             })
             .disposed(by: bag)
     }
@@ -221,7 +221,7 @@ final class MyGroupListViewModel: ViewModel {
                 self?.groupList = list
                 self?.didFetchGroupList.onNext((fetchType))
             }, onFailure: { [weak self] _ in
-                self?.showMessage.onNext("얘기치 못한 이유로 로딩을 실패했어요 😭")
+                self?.showMessage.onNext(Message(text: "얘기치 못한 이유로 로딩을 실패했어요 😭", state: .warning))
             })
             .disposed(by: self.bag)
     }

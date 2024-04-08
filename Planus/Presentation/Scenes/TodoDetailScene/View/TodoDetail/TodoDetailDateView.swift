@@ -13,10 +13,10 @@ class TodoDetailDateView: UIView, TodoDetailAttributeView {
     
     var startDateLabel: UILabel = {
         let label = PaddingLabel(inset: .init(top: 10, left: 18, bottom: 10, right: 18))
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.font = UIFont(name: "Pretendard-Regular", size: 16)
         label.layer.borderWidth = 1
-        label.layer.borderColor = UIColor(hex: 0xBFC7D7).cgColor
+        label.layer.borderColor = UIColor.planusLightGray.cgColor
         label.layer.cornerCurve = .continuous
         label.layer.cornerRadius = 10
         return label
@@ -24,10 +24,10 @@ class TodoDetailDateView: UIView, TodoDetailAttributeView {
     
     var endDateLabel: UILabel = {
         let label = PaddingLabel(inset: .init(top: 10, left: 18, bottom: 10, right: 18))
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.font = UIFont(name: "Pretendard-Regular", size: 16)
         label.layer.borderWidth = 1
-        label.layer.borderColor = UIColor(hex: 0xBFC7D7).cgColor
+        label.layer.borderColor = UIColor.planusLightGray.cgColor
         label.layer.cornerCurve = .continuous
         label.layer.cornerRadius = 10
         return label
@@ -99,12 +99,12 @@ class TodoDetailDateView: UIView, TodoDetailAttributeView {
     func setDisabled(label: UILabel) {
         label.text = "2000년 0월 0일"
         label.textColor = .gray
-        label.layer.borderColor = UIColor(hex: 0xBFC7D7).cgColor
+        label.layer.borderColor = UIColor.planusLightGray.cgColor
     }
     
     func setEnabled(label: UILabel) {
-        label.textColor = .black
-        label.layer.borderColor = UIColor(hex: 0xADC5F8).cgColor
+        label.textColor = .planusBlack
+        label.layer.borderColor = UIColor.planusMediumGray.cgColor
     }
     
 }

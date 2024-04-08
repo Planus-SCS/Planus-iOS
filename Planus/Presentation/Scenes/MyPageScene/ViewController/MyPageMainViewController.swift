@@ -19,7 +19,7 @@ final class MyPageMainViewController: UIViewController {
         
     lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        cv.backgroundColor = UIColor(hex: 0xF5F5FB)
+        cv.backgroundColor = .planusBackgroundColor
         cv.register(MyPageMainSelectableCell.self, forCellWithReuseIdentifier: MyPageMainSelectableCell.reuseIdentifier)
         cv.register(MyPageMainSwitchableCell.self, forCellWithReuseIdentifier: MyPageMainSwitchableCell.reuseIdentifier)
         cv.register(MyPageMainHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: MyPageMainHeaderView.reuseIdentifier)
@@ -31,13 +31,13 @@ final class MyPageMainViewController: UIViewController {
     lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
-        item.tintColor = .black
+        item.tintColor = .planusBlack
         return item
     }()
     
     lazy var editButton: UIBarButtonItem = {
         let item = UIBarButtonItem(title: "수정", style: .plain, target: nil, action: nil)
-        item.tintColor = UIColor(hex: 0x6495F4)
+        item.tintColor = .planusTintBlue
         return item
     }()
     
@@ -122,7 +122,7 @@ private extension MyPageMainViewController {
     }
     
     func configureView() {
-        self.view.backgroundColor = UIColor(hex: 0xF5F5FB)
+        self.view.backgroundColor = .planusBackgroundColor
         self.view.addSubview(collectionView)
     }
     

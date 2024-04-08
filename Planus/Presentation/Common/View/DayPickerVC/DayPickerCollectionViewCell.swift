@@ -14,7 +14,7 @@ class DayPickerCollectionViewCell: UICollectionViewCell {
     lazy var dayLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.font = UIFont(name: "Pretendard-Bold", size: 12)
-        label.textColor = .black
+        label.textColor = .planusBlack
         label.textAlignment = .center
         return label
     }()
@@ -70,29 +70,29 @@ class DayPickerCollectionViewCell: UICollectionViewCell {
         dayLabel.text = day
         switch state {
         case .prev:
-            dayLabel.textColor = UIColor(hex: 0x000000, a: 0.4)
+            dayLabel.textColor = .planusLightGray.withAlphaComponent(0.4)
         case .current:
-            dayLabel.textColor = .black
+            dayLabel.textColor = .planusBlack
         case .following:
-            dayLabel.textColor = UIColor(hex: 0xBFC7D7, a: 0.4)
+            dayLabel.textColor = .planusLightGray.withAlphaComponent(0.4)
         }
 
         switch rangeState {
         case .only:
-            self.highlightView.backgroundColor = UIColor(hex: 0x6495F4)
+            self.highlightView.backgroundColor = .planusTintBlue
             self.leftHalfView.backgroundColor = nil
             self.rightHalfView.backgroundColor = nil
         case .start:
-            self.highlightView.backgroundColor = UIColor(hex: 0x6495F4)
+            self.highlightView.backgroundColor = .planusTintBlue
             self.leftHalfView.backgroundColor = nil
-            self.rightHalfView.backgroundColor = UIColor(hex: 0xADC5F8)
+            self.rightHalfView.backgroundColor = .planusMediumGray
         case .end:
-            self.highlightView.backgroundColor = UIColor(hex: 0x6495F4)
-            self.leftHalfView.backgroundColor = UIColor(hex: 0xADC5F8)
+            self.highlightView.backgroundColor = .planusTintBlue
+            self.leftHalfView.backgroundColor = .planusMediumGray
             self.rightHalfView.backgroundColor = nil
         case .inRange:
-            self.leftHalfView.backgroundColor = UIColor(hex: 0xADC5F8)
-            self.rightHalfView.backgroundColor = UIColor(hex: 0xADC5F8)
+            self.leftHalfView.backgroundColor = .planusMediumGray
+            self.rightHalfView.backgroundColor = .planusMediumGray
             self.highlightView.backgroundColor = nil
         case .none:
             self.highlightView.backgroundColor = nil

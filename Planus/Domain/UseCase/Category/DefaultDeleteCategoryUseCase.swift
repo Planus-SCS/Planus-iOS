@@ -8,8 +8,8 @@
 import Foundation
 import RxSwift
 
-class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
-    static let shared: DefaultDeleteCategoryUseCase = .init(categoryRepository: DefaultCategoryRepository(apiProvider: NetworkManager()))
+final class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
+
     let categoryRepository: CategoryRepository
     
     var didDeleteCategory = PublishSubject<Int>()
@@ -22,9 +22,9 @@ class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
         let accessToken = token.accessToken
         return categoryRepository
             .delete(token: accessToken, id: id)
-            .map { [weak self] _ in
+            .map { _ in return }
+            .do(onSuccess: { [weak self] _ in
                 self?.didDeleteCategory.onNext(id)
-                return ()
-            }
+            })
     }
 }

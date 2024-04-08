@@ -94,15 +94,15 @@ private extension GroupIntroduceViewController {
         let scrollingAppearance = UINavigationBarAppearance()
         
         scrollingAppearance.configureWithOpaqueBackground()
-        scrollingAppearance.backgroundColor = UIColor(hex: 0xF5F5FB)
+        scrollingAppearance.backgroundColor = .planusBackgroundColor
         
         let initialBarButtonAppearance = UIBarButtonItemAppearance()
-        initialBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white]
+        initialBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.planusWhite]
         initialAppearance.configureWithTransparentBackground()
         initialAppearance.buttonAppearance = initialBarButtonAppearance
         
         let scrollingBarButtonAppearance = UIBarButtonItemAppearance()
-        scrollingBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.black]
+        scrollingBarButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.planusBlack]
         scrollingAppearance.buttonAppearance = scrollingBarButtonAppearance
         
         self.navigationItem.standardAppearance = scrollingAppearance
@@ -159,7 +159,7 @@ private extension GroupIntroduceViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
-                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+                vc.showToast(message: message)
             })
             .disposed(by: bag)
         

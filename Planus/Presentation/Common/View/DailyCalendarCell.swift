@@ -135,7 +135,7 @@ extension CalendarDailyCell {
         numberLabel.text = day
         
         if isToday {
-            numberLabel.textColor = .white
+            numberLabel.textColor = .planusWhite
             numberLabel.font = UIFont(name: "Pretendard-Bold", size: 10)
             todayImageView.isHidden = false
         } else {
@@ -176,7 +176,7 @@ extension CalendarDailyCell {
     func fillAndFit(periodTodoList: [(Int, TodoSummaryViewModel)], singleTodoList: [(Int, TodoSummaryViewModel)], holiday: (Int, String)?) -> CGFloat {
         fill(periodTodoList: periodTodoList, singleTodoList: singleTodoList, holiday: holiday)
         remakeStackConstForMock()
-        var targetHeight: CGFloat = 100
+
         let estimatedSize = self.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
 
         let estimatedHeight = estimatedSize.height
@@ -212,7 +212,7 @@ extension CalendarDailyCell {
     
     func stackSmallTodoView(title: String, color: CategoryColor, startDate: Date, endDate: Date, isComplete: Bool? = nil) {
         let diff = (Calendar.current.dateComponents([.day], from: startDate, to: endDate).day ?? 0) + 1
-        var todoView = SmallTodoView(title: title, categoryColor: color, isComplete: isComplete)
+        let todoView = SmallTodoView(title: title, categoryColor: color, isComplete: isComplete)
 
         todoView.snp.makeConstraints {
             $0.width.equalTo(UIScreen.main.bounds.width * Double(1)/Double(7) * Double(diff) - 6)
@@ -226,7 +226,7 @@ extension CalendarDailyCell {
             let label = UILabel(frame: .zero)
             label.font = UIFont(name: "Pretendard-SemiBold", size: 10)
             label.textAlignment = .center
-            label.textColor =  UIColor(hex: 0xEA4335, a: alpha)
+            label.textColor =  .planusTintRed.withAlphaComponent(alpha)
             return label
         }()
         titleLabel.text = title

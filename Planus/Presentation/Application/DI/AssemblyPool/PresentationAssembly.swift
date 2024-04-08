@@ -22,8 +22,7 @@ class PresentationAssembly: Assembly {
             NotificationPresentationAssembly(),
             MyGroupListPresentationAssembly(),
             MyGroupDetailPresentationAssembly(),
-            MemberProfilePresentationAssembly(),
-            SocialDailyCalendarPresentationAssembly()
+            MemberProfilePresentationAssembly()
         ]
             
         assemblies.forEach {

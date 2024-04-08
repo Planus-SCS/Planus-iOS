@@ -16,10 +16,8 @@ class CacheWrapper<T>: NSObject {
     }
 }
 
-class DefaultImageRepository: ImageRepository {
-    // 필요한거: 메모리 캐싱, 로컬 캐싱, api
-    static let shared = DefaultImageRepository(apiProvider: NetworkManager())
-    
+final class DefaultImageRepository: ImageRepository {
+
     let memoryCache = NSCache<NSString, CacheWrapper<Data>>()
     let apiProvider: APIProvider
     

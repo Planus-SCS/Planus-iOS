@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class DefaultRefreshTokenUseCase: RefreshTokenUseCase {
+final class DefaultRefreshTokenUseCase: RefreshTokenUseCase {
     let tokenRepository: TokenRepository
     
     init(tokenRepository: TokenRepository) {
@@ -18,11 +18,9 @@ class DefaultRefreshTokenUseCase: RefreshTokenUseCase {
     func execute() -> Single<Token> {
         return tokenRepository
             .refresh()
-            .map { [weak self] dto in
-                print("ref!!!")
-                let token = dto.data.toDomain()
+            .map { $0.data.toDomain() }
+            .do(onSuccess: { [weak self] token in
                 self?.tokenRepository.set(token: token)
-                return token
-            }
+            })
     }
 }

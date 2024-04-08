@@ -12,7 +12,7 @@ class CategoryButton: UIButton {
         let label = UILabel(frame: .zero)
         label.text = "카테고리 선택"
         label.font = UIFont(name: "Pretendard-Light", size: 16)
-        label.textColor = UIColor(hex: 0xBFC7D7)
+        label.textColor = .planusLightGray
         label.sizeToFit()
         label.isUserInteractionEnabled = false
         return label
@@ -76,11 +76,11 @@ class CategoryButton: UIButton {
         if let title,
            let color {
             self.categoryLabel.text = title
-            self.categoryLabel.textColor = .black
+            self.categoryLabel.textColor = .planusBlack
             self.categoryColorView.backgroundColor = color
         } else {
             self.categoryLabel.text = "카테고리 선택"
-            self.categoryLabel.textColor = UIColor(hex: 0xBFC7D7)
+            self.categoryLabel.textColor = .planusLightGray
             self.categoryColorView.backgroundColor = .gray
         }
     }
