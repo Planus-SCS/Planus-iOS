@@ -107,7 +107,7 @@ private extension NotificationViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
-                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+                vc.showToast(message: message)
             })
             .disposed(by: bag)
     }
@@ -124,7 +124,7 @@ private extension NotificationViewController {
 
         switch type {
         case .refresh:
-            showToast(message: "새로고침을 성공하였습니다.", type: .normal)
+            showToast(message: Message(text: "새로고침을 성공하였습니다.", state: .normal))
         default:
             return
         }

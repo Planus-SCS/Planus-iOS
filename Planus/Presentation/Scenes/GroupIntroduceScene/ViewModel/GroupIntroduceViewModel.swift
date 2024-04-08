@@ -172,6 +172,7 @@ private extension GroupIntroduceViewModel {
             fetchGroupDetail,
             fetchGroupMember
         )
+        .observe(on: MainScheduler.asyncInstance)
         .subscribe(onSuccess: { [weak self] (groupDetail, memberList) in
             self?.groupTitle = groupDetail.name
             self?.tag = groupDetail.groupTags.map { "#\($0.name)" }.joined(separator: " ")
@@ -185,9 +186,11 @@ private extension GroupIntroduceViewModel {
             self?.memberList = memberList
             self?.didGroupMemberFetched.onNext(())
         }, onFailure: { [weak self] error in
+            print(error)
             guard let error = error as? NetworkManagerError,
                   case NetworkManagerError.clientError(let status, let message) = error,
                   let message = message else { return }
+            self?.actions.pop?()
             self?.showMessage.onNext(Message(text: message, state: .warning))
         })
         .disposed(by: bag)

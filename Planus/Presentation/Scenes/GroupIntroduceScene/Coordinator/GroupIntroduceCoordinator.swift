@@ -59,11 +59,6 @@ final class GroupIntroduceCoordinator: Coordinator {
         self.childCoordinators.append(coordinator)
         coordinator.start(groupId: groupId)
     }
-    
-    lazy var fetchFailed: (String) -> Void = { [weak self] message in
-        self?.pop()
-        self?.dependency.navigationController.topViewController?.showToast(message: message, type: .warning)
-    }
 
     lazy var pop: () -> Void = { [weak self] in
         self?.dependency.navigationController.popViewController(animated: true)

@@ -92,7 +92,7 @@ final class GroupCreateCoordinator: Coordinator {
         }
     }
     
-    lazy var backWithCreateFailure: (String) -> Void = { [weak self] message in
+    lazy var backWithCreateFailure: (Message) -> Void = { [weak self] message in
         guard let self else { return }
         self.pop()
         
@@ -100,7 +100,7 @@ final class GroupCreateCoordinator: Coordinator {
         exVC.viewModel?.nowSaving = false
         exVC.view.endEditing(true)
 
-        dependency.navigationController.showToast(message: message, type: .warning)
+        dependency.navigationController.showToast(message: message)
     }
 
     lazy var pop: () -> Void = { [weak self] in

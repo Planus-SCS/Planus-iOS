@@ -149,7 +149,7 @@ private extension DailyCalendarViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
-                vc.showToast(message: message.text, type: Message.toToastType(state: message.state))
+                vc.showToast(message: message)
             })
             .disposed(by: bag)
         

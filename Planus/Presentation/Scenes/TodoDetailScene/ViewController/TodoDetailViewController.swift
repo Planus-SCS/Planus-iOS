@@ -141,7 +141,7 @@ private extension TodoDetailViewController {
             .observe(on: MainScheduler.asyncInstance)
             .withUnretained(self)
             .subscribe(onNext: { vc, message in
-                vc.showToast(message: message.text, type: Message.toToastType(state: message.state), fromBotton: vc.currentKeyboardHeight + 30)
+                vc.showToast(message: message, fromBotton: vc.currentKeyboardHeight + 30)
             })
             .disposed(by: bag)
         
