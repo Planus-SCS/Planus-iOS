@@ -33,14 +33,14 @@ final class SignInViewModel: ViewModelable {
         let args: Args
     }
     
-    var bag = DisposeBag()
+    private let bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
     
-    var showAppleSignInPageWith = PublishSubject<ASAuthorizationAppleIDRequest>()
-    var showMessage = PublishSubject<Message>()
-        
+    private let showAppleSignInPageWith = PublishSubject<ASAuthorizationAppleIDRequest>()
+    private let showMessage = PublishSubject<Message>()
+    
     struct Input {
         var kakaoSignInTapped: Observable<Void>
         var googleSignInTapped: Observable<Void>
@@ -61,7 +61,7 @@ final class SignInViewModel: ViewModelable {
         self.actions = injectable.actions
     }
     
-    func transform(input: Input) -> Output {        
+    func transform(input: Input) -> Output {
         input
             .kakaoSignInTapped
             .withUnretained(self)
@@ -100,15 +100,10 @@ final class SignInViewModel: ViewModelable {
             showMessage: showMessage.asObservable()
         )
     }
-    
-    func generateAppleSignInRequest() -> ASAuthorizationAppleIDRequest {
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-        request.nonce = useCases.convertToSha256UseCase.execute(AppleSignInNonce.nonce)
-        return request
-    }
-    
+}
+
+// MARK: SignIn Request
+private extension SignInViewModel {
     func signInKakao() {
         actions.showWebViewSignInPage?(.kakao) { [weak self] code in
             guard let self else { return }
@@ -161,5 +156,16 @@ final class SignInViewModel: ViewModelable {
                 self?.showMessage.onNext(Message(text: message, state: .warning))
             })
             .disposed(by: bag)
+    }
+}
+
+// MARK: AppleSignInRequest
+private extension SignInViewModel {
+    func generateAppleSignInRequest() -> ASAuthorizationAppleIDRequest {
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = useCases.convertToSha256UseCase.execute(AppleSignInNonce.nonce)
+        return request
     }
 }

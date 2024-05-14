@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultFetchGroupMemberTodoDetailUseCase: FetchGroupMemberTodoDetailUseCase {
-    let groupMemberCalendarRepository: GroupMemberCalendarRepository
+    private let groupMemberCalendarRepository: GroupMemberCalendarRepository
     
     init(groupMemberCalendarRepository: GroupMemberCalendarRepository) {
         self.groupMemberCalendarRepository = groupMemberCalendarRepository

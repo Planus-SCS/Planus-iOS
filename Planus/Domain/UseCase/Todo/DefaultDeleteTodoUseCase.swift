@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultDeleteTodoUseCase: DeleteTodoUseCase {
 
-    let todoRepository: TodoRepository
+    private let todoRepository: TodoRepository
 
     var didDeleteTodo = PublishSubject<Todo>()
     

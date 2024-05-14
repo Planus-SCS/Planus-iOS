@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultDeleteCategoryUseCase: DeleteCategoryUseCase {
 
-    let categoryRepository: CategoryRepository
+    private let categoryRepository: CategoryRepository
     
     var didDeleteCategory = PublishSubject<Int>()
     

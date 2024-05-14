@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
     
-    let tokenRepository: TokenRepository
+    private let tokenRepository: TokenRepository
     
     init(tokenRepository: TokenRepository) {
         self.tokenRepository = tokenRepository

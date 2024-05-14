@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultFetchImageUseCase: FetchImageUseCase {
-    let imageRepository: ImageRepository
+    private let imageRepository: ImageRepository
     
     init(imageRepository: ImageRepository) {
         self.imageRepository = imageRepository

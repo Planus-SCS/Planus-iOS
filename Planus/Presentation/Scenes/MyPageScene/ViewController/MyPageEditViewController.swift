@@ -11,13 +11,13 @@ import RxCocoa
 import PhotosUI
 
 final class MyPageEditView: UIView {
-    var contentView: UIView = {
+    let contentView: UIView = {
         let view = UIView(frame: .zero)
         view.backgroundColor = .planusBlueGroundColor
         return view
     }()
     
-    var bottomView: UIView = {
+    let bottomView: UIView = {
         let view = UIView(frame: .zero)
         view.backgroundColor = .planusBackgroundColor
         view.layer.cornerRadius = 10
@@ -26,7 +26,7 @@ final class MyPageEditView: UIView {
         return view
     }()
     
-    var profileImageShadowView: UIView = {
+    let profileImageShadowView: UIView = {
         let view = UIView(frame: .zero)
         view.layer.masksToBounds = false
         view.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15).cgColor
@@ -36,7 +36,7 @@ final class MyPageEditView: UIView {
         return view
     }()
     
-    var profileImageView: UIImageView = {
+    let profileImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -53,7 +53,7 @@ final class MyPageEditView: UIView {
         return button
     }()
     
-    var nameField: UITextField = {
+    let nameField: UITextField = {
         let textField = UITextField(frame: .zero)
         textField.textColor = .planusBlack
         textField.font = UIFont(name: "Pretendard-Regular", size: 16)
@@ -154,21 +154,21 @@ private extension MyPageEditView {
 
 final class MyPageEditViewController: UIViewController {
     
-    var bag = DisposeBag()
-    var viewModel: MyPageEditViewModel?
-    var myPageEditView: MyPageEditView?
+    private let bag = DisposeBag()
+    private var viewModel: MyPageEditViewModel?
+    private var myPageEditView: MyPageEditView?
     
-    var didChangedImage = PublishRelay<ImageFile?>()
-    var descEditing = false
+    private let didChangedImage = PublishRelay<ImageFile?>()
+    private var descEditing = false
     
-    lazy var backButton: UIBarButtonItem = {
+    private lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .planusBlack
         return item
     }()
     
-    lazy var saveButton: UIBarButtonItem = {
+    private lazy var saveButton: UIBarButtonItem = {
         let item = UIBarButtonItem(image: UIImage(named: "saveBarBtn"), style: .plain, target: nil, action: nil)
         item.tintColor = .planusTintBlue
         return item
@@ -203,7 +203,7 @@ final class MyPageEditViewController: UIViewController {
 }
 
 // MARK: Actions
-extension MyPageEditViewController {
+private extension MyPageEditViewController {
     func editBtnTapped() {
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
@@ -234,7 +234,7 @@ extension MyPageEditViewController {
 }
 
 // MARK: Configure
-extension MyPageEditViewController {
+private extension MyPageEditViewController {
     func bind() {
         guard let viewModel,
               let myPageEditView else { return }

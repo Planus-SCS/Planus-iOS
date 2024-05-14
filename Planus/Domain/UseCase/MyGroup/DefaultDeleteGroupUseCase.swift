@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultDeleteGroupUseCase: DeleteGroupUseCase {
 
-    let myGroupRepository: MyGroupRepository
+    private let myGroupRepository: MyGroupRepository
     let didDeleteGroupWithId = PublishSubject<Int>()
     
     init(myGroupRepository: MyGroupRepository) {

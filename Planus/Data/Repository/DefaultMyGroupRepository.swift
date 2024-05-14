@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultMyGroupRepository: MyGroupRepository {
-    let apiProvider: APIProvider
+    private let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {
         self.apiProvider = apiProvider

@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultRemoveProfileUseCase: RemoveProfileUseCase {
-    let profileRepository: ProfileRepository
+    private let profileRepository: ProfileRepository
     
     init(profileRepository: ProfileRepository) {
         self.profileRepository = profileRepository

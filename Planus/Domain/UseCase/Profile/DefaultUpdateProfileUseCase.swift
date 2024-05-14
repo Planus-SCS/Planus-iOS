@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultUpdateProfileUseCase: UpdateProfileUseCase {
     
-    let profileRepository: ProfileRepository
+    private let profileRepository: ProfileRepository
     let didUpdateProfile = PublishSubject<Profile>()
     
     init(profileRepository: ProfileRepository) {

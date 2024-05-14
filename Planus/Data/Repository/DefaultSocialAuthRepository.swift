@@ -10,8 +10,8 @@ import RxSwift
 
 final class DefaultSocialAuthRepository: SocialAuthRepository {
 
-    let apiProvider: APIProvider
-    let keyValueStorage: PersistantKeyValueStorage
+    private let apiProvider: APIProvider
+    private let keyValueStorage: PersistantKeyValueStorage
     
     init(
         apiProvider: APIProvider,

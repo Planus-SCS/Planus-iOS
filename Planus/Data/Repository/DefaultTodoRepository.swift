@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultTodoDetailRepository: TodoRepository {
     
-    let apiProvider: APIProvider
+    private let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {
         self.apiProvider = apiProvider

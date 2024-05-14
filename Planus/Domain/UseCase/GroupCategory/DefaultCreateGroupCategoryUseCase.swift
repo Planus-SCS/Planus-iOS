@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultCreateGroupCategoryUseCase: CreateGroupCategoryUseCase {
-    let categoryRepository: GroupCategoryRepository
+    private let categoryRepository: GroupCategoryRepository
         
     init(
         categoryRepository: GroupCategoryRepository

@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultUpdateCategoryUseCase: UpdateCategoryUseCase {
 
-    let categoryRepository: CategoryRepository
+    private let categoryRepository: CategoryRepository
     let didUpdateCategory = PublishSubject<Category>()
     
     init(

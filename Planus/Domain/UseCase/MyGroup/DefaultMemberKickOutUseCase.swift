@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultMemberKickOutUseCase: MemberKickOutUseCase {
 
-    let myGroupRepository: MyGroupRepository
+    private let myGroupRepository: MyGroupRepository
     let didKickOutMemberAt = PublishSubject<(Int, Int)>()
     
     init(myGroupRepository: MyGroupRepository) {

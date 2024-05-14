@@ -27,15 +27,15 @@ final class RedirectionalWebViewModel: ViewModelable {
     }
     
     
-    let bag = DisposeBag()
+    private let bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
     
-    var type: SocialRedirectionType
-    var completion: ((String) -> Void)?
+    private let type: SocialRedirectionType
+    private let completion: ((String) -> Void)?
     
-    var needToDismiss = PublishSubject<Void>()
+    private let needToDismiss = PublishSubject<Void>()
     
     struct Input {
         var didFetchedCode: Observable<String>
@@ -56,7 +56,7 @@ final class RedirectionalWebViewModel: ViewModelable {
         
         self.actions = injectable.actions
     }
-
+    
     func transform(input: Input) -> Output {
         
         input.didFetchedCode
@@ -68,12 +68,14 @@ final class RedirectionalWebViewModel: ViewModelable {
         
         return Output(needDismiss: needToDismiss)
     }
+}
 
+// MARK: Finish Scene
+private extension RedirectionalWebViewModel {
     func codeFetched(code: String) {
         needToDismiss.onNext(())
         completion?(code)
     }
-    
 }
 
 enum SocialRedirectionType {

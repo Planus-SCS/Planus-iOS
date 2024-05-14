@@ -8,7 +8,7 @@
 import Foundation
 
 final class DefaultGetSignedInSNSTypeUseCase: GetSignedInSNSTypeUseCase {
-    let socialAuthRepository: SocialAuthRepository
+    private let socialAuthRepository: SocialAuthRepository
     
     init(socialAuthRepository: SocialAuthRepository) {
         self.socialAuthRepository = socialAuthRepository

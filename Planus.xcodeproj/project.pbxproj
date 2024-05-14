@@ -2161,7 +2161,7 @@
 		6A0B769E2BADD4A2008BC571 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				6A0B769F2BADD4B0008BC571 /* ViewModelable.swift */,
+				6AF4A6312BF3DC0700633140 /* Interface */,
 				6A0B76612BA9A1F6008BC571 /* TodoSummaryViewModel.swift */,
 			);
 			path = ViewModel;
@@ -3280,6 +3280,14 @@
 				6AF077D32A961CBB0086692B /* TodoDetailMemoView.swift */,
 			);
 			path = TodoDetail;
+			sourceTree = "<group>";
+		};
+		6AF4A6312BF3DC0700633140 /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+				6A0B769F2BADD4B0008BC571 /* ViewModelable.swift */,
+			);
+			path = Interface;
 			sourceTree = "<group>";
 		};
 		974AE7300BB25B96DF1DF093 /* Pods */ = {

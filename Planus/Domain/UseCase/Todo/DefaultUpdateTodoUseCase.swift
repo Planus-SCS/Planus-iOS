@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultUpdateTodoUseCase: UpdateTodoUseCase {
 
-    let todoRepository: TodoRepository
+    private let todoRepository: TodoRepository
         
     var didUpdateTodo = PublishSubject<TodoUpdateComparator>()
     

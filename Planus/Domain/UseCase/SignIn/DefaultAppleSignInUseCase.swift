@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultAppleSignInUseCase: AppleSignInUseCase {
-    let socialAuthRepository: SocialAuthRepository
+    private let socialAuthRepository: SocialAuthRepository
     
     init(
         socialAuthRepository: SocialAuthRepository

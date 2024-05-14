@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultRefreshTokenUseCase: RefreshTokenUseCase {
-    let tokenRepository: TokenRepository
+    private let tokenRepository: TokenRepository
     
     init(tokenRepository: TokenRepository) {
         self.tokenRepository = tokenRepository

@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultGroupCalendarRepository: GroupCalendarRepository {
     
-    let apiProvider: APIProvider
+    private let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {
         self.apiProvider = apiProvider

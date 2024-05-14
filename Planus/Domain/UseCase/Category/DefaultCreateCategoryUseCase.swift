@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultCreateCategoryUseCase: CreateCategoryUseCase {
 
-    let categoryRepository: CategoryRepository
+    private let categoryRepository: CategoryRepository
     let didCreateCategory = PublishSubject<Category>()
     
     init(

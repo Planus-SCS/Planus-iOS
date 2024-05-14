@@ -11,13 +11,13 @@ import RxCocoa
 import AuthenticationServices
 
 final class MyPageMainViewController: UIViewController {
-    var bag = DisposeBag()
-    var headerBag: DisposeBag?
-    var viewModel: MyPageMainViewModel?
+    private let bag = DisposeBag()
+    private var headerBag: DisposeBag?
+    private var viewModel: MyPageMainViewModel?
     
-    var didReceiveAppleAuthCode = PublishRelay<Data>()
+    private let didReceiveAppleAuthCode = PublishRelay<Data>()
         
-    lazy var collectionView: UICollectionView = {
+    private lazy var collectionView: UICollectionView = {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         cv.backgroundColor = .planusBackgroundColor
         cv.register(MyPageMainSelectableCell.self, forCellWithReuseIdentifier: MyPageMainSelectableCell.reuseIdentifier)
@@ -28,14 +28,14 @@ final class MyPageMainViewController: UIViewController {
         return cv
     }()
     
-    lazy var backButton: UIBarButtonItem = {
+    private lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .planusBlack
         return item
     }()
     
-    lazy var editButton: UIBarButtonItem = {
+    private lazy var editButton: UIBarButtonItem = {
         let item = UIBarButtonItem(title: "수정", style: .plain, target: nil, action: nil)
         item.tintColor = .planusTintBlue
         return item
