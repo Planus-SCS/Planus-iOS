@@ -12,17 +12,17 @@ import WebKit
 
 final class RedirectionalWebViewController: UIViewController {
     
-    var bag = DisposeBag()
+    private let bag = DisposeBag()
     
-    var didSent = false
+    private var didSent = false
     
-    var nowForeground = BehaviorRelay<Bool>(value: true)
-    var code = BehaviorRelay<String?>(value: nil)
-    var didFetchedCode = PublishRelay<String>()
+    private let nowForeground = BehaviorRelay<Bool>(value: true)
+    private let code = BehaviorRelay<String?>(value: nil)
+    private let didFetchedCode = PublishRelay<String>()
     
-    var viewModel: RedirectionalWebViewModel?
+    private var viewModel: RedirectionalWebViewModel?
     
-    var webView: WKWebView?
+    private var webView: WKWebView?
     
     convenience init(viewModel: RedirectionalWebViewModel) {
         self.init(nibName: nil, bundle: nil)

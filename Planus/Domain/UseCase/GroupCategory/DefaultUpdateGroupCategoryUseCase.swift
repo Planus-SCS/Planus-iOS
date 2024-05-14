@@ -11,7 +11,7 @@ import RxSwift
 final class DefaultUpdateGroupCategoryUseCase: UpdateGroupCategoryUseCase {
 
     private let categoryRepository: GroupCategoryRepository
-    private let didUpdateCategoryWithGroupId = PublishSubject<(groupId: Int, category: Category)>()
+    let didUpdateCategoryWithGroupId = PublishSubject<(groupId: Int, category: Category)>()
     
     init(
         categoryRepository: GroupCategoryRepository

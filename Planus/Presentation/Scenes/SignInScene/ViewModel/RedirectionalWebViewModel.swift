@@ -32,7 +32,7 @@ final class RedirectionalWebViewModel: ViewModelable {
     let useCases: UseCases
     let actions: Actions
     
-    private let type: SocialRedirectionType
+    let type: SocialRedirectionType
     private let completion: ((String) -> Void)?
     
     private let needToDismiss = PublishSubject<Void>()

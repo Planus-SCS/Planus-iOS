@@ -11,7 +11,7 @@ import RxSwift
 final class DefaultUpdateGroupTodoUseCase: UpdateGroupTodoUseCase {
     
     private let groupCalendarRepository: GroupCalendarRepository
-    private let didUpdateGroupTodo = PublishSubject<Todo>()
+    let didUpdateGroupTodo = PublishSubject<Todo>()
     
     init(groupCalendarRepository: GroupCalendarRepository) {
         self.groupCalendarRepository = groupCalendarRepository
