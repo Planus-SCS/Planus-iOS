@@ -10,16 +10,21 @@ import RxSwift
 
 final class DefaultImageRepository: ImageRepository {
 
-    private let memoryCache = NSCache<NSString, CacheWrapper<Data>>()
+    private let memoryCache: NSCache = {
+        let cache = NSCache<NSString, CacheWrapper<Data>>()
+        cache.totalCostLimit = 50 * 1024 * 1024
+        return cache
+    }()
     
     private let fileManager = FileManager.default
     private let diskCacheDirectory: URL
-    private let maxDiskCacheSize: UInt64 = 100 * 1024 * 1024 // 디스크 캐시 최대 100 메가바이트
+    private let maxDiskCacheSize: UInt64 = 100 * 1024 * 1024
     
     private let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {
         self.apiProvider = apiProvider
+        
         diskCacheDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("Images")
         createDiskCacheDirectoryIfNeeded()
     }
@@ -98,7 +103,8 @@ private extension DefaultImageRepository {
     func cacheImageToMemory(_ data: Data, forKey key: String) {
         memoryCache.setObject(
             CacheWrapper(data),
-            forKey: NSString(string: key)
+            forKey: NSString(string: key),
+            cost: data.count
         )
     }
 }
