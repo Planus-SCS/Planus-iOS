@@ -69,7 +69,7 @@ extension UIView {
     
     public func startSkeletonAnimation() {
         if !isSkeletonAnimating {
-            recursiveSearchSubviews(toDo: { (view) in
+            recursiveSearchSubviews(work: { (view) in
                 view.skeletonAttribute = SkeletonAttribute(
                     shadowOpacity: view.layer.shadowOpacity,
                     backgroundColor: view.backgroundColor,
@@ -94,7 +94,7 @@ extension UIView {
     
     public func stopSkeletonAnimation() {
         if isSkeletonAnimating {
-            recursiveSearchSubviews(toDo: { (view) in
+            recursiveSearchSubviews(work: { (view) in
                 guard let attribute = view.skeletonAttribute else { return }
                 
                 view.backgroundColor = attribute.backgroundColor
@@ -110,10 +110,10 @@ extension UIView {
         }
     }
     
-    private func recursiveSearchSubviews(toDo: (UIView) -> Void) {
+    private func recursiveSearchSubviews(work: (UIView) -> Void) {
         subviews.forEach { subview in
-            subview.recursiveSearchSubviews(toDo: toDo)
+            subview.recursiveSearchSubviews(work: work)
         }
-        toDo(self)
+        work(self)
     }
 }

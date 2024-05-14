@@ -11,19 +11,19 @@ import RxSwift
 final class DefaultTokenRepository: TokenRepository {
     
     let apiProvider: APIProvider
-    let keyValueStorage: KeyValueStorage
+    let keyValueStorage: PersistantKeyValueStorage
     
     init(
         apiProvider: APIProvider,
-        keyValueStorage: KeyValueStorage
+        keyValueStorage: PersistantKeyValueStorage
     ) {
         self.keyValueStorage = keyValueStorage
         self.apiProvider = apiProvider
     }
     
-    func refresh() -> Single<ResponseDTO<TokenRefreshResponseDataDTO>> {
+    func refresh() -> Single<TokenRefreshResponseDataDTO> {
         guard let token = get() else {
-            return Single.error(TokenError.noTokenExist)
+            return Single.error(TokenError.noneExist)
         }
                 
         let endPoint = APIEndPoint(
@@ -34,10 +34,10 @@ final class DefaultTokenRepository: TokenRepository {
             header: ["Content-Type": "application/json"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TokenRefreshResponseDataDTO>.self
-        )
+        ).map { $0.data }
     }
     
     func get() -> Token? {

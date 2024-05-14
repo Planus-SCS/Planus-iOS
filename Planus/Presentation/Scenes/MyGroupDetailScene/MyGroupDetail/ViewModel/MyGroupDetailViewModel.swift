@@ -22,7 +22,7 @@ enum MyGroupSecionType {
     case chat
 }
 
-final class MyGroupDetailViewModel: ViewModel {
+final class MyGroupDetailViewModel: ViewModelable {
     
     struct UseCases {
         let fetchMyGroupDetailUseCase: FetchMyGroupDetailUseCase

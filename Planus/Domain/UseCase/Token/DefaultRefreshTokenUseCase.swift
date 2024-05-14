@@ -18,7 +18,7 @@ final class DefaultRefreshTokenUseCase: RefreshTokenUseCase {
     func execute() -> Single<Token> {
         return tokenRepository
             .refresh()
-            .map { $0.data.toDomain() }
+            .map { $0.toDomain() }
             .do(onSuccess: { [weak self] token in
                 self?.tokenRepository.set(token: token)
             })

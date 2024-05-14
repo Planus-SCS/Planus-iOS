@@ -25,7 +25,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestMultipartCodable(endPoint: endPoint, type: ResponseDTO<GroupCreateResponseDTO>.self)
+        return apiProvider.request(endPoint: endPoint, type: ResponseDTO<GroupCreateResponseDTO>.self)
     }
     
     func fetchJoinApplyList(token: String) -> Single<ResponseDTO<[GroupJoinAppliedResponseDTO]>> {
@@ -37,7 +37,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[GroupJoinAppliedResponseDTO]>.self
         )
@@ -52,7 +52,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<GroupJoinAcceptResponseDTO>.self
         )
@@ -67,7 +67,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<GroupJoinRejectResponseDTO>.self
         )
@@ -82,7 +82,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<GroupWithdrawResponseDTO>.self
         )
@@ -97,7 +97,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<GroupRemoveResponseDTO>.self
         )
@@ -112,7 +112,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[GroupNameResponseDTO]>.self
         )
@@ -127,7 +127,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[MyGroupSummaryResponseDTO]>.self
         )
@@ -142,7 +142,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<MyGroupDetailResponseDTO>.self
         )
@@ -157,7 +157,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[MyMemberResponseDTO]>.self
         )
@@ -175,7 +175,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             ]
         )
         
-        return apiProvider.requestMultipartCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<MyGroupInfoEditResponseDTO>.self
         )
@@ -193,7 +193,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<MyGroupNoticeEditResponseDTO>.self
         )
@@ -210,7 +210,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<MyMemberKickOutResponseDTO>.self
         )
@@ -225,7 +225,7 @@ final class DefaultMyGroupRepository: MyGroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<GroupSetOnlineResponseDTO>.self
         )

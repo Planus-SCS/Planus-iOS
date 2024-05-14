@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-final class MyGroupInfoEditViewModel: ViewModel {
+final class MyGroupInfoEditViewModel: ViewModelable {
     
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase

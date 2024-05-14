@@ -7,7 +7,7 @@
 
 import Foundation
 
-class KeyChainManager: KeyValueStorage {
+class KeyChainManager: PersistantKeyValueStorage {
     func set(key: String, value: Any) {
         let query: NSDictionary = [
             kSecClass: kSecClassGenericPassword,

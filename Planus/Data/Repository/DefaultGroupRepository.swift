@@ -27,7 +27,7 @@ final class DefaultGroupRepository: GroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[UnJoinedGroupSummaryResponseDTO]>.self
         )
@@ -46,7 +46,7 @@ final class DefaultGroupRepository: GroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[UnJoinedGroupSummaryResponseDTO]>.self
         )
@@ -61,7 +61,7 @@ final class DefaultGroupRepository: GroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<UnJoinedGroupDetailResponseDTO>.self
         )
@@ -76,7 +76,7 @@ final class DefaultGroupRepository: GroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[MemberDTO]>.self
         )
@@ -91,7 +91,7 @@ final class DefaultGroupRepository: GroupRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<GroupJoinApplingResponseDTO>.self
         )

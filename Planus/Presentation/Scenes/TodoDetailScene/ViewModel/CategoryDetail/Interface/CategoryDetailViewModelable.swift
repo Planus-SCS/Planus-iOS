@@ -23,7 +23,7 @@ struct CategoryDetailViewModelOutput {
     var showMessage: Observable<Message>
 }
 
-protocol CategoryDetailViewModelable: AnyObject, ViewModel {
+protocol CategoryDetailViewModelable: AnyObject, ViewModelable {
     typealias Input = CategoryDetailViewModelInput
     typealias Output = CategoryDetailViewModelOutput
     

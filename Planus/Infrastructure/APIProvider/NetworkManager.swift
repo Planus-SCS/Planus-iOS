@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-class NetworkManager: APIProvider {
+final class NetworkManager: APIProvider {
     private let urlSession: URLSession
     
     init() {
@@ -21,23 +21,23 @@ class NetworkManager: APIProvider {
 
 extension NetworkManager {
     
-    func requestCodable<T: Codable>(endPoint: APIEndPoint, type: T.Type) -> Single<T> {
-        return requestData(endPoint: endPoint).map { data in
+    func request<T: Codable>(endPoint: APIEndPoint, type: T.Type) -> Single<T> {
+        return request(endPoint: endPoint).map { data in
             return try JSONDecoder().decode(T.self, from: data)
         }
     }
-    func requestData(endPoint: APIEndPoint) -> Single<Data> {
+    func request(endPoint: APIEndPoint) -> Single<Data> {
         let request = try! createRequest(endPoint: endPoint)
         return self.request(request: request)
     }
     
-    func requestMultipartCodable<T: Codable>(endPoint: APIMultiPartEndPoint, type: T.Type) -> Single<T> {
-        return requestMultipartData(endPoint: endPoint).map { data in
+    func request<T: Codable>(endPoint: APIMultiPartEndPoint, type: T.Type) -> Single<T> {
+        return request(endPoint: endPoint).map { data in
             return try JSONDecoder().decode(T.self, from: data)
         }
     }
     
-    func requestMultipartData(endPoint: APIMultiPartEndPoint) -> Single<Data> {
+    func request(endPoint: APIMultiPartEndPoint) -> Single<Data> {
         let request = try! createMultiPartRequest(endPoint: endPoint)
         return self.request(request: request)
     }
@@ -57,7 +57,7 @@ private extension NetworkManager {
                 }
                 
                 guard let data = data else {
-                    emitter(.failure(NetworkManagerError.nilDataError))
+                    emitter(.failure(NetworkManagerError.nilResponseData))
                     return
                 }
                 
@@ -78,7 +78,7 @@ private extension NetworkManager {
                     emitter(.failure(NetworkManagerError.serverError(httpResponse.statusCode, message)))
                 default:
                     let message = (try? JSONDecoder().decode(FailureDTO.self, from: data))?.message
-                    emitter(.failure(NetworkManagerError.unKnownError(httpResponse.statusCode, message)))
+                    emitter(.failure(NetworkManagerError.unKnown(httpResponse.statusCode, message)))
                 }
             }
             task.resume()

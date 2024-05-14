@@ -98,7 +98,7 @@
 		6A0B76972BAC1285008BC571 /* MemberProfilePresentationAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76962BAC1285008BC571 /* MemberProfilePresentationAssembly.swift */; };
 		6A0B769B2BADCF0E008BC571 /* DefaultExecuteWithTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B769A2BADCF0E008BC571 /* DefaultExecuteWithTokenUseCase.swift */; };
 		6A0B769D2BADCF77008BC571 /* ExecuteWithTokenUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B769C2BADCF77008BC571 /* ExecuteWithTokenUseCase.swift */; };
-		6A0B76A02BADD4B0008BC571 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B769F2BADD4B0008BC571 /* ViewModel.swift */; };
+		6A0B76A02BADD4B0008BC571 /* ViewModelable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B769F2BADD4B0008BC571 /* ViewModelable.swift */; };
 		6A0B76A22BADD4EB008BC571 /* DailyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76A12BADD4EB008BC571 /* DailyViewModel.swift */; };
 		6A0B76A42BADDB9B008BC571 /* GroupJoinableState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76A32BADDB9B008BC571 /* GroupJoinableState.swift */; };
 		6A0B76A82BAF59C9008BC571 /* GroupMember.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0B76A72BAF59C9008BC571 /* GroupMember.swift */; };
@@ -183,7 +183,6 @@
 		6A24F8B929CE3F800000FD64 /* Pretendard-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8B029CE3F7F0000FD64 /* Pretendard-ExtraBold.otf */; };
 		6A24F8BA29CE3F800000FD64 /* Pretendard-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8B129CE3F7F0000FD64 /* Pretendard-Thin.otf */; };
 		6A24F8BC29CE50DC0000FD64 /* ScrollDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F8BB29CE50DC0000FD64 /* ScrollDirection.swift */; };
-		6A24F8BE29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A24F8BD29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift */; };
 		6A24F8E729D1D4A40000FD64 /* list@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8E129D1D4A30000FD64 /* list@2x.png */; };
 		6A24F8E829D1D4A40000FD64 /* list@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8E229D1D4A30000FD64 /* list@3x.png */; };
 		6A24F8E929D1D4A40000FD64 /* user-circle.png in Resources */ = {isa = PBXBuildFile; fileRef = 6A24F8E329D1D4A30000FD64 /* user-circle.png */; };
@@ -666,6 +665,7 @@
 		6AF078842AA09E890086692B /* UIView+Skeleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF078832AA09E890086692B /* UIView+Skeleton.swift */; };
 		6AF078862AA09EAD0086692B /* SkeletonLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF078852AA09EAD0086692B /* SkeletonLayer.swift */; };
 		6AF0788E2AA78C400086692B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6AF0788D2AA78C400086692B /* GoogleService-Info.plist */; };
+		6AF4A6302BF3D0BE00633140 /* CacheWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF4A62F2BF3D0BE00633140 /* CacheWrapper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -762,7 +762,7 @@
 		6A0B76962BAC1285008BC571 /* MemberProfilePresentationAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberProfilePresentationAssembly.swift; sourceTree = "<group>"; };
 		6A0B769A2BADCF0E008BC571 /* DefaultExecuteWithTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultExecuteWithTokenUseCase.swift; sourceTree = "<group>"; };
 		6A0B769C2BADCF77008BC571 /* ExecuteWithTokenUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecuteWithTokenUseCase.swift; sourceTree = "<group>"; };
-		6A0B769F2BADD4B0008BC571 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
+		6A0B769F2BADD4B0008BC571 /* ViewModelable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelable.swift; sourceTree = "<group>"; };
 		6A0B76A12BADD4EB008BC571 /* DailyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyViewModel.swift; sourceTree = "<group>"; };
 		6A0B76A32BADDB9B008BC571 /* GroupJoinableState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupJoinableState.swift; sourceTree = "<group>"; };
 		6A0B76A72BAF59C9008BC571 /* GroupMember.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMember.swift; sourceTree = "<group>"; };
@@ -847,7 +847,6 @@
 		6A24F8B029CE3F7F0000FD64 /* Pretendard-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-ExtraBold.otf"; sourceTree = "<group>"; };
 		6A24F8B129CE3F7F0000FD64 /* Pretendard-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Thin.otf"; sourceTree = "<group>"; };
 		6A24F8BB29CE50DC0000FD64 /* ScrollDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollDirection.swift; sourceTree = "<group>"; };
-		6A24F8BD29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyCalendarCellDelegate.swift; sourceTree = "<group>"; };
 		6A24F8E129D1D4A30000FD64 /* list@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "list@2x.png"; sourceTree = "<group>"; };
 		6A24F8E229D1D4A30000FD64 /* list@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "list@3x.png"; sourceTree = "<group>"; };
 		6A24F8E329D1D4A30000FD64 /* user-circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "user-circle.png"; sourceTree = "<group>"; };
@@ -1332,6 +1331,7 @@
 		6AF078832AA09E890086692B /* UIView+Skeleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Skeleton.swift"; sourceTree = "<group>"; };
 		6AF078852AA09EAD0086692B /* SkeletonLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLayer.swift; sourceTree = "<group>"; };
 		6AF0788D2AA78C400086692B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		6AF4A62F2BF3D0BE00633140 /* CacheWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheWrapper.swift; sourceTree = "<group>"; };
 		B315EC64424BFD60FF1CB8AE /* Pods-Planus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.release.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.release.xcconfig"; sourceTree = "<group>"; };
 		C4C3A139F593A7D7746756FA /* Pods-Planus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Planus.debug.xcconfig"; path = "Target Support Files/Pods-Planus/Pods-Planus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1714,7 +1714,6 @@
 			isa = PBXGroup;
 			children = (
 				6A24F89429CE285F0000FD64 /* MonthlyCalendarCell.swift */,
-				6A24F8BD29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift */,
 				6AC079252A092C4E007ACDB8 /* ProfileButton.swift */,
 				6A77837F2BB3DB2F004A535F /* HomeCalendarView.swift */,
 			);
@@ -2162,7 +2161,7 @@
 		6A0B769E2BADD4A2008BC571 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				6A0B769F2BADD4B0008BC571 /* ViewModel.swift */,
+				6A0B769F2BADD4B0008BC571 /* ViewModelable.swift */,
 				6A0B76612BA9A1F6008BC571 /* TodoSummaryViewModel.swift */,
 			);
 			path = ViewModel;
@@ -2966,6 +2965,7 @@
 				6AA3BAD82A24E46400E5B8A2 /* GroupRemoveDTO.swift */,
 				6A14812F2AA9EE990088F86F /* FCMTokenDTO.swift */,
 				6A0B76202B9BA775008BC571 /* AppleSignInDTO.swift */,
+				6AF4A62F2BF3D0BE00633140 /* CacheWrapper.swift */,
 			);
 			path = DataMapping;
 			sourceTree = "<group>";
@@ -3785,6 +3785,7 @@
 				6A9AAAF829F8D324002A6DAF /* String+Ext.swift in Sources */,
 				6A95DFDC29D53B7C009017D8 /* GroupIntroduceInfoHeaderView.swift in Sources */,
 				6AC0796D2A0A59FA007ACDB8 /* GroupRepository.swift in Sources */,
+				6AF4A6302BF3D0BE00633140 /* CacheWrapper.swift in Sources */,
 				6AC079512A0A4D08007ACDB8 /* GroupCreateDTO.swift in Sources */,
 				6A0B76FA2BB283C6008BC571 /* MyGroupInfoEditView.swift in Sources */,
 				6A2C00C82A70FC88003D6B95 /* DefaultUpdateGroupCategoryUseCase.swift in Sources */,
@@ -3949,13 +3950,12 @@
 				6A9AAB0229F8E442002A6DAF /* DefaultCategoryRepository.swift in Sources */,
 				6A0B763D2B9BD0BB008BC571 /* TodoDomainAssembly.swift in Sources */,
 				6A9199972A13222000108BF4 /* FetchGroupMemberCalendarUseCase.swift in Sources */,
-				6A24F8BE29CE65F30000FD64 /* MonthlyCalendarCellDelegate.swift in Sources */,
 				6A95DFDE29D53B87009017D8 /* GroupIntroduceNoticeCell.swift in Sources */,
 				6A0B77072BB28ADC008BC571 /* SearchResultView.swift in Sources */,
 				6A08ADB229C89E77005947D2 /* SignInViewModel.swift in Sources */,
 				6A9AAAC429F7FCF2002A6DAF /* MyPageMainSelectableCell.swift in Sources */,
 				6A08AD5129C87C61005947D2 /* AppDelegate.swift in Sources */,
-				6A0B76A02BADD4B0008BC571 /* ViewModel.swift in Sources */,
+				6A0B76A02BADD4B0008BC571 /* ViewModelable.swift in Sources */,
 				6A2BB1B929E426CD0053C5CA /* MyPageReadableViewController.swift in Sources */,
 				6A0B76662BA9A216008BC571 /* SocialTodoCategory.swift in Sources */,
 				6A0B76872BAC121A008BC571 /* TodoDetailPresentationAssembly.swift in Sources */,

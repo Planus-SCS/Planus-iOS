@@ -42,7 +42,7 @@ struct TodoDetailViewModelableOutput {
     var dismissRequired: Observable<Void>
 }
 
-protocol TodoDetailViewModelable: AnyObject, ViewModel {
+protocol TodoDetailViewModelable: AnyObject, ViewModelable {
     typealias Input = TodoDetailViewModelableInput
     typealias Output = TodoDetailViewModelableOutput
     

@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-final class SearchHomeViewModel: ViewModel {
+final class SearchHomeViewModel: ViewModelable {
     
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase

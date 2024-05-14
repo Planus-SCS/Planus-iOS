@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-final class NotificationViewModel: ViewModel {
+final class NotificationViewModel: ViewModelable {
     
     struct UseCases {
         var executeWithTokenUseCase: ExecuteWithTokenUseCase

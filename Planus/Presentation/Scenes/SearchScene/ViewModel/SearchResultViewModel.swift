@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-final class SearchResultViewModel: ViewModel {
+final class SearchResultViewModel: ViewModelable {
     
     struct UseCases {
         let recentQueryRepository: RecentQueryRepository

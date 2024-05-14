@@ -26,7 +26,7 @@ final class DefaultProfileRepository: ProfileRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<ProfileResponseDataDTO>.self
         )
@@ -43,7 +43,7 @@ final class DefaultProfileRepository: ProfileRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestMultipartCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<ProfileResponseDataDTO>.self
         )
@@ -60,7 +60,7 @@ final class DefaultProfileRepository: ProfileRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<ProfileResponseDataDTO>.self
         )

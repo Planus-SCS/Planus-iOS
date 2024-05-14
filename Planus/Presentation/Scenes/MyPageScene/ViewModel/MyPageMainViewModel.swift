@@ -26,7 +26,7 @@ enum MyPageMenuType: Int, CaseIterable {
     }
 }
 
-final class MyPageMainViewModel: ViewModel {
+final class MyPageMainViewModel: ViewModelable {
     struct UseCases {
         let updateProfileUseCase: UpdateProfileUseCase
         let executeWithTokenUseCase: ExecuteWithTokenUseCase

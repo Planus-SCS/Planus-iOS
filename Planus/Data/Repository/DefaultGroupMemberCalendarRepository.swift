@@ -37,7 +37,7 @@ final class DefaultGroupMemberCalendarRepository: GroupMemberCalendarRepository 
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[SocialTodoSummaryResponseDTO]>.self
         )
@@ -62,7 +62,7 @@ final class DefaultGroupMemberCalendarRepository: GroupMemberCalendarRepository 
         )
         
         return apiProvider
-            .requestCodable(
+            .request(
                 endPoint: endPoint,
                 type: ResponseDTO<SocialTodoDailyListResponseDTO>.self
             )
@@ -79,7 +79,7 @@ final class DefaultGroupMemberCalendarRepository: GroupMemberCalendarRepository 
         )
         
         return apiProvider
-            .requestCodable(
+            .request(
                 endPoint: endPoint,
                 type: ResponseDTO<SocialTodoDetailResponseDTO>.self
             )

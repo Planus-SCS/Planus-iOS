@@ -46,7 +46,7 @@ final class MyPageCoordinator: Coordinator {
                     pop: self.goBack,
                     finish: self.finish
                 ),
-                args: .init(profile: profile)
+                args: MyPageMainViewModel.Args(profile: profile)
             )
         )
         

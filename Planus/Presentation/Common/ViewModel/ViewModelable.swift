@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ViewModel {
+protocol ViewModelable {
     associatedtype UseCases
     associatedtype Actions
     associatedtype Args

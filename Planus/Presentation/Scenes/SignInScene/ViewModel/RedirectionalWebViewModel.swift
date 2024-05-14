@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-final class RedirectionalWebViewModel: ViewModel {
+final class RedirectionalWebViewModel: ViewModelable {
     
     struct UseCases {}
     

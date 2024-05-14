@@ -36,7 +36,7 @@ struct DailyCalendarViewModelableOutput {
     var mode: DailyCalendarSceneAuthority
 }
 
-protocol DailyCalendarViewModelable: ViewModel {
+protocol DailyCalendarViewModelable: ViewModelable {
     typealias Input = DailyCalendarViewModelableInput
     typealias Output = DailyCalendarViewModelableOutput
     

@@ -24,7 +24,7 @@ struct CategorySelectViewModelOutput {
     var showMessage: Observable<Message>
 }
 
-protocol CategorySelectViewModelable: AnyObject, ViewModel {
+protocol CategorySelectViewModelable: AnyObject, ViewModelable {
     typealias Input = CategorySelectViewModelInput
     typealias Output = CategorySelectViewModelOutput
     
