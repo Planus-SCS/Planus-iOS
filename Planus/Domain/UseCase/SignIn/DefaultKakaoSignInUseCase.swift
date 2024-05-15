@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultKakaoSignInUseCase: KakaoSignInUseCase {
     
-    let socialAuthRepository: SocialAuthRepository
+    private let socialAuthRepository: SocialAuthRepository
     
     init(
         socialAuthRepository: SocialAuthRepository

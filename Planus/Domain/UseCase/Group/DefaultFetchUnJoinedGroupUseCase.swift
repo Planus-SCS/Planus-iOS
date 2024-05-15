@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultFetchUnJoinedGroupUseCase: FetchUnJoinedGroupUseCase {
-    let groupRepository: GroupRepository
+    private let groupRepository: GroupRepository
     
     init(groupRepository: GroupRepository) {
         self.groupRepository = groupRepository

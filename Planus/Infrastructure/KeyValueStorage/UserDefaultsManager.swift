@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class UserDefaultsManager: KeyValueStorage {
+final class UserDefaultsManager: PersistantKeyValueStorage {
     func set(key: String, value: Any) {
         UserDefaults.standard.set(value, forKey: key)
     }

@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultReadTodoListUseCase: ReadTodoListUseCase {
     
-    let todoRepository: TodoRepository
+    private let todoRepository: TodoRepository
     
     init(todoRepository: TodoRepository) {
         self.todoRepository = todoRepository

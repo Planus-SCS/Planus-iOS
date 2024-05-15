@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-final class RedirectionalWebViewModel: ViewModel {
+final class RedirectionalWebViewModel: ViewModelable {
     
     struct UseCases {}
     
@@ -27,15 +27,15 @@ final class RedirectionalWebViewModel: ViewModel {
     }
     
     
-    let bag = DisposeBag()
+    private let bag = DisposeBag()
     
     let useCases: UseCases
     let actions: Actions
     
-    var type: SocialRedirectionType
-    var completion: ((String) -> Void)?
+    let type: SocialRedirectionType
+    private let completion: ((String) -> Void)?
     
-    var needToDismiss = PublishSubject<Void>()
+    private let needToDismiss = PublishSubject<Void>()
     
     struct Input {
         var didFetchedCode: Observable<String>
@@ -56,7 +56,7 @@ final class RedirectionalWebViewModel: ViewModel {
         
         self.actions = injectable.actions
     }
-
+    
     func transform(input: Input) -> Output {
         
         input.didFetchedCode
@@ -68,12 +68,14 @@ final class RedirectionalWebViewModel: ViewModel {
         
         return Output(needDismiss: needToDismiss)
     }
+}
 
+// MARK: Finish Scene
+private extension RedirectionalWebViewModel {
     func codeFetched(code: String) {
         needToDismiss.onNext(())
         completion?(code)
     }
-    
 }
 
 enum SocialRedirectionType {

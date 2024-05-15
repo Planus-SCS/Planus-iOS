@@ -12,7 +12,7 @@ import RxCocoa
 import AuthenticationServices
 
 final class SignInView: UIView {
-    var logoImageView: UIImageView = {
+    let logoImageView: UIImageView = {
         let image = UIImage(named: "logo")
         let imageView = UIImageView(frame: CGRect(
             x: 0,
@@ -25,7 +25,7 @@ final class SignInView: UIView {
         return imageView
     }()
     
-    var greetingLabel: UILabel = {
+    let greetingLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.text = """
 플래너스에 오신것을 환영합니다!
@@ -38,7 +38,7 @@ final class SignInView: UIView {
         return label
     }()
     
-    var kakaoSignButton: SpringableButton = {
+    let kakaoSignButton: SpringableButton = {
         let image = UIImage(named: "kakaoBtn")
         let button = SpringableButton(frame: CGRect(
             x: 0,
@@ -51,7 +51,7 @@ final class SignInView: UIView {
         return button
     }()
     
-    var googleSigninButton: SpringableButton = {
+    let googleSigninButton: SpringableButton = {
         let image = UIImage(named: "googleBtn")
         let button = SpringableButton(frame: CGRect(
             x: 0,
@@ -63,7 +63,7 @@ final class SignInView: UIView {
         return button
     }()
     
-    var appleSigninButton: SpringableButton = {
+    let appleSigninButton: SpringableButton = {
         let image = UIImage(named: "appleBtn")
         let button = SpringableButton(frame: CGRect(
             x: 0,

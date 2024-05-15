@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-extension PrimitiveSequence where Trait == SingleTrait { //어떤상황이면 어떤 옵저버블을 끼워넣고 다시 재시도 하도록
+extension PrimitiveSequence where Trait == SingleTrait {
     
     func handleRetry<T>(retryObservable: Single<T>, errorType: NetworkManagerError) -> Single<Element> {
         return retry(when: { errorObservable in

@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultApplyGroupJoinUseCase: ApplyGroupJoinUseCase {
-    let groupRepository: GroupRepository
+    private let groupRepository: GroupRepository
     
     init(groupRepository: GroupRepository) {
         self.groupRepository = groupRepository

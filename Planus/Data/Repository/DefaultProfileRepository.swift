@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultProfileRepository: ProfileRepository {
-    let apiProvider: APIProvider
+    private let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {
         self.apiProvider = apiProvider
@@ -26,7 +26,7 @@ final class DefaultProfileRepository: ProfileRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<ProfileResponseDataDTO>.self
         )
@@ -43,7 +43,7 @@ final class DefaultProfileRepository: ProfileRepository {
             header: ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestMultipartCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<ProfileResponseDataDTO>.self
         )
@@ -60,7 +60,7 @@ final class DefaultProfileRepository: ProfileRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<ProfileResponseDataDTO>.self
         )

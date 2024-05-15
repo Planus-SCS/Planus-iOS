@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultUpdateNoticeUseCase: UpdateNoticeUseCase {
 
-    let myGroupRepository: MyGroupRepository
+    private let myGroupRepository: MyGroupRepository
     let didUpdateNotice = PublishSubject<GroupNotice>()
     
     init(myGroupRepository: MyGroupRepository) {

@@ -10,8 +10,8 @@ import CoreData
 
 final class DefaultRecentQueryRepository: RecentQueryRepository {
     
-    let maxStorageLimit: Int = 20
-    let persistentContainer: NSPersistentContainer = {
+    private let maxStorageLimit: Int = 20
+    private let persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "RecentSearch")
         container.loadPersistentStores(completionHandler: { (storeDesc, error) in
             if let error = error {

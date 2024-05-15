@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultWithdrawGroupUseCase: WithdrawGroupUseCase {
 
-    let myGroupRepository: MyGroupRepository
+    private let myGroupRepository: MyGroupRepository
     let didWithdrawGroup = PublishSubject<Int>()
     
     init(myGroupRepository: MyGroupRepository) {

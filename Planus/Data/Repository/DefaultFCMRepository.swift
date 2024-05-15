@@ -9,10 +9,10 @@ import Foundation
 import RxSwift
 
 final class DefaultFCMRepository: FCMRepository {
-    let apiProvider: APIProvider
-    let keyValueStorage: KeyValueStorage
+    private let apiProvider: APIProvider
+    private let keyValueStorage: PersistantKeyValueStorage
     
-    init(apiProvider: APIProvider, keyValueStorage: KeyValueStorage) {
+    init(apiProvider: APIProvider, keyValueStorage: PersistantKeyValueStorage) {
         self.apiProvider = apiProvider
         self.keyValueStorage = keyValueStorage
     }
@@ -32,7 +32,7 @@ final class DefaultFCMRepository: FCMRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<FCMTokenResponseDTO>.self
         )

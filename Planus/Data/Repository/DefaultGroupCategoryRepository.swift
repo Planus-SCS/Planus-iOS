@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultGroupCategoryRepository: GroupCategoryRepository {
-    let apiProvider: APIProvider
+    private let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {
         self.apiProvider = apiProvider
@@ -26,7 +26,7 @@ final class DefaultGroupCategoryRepository: GroupCategoryRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[CategoryEntityResponseDTO]>.self
         )
@@ -44,7 +44,7 @@ final class DefaultGroupCategoryRepository: GroupCategoryRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[CategoryEntityResponseDTO]>.self
         )
@@ -62,7 +62,7 @@ final class DefaultGroupCategoryRepository: GroupCategoryRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<CategoryResponseDataDTO>.self
         )
@@ -80,7 +80,7 @@ final class DefaultGroupCategoryRepository: GroupCategoryRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<CategoryResponseDataDTO>.self
         )
@@ -98,7 +98,7 @@ final class DefaultGroupCategoryRepository: GroupCategoryRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<CategoryResponseDataDTO>.self
         )

@@ -21,7 +21,7 @@ extension HomeCalendarViewModel {
     }
 }
 
-final class HomeCalendarViewModel: ViewModel {
+final class HomeCalendarViewModel: ViewModelable {
     
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase

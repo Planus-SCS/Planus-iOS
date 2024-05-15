@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultGroupCreateUseCase: GroupCreateUseCase {
     
-    let myGroupRepository: MyGroupRepository
+    private let myGroupRepository: MyGroupRepository
     let didCreateGroup = PublishSubject<Void>()
     
     init(myGroupRepository: MyGroupRepository) {

@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultDeleteGroupTodoUseCase: DeleteGroupTodoUseCase {
 
-    let groupCalendarRepository: GroupCalendarRepository
+    private let groupCalendarRepository: GroupCalendarRepository
     let didDeleteGroupTodoWithIds = PublishSubject<(groupId: Int, todoId: Int)>()
     
     init(groupCalendarRepository: GroupCalendarRepository) {

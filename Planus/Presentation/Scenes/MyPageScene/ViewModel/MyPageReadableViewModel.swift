@@ -300,7 +300,7 @@ enum MyPageReadableType: String {
     }
 }
 
-final class MyPageReadableViewModel: ViewModel {
+final class MyPageReadableViewModel: ViewModelable {
     struct UseCases {}
     
     struct Actions {

@@ -10,12 +10,12 @@ import RxSwift
 
 final class DefaultSocialAuthRepository: SocialAuthRepository {
 
-    let apiProvider: APIProvider
-    let keyValueStorage: KeyValueStorage
+    private let apiProvider: APIProvider
+    private let keyValueStorage: PersistantKeyValueStorage
     
     init(
         apiProvider: APIProvider,
-        keyValueStorage: KeyValueStorage
+        keyValueStorage: PersistantKeyValueStorage
     ) {
         self.apiProvider = apiProvider
         self.keyValueStorage = keyValueStorage
@@ -30,7 +30,7 @@ final class DefaultSocialAuthRepository: SocialAuthRepository {
             header: ["Content-Type": "application/json"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TokenResponseDataDTO>.self
         )
@@ -45,7 +45,7 @@ final class DefaultSocialAuthRepository: SocialAuthRepository {
             header: nil
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TokenResponseDataDTO>.self
         )
@@ -60,7 +60,7 @@ final class DefaultSocialAuthRepository: SocialAuthRepository {
             header: ["Content-Type": "application/json"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TokenResponseDataDTO>.self
         )
@@ -75,7 +75,7 @@ final class DefaultSocialAuthRepository: SocialAuthRepository {
             header:  ["Authorization": "Bearer \(token)"]
         )
         
-        return apiProvider.requestCodable(endPoint: endPoint, type: ResponseDTO<AppleClientSecret>.self)
+        return apiProvider.request(endPoint: endPoint, type: ResponseDTO<AppleClientSecret>.self)
     }
     
     func fetchAppleToken(clientID: String, clientSecret: String, authorizationCode: String) -> Single<AppleIDTokenResponseDTO> {
@@ -87,7 +87,7 @@ final class DefaultSocialAuthRepository: SocialAuthRepository {
             header: ["Content-Type": "application/x-www-form-urlencoded"]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: AppleIDTokenResponseDTO.self
         )
@@ -102,7 +102,7 @@ final class DefaultSocialAuthRepository: SocialAuthRepository {
             header: ["Content-Type": "application/x-www-form-urlencoded"]
         )
         
-        return apiProvider.requestData(endPoint: endPoint).map { _ in () }
+        return apiProvider.request(endPoint: endPoint).map { _ in () }
     }
         
 

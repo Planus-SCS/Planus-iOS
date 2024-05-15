@@ -32,7 +32,7 @@ public final class DependencyInjector {
         container.resolve(serviceType)!
     }
     
-    func resolve<T: ViewModel>(_ viewModelType: T.Type, injectable: T.Injectable) -> T {
+    func resolve<T: ViewModelable>(_ viewModelType: T.Type, injectable: T.Injectable) -> T {
         container.resolve(viewModelType, argument: injectable)!
     }
 }

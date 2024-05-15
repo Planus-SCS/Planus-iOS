@@ -12,8 +12,8 @@ import RxCocoa
 final class MonthlyCalendarCell: UICollectionViewCell {
     
     static let reuseIdentifier = "monthly-calendar-cell"
-    
-    var viewModel: HomeCalendarViewModel?
+    private let cellMinHeight: CGFloat = 100
+    private var viewModel: HomeCalendarViewModel?
     
     // MARK: - Darg for period Todo
     private var selectionState: Bool = false
@@ -195,7 +195,7 @@ extension MonthlyCalendarCell: UICollectionViewDataSource, UICollectionViewDeleg
         if let cellHeight = viewModel.cachedCellHeightForTodoCount[maxCount] {
             return CGSize(width: Double(1)/Double(7) * UIScreen.main.bounds.width - 0.1, height: cellHeight)
         } else {
-            var targetHeight: CGFloat = 100
+            var targetHeight: CGFloat = cellMinHeight
             if let maxTodo {
                 let mockCell = CalendarDailyCell(mockableFrame: CGRect(x: 0, y: 0, width: Double(1)/Double(7) * UIScreen.main.bounds.width - 0.1, height: targetHeight))
                 

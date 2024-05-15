@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultTodoDetailRepository: TodoRepository {
     
-    let apiProvider: APIProvider
+    private let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {
         self.apiProvider = apiProvider
@@ -28,7 +28,7 @@ final class DefaultTodoDetailRepository: TodoRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TodoResponseDataDTO>.self
         )
@@ -52,7 +52,7 @@ final class DefaultTodoDetailRepository: TodoRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TodoListResponseDTO>.self
         )
@@ -70,7 +70,7 @@ final class DefaultTodoDetailRepository: TodoRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TodoResponseDataDTO>.self
         )
@@ -88,7 +88,7 @@ final class DefaultTodoDetailRepository: TodoRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TodoResponseDataDTO>.self
         )
@@ -108,7 +108,7 @@ final class DefaultTodoDetailRepository: TodoRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TodoResponseDataDTO>.self
         )
@@ -125,7 +125,7 @@ final class DefaultTodoDetailRepository: TodoRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TodoResponseDataDTO>.self
         )

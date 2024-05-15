@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultUpdateGroupInfoUseCase: UpdateGroupInfoUseCase {
 
-    let myGroupRepository: MyGroupRepository
+    private let myGroupRepository: MyGroupRepository
     let didUpdateInfoWithId = PublishSubject<Int>()
     
     init(myGroupRepository: MyGroupRepository) {

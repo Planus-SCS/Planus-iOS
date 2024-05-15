@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-final class GroupCreateViewModel: ViewModel {
+final class GroupCreateViewModel: ViewModelable {
     
     struct UseCases {
         let groupCreateUseCase: GroupCreateUseCase

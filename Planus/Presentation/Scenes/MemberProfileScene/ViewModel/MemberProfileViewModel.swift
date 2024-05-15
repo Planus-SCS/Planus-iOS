@@ -16,7 +16,7 @@ extension MemberProfileViewModel {
     }
 }
 
-final class MemberProfileViewModel: ViewModel {
+final class MemberProfileViewModel: ViewModelable {
     
     struct UseCases {
         let createMonthlyCalendarUseCase: CreateMonthlyCalendarUseCase

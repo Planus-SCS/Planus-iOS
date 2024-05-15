@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
     
-    let tokenRepository: TokenRepository
+    private let tokenRepository: TokenRepository
     
     init(tokenRepository: TokenRepository) {
         self.tokenRepository = tokenRepository
@@ -19,7 +19,7 @@ final class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
     func execute<T>(executable: @escaping (Token) -> Single<T>?) -> Single<T> {
         return getToken()
             .flatMap { token -> Single<T> in
-                return executable(token) ?? Single.error(DefaultError.noThingExecutable)
+                return executable(token) ?? Single.error(DefaultError.nilExecutable)
             }
             .handleRetry(
                 retryObservable: self.refreshTokenIfNeeded(),
@@ -30,13 +30,13 @@ final class DefaultExecuteWithTokenUseCase: ExecuteWithTokenUseCase {
 
 private extension DefaultExecuteWithTokenUseCase {
     enum DefaultError: Error {
-        case noThingExecutable
+        case nilExecutable
     }
     
     func getToken() -> Single<Token> {
         return Single<Token>.create { [weak self] emitter -> Disposable in
             guard let token = self?.tokenRepository.get() else {
-                emitter(.failure(TokenError.noTokenExist))
+                emitter(.failure(TokenError.noneExist))
                 return Disposables.create()
             }
             emitter(.success(token))
@@ -47,7 +47,7 @@ private extension DefaultExecuteWithTokenUseCase {
     func refreshTokenIfNeeded() -> Single<Token> {
         return tokenRepository.refresh()
             .map { [weak self] dto in
-                let token = dto.data.toDomain()
+                let token = dto.toDomain()
                 self?.tokenRepository.set(token: token)
                 return token
             }

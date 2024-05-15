@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultGetTokenUseCase: GetTokenUseCase {
-    let tokenRepository: TokenRepository
+    private let tokenRepository: TokenRepository
     
     init(tokenRepository: TokenRepository) {
         self.tokenRepository = tokenRepository
@@ -18,7 +18,7 @@ final class DefaultGetTokenUseCase: GetTokenUseCase {
     func execute() -> Single<Token> {
         Single.create { [weak self] emitter -> Disposable in
             guard let token = self?.tokenRepository.get() else {
-                emitter(.failure(TokenError.noTokenExist))
+                emitter(.failure(TokenError.noneExist))
                 return Disposables.create()
             }
             emitter(.success(token))

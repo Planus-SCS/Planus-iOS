@@ -8,19 +8,16 @@
 import Foundation
 
 public enum NetworkManagerError: Error, Equatable {
-    case httpRequestError
-    case httpResponseError
     case redirection(Int, String?)
     case clientError(Int, String?)
     case serverError(Int, String?)
-    case unMatchingCodableTypeError
+    case unKnown(Int, String?)
     case invalidURLFormatError
     case httpBodyEncodingError
-    case nilDataError
+    case nilResponseData
     case tokenExpired
-    case unKnownError(Int, String?)
 }
 
 enum TokenError: Error, Equatable {
-    case noTokenExist
+    case noneExist
 }

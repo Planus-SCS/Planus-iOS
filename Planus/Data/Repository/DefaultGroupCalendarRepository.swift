@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultGroupCalendarRepository: GroupCalendarRepository {
     
-    let apiProvider: APIProvider
+    private let apiProvider: APIProvider
     
     init(apiProvider: APIProvider) {
         self.apiProvider = apiProvider
@@ -34,7 +34,7 @@ final class DefaultGroupCalendarRepository: GroupCalendarRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<[SocialTodoSummaryResponseDTO]>.self
         )
@@ -57,7 +57,7 @@ final class DefaultGroupCalendarRepository: GroupCalendarRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<SocialTodoDailyListResponseDTO>.self
         )
@@ -74,7 +74,7 @@ final class DefaultGroupCalendarRepository: GroupCalendarRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<SocialTodoDetailResponseDTO>.self
         )
@@ -92,7 +92,7 @@ final class DefaultGroupCalendarRepository: GroupCalendarRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TodoResponseDataDTO>.self
         )
@@ -113,7 +113,7 @@ final class DefaultGroupCalendarRepository: GroupCalendarRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TodoResponseDataDTO>.self
         )
@@ -133,7 +133,7 @@ final class DefaultGroupCalendarRepository: GroupCalendarRepository {
             ]
         )
         
-        return apiProvider.requestCodable(
+        return apiProvider.request(
             endPoint: endPoint,
             type: ResponseDTO<TodoResponseDataDTO>.self
         )

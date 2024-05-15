@@ -9,9 +9,9 @@ import UIKit
 
 class MyPageReadableViewController: UIViewController {
     
-    var viewModel: MyPageReadableViewModel?
+    private var viewModel: MyPageReadableViewModel?
     
-    var textView: UITextView = {
+    private let textView: UITextView = {
         let textView = UITextView(frame: .zero)
         textView.isEditable = false
         textView.font = UIFont(name: "Pretendard-Regular", size: 16)
@@ -27,7 +27,7 @@ class MyPageReadableViewController: UIViewController {
         return textView
     }()
     
-    lazy var backButton: UIBarButtonItem = {
+    private lazy var backButton: UIBarButtonItem = {
         let image = UIImage(named: "back")
         let item = UIBarButtonItem(image: image, style: .plain, target: nil, action: nil)
         item.tintColor = .planusBlack

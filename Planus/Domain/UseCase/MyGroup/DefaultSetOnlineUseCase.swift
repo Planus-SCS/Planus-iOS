@@ -10,9 +10,9 @@ import RxSwift
 
 final class DefaultSetOnlineUseCase: SetOnlineUseCase {
 
-    let myGroupRepository: MyGroupRepository
+    private let myGroupRepository: MyGroupRepository
     
-    var didChangeOnlineState = PublishSubject<(Int, Int)>()
+    let didChangeOnlineState = PublishSubject<(Int, Int)>()
     
     init(myGroupRepository: MyGroupRepository) {
         self.myGroupRepository = myGroupRepository

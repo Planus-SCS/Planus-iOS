@@ -10,7 +10,7 @@ import RxSwift
 
 final class DefaultTodoCompleteUseCase: TodoCompleteUseCase {
 
-    let todoRepository: TodoRepository
+    private let todoRepository: TodoRepository
     let didCompleteTodo = PublishSubject<Todo>()
     
     init(todoRepository: TodoRepository) {

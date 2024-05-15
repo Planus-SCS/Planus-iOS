@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 final class DefaultReadCategoryListUseCase: ReadCategoryListUseCase {
-    let categoryRepository: CategoryRepository
+    private let categoryRepository: CategoryRepository
     
     init(categoryRepository: CategoryRepository) {
         self.categoryRepository = categoryRepository

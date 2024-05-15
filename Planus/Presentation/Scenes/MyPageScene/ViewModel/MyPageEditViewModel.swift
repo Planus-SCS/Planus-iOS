@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-final class MyPageEditViewModel: ViewModel {
+final class MyPageEditViewModel: ViewModelable {
     struct UseCases {
         let executeWithTokenUseCase: ExecuteWithTokenUseCase
         let readProfileUseCase: ReadProfileUseCase
